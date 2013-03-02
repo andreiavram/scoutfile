@@ -1,0 +1,91 @@
+{% load dajaxice_templatetags %}
+{% load static from staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta name="viewport" content="width=device-width">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>ScoutFile v3</title>
+
+		
+		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+		<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel = 'stylesheet' />
+		<!--  <script src="{{ STATIC_URL }}js/jquery-1.7.2.min.js" type = "text/javascript" charset="utf-8"></script> !-->
+		<script src = '{% static "dajax/jquery.dajax.core.js" %}'></script>
+
+	    <!-- Le styles -->
+	    <link href="{{ STATIC_URL }}/css/bootstrap.css" rel="stylesheet" type = "text/css">
+	    <link href="{{ STATIC_URL }}/css/bootstrap-responsive.css" rel="stylesheet" type = "text/css">
+	    <link href="{{ STATIC_URL }}/css/font-awesome.css" rel="stylesheet" type = "text/css">
+	    
+	    <script src = "{{ STATIC_URL }}/js/bootstrap.min.js"></script>
+	
+	    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+	    <!--[if lt IE 9]>
+	      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	    <![endif]-->
+	    <link rel = "stylesheet" href = "{{ STATIC_URL}}css/layout.css" type = "text/css" media = "all" />
+	    
+	    {% dajaxice_js_import %}
+	    
+	    <script type = 'text/javascript' src = "{{ STATIC_URL }}js/ajax_select.js"></script>
+	    <link type = "text/css" href = "{{ STATIC_URL }}css/ajax_select.css" rel = "stylesheet">
+	    
+		{% block extrahead %}
+		{% endblock %}
+	</head>
+	<body>
+	    <div class="navbar navbar-fixed-top">
+	   	 	<div class="navbar-inner">
+	    		<div class="container">
+	    		    <a class="brand" href="{% url index %}">
+				    	ScoutFile
+				    </a>
+	    			{% include 'top_menu.html' %}
+	    		</div>
+	    	</div>
+	    </div>
+		<div id = "content-wrapper" class = "container-fluid" style = "min-height: 500px">
+			<div class = "row">
+				<div id="menu" class="span2">
+					{% block context_menu %}
+						&nbsp;
+					{% endblock %}
+				</div>
+				
+				<div id="content" class = "span10">
+					<div id="content-inner">
+						<div class = "page-header">
+							<h1>{% block page_title %}ScoutFile{% endblock %}</h1>
+						</div>
+						<div id = "message_container">
+						{% if messages %}
+						    {% for message in messages %}
+						    	<div id = "msg_{{ forloop.count }}" {% if message.tags %} class="django-message alert alert-{{ message.tags }}"{% endif %}>
+						    		{{ message }}
+						    		<a class="close" data-dismiss="alert" href="#">&times;</a>
+						    	</div>
+						    {% endfor %}
+						{% endif %}
+					    <script type = "text/javascript">
+					    	function hide_messages() {
+								jQuery(".django-message").hide("fast");					    		
+					    	}
+					    	setTimeout("hide_messages()", 1000 * 3);
+					    </script>
+						</div>
+						
+						{% block content %}
+						{% endblock %}
+					</div>
+				</div>
+			</div>
+		</div>
+	
+		<div id="footer" style = "margin-bottom: 10px;"><div id="footer-inner">&copy; 2012 <a href = "http://yeti.albascout.ro">yeti</a>. Gata oricând! Variantă de testare - <a href = "{% url issues %}"><i class = "icon-exclamation-sign"></i> Ai dat de o problemă?</a></a></div></div>
+		{% block extrajs %}
+		{% endblock %}
+	</body>
+</html>

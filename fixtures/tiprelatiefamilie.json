@@ -1,0 +1,1 @@
+[{"pk": 1, "model": "structuri.tiprelatiefamilie", "fields": {"nume": "P\u0103rinte", "reverse_relationship": 2}}, {"pk": 2, "model": "structuri.tiprelatiefamilie", "fields": {"nume": "Copil", "reverse_relationship": 1}}, {"pk": 3, "model": "structuri.tiprelatiefamilie", "fields": {"nume": "Frate", "reverse_relationship": 3}}]
