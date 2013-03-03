@@ -1,0 +1,80 @@
+<script type="text/javascript" src="{% url generic:js_delete app_label='structuri',model='AsociereMembruStructura' %}"></script>
+<a href="{% url structuri:membru_afiliere_add pk=object.id %}"
+	class="btn btn-primary"><i class="icon-plus-sign icon-white"></i>
+	Adaugă afiliere</a>
+<h4>Curente</h4>
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>Structură</th>
+			<th>Membru de la</th>
+			<th>Relație</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for afiliere in object.afilieri_curente %}
+		<tr id="row_{{ object.id }}">
+			<td>{{ forloop.counter }}</td>
+			<td>{{ afiliere.content_object }}</td>
+			<td>{{ afiliere.moment_inceput|date:"j F Y" }} ({{ afiliere.moment_inceput|timesince }})</td>
+			<td>{{ afiliere.tip_asociere }}</td>
+			<td>
+				<div class="btn-group pull-right">
+					<a class="btn btn-mini" href="{% url structuri:membru_afiliere_edit pk=afiliere.id %}"><i class="icon-pencil"></i></a> 
+						<a class="btn btn-mini" id="delete_{{ afiliere.id }}" href="javascript:void()"><i class="icon-trash"></i></a>
+				</div>
+			</td>
+		</tr>
+		{% empty %}
+		<tr>
+			<td>&nbsp;</td>
+			<td><em>Nu există nicio informație cu privire la acest
+					membru. Este membru?</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+
+</table>
+<h4>Din trecut</h4>
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>Structură</th>
+			<th>Perioada</th>
+			<th>Relație</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for afiliere in object.afilieri_trecute %}
+		<tr id="row_{{ object.id }}">
+			<td>{{ forloop.counter }}</td>
+			<td>{{ afiliere.content_object }}</td>
+			<td>{{ afiliere.moment_incheiere|timeuntil:afiliere.moment_inceput }}<br />
+			<span style="font-size: 10px">{{ afiliere.moment_inceput|date:"j F Y" }} - {{ afiliere.moment_incheiere|date:"j F Y" }}</span>
+			</td>
+			<td>{{ afiliere.tip_asociere }}</td>
+			<td>
+				<div class="btn-group pull-right">
+						<a class="btn btn-mini" href="{% url structuri:membru_afiliere_edit pk=afiliere.id %}"><i class="icon-pencil"></i></a> 
+						<a class="btn btn-mini" id="delete_{{ afiliere.id }}" href="javascript:void()"><i class="icon-trash"></i></a>
+				</div>
+			</td>
+		</tr>
+		{% empty %}
+		<tr>
+			<td>&nbsp;</td>
+			<td><em>Nu există nicio informație închisă cu privire la acest membru. </td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>

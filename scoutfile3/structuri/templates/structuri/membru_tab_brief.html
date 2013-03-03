@@ -1,0 +1,28 @@
+<div class = "row">
+	<div class = "span3">
+	{% if object.poza_profil %}
+		<img class = "thumbnail" src = "{{ object.poza_profil.get_profile_picture_url }}" />
+	{% else %}
+		<img class = "thumbnail" src = "http://www.placehold.it/240x320/ffffff" />
+	{% endif %}
+	</div>
+	<div class = "span7">
+		<dl>
+			<dt>Nume</dt>
+				<dd>{{ object.nume_complet }} ({{ object.cnp }})</dd>
+			<dt>E-mail</dt>
+				<dd><a href = "mailto:{{ object.email }}"><i class = "icon-envelope"></i> {{ object.email }}</a></dd>
+			<dt>Telefon</dt>
+				<dd>{{ object.telefon }}</dd>
+			<dt>Adresa</dt>
+				<dd>{{ object.adresa }}</dd>
+			<dt>Ramura de vârstă</dt>
+				<dd>{{ object.get_ramura_de_varsta }}</dd>
+			<dt>Data nașterii</dt>
+				<dd>{{ object.data_nasterii|date:"l, d F Y" }}</dd>
+				<dd>{{ object.data_nasterii|timesince }}</dd>
+			<dt>Centrul Local</dt>
+				<dd>{{ object.centru_local }}</dd>
+		</dl>
+	</div>
+</div>

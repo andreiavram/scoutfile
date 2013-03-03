@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load pagination_tags %}
+
+{% block page_title %}
+	Arhiva foto
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+	</ul>
+{% endblock %}
+
+{% block content %}
+	<ul class = "unstyled span11">
+	{% autopaginate object_list 4 as object_list %}
+	{% for eveniment in object_list %}
+		<li class = "span11">
+			<div class = "row" style = "position:relative;">
+				<div class = "span3">
+					<a href = "{% url album:eveniment_detail slug=eveniment.slug %}">
+						<img class = "thumbnail" src = "{{ eveniment.cover_photo.get_thumbnail_url }}" />
+					</a>
+				</div>
+				<div class = "span8" style = "position: relative">
+					<h2><a href = "{% url album:eveniment_detail slug=eveniment.slug %}">{{ eveniment }}</a></h2>
+					{% if eveniment.descriere %}<p>{{ eveniment.descriere }}</p>{% endif %} 
+					<p>Conține {{ eveniment.total_poze }} fotografii de la {{ eveniment.get_autori|length }} fotografi <i class = "icon-star"></i> 
+					A început {{ eveniment.start_date|date:"l, d F Y" }} și a ținut până {{ eveniment.end_date|date:"l, d F Y" }} <i class = "icon-star"></i> {% for autor in eveniment.get_autori %}<a href = "{% url album:eveniment_detail slug=eveniment.slug %}?autor={{ autor }}">{{ autor }}</a> <i class = 'icon-star'></i> {% endfor %}</p>
+					<div class = "btn-group">
+						<a href = "{% url album:eveniment_detail slug=eveniment.slug %}" class = "btn btn-primary"><i class = "icon-white icon-picture"></i> Deschide</a>
+						<a href = "{% url album:eveniment_stats pk=eveniment.id %}" class = "btn"><i class = "icon-th"></i> Statistici</a>
+					</div>
+				</div>
+			</div>
+		</li>
+	{% endfor %}
+	</ul>
+	{% paginate %}
+{% endblock %}

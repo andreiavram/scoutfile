@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block extrahead %}
+	<script type = "text/javascript">
+		function after_vote(data) {
+			console.log(data);
+			jQuery("#score_" + data.picture_id).html(data.current_score);
+		}
+	
+		jQuery(document).ready(function () {
+			jQuery(".thumbs_up").click(function (event) {
+				console.log("thumbs_up");
+				Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id" : jQuery(this).data("image"), "score" : 1});
+				event.preventDefault();
+				return false;
+			});
+			
+			jQuery(".thumbs_down").click(function (event) {
+				Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id" : jQuery(this).data("image"), "score" : -1});
+				event.preventDefault();
+				return false;
+			});
+			
+			$(document).keydown(function(e){
+			    {% if prev_photo %}
+			    if (e.keyCode == 37) { 
+			       	window.location.href = "{% url album:poza_detail pk=prev_photo.id %}{% if autor %}?autor={{ autor }}{% endif %}";
+			    }
+			    {% endif %}
+			    
+			    {% if next_photo %}
+			    if (e.keyCode == 39) {
+			    	window.location.href = "{% url album:poza_detail pk=next_photo.id %}{% if autor %}?autor={{ autor }}{% endif %}";
+			    }
+			    {% endif %}
+			    return false;
+			});			
+		});
+		
+	</script>
+{% endblock %}
+
+{% block page_title %}
+	{% if object.titlu %}{{ object.titlu }}{% else %}Imagine{% endif %}
+	<div class = "pull-right btn-toolbar">
+		<div class = "btn-group">
+			<a href = "{% url album:zi_detail pk=object.get_day.id %}?page={{ zi_page }}" class = "btn"><i class = "icon-chevron-up"></i></a>
+		</div>
+		<div class = "btn-group">
+			<a href = "javascript:void()" class = "btn thumbs_up" data-image = "{{ object.id }}"><i class = "icon-thumbs-up"></i></a>
+			<a href = "javascript:void()" class = "btn" id = "score_{{ object.id }}">{{ object.score }}</a>
+			<a href = "javascript:void()" class = "btn thumbs_down" data-image = "{{ object.id }}"><i class = "icon-thumbs-down"></i></a>
+		</div>
+		<div class = "btn-group">
+			<a href = "{% url album:poza_rotate pk=object.id %}?direction=ccw" class = "btn"><i class = "icon-arrow-left"></i> <i class = "icon-refresh"></i></a>
+			<a href = "{% url album:poza_rotate pk=object.id %}?direction=cw" class = "btn"><i class = "icon-arrow-right"></i> <i class = "icon-refresh"></i></a>
+			<a href = "{{ object.image.url }}" class = "btn"><i class = "icon-picture"></i> {{ object.resolution_x }} x {{ object.resolution_y }}</a>
+			<a href = "{{ object.get_profile_url }}" class = "btn"><i class = "icon-picture"></i> Profil</a>
+		</div>
+	</div>
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Acțiuni</li>
+		<li class = "disabled"><a href = ""><i class = "icon-download"></i> Download toate</a>
+		<li class = "disabled"><a href = ""><i class = "icon-download-alt"></i> Torrent</a>
+		<li class = "nav-header">Locații</li>
+		<li><a href = "{% url album:eveniment_detail slug=object.set_poze.eveniment.slug %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ object.set_poze.eveniment }}</a></li>
+		<li><a href = "{% url album:zi_detail pk=object.get_day.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ object.get_day }}</a></li>
+	</ul>
+	<dl>
+		{% for exif in object.interesting_exifdata %}
+			<dt>{{ exif.key }}</dt>
+				<dd>{{ exif.value }}</dd>
+		{% endfor %}
+		<dt>Autor</dt>
+			<dd>{{ object.set_poze.autor }}</dd>
+	</dl>
+{% endblock %}
+
+{% block content %}
+	<div class = "image-container" style = "position: relative; max-width: 960px;">
+		<img src = "{{ object.get_large_url }}?{{ random_value }}" style = "width: 100%;" />
+		{% if next_photo %}
+			<div style = "position: absolute; right: 10px; top: 10px; padding: 3px 6px; background: #000; border: 1px solid #666">
+				<a href = "{% url album:poza_detail pk=next_photo.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-chevron-right icon-white"></i></a>
+			</div>
+		{% endif %}
+		{% if prev_photo %}
+			<div style = "position: absolute; left: 10px; top: 10px; padding: 3px 6px; background: #000; border: 1px solid #666">
+				<a href = "{% url album:poza_detail pk=prev_photo.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-chevron-left icon-white"></i></a>
+			</div>
+		{% endif %}
+		
+		<div style = "bottom: 5px; right: 10px; position: absolute; background: #000; color: #fff; border: 1px solid #666; opacity: 0.7; padding: 5px 10px;">&copy; {{ object.data|date:"Y" }}, {{ object.set_poze.autor }}</div>
+	</div>
+{% endblock %}

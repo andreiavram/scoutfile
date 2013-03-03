@@ -1,0 +1,45 @@
+<div class = "row">
+	<div class = "span2">
+	<h4>Pe scurt</h4>
+	<dl>
+		<dt>Total membri</dt>
+			<dd>{{ object.total_membri_activi }}</dd>
+	
+		<dt>Ramura de vârstă</dt>
+			<dd>{{ object.ramura_de_varsta }}</dd>
+	</dl>
+	</div>
+	<div class = "span8">
+		<h4>Lideri</h4>
+		<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>Nume</th>
+			<th>Lider de</th>
+			<th>Poziție</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for object in object_list %}
+		<tr id = "row_{{ object.id }}">
+			<td>{{ forloop.counter }}</td>
+			<td>{{ object.membru }}</td>
+			<td>{{ object.moment_inceput|date:"j F Y" }} ({{ object.moment_inceput|timesince }})</td>
+			<td>{{ object.tip_asociere }}</td>
+		</tr>
+		{% empty %}
+		<tr>
+			<td>&nbsp;</td>
+			<td><em>Nu sunt înregistrați lideri. Adăugați un lider nou <a href = "{% url structuri:unitate_lider_add pk=object.id %}"><i class = "icon-plus-sign"></i> aici</a>.</em></td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+
+</table>
+	
+	</div>
+</div>

@@ -1,0 +1,32 @@
+<a class = "btn btn-primary" href = "{% url structuri:unitate_patrula_add pk=unitate.id %}"><i class = "icon-plus-sign icon-white"></i> Adaugă patrulă</a>
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>Nume</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for object in object_list %}
+		<tr id = "row_{{ object.id }}">
+			<td>{{ forloop.counter }}</td>
+			<td><a href = "{% url structuri:patrula_detail pk=object.id %}">{{ object }}</a></td>
+			<td>    
+				<div class="btn-group pull-right">
+				    <a class = "btn btn-mini" href = "{% url structuri:patrula_edit pk=object.id %}"><i class = "icon-pencil"></i></a>
+				    <a href = "{% url structuri:patrula_delete pk=object.id %}" class = "btn btn-mini" id = "delete_{{ object.id }}"><i class = "icon-trash"></i></a>
+			    </div>
+			</td>
+		</tr>
+		{% empty %}
+		<tr>
+			<td>&nbsp;</td>
+			<td><em>Unitatea nu are patrule. Adăugați una noua de <a href = "{% url structuri:unitate_patrula_add pk=unitate.id %}"><i class = "icon-plus-sign"></i> aici</a>.</em></td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+
+</table>

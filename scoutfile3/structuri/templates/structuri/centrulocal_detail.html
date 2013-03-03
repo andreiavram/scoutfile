@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load tab_tags %}
+
+{% block page_title %}
+	{{ object }}
+{% endblock %}
+
+{% block extrahead %}
+	{% tab_js %}
+	<script type = "text/javascript">
+		jQuery(document).ready(function () {
+			jQuery(".tooltip-target").tooltip();
+		});
+	</script>
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Acțiuni</li>
+		<li><a href = "{% url structuri:cl_edit pk=object.id %}"><i class = "icon-pencil"></i> Modifică</a>
+		<li><a href=  "{% url structuri:cl_delete pk=object.id %}"><i class = "icon-trash"></i> Șterge</a>
+		
+		
+		<li class = "nav-header">Locații</li>
+		<li><a href = "{% url structuri:cl_membri pk=object.id %}"><i class = "icon-user"></i> Membri</a></li>
+		
+		<li class = "nav-header">Membri</li>
+		<li><a href = "{% url structuri:cl_membru_add pk=object.id %}"><i class = "icon-user"></i> Adaugă membru</a></li>
+		<li><a href = "{% url structuri:cl_lider_add pk=object.id %}"><i class = "icon-user"></i> Adaugă lider</a></li>
+		
+		{% comment %}		
+		<li class = "nav-header">Documente</li>
+		<li><a href = "{% url structuri:cl_cotizatii pk=object.id %}"><i class = "icon-file"></i> Cotizații</a></li>
+		<li><a href = "{% url structuri:cl_numere pk=object.id %}"><i class = "icon-file"> Registre</i></a></li>
+		<li><a href = "{% url structuri:cl_altele pk=object.id %}"><i class = "icon-file"> Altele</i></a></li>
+		{% endcomment %}
+			
+	</ul>
+{% endblock %}
+
+
+
+{% block content %}
+
+   	{% print_tabs tabs active_tab %}
+{% endblock %}
