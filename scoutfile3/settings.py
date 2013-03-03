@@ -18,6 +18,9 @@ ADMINS = (
 MANAGERS = ADMINS
 
 
+components =  os.path.abspath(__file__).split(os.sep)[:-2]
+FILE_ROOT = str.join(os.sep, components)
+
 if DEVELOPMENT:
     DATABASES = {
         'default': {
@@ -33,7 +36,7 @@ if DEVELOPMENT:
         }
     }
     
-    FILE_ROOT = "/home/yeti/Workspace/scoutfile3/"
+#     FILE_ROOT = "/home/yeti/Workspace/scoutfile3/"
     URL_ROOT = "http://localhost/"
     DAJAXICE_MEDIA_PREFIX = "dajaxice"
 
@@ -52,7 +55,7 @@ else:
         }
     }
     
-    FILE_ROOT = "/yetiweb/scoutfile/"
+#     FILE_ROOT = "/yetiweb/scoutfile/"
     URL_ROOT = "http://projects.albascout.ro/"
     DAJAXICE_MEDIA_PREFIX = "dajaxice"
     
@@ -82,7 +85,7 @@ USE_L10N = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = '%smedia/' % FILE_ROOT
+MEDIA_ROOT = '%s/media/' % FILE_ROOT
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -93,7 +96,7 @@ MEDIA_URL = '%smedia/scoutfile/' % URL_ROOT
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = '%sstatic/' % FILE_ROOT
+STATIC_ROOT = '%s/static/' % FILE_ROOT
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -149,7 +152,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    ("%stemplates" % FILE_ROOT),
+    ("%s/templates" % FILE_ROOT),
 )
 
 
@@ -184,7 +187,9 @@ INSTALLED_APPS = (
     'ajax_select', "tagging", 'pagination', 'less',
     
     'scoutfile3.structuri', 'scoutfile3.generic', 'scoutfile3.album',
-    'scoutfile3.patrocle', 'scoutfile3.documente',  
+    'scoutfile3.patrocle', 'scoutfile3.documente',
+    
+    'raven.contrib.django.raven_compat',  
 )
 
 
@@ -267,15 +272,20 @@ FIXTURE_DIRS = ["%s/fixtures" % FILE_ROOT, ]
 #    },
 #}
 
+
+RAVEN_CONFIG = {
+    'dsn': 'http://cce06e32cfae4025af7c2b39b889bc27:79ab9be2ff1e428babc298166b5ad9f5@sentry.albascout.ro//2',
+}
+
 AUTH_PROFILE_MODULE = 'structuri.Utilizator'
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/edit/"
 
-SYSTEM_EMAIL = "sistem@scout.ro"
-SERVER_EMAIL = "sistem@scout.ro"
+SYSTEM_EMAIL = "sistem@albascout.ro"
+SERVER_EMAIL = "sistem@albascout.ro"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = "587"
-EMAIL_HOST_USER = "sistem@scout.ro"
+EMAIL_HOST_USER = "sistem@albascout.ro"
 EMAIL_HOST_PASSWORD = "yetiRulz1_"
 EMAIL_USE_TLS = True
 
@@ -299,3 +309,4 @@ REDMINE_API_KEY = "f393aac0746069a9de25eb251b0171b1ff1ed793"
 
 VALOARE_IMPLICITA_COTIZATIE_LOCAL = 0
 VALOARE_IMPLICITA_COTIZATIE_NATIONAL = 50
+
