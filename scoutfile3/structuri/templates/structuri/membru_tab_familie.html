@@ -1,0 +1,67 @@
+<script type = "text/javascript" src = "{% url generic:js_delete app_label='structuri',model='AsociereMembruFamilie' %}"></script>
+<script type = "text/javascript" src = "{% url generic:js_delete app_label='structuri',model='PersoanaDeContact' %}?prefix=pdc"></script>
+<div class = "btn-group">
+	<a class = "btn btn-primary" href = "{% url structuri:membru_add_familie pk=object.id %}"><i class = "icon-white icon-plus-sign"></i> Adaugă (membri)</a>
+	<a class = "btn btn-primary" href = "{% url structuri:membru_add_pdc pk=object.id %}"><i class = "icon-plus-sign"></i> Adaugă (non-membri)</a>
+</div>
+
+<table class = "table table-striped">
+	<thead>
+		<tr>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+	</thead>
+	<tbody>
+		{% for obj in object_list %}
+		<tr>
+			<td style = "width: 60px"><img class = "thumbnail" src = "{% if obj.persoana_destinatie.poza_profil %}{{ obj.persoana_destinatie.poza_profil.get_profil_mic_url }}{% else %}http://placehold.it/50x50/ffffff{% endif %}" /></td>
+			<td style = "width: 10px">{% for badge in obj.persoana_destinatie.get_badges_rdv %}<img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" /> {% endfor %}
+			<td> <a href = "{% url structuri:membru_detail pk=obj.persoana_destinatie.id %}#familie">{{ obj.persoana_destinatie }}</a>, {{ obj.tip_relatie|lower }}
+			{% for badge in obj.persoana_destinatie.get_extra_badges %}<img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
+			
+			</td>
+			<td>
+				<div class = "btn-group pull-right">
+					<a class = "btn btn-mini" href ="{% url structuri:membru_edit_familie pk=obj.id,mpk=object.id %}"><i class = "icon-pencil"></i></a>
+					<a class = "btn btn-mini" href ="#" id = "delete_{{ obj.id }}"><i class = "icon-trash"></i></a>
+				</div>
+			</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+{% if nonmembru_object_list %}
+<hr />
+<h4>Persoane de contact</h4>
+<table class = "table table-striped">
+	<thead>
+		<tr>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+	</thead>
+	<tbody>
+		{% for obj in nonmembru_object_list %}
+		<tr>
+			<td style = "width: 60px"></td>
+			<td style = "width: 10px"></td>
+			<td>{{ obj.nume }}, {{ obj.tip_relatie }}<br />
+			{% if obj.telefon %}<i class = "icon-phone"></i> {{ obj.telefon }}<br />{% endif %}
+			{% if obj.email %}<a href = "mailto:{{ obj.email }}"><i class = "icon-envelope"></i> {{ obj.email }}</a><br />{% endif %}
+			{% if obj.job %}<strong>Loc de muncă, profesie: </strong> {{ obj.job }}<br />{% endif %}
+			{% if obj.note %}<br /><span style = "font-size: 10px;">{{ obj.note }}</span>{% endif %}</td>
+			<td>
+				<div class = "btn-group pull-right">
+					<a class = "btn btn-mini" href ="{% url structuri:membru_edit_pdc pk=obj.id,mpk=object.id %}"><i class = "icon-pencil"></i></a>
+					<a class = "btn btn-mini" href ="#" id = "pdc_{{ obj.id }}"><i class = "icon-trash"></i></a>
+				</div>
+			</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endif %}

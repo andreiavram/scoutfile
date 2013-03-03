@@ -1,0 +1,11 @@
+Salutare {{ membru }},
+
+Cererea ta pentru un cont ScoutFile a fost respinsa de un lider. Iti reamintim ca trebuie sa fii
+
+* membru al ONCR la momentul inscrierii
+* membru al unui Centru Local
+
+Daca crezi ca s-a produs o greseala, te rugam sa iei legatura cu liderii din {{ membru.centru_local }}.
+
+Numai bine,
+yeti 

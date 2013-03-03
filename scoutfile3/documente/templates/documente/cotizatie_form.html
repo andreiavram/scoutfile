@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+	Adaugă cotizație
+{% endblock %}
+
+{% block extrahead %}
+	<link type = "text/css" href = "{{ STATIC_URL }}css/datepicker.css" rel = "stylesheet"/>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-datepicker.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-datepicker-activate.js"></script>
+{% endblock %}
+
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Acțiuni</li>
+		<li><a href =  "#"><i class = "icon-chevron-left">Lista de documente</i></a></li>
+	</ul>
+{% endblock %}
+
+{% block content %}
+	Cotizație pentru <strong>{{ object }}</strong>, stare curentă {{ object.status_cotizatie }}<br /><br />
+	{% crispy form form.helper %}
+{% endblock %}

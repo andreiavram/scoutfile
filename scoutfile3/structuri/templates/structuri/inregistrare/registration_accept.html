@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+	Aprobare înregistrare pentru {{ object }}
+{% endblock %}
+
+{% block content %}
+	<dl>
+		<dt>Nume</dt>
+			<dd>{{ object }}</dd>
+		<dt>Data nașterii</dt>
+			<dd>{{ object.data_nasterii|date:"d F Y" }} ({{ object.data_nasterii|timesince }})</dd>
+		<dt>Sex</dt>
+			<dd>{{ object.get_sex_display }}</dd>
+		<dt>Adresa</dt>
+			<dd>{{ object.adresa }}</dd>
+		<dt>Email</dt>
+			<dd><a href = "mailto:{{ object.email }}"><i class = "icon-envelope"></i> {{ object.email }}</a></dd>
+		{% if object.telefon %}
+		<dt>Telefon</dt>
+			<dd>{{ object.telefon }}</dd>
+		{% endif %}
+		<br />
+		<dt>Momente înregistrare</dt>
+			<dd><strong>Completare formular:</strong> {{ object.timestamp_registered|timesince }}</dd>
+			<dd><strong>Confirmare email:</strong> {{ object.timestamp_confirmed|timesince }}</dd>
+		<br />
+		<dt>Asocieri propuse</dt>
+			<dd>{{ object.centru_local }}</dd>
+			<dd>{{ object.get_unitate }}</dd>
+	</dl>
+	{% crispy form form.helper %}
+{% endblock %}

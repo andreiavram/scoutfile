@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load pagination_tags %}
+
+{% block page_title %}
+	Ziua {{ object.index }}{% if object.titlu %} - {{ object.titlu }}{% endif %}
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Acțiuni</li>
+		<li><a href = ""><i class = "icon-download"></i> Download toate</a>
+		<li><a href = ""><i class = "icon-download-alt"></i> Torrent</a>
+		<li class = "nav-header">Locații</li>
+		<li><a href = "{% url album:eveniment_detail slug=object.eveniment.slug %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ object.eveniment }}</a>
+		<li><a href = "{% url album:zi_stats pk=object.id %}"><i class = "icon-list-alt"></i> Statistici</a></li>
+		
+		<li class = 'nav-header'>Autori</li>
+		{% for autor in object.eveniment.get_autori %}
+			<li><a href = "{% url album:zi_detail pk=object.id %}?autor={{ autor }}"><i class = "icon-user"></i>  {{ autor }}</a></li>
+		{% endfor %}
+		<li><a href = "{% url album:zi_detail pk=object.id %}">Toți autorii</a></li>
+	</ul>
+{% endblock %}
+
+
+
+{% block extrahead %}
+	<script type = "text/javascript">
+		function after_vote(data) {
+			console.log(data);
+			jQuery("#score_" + data.picture_id).html(data.current_score);
+		}
+	
+		jQuery(document).ready(function () {
+			jQuery(".thumbs_up").click(function (event) {
+				console.log("thumbs_up");
+				Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id" : jQuery(this).data("image"), "score" : 1});
+				event.preventDefault();
+				return false;
+			});
+			
+			jQuery(".thumbs_down").click(function (event) {
+				Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id" : jQuery(this).data("image"), "score" : -1});
+				event.preventDefault();
+				return false;
+			});
+								
+		});
+		
+	</script>
+{% endblock %}
+
+{% block content %}
+		{% autopaginate object_list 30 as object_list %}
+		<div class = "alert alert-info">Albumul pentru <a href = "{% url album:eveniment_detail slug=object.eveniment.slug %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ object.eveniment }}</a>, <strong>{{ object.filter_photos.count }}</strong> fotografii pentru {{ object.date|date:"l, d F Y" }}</div>
+		{% if autor %}<div class = "alert alert-success">Arăt doar pozele de la <strong>{{ autor }}</strong></div>{% endif %}
+		{% if object.descriere %}
+			<p>{{ object.descriere }}</p>
+		{% endif %}
+		
+		{% paginate %}
+		<ul class = "thumbnails">
+		{% for image in object_list %}
+			<li class = "span3" style = "position: relative;">
+				<a href = "{% url album:poza_detail pk=image.id %}{% if autor %}?autor={{ autor }}{% endif %}" class = 'thumbnail'>
+					<img src = "{{ image.get_thumbnail_url }}" />
+				</a>
+				<div class = "btn-group" style = "position: absolute; left: 10px; bottom: 10px; opacity: 1" id = "picture_{{ image.id }}">
+					<a href = "javascript:void()" class = "btn btn-mini thumbs_up" data-image = "{{ image.id }}"><i class = "icon-thumbs-up"></i></a>
+					<a href = "javascript:void()" class = "btn btn-mini" id = "score_{{ image.id }}">{{ image.score }}</a>
+					<a href = "javascript:void()" class = "btn btn-mini thumbs_down" data-image = "{{ image.id }}"><i class = "icon-thumbs-down"></i></a>
+				</div>
+				<div class = "btn-group" style = "position: absolute; right: 10px; bottom: 10px; opacity: 1">
+					<a href = "{% url album:poza_flag pk=image.id %}" class = "btn btn-mini flag" data-image = "{{ image.id }}"><i class = "icon-flag"></i></a>
+				</div>
+			</li>
+		{% endfor %}
+		</ul>
+		{% paginate %}
+{% endblock %}

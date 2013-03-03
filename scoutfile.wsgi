@@ -3,19 +3,36 @@ import sys
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'scoutfile3.settings'
 
-if os.path.exists("/etc/DJANGO_DEV_MACHINE"):
-	sys.path.append('/home/yeti/Workspace/scoutfile3/')
 
-	path = '/home/yeti/Workspace/scoutfile3/scoutfile3/'
-	if path not in sys.path:
-	    sys.path.append(path)
-else:
-	sys.path.append('/yetiweb/scoutfile/')
+components =  os.path.dirname(__file__).split(os.sep)
+PROJECT_ROOT = str.join(os.sep, components)
 
-	path = '/yetiweb/scoutfile/scoutfile3/'
+ALLDIRS = [ ]
+
+import sys 
+import site 
+
+# Remember original sys.path.
+prev_sys_path = list(sys.path) 
+
+# Add each new site-packages directory.
+for directory in ALLDIRS:
+  site.addsitedir(directory)
+
+# Reorder sys.path so new directories at the front.
+new_sys_path = [] 
+for item in list(sys.path): 
+    if item not in prev_sys_path: 
+        new_sys_path.append(item) 
+        sys.path.remove(item) 
+sys.path[:0] = new_sys_path 
+
+
+sys.path.append(PROJECT_ROOT + "/scoutfile3/")
+
+for path in paths:
 	if path not in sys.path:
-	    sys.path.append(path)
-	    
+		sys.path.append(path)
 
 import django.core.handlers.wsgi
 application = django.core.handlers.wsgi.WSGIHandler()

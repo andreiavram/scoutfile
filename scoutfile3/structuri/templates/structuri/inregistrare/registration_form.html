@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+	Înregistrare
+{% endblock %}
+
+{% block extrahead %}
+	<script type = "text/javascript">
+		function update_unitati(data) {
+			var html = "";
+			console.log(data);
+			for (var i = 0; i < data.unitati.length; i++) {
+				console.log(data.unitati[i].id, data.unitati[i].nume_complet);
+				html += "<option value = \"" + data.unitati[i].id + "\">" + data.unitati[i].nume_complet + "</option>\n";
+			}
+			
+			jQuery("#id_unitate").html(html);
+			console.log(html);
+			jQuery("#div_id_unitate").show("fast");
+		}
+	
+		jQuery(document).ready(function () {
+			jQuery("#div_id_unitate").hide();
+			
+			jQuery("#id_centrul_local").change(function() {
+				console.log(jQuery(this).val());
+				if (jQuery(this).val() != "") {
+					Dajaxice.scoutfile3.structuri.get_unitati(Dajax.process, {"id_centru_local" : jQuery(this).val()});
+				} else {
+					jQuery("#div_id_unitate").hide("fast");
+				}
+			});
+
+			if (jQuery("#id_centrul_local").val() != "") {
+				Dajaxice.scoutfile3.structuri.get_unitati(Dajax.process, {"id_centru_local" : jQuery("#id_centrul_local").val()})
+			}
+			
+		});
+	</script>
+{% endblock %}
+
+{% block content %}
+	<div class = "alert alert-info"><i class = "icon-bullhorn"></i> Pentru a te înregistra aici trebuie să fii deja membru al Organizației Naționale Cercetașii României</div>
+	{% crispy form form.helper %}
+{% endblock %}

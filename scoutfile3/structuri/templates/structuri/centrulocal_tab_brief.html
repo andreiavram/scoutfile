@@ -1,0 +1,26 @@
+<table class = "table table-striped">
+	<thead>
+		<tr>
+			<th>Titlu</th>
+			<th>Valoare</th>
+		</tr>
+	</thead>
+		<tr>
+			<td>Cercetași activi</td>
+			<td>{{ object.cercetasi|length }}</td>
+		</tr>
+		<tr>
+			<td>Preferințe corespondență</td>
+			<td>{{ object.get_preferinte_corespondenta_display }}</td>
+		</tr>
+		
+	<tbody>
+	</tbody>
+</table>
+{% if membri_spre_aprobare|length %}
+<h3>Membri spre aprobare</h3>
+{% with membri_spre_aprobare|slice:":5" as object_list %}
+	{% include 'structuri/centrulocal_membri_pending_headless.html' %}
+{% endwith %}
+{% endif %}
+

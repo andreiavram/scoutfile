@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+	{% if object %}Modifică {{ object }}{% else %}Adaugă unitate{% endif %}
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Acțiuni</li>
+		<li><a href = "{% url structuri:cl_add %}"><i class = "icon-plus-sign"></i> Adaugă</a>
+	</ul>
+{% endblock %}
+
+{% block extrahead %}
+	<link type = "text/css" href = "{{ STATIC_URL }}css/datepicker.css" rel = "stylesheet"/>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-datepicker.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-datepicker-activate.js"></script>
+{% endblock %}
+
+{% block content %}
+	{% crispy form form.helper %}
+{% endblock %}
