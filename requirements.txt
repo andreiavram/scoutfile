@@ -1,6 +1,5 @@
 Django==1.4.3
 MySQL-python==1.2.4
-PIL==1.1.7
 Pillow==1.7.8
 South==0.7.6
 URLObject==2.3.1
@@ -19,6 +18,7 @@ django-photologue==2.5
 django-recaptcha==0.0.6
 django-tagging==0.3.1
 djangorestframework==0.3.3
+gunicorn==0.17.2
 raven==3.1.16
 simplejson==3.0.7
 six==1.2.0

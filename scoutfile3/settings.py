@@ -1,18 +1,9 @@
 # coding: utf-8
 import os.path
 
-if os.path.exists("/etc/DJANGO_DEV_MACHINE"):
-    DEVELOPMENT = True
-    DEBUG = True
-else:
-    DEVELOPMENT = False
-    DEBUG = True
-
-TEMPLATE_DEBUG = DEBUG
-
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
-    ("Andrei AVRAM", "andrei.avram@scout.ro")
+    ("Andrei AVRAM", "andrei.avram@albascout.ro")
 )
 
 MANAGERS = ADMINS
@@ -21,44 +12,7 @@ MANAGERS = ADMINS
 components =  os.path.abspath(__file__).split(os.sep)[:-2]
 FILE_ROOT = str.join(os.sep, components)
 
-if DEVELOPMENT:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'scoutfile3_base',                      # Or path to database file if using sqlite3.
-            'USER': 'root',                      # Not used with sqlite3.
-            'PASSWORD': 'sql123.',                  # Not used with sqlite3.
-            'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-            'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-            'OPTIONS': {
-                        "init_command": "SET foreign_key_checks = 0;",
-             },
-        }
-    }
-    
-#     FILE_ROOT = "/home/yeti/Workspace/scoutfile3/"
-    URL_ROOT = "http://localhost/"
-    DAJAXICE_MEDIA_PREFIX = "dajaxice"
-
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'scoutfile3_base',                      # Or path to database file if using sqlite3.
-            'USER': 'root',                      # Not used with sqlite3.
-            'PASSWORD': 'me11on_',                  # Not used with sqlite3.
-            'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-            'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-            'OPTIONS': {
-                        "init_command": "SET foreign_key_checks = 0;",
-             },
-        }
-    }
-    
-#     FILE_ROOT = "/yetiweb/scoutfile/"
-    URL_ROOT = "http://projects.albascout.ro/"
-    DAJAXICE_MEDIA_PREFIX = "dajaxice"
-    
+from local_settings import *
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -90,32 +44,24 @@ MEDIA_ROOT = '%s/media/' % FILE_ROOT
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = '%smedia/scoutfile/' % URL_ROOT
+MEDIA_URL = '/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = '%s/static/' % FILE_ROOT
+STATIC_ROOT = '%s/static' % FILE_ROOT
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_URL = '%sstatic/scoutfile/' % URL_ROOT 
-
-# URL prefix for admin static files -- CSS, JavaScript and images.
-# Make sure to use a trailing slash.
-# Examples: "http://foo.com/static/admin/", "/static/admin/".
-ADMIN_MEDIA_PREFIX = '%sadmin/' % STATIC_URL
+STATIC_URL = '/static/' 
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    ("js", "%sjs" % STATIC_ROOT),
-    ("images", "%simages" % STATIC_ROOT),
-    ("css", "%scss" % STATIC_ROOT),
-    ("font", "%sfont" % STATIC_ROOT),
+    ("js", "%s/js" % STATIC_ROOT),
+    ("images", "%s/images" % STATIC_ROOT),
+    ("css", "%s/css" % STATIC_ROOT),
+    ("font", "%s/font" % STATIC_ROOT),
 )
 
 # List of finder classes that know how to find static files in
@@ -123,7 +69,6 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
     'dajaxice.finders.DajaxiceFinder'
 )
 
@@ -134,7 +79,7 @@ SECRET_KEY = '^bhel7)sli5=u125nc2a-%$&%ucd)gd-p5@u9cn-o)^w+==jk&'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -146,7 +91,7 @@ MIDDLEWARE_CLASSES = (
     'pagination.middleware.PaginationMiddleware',
 )
 
-ROOT_URLCONF = 'scoutfile3.urls'
+ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -200,10 +145,6 @@ AJAX_LOOKUP_CHANNELS = {
 
 AJAX_SELECT_BOOTSTRAP = False
 AJAX_SELECT_INLINES = False
-
-
-#if DEVELOPMENT:
-#    INSTALLED_APPS += ("debug_toolbar", )
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -289,15 +230,6 @@ EMAIL_HOST_USER = "sistem@albascout.ro"
 EMAIL_HOST_PASSWORD = "yetiRulz1_"
 EMAIL_USE_TLS = True
 
-if DEVELOPMENT:
-    RECAPTCHA_PUBLIC_KEY = '6Leo2boSAAAAAMs0TyrzCbEEral5RbTs3qOKpws8'
-    RECAPTCHA_PRIVATE_KEY = '6Leo2boSAAAAAJpxCUHYB6B1I1sDvZqFL1_dtwlh'
-else:
-    RECAPTCHA_PUBLIC_KEY = '6Ld1_tUSAAAAADX2GeFK7g56q9EE3dz5OZX99FOi'
-    RECAPTCHA_PRIVATE_KEY = '6Ld1_tUSAAAAAHZTsyehDAEmvlacDimNomNCLGyo'
-
-RECAPTCHA_USE_SSL = True
-USE_EMAIL_CONFIRMATION = False
 
 LESS_OUTPUT_DIR = "less_cache"
 
