@@ -1,15 +1,6 @@
 # coding: utf-8
 import os.path
 
-if os.path.exists("/etc/DJANGO_DEV_MACHINE"):
-    DEVELOPMENT = True
-    DEBUG = True
-else:
-    DEVELOPMENT = False
-    DEBUG = True
-
-TEMPLATE_DEBUG = DEBUG
-
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
     ("Andrei AVRAM", "andrei.avram@albascout.ro")
