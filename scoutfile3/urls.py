@@ -25,8 +25,6 @@ urlpatterns = patterns('',
     
     ('^$', IndexView.as_view(template_name = "home.html"), {}, "index"),
                        
-#     (r'^dajaxice/', include('dajaxice.urls')),
-# New style
     url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
     (r'ajax_select/', include('ajax_select.urls')),
 
