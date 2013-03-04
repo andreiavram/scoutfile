@@ -12,7 +12,7 @@ TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
-    ("Andrei AVRAM", "andrei.avram@scout.ro")
+    ("Andrei AVRAM", "andrei.avram@albascout.ro")
 )
 
 MANAGERS = ADMINS
@@ -21,44 +21,7 @@ MANAGERS = ADMINS
 components =  os.path.abspath(__file__).split(os.sep)[:-2]
 FILE_ROOT = str.join(os.sep, components)
 
-if DEVELOPMENT:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'scoutfile3_base',                      # Or path to database file if using sqlite3.
-            'USER': 'root',                      # Not used with sqlite3.
-            'PASSWORD': 'sql123.',                  # Not used with sqlite3.
-            'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-            'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-            'OPTIONS': {
-                        "init_command": "SET foreign_key_checks = 0;",
-             },
-        }
-    }
-    
-#     FILE_ROOT = "/home/yeti/Workspace/scoutfile3/"
-    URL_ROOT = "http://localhost/"
-    DAJAXICE_MEDIA_PREFIX = "dajaxice"
-
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'scoutfile3_base',                      # Or path to database file if using sqlite3.
-            'USER': 'root',                      # Not used with sqlite3.
-            'PASSWORD': 'me11on_',                  # Not used with sqlite3.
-            'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-            'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-            'OPTIONS': {
-                        "init_command": "SET foreign_key_checks = 0;",
-             },
-        }
-    }
-    
-#     FILE_ROOT = "/yetiweb/scoutfile/"
-    URL_ROOT = "http://projects.albascout.ro/"
-    DAJAXICE_MEDIA_PREFIX = "dajaxice"
-    
+from local_settings import *
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -90,7 +53,7 @@ MEDIA_ROOT = '%s/media/' % FILE_ROOT
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = '%smedia/' % URL_ROOT
+MEDIA_URL = '%/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -100,7 +63,7 @@ STATIC_ROOT = '%s/static/' % FILE_ROOT
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_URL = '%sstatic/' % URL_ROOT 
+STATIC_URL = '/static/' 
 
 # URL prefix for admin static files -- CSS, JavaScript and images.
 # Make sure to use a trailing slash.
