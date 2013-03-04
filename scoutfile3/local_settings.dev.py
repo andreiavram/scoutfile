@@ -17,8 +17,7 @@ DATABASES = {
     }
 }
 
-URL_ROOT = "http://projects.albascout.ro/"
-# DAJAXICE_MEDIA_PREFIX = "dajaxice"
+URL_ROOT = "http://testing.albascout.ro/"
     
 RECAPTCHA_PUBLIC_KEY = '6Ld1_tUSAAAAADX2GeFK7g56q9EE3dz5OZX99FOi'
 RECAPTCHA_PRIVATE_KEY = '6Ld1_tUSAAAAAHZTsyehDAEmvlacDimNomNCLGyo'
