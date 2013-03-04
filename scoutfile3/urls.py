@@ -2,7 +2,7 @@ from django.conf.urls.defaults import patterns, include, url
 
 from django.contrib import admin
 from django.views.generic.base import TemplateView
-from scoutfile3.generic.views import Logout, Login, IndexView, Issues,\
+from generic.views import Logout, Login, IndexView, Issues,\
     CreateIssue
 admin.autodiscover()
 
@@ -25,8 +25,6 @@ urlpatterns = patterns('',
     
     ('^$', IndexView.as_view(template_name = "home.html"), {}, "index"),
                        
-#     (r'^dajaxice/', include('dajaxice.urls')),
-# New style
     url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
     (r'ajax_select/', include('ajax_select.urls')),
 
