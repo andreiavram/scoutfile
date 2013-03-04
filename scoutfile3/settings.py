@@ -20,6 +20,7 @@ MANAGERS = ADMINS
 
 components =  os.path.abspath(__file__).split(os.sep)[:-2]
 FILE_ROOT = str.join(os.sep, components)
+print FILE_ROOT
 
 from local_settings import *
 
