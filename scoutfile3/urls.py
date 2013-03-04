@@ -2,7 +2,7 @@ from django.conf.urls.defaults import patterns, include, url
 
 from django.contrib import admin
 from django.views.generic.base import TemplateView
-from scoutfile3.generic.views import Logout, Login, IndexView, Issues,\
+from generic.views import Logout, Login, IndexView, Issues,\
     CreateIssue
 admin.autodiscover()
 
