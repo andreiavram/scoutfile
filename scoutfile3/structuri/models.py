@@ -436,7 +436,7 @@ class Membru(Utilizator):
             raise ValueError(u"Cercetașul cu ID-ul %d nu are niciun Centru Local asociat" % self.id)
         
         moment_initial_membru = afilieri[0].moment_inceput
-        from scoutfile3.documente.models import Trimestru
+        from documente.models import Trimestru
         trimestru_membru = Trimestru.trimestru_pentru_data(moment_initial_membru)
         trimestru_centru = self.centru_local.moment_initial_cotizatie
         
@@ -446,7 +446,7 @@ class Membru(Utilizator):
         """ Intoarce True daca membrul este in situatia de a plati cotizatie sociala
         """
         #TODO: implementeaza calculul de cotizatie sociala
-        from scoutfile3.documente.models import DocumentCotizatieSociala, AsociereDocument
+        from documente.models import DocumentCotizatieSociala, AsociereDocument
         filtru_documente = {"content_type" : ContentType.objects.get_for_model(self),
                             "object_id" : self.id,
                             "document_ctype" : ContentType.objects.get_for_model(DocumentCotizatieSociala),

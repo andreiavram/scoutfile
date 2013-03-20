@@ -51,7 +51,7 @@ class TipAsociereDocument(models.Model):
     
 class AsociereDocument(models.Model):
     document = models.ForeignKey(Document)
-    document_ctype = models.ForeignKey(ContentType, null = True, blank = True, related_name = "asocierdj 2")
+    document_ctype = models.ForeignKey(ContentType, null = True, blank = True, related_name = "asociere")
     
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
@@ -279,6 +279,7 @@ class SerieDocument(models.Model):
     content_object = GenericForeignKey()
     
     deschisa = models.BooleanField(default = True)
+    data_inceput = models.DateTimeField(auto_now_add = True)
     
     def save(self, force_insert=False, force_update=False, using=None):
         if not self.numar_curent:
@@ -304,4 +305,5 @@ class DocumentCotizatieSociala(Document):
     def save(self, force_insert=False, force_update=False, using=None):
         self.tip_document = TipDocument.objects.get(slug = "declaratie-cotizatie-sociala")
         return super(DocumentCotizatieSociala, self).save(force_insert = force_insert, force_update = force_update, using = using)
-    
+
+ctype_deciziecotizatie = ContentType.objects.get_for_model(DecizieCotizatie)    

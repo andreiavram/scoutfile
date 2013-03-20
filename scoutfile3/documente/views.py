@@ -150,4 +150,11 @@ class CalculeazaAcoperireSumaJSON(View):
     pass        
         
         
-            
+class CuantumuriCotizatieNational(ListView):
+    #TODO: implement this
+    pass
+
+class CuantumCotizatieNationalAdauga(CreateView):
+    #TODO: implement this
+    pass
+

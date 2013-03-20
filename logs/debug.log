@@ -3070,3 +3070,303 @@ Traceback (most recent call last):
   File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/template/loader.py", line 193, in select_template
     raise TemplateDoesNotExist(', '.join(not_found))
 TemplateDoesNotExist: accounts/login.html
+DEBUG 2013-03-20 01:56:34,420 base 10294 140639691720448 Configuring Raven for host: http://cce06e32cfae4025af7c2b39b889bc27:79ab9be2ff1e428babc298166b5ad9f5@sentry.albascout.ro://2
+ERROR 2013-03-20 01:56:36,791 base 10294 140639691720448 Unable to reach Sentry log server: timed out (url: http://sentry.albascout.ro//api/store/)
+Traceback (most recent call last):
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/raven/base.py", line 490, in send_remote
+    self._send_remote(url=url, data=data, headers=headers)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/raven/base.py", line 464, in _send_remote
+    return transport.send(data, headers)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/raven/transport/base.py", line 171, in send
+    response = urllib2.urlopen(req, data, self.timeout).read()
+  File "/usr/lib/python2.7/urllib2.py", line 127, in urlopen
+    return _opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 401, in open
+    response = self._open(req, data)
+  File "/usr/lib/python2.7/urllib2.py", line 419, in _open
+    '_open', req)
+  File "/usr/lib/python2.7/urllib2.py", line 379, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 1211, in http_open
+    return self.do_open(httplib.HTTPConnection, req)
+  File "/usr/lib/python2.7/urllib2.py", line 1184, in do_open
+    r = h.getresponse(buffering=True)
+  File "/usr/lib/python2.7/httplib.py", line 1034, in getresponse
+    response.begin()
+  File "/usr/lib/python2.7/httplib.py", line 407, in begin
+    version, status, reason = self._read_status()
+  File "/usr/lib/python2.7/httplib.py", line 365, in _read_status
+    line = self.fp.readline()
+  File "/usr/lib/python2.7/socket.py", line 447, in readline
+    data = self._sock.recv(self._rbufsize)
+timeout: timed out
+ERROR 2013-03-20 01:56:36,849 base 10294 140639691720448 Failed to submit message: "AlreadyRegistered: The model 'Document' has already been registered."
+ERROR 2013-03-20 01:56:36,850 base 10294 140639691720448 Internal Server Error: /extra/enciclopedie/
+Traceback (most recent call last):
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 101, in get_response
+    request.path_info)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 298, in resolve
+    for pattern in self.url_patterns:
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 328, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 323, in urlconf_module
+    self._urlconf_module = import_module(self.urlconf_name)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/utils/importlib.py", line 35, in import_module
+    __import__(name)
+  File "/home/yeti/Repos/scoutfile/scoutfile3/urls.py", line 17, in <module>
+    (r'^structuri/', include('structuri.urls', namespace = 'structuri')),
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/conf/urls/__init__.py", line 24, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/utils/importlib.py", line 35, in import_module
+    __import__(name)
+  File "/home/yeti/Repos/scoutfile/scoutfile3/structuri/urls.py", line 3, in <module>
+    from scoutfile3.structuri.views import CentruLocalCreate, CentruLocalUpdate,\
+  File "/home/yeti/Repos/scoutfile/scoutfile3/../scoutfile3/structuri/views.py", line 42, in <module>
+    from documente.models import SerieDocument
+  File "/home/yeti/Repos/scoutfile/scoutfile3/documente/models.py", line 46, in <module>
+    tagging.register(Document)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/tagging/__init__.py", line 39, in register
+    "registered." % model._meta.object_name)
+AlreadyRegistered: The model 'Document' has already been registered.
+ERROR 2013-03-20 01:56:39,435 base 10294 140639678826240 Unable to reach Sentry log server: timed out (url: http://sentry.albascout.ro//api/store/)
+Traceback (most recent call last):
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/raven/base.py", line 490, in send_remote
+    self._send_remote(url=url, data=data, headers=headers)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/raven/base.py", line 464, in _send_remote
+    return transport.send(data, headers)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/raven/transport/base.py", line 171, in send
+    response = urllib2.urlopen(req, data, self.timeout).read()
+  File "/usr/lib/python2.7/urllib2.py", line 127, in urlopen
+    return _opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 401, in open
+    response = self._open(req, data)
+  File "/usr/lib/python2.7/urllib2.py", line 419, in _open
+    '_open', req)
+  File "/usr/lib/python2.7/urllib2.py", line 379, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 1211, in http_open
+    return self.do_open(httplib.HTTPConnection, req)
+  File "/usr/lib/python2.7/urllib2.py", line 1184, in do_open
+    r = h.getresponse(buffering=True)
+  File "/usr/lib/python2.7/httplib.py", line 1034, in getresponse
+    response.begin()
+  File "/usr/lib/python2.7/httplib.py", line 407, in begin
+    version, status, reason = self._read_status()
+  File "/usr/lib/python2.7/httplib.py", line 365, in _read_status
+    line = self.fp.readline()
+  File "/usr/lib/python2.7/socket.py", line 447, in readline
+    data = self._sock.recv(self._rbufsize)
+timeout: timed out
+ERROR 2013-03-20 01:56:39,438 base 10294 140639678826240 Failed to submit message: "AlreadyRegistered: The model 'Document' has already been registered."
+ERROR 2013-03-20 01:56:39,439 base 10294 140639678826240 Internal Server Error: /favicon.ico
+Traceback (most recent call last):
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 89, in get_response
+    response = middleware_method(request)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/middleware/common.py", line 67, in process_request
+    if (not urlresolvers.is_valid_path(request.path_info, urlconf) and
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 531, in is_valid_path
+    resolve(path, urlconf)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 420, in resolve
+    return get_resolver(urlconf).resolve(path)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 298, in resolve
+    for pattern in self.url_patterns:
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 328, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 323, in urlconf_module
+    self._urlconf_module = import_module(self.urlconf_name)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/utils/importlib.py", line 35, in import_module
+    __import__(name)
+  File "/home/yeti/Repos/scoutfile/scoutfile3/urls.py", line 17, in <module>
+    (r'^structuri/', include('structuri.urls', namespace = 'structuri')),
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/conf/urls/__init__.py", line 24, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/utils/importlib.py", line 35, in import_module
+    __import__(name)
+  File "/home/yeti/Repos/scoutfile/scoutfile3/structuri/urls.py", line 3, in <module>
+    from scoutfile3.structuri.views import CentruLocalCreate, CentruLocalUpdate,\
+  File "/home/yeti/Repos/scoutfile/scoutfile3/../scoutfile3/structuri/views.py", line 42, in <module>
+    from documente.models import SerieDocument
+  File "/home/yeti/Repos/scoutfile/scoutfile3/documente/models.py", line 46, in <module>
+    tagging.register(Document)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/tagging/__init__.py", line 39, in register
+    "registered." % model._meta.object_name)
+AlreadyRegistered: The model 'Document' has already been registered.
+ERROR 2013-03-20 01:57:18,430 base 10294 140639678826240 Unable to reach Sentry log server: timed out (url: http://sentry.albascout.ro//api/store/)
+Traceback (most recent call last):
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/raven/base.py", line 490, in send_remote
+    self._send_remote(url=url, data=data, headers=headers)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/raven/base.py", line 464, in _send_remote
+    return transport.send(data, headers)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/raven/transport/base.py", line 171, in send
+    response = urllib2.urlopen(req, data, self.timeout).read()
+  File "/usr/lib/python2.7/urllib2.py", line 127, in urlopen
+    return _opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 401, in open
+    response = self._open(req, data)
+  File "/usr/lib/python2.7/urllib2.py", line 419, in _open
+    '_open', req)
+  File "/usr/lib/python2.7/urllib2.py", line 379, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 1211, in http_open
+    return self.do_open(httplib.HTTPConnection, req)
+  File "/usr/lib/python2.7/urllib2.py", line 1184, in do_open
+    r = h.getresponse(buffering=True)
+  File "/usr/lib/python2.7/httplib.py", line 1034, in getresponse
+    response.begin()
+  File "/usr/lib/python2.7/httplib.py", line 407, in begin
+    version, status, reason = self._read_status()
+  File "/usr/lib/python2.7/httplib.py", line 365, in _read_status
+    line = self.fp.readline()
+  File "/usr/lib/python2.7/socket.py", line 447, in readline
+    data = self._sock.recv(self._rbufsize)
+timeout: timed out
+ERROR 2013-03-20 01:57:18,433 base 10294 140639678826240 Failed to submit message: "AlreadyRegistered: The model 'Document' has already been registered."
+ERROR 2013-03-20 01:57:18,434 base 10294 140639678826240 Internal Server Error: /extra/enciclopedie/
+Traceback (most recent call last):
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 101, in get_response
+    request.path_info)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 298, in resolve
+    for pattern in self.url_patterns:
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 328, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 323, in urlconf_module
+    self._urlconf_module = import_module(self.urlconf_name)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/utils/importlib.py", line 35, in import_module
+    __import__(name)
+  File "/home/yeti/Repos/scoutfile/scoutfile3/urls.py", line 17, in <module>
+    (r'^structuri/', include('structuri.urls', namespace = 'structuri')),
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/conf/urls/__init__.py", line 24, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/utils/importlib.py", line 35, in import_module
+    __import__(name)
+  File "/home/yeti/Repos/scoutfile/scoutfile3/structuri/urls.py", line 3, in <module>
+    from scoutfile3.structuri.views import CentruLocalCreate, CentruLocalUpdate,\
+  File "/home/yeti/Repos/scoutfile/scoutfile3/../scoutfile3/structuri/views.py", line 42, in <module>
+    from documente.models import SerieDocument
+  File "/home/yeti/Repos/scoutfile/scoutfile3/documente/models.py", line 46, in <module>
+    tagging.register(Document)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/tagging/__init__.py", line 39, in register
+    "registered." % model._meta.object_name)
+AlreadyRegistered: The model 'Document' has already been registered.
+ERROR 2013-03-20 01:57:19,067 base 10294 140639691720448 AlreadyRegistered: The model 'Document' has already been registered.
+ERROR 2013-03-20 01:57:19,067 base 10294 140639691720448 Internal Server Error: /favicon.ico
+Traceback (most recent call last):
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 89, in get_response
+    response = middleware_method(request)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/middleware/common.py", line 67, in process_request
+    if (not urlresolvers.is_valid_path(request.path_info, urlconf) and
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 531, in is_valid_path
+    resolve(path, urlconf)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 420, in resolve
+    return get_resolver(urlconf).resolve(path)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 298, in resolve
+    for pattern in self.url_patterns:
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 328, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 323, in urlconf_module
+    self._urlconf_module = import_module(self.urlconf_name)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/utils/importlib.py", line 35, in import_module
+    __import__(name)
+  File "/home/yeti/Repos/scoutfile/scoutfile3/urls.py", line 17, in <module>
+    (r'^structuri/', include('structuri.urls', namespace = 'structuri')),
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/conf/urls/__init__.py", line 24, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/utils/importlib.py", line 35, in import_module
+    __import__(name)
+  File "/home/yeti/Repos/scoutfile/scoutfile3/structuri/urls.py", line 3, in <module>
+    from scoutfile3.structuri.views import CentruLocalCreate, CentruLocalUpdate,\
+  File "/home/yeti/Repos/scoutfile/scoutfile3/../scoutfile3/structuri/views.py", line 42, in <module>
+    from documente.models import SerieDocument
+  File "/home/yeti/Repos/scoutfile/scoutfile3/documente/models.py", line 46, in <module>
+    tagging.register(Document)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/tagging/__init__.py", line 39, in register
+    "registered." % model._meta.object_name)
+AlreadyRegistered: The model 'Document' has already been registered.
+DEBUG 2013-03-20 02:00:53,239 base 10673 140191367534336 Configuring Raven for host: http://cce06e32cfae4025af7c2b39b889bc27:79ab9be2ff1e428babc298166b5ad9f5@sentry.albascout.ro://2
+ERROR 2013-03-20 02:00:54,441 base 10673 140191367534336 Unable to reach Sentry log server: timed out (url: http://sentry.albascout.ro//api/store/)
+Traceback (most recent call last):
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/raven/base.py", line 490, in send_remote
+    self._send_remote(url=url, data=data, headers=headers)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/raven/base.py", line 464, in _send_remote
+    return transport.send(data, headers)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/raven/transport/base.py", line 171, in send
+    response = urllib2.urlopen(req, data, self.timeout).read()
+  File "/usr/lib/python2.7/urllib2.py", line 127, in urlopen
+    return _opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 401, in open
+    response = self._open(req, data)
+  File "/usr/lib/python2.7/urllib2.py", line 419, in _open
+    '_open', req)
+  File "/usr/lib/python2.7/urllib2.py", line 379, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 1211, in http_open
+    return self.do_open(httplib.HTTPConnection, req)
+  File "/usr/lib/python2.7/urllib2.py", line 1184, in do_open
+    r = h.getresponse(buffering=True)
+  File "/usr/lib/python2.7/httplib.py", line 1034, in getresponse
+    response.begin()
+  File "/usr/lib/python2.7/httplib.py", line 407, in begin
+    version, status, reason = self._read_status()
+  File "/usr/lib/python2.7/httplib.py", line 365, in _read_status
+    line = self.fp.readline()
+  File "/usr/lib/python2.7/socket.py", line 447, in readline
+    data = self._sock.recv(self._rbufsize)
+timeout: timed out
+ERROR 2013-03-20 02:00:54,520 base 10673 140191367534336 Failed to submit message: "AttributeError: 'object' object has no attribute 'timestamp'"
+ERROR 2013-03-20 02:00:54,520 base 10673 140191367534336 Internal Server Error: /extra/enciclopedie/
+Traceback (most recent call last):
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 111, in get_response
+    response = callback(request, *callback_args, **callback_kwargs)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/views/generic/base.py", line 48, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/views/generic/base.py", line 69, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/views/generic/base.py", line 123, in get
+    context = self.get_context_data(**kwargs)
+  File "/home/yeti/Repos/scoutfile/scoutfile3/extra/views.py", line 38, in get_context_data
+    setattr(entry, key, row.custom[key].text)
+AttributeError: 'object' object has no attribute 'timestamp'
+DEBUG 2013-03-20 02:05:42,463 base 10787 140157399332608 Configuring Raven for host: http://cce06e32cfae4025af7c2b39b889bc27:79ab9be2ff1e428babc298166b5ad9f5@sentry.albascout.ro://2
+ERROR 2013-03-20 02:05:43,746 base 10787 140157399332608 Unable to reach Sentry log server: timed out (url: http://sentry.albascout.ro//api/store/)
+Traceback (most recent call last):
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/raven/base.py", line 490, in send_remote
+    self._send_remote(url=url, data=data, headers=headers)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/raven/base.py", line 464, in _send_remote
+    return transport.send(data, headers)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/raven/transport/base.py", line 171, in send
+    response = urllib2.urlopen(req, data, self.timeout).read()
+  File "/usr/lib/python2.7/urllib2.py", line 127, in urlopen
+    return _opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 401, in open
+    response = self._open(req, data)
+  File "/usr/lib/python2.7/urllib2.py", line 419, in _open
+    '_open', req)
+  File "/usr/lib/python2.7/urllib2.py", line 379, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 1211, in http_open
+    return self.do_open(httplib.HTTPConnection, req)
+  File "/usr/lib/python2.7/urllib2.py", line 1184, in do_open
+    r = h.getresponse(buffering=True)
+  File "/usr/lib/python2.7/httplib.py", line 1034, in getresponse
+    response.begin()
+  File "/usr/lib/python2.7/httplib.py", line 407, in begin
+    version, status, reason = self._read_status()
+  File "/usr/lib/python2.7/httplib.py", line 365, in _read_status
+    line = self.fp.readline()
+  File "/usr/lib/python2.7/socket.py", line 447, in readline
+    data = self._sock.recv(self._rbufsize)
+timeout: timed out
+ERROR 2013-03-20 02:05:43,840 base 10787 140157399332608 Failed to submit message: 'TemplateDoesNotExist: extra/enciclopedie.html'
+ERROR 2013-03-20 02:05:43,840 base 10787 140157399332608 Internal Server Error: /extra/enciclopedie/
+Traceback (most recent call last):
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/template/response.py", line 79, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/template/response.py", line 55, in resolve_template
+    return loader.select_template(template)
+  File "/home/yeti/.virtualenvs/scoutfile/local/lib/python2.7/site-packages/django/template/loader.py", line 193, in select_template
+    raise TemplateDoesNotExist(', '.join(not_found))
+TemplateDoesNotExist: extra/enciclopedie.html
