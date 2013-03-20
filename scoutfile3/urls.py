@@ -19,6 +19,7 @@ urlpatterns = patterns('',
     (r'^generic/', include('generic.urls', namespace = 'generic')),
     (r'^patrocle/', include('patrocle.urls', namespace = 'patrocle')),
     (r'^documente/', include('documente.urls', namespace = 'documente')),
+    (r'^extra/', include('extra.urls', namespace = 'extra')),
     
     (r'issues/$', Issues.as_view(), {}, "issues"),
     (r'issues/create/$', CreateIssue.as_view(), {}, "create_issue"),

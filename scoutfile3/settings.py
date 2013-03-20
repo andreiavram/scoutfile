@@ -132,9 +132,10 @@ INSTALLED_APPS = (
     'ajax_select', "tagging", 'pagination', 'less',
     
     'scoutfile3.structuri', 'scoutfile3.generic', 'scoutfile3.album',
-    'scoutfile3.patrocle', 'scoutfile3.documente',
+    'scoutfile3.patrocle', 'scoutfile3.documente', 'scoutfile3.extra',
     
-    'raven.contrib.django.raven_compat',  
+    'raven.contrib.django.raven_compat',
+    'django_extensions'  
 )
 
 
