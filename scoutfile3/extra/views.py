@@ -42,7 +42,6 @@ class EnciclopedieEntries(TemplateView):
         for row in rows:
             entry = EnciclopedieEntry()
             for key in row.custom:
-                print " %s: %s" % (key, row.custom[key].text)
                 setattr(entry, key, row.custom[key].text)
             entries.append(entry)
             
