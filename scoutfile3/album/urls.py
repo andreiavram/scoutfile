@@ -1,6 +1,8 @@
 from django.conf.urls.defaults import patterns
-from scoutfile3.album.views import EvenimentDetail, ZiDetail, PozaDetail,\
-    RotateImage, EvenimentStats, ZiStats, FlagImage, EvenimentList
+from album.views import EvenimentDetail, ZiDetail, PozaDetail,\
+    RotateImage, EvenimentStats, ZiStats, FlagImage, EvenimentList, \
+    SetImaginiUpload, SetImaginiDeleteAjax, SetImaginiToate,\
+    SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate
 
 
 urlpatterns = patterns('scoutfile3.album.views',
@@ -9,6 +11,14 @@ urlpatterns = patterns('scoutfile3.album.views',
        (r'eveniment/(?P<pk>\d+)/stats/$', EvenimentStats.as_view(), {}, "eveniment_stats"),
        (r'eveniment/zi/(?P<pk>\d+)/$', ZiDetail.as_view(), {}, "zi_detail"),
        (r'eveniment/zi/(?P<pk>\d+)/stats/$', ZiStats.as_view(), {}, "zi_stats"),
+       (r'eveniment/(?P<slug>\w+)/upload/$', SetImaginiUpload.as_view(), {}, "eveniment_upload"),
+       (r'eveniment/(?P<slug>\w+)/seturi/$', EvenimentSeturi.as_view(), {}, "eveniment_seturi_toate"),
+       (r'eveniment/(?P<slug>\w+)/mine/$', EvenimentSeturiUser.as_view(), {}, "eveniment_seturi_user"),
+       
+       (r'set/(?P<pk>\d+)/$', SetPozeUpdate.as_view(), {}, "set_poze_edit"),
+       (r'set/(?P<pk>\d+)/delete/$', SetImaginiDeleteAjax.as_view(), {}, "set_poze_delete_ajax"),
+       (r'set/mine/$', SetImaginiUser.as_view(), {}, "set_poze_user"),
+       (r'set/all/$', SetImaginiToate.as_view(), {}, "set_poze_all"),
 
        (r'poza/(?P<pk>\d+)/$', PozaDetail.as_view(), {}, "poza_detail"),
        (r'poza/(?P<pk>\d+)/rotate/$', RotateImage.as_view(), {}, "poza_rotate"),

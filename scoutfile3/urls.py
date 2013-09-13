@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.views.generic.base import TemplateView
 from generic.views import Logout, Login, IndexView, Issues,\
     CreateIssue
+from django.conf import settings
 admin.autodiscover()
 
 # New import
@@ -37,3 +38,11 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += staticfiles_urlpatterns()
+
+#    temp media fix
+if settings.DEBUG:
+    urlpatterns += patterns('',
+        url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {
+            'document_root': settings.MEDIA_ROOT,
+        }),
+   )

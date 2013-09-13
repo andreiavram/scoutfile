@@ -1,0 +1,15 @@
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Acțiuni</li>
+		<li class = "disabled"><a href = ""><i class = "icon-download"></i> Download toate</a>
+		<li class = "disabled"><a href = ""><i class = "icon-download-alt"></i> Torrent</a>
+		<li><a href = "{% url album:eveniment_upload slug=object.slug %}"><i class = "icon-upload"></i> Upload set poze</a></li>
+		<li class = "nav-header">Locații</li>
+		<li><a href = "{% url album:eveniment_detail slug=eveniment.slug %}"><i class = "icon-home"></i> Poze</a></li>
+		<li><a href = "{% url album:eveniment_stats pk=object.id %}"><i class = "icon-list-alt"></i> Statistici</a></li>
+		<li><a href = "{% url album:eveniment_seturi_toate slug=object.slug %}"><i class = "icon-list"></i> Seturi de poze</a></li>
+		<li class = "nav-header">Fotografi</li>
+		{% for autor in object.get_autori %}
+			<li><a href = "{% url album:eveniment_detail slug=object.slug %}?autor={{ autor }}"><i class = "icon-user"></i>  {{ autor }}</a></li>
+		{% endfor %}
+		<li><a href = "{% url album:eveniment_detail slug=object.slug %}">Toți autorii</a></li>
+	</ul>

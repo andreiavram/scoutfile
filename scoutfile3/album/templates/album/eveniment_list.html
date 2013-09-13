@@ -6,8 +6,7 @@
 {% endblock %}
 
 {% block context_menu %}
-	<ul class = "nav nav-list">
-	</ul>
+	{% include "album/main_context_menu.html" %}
 {% endblock %}
 
 {% block content %}
@@ -21,7 +20,7 @@
 						<img class = "thumbnail" src = "{{ eveniment.cover_photo.get_thumbnail_url }}" />
 					</a>
 				</div>
-				<div class = "span8" style = "position: relative">
+				<div class = "span7" style = "position: relative">
 					<h2><a href = "{% url album:eveniment_detail slug=eveniment.slug %}">{{ eveniment }}</a></h2>
 					{% if eveniment.descriere %}<p>{{ eveniment.descriere }}</p>{% endif %} 
 					<p>Conține {{ eveniment.total_poze }} fotografii de la {{ eveniment.get_autori|length }} fotografi <i class = "icon-star"></i> 

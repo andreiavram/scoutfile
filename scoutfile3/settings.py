@@ -62,6 +62,7 @@ STATICFILES_DIRS = (
     ("images", "%s/images" % STATIC_ROOT),
     ("css", "%s/css" % STATIC_ROOT),
     ("font", "%s/font" % STATIC_ROOT),
+    ("jquery_upload", "%s/jquery_upload" % STATIC_ROOT),
 )
 
 # List of finder classes that know how to find static files in
@@ -243,3 +244,4 @@ REDMINE_API_KEY = "f393aac0746069a9de25eb251b0171b1ff1ed793"
 VALOARE_IMPLICITA_COTIZATIE_LOCAL = 0
 VALOARE_IMPLICITA_COTIZATIE_NATIONAL = 50
 
+SCOUTFILE_ALBUM_STORAGE_ROOT = "album"
