@@ -1,17 +1,18 @@
 @CHARSET "UTF-8";
 
 #content-wrapper {
-	margin-top: 35px;
-	min-height: 300px;
+	margin-top: 40px;
+	min-height: 500px;
+	margin-bottom: 60px;
 }
 
 #footer {
 	text-align: center;
-	margin-top: 50px;
 }
 
 #menu {
-	margin-top: 15px;
+	border-right: 2px #CCC solid; 
+	background-color: rgba(245, 245, 245, 0.7);
 }
 
 #message_container ul, ul.alert-block {
@@ -29,4 +30,34 @@
 
 i.keyboard-key {
 	padding: 0;
+}
+
+#content-wrapper.container-fluid {
+	padding-left: 0px;
+}
+
+#footer {
+	border-top: 1px solid rgba(200, 200, 200, .7);
+	padding-bottom: 10px;
+	margin-top: 0;
+	position: fixed;
+	width: 100%;
+	background-color: #FFF;
+	bottom: 0px;
+	margin-top: 10px;
+}
+
+#footer #footer-inner {
+	margin-top: 10px;
+}
+
+#menu #menu-container {
+	position: fixed;
+}
+#menu #menu-container ul li {
+	width: 100%;
+}
+
+div.image-container:hover .face {
+	visibility: visible;
 }

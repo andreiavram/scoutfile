@@ -4,9 +4,17 @@ import tagging
 from photologue.models import ImageModel
 import Image
 import datetime
-from scoutfile3.structuri.models import CentruLocal
+from scoutfile3.structuri.models import CentruLocal, Membru
 from scoutfile3.settings import MEDIA_ROOT
 import os
+from zipfile import ZipFile
+import logging
+import traceback
+from settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT
+from django.contrib.contenttypes.generic import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+
+logger = logging.getLogger(__name__)
 
 class Eveniment(models.Model):
     centru_local = models.ForeignKey(CentruLocal)
@@ -101,11 +109,15 @@ class ZiEveniment(models.Model):
                 
         return authors
             
+SET_POZE_STATUSES = ((0, "Initialized"), (1, "Zip Uploaded"), (2, "Zip queued for processing"), (3, "Zip processed OK"), (4, "Zip error"))
 class SetPoze(models.Model):
     eveniment = models.ForeignKey(Eveniment)
-    autor = models.CharField(max_length = 255)
+    autor = models.CharField(max_length = 255, null = True, blank = True, help_text = u"Lăsați gol dacă încărcați pozele proprii")
+    autor_user = models.ForeignKey(Membru, null = True, blank = True)
+    zip_file = models.FileField(null = True, blank = True, upload_to = lambda instance, file_name: "tmp/{0}-{1}".format(datetime.datetime.now().strftime("%Y%m%d%H%M%S"), file_name))
+    status = models.IntegerField(default = 0, choices = SET_POZE_STATUSES)
     
-    offset_secunde = models.IntegerField(default = 0)
+    offset_secunde = models.IntegerField(default = 0, help_text = "Numărul de secunde cu care ceasul camerei voastre a fost decalat față de ceasul corect (poate fi și negativ). Foarte util pentru sincronizarea pozelor de la mai mulți fotografi")
     
     class Meta:
         verbose_name = u"Set poze"
@@ -116,7 +128,45 @@ class SetPoze(models.Model):
     
     def get_autor(self):
         return u"%s" % self.autor.strip()
+    
+    def process_zip_file(self):
+        #    create event and author folders, if required
+        #    flat unzip and rename photos to folder
+        #    add photos to database
         
+        self.status = 2
+        self.save()
+        
+        try:
+            event_path_no_root = os.path.join(SCOUTFILE_ALBUM_STORAGE_ROOT, unicode(self.eveniment.centru_local.id), unicode(self.eveniment.id), self.autor.replace(" ", "_")) 
+            event_path = os.path.join(MEDIA_ROOT, event_path_no_root) 
+            if not os.path.exists(os.path.join(MEDIA_ROOT, event_path)):
+                os.makedirs(os.path.join(MEDIA_ROOT, event_path))
+            
+            with ZipFile(self.zip_file) as zf:
+                for f in zf.infolist():
+                    logger.debug("SetPoze: fisier extras %s" % f)
+                    if f.filename.endswith("/") or os.path.splitext(f.filename)[1].lower() not in (".jpg", ".jpeg", ".png"):
+                        logger.debug("SetPoze skipping %s %s %s" % (f, f.filename, os.path.splitext(f.filename)[1].lower()))
+                        continue
+                    logger.debug("SetPoze: extracting file %s to %s" % (f.filename, event_path))
+                    zf.extract(f, event_path)
+                    im = Imagine(set_poze = self, titlu = os.path.basename(f.filename), image = os.path.join(event_path_no_root, f.filename))
+                    im.save()
+                    
+        except Exception, e:
+            self.status = 4
+            self.save()
+            logger.error("SetPoze: error extracting files: %s (%s)" % (e, traceback.format_exc()))
+            return
+            
+        self.status = 3
+        self.save()
+    
+        os.unlink(os.path.join(MEDIA_ROOT, "%s" % self.zip_file))
+    
+        
+IMAGINE_PUBLISHED_STATUS = ((1, "Secret"), (2, "Centru Local"), (3, "Organizație"), (4, "Public"))
 class Imagine(ImageModel):
     set_poze = models.ForeignKey(SetPoze)
     data = models.DateTimeField(null = True, blank = True)
@@ -128,6 +178,9 @@ class Imagine(ImageModel):
     score = models.IntegerField(default = 0)
     is_deleted = models.BooleanField()
     is_flagged = models.BooleanField()
+    is_face_processed = models.BooleanField()
+    
+    published_status = models.IntegerField(default = 2, choices = IMAGINE_PUBLISHED_STATUS)
     
     class Meta:
         verbose_name = u"Imagine"
@@ -212,6 +265,14 @@ class Imagine(ImageModel):
                     exif_data[decoded] = value
             
         retval = super(Imagine, self).save(*args, **kwargs)
+        
+        if not self.is_face_processed:
+            if not on_create:
+                #    delete any existing faces, thus allowing detected face reset by
+                #    switching the is_face_processed flag
+                self.detectedface_set.all().delete()
+            self.find_faces()
+            self.is_face_processed = True        
 
         if on_create:
             #    clear currently EXIF data
@@ -230,8 +291,23 @@ class Imagine(ImageModel):
         self.score += score
         self.save()
         
+    def find_faces(self):
+        import cv
         
-tagging.register(Imagine)
+        imcolor = cv.LoadImage("%s/%s" % (MEDIA_ROOT, self.image)) #@UndefinedVariable
+        haarFace = cv.Load(os.path.join(STATIC_ROOT, "haarcascade_frontalface_default.xml"))  # @UndefinedVariable
+        storage = cv.CreateMemStorage() #@UndefinedVariable
+        detectedFaces = cv.HaarDetectObjects(imcolor, haarFace, storage, min_size = (200, 200)) #@UndefinedVariable
+        if detectedFaces:
+            for face in detectedFaces:
+                fata = DetectedFace(imagine = self, x = face[0][0], y = face[0][1], width = face[0][2], height = face[0][3])
+                fata.save()
+                
+        self.is_face_processed = True
+        self.save()        
+        
+        
+# tagging.register(Imagine)
 
 class EXIFData(models.Model):
     imagine = models.ForeignKey(Imagine)
@@ -265,3 +341,16 @@ class FlagReport(models.Model):
         
     def __unicode__(self):
         return "Raport de %s la " % self.motiv
+    
+    
+class DetectedFace(models.Model):
+    imagine = models.ForeignKey(Imagine)
+    x = models.IntegerField()
+    y = models.IntegerField()
+    width = models.IntegerField()
+    height = models.IntegerField()
+    
+    content_type = models.ForeignKey(ContentType, null = True, blank = True)
+    object_id = models.PositiveIntegerField(null = True, blank = True)
+    content_object = GenericForeignKey()
+    

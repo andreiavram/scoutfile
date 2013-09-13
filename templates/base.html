@@ -5,12 +5,14 @@
 	<head>
 		<meta name="viewport" content="width=device-width">
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<title>ScoutFile v3</title>
-
+		<title>ScoutFile</title>
+		
+		{% comment %}
 		<script src="//d3nslu0hdya83q.cloudfront.net/dist/1.0/raven.min.js"></script>	
 		<script>
 			Raven.config('http://cce06e32cfae4025af7c2b39b889bc27@yeti.albascout.ro/sentry/2').install();
 		</script>
+		{% endcomment %}
 			
 		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
@@ -51,15 +53,15 @@
 	    		</div>
 	    	</div>
 	    </div>
-		<div id = "content-wrapper" class = "container-fluid" style = "min-height: 500px">
+		<div id = "content-wrapper" class = "container-fluid">
 			<div class = "row">
-				<div id="menu" class="span2">
-					{% block context_menu %}
-						&nbsp;
-					{% endblock %}
+				<div id="menu" class="span3">
+						{% block context_menu %}
+							&nbsp;
+						{% endblock %}
 				</div>
 				
-				<div id="content" class = "span10">
+				<div id="content" class = "span9">
 					<div id="content-inner">
 						<div class = "page-header">
 							<h1>{% block page_title %}ScoutFile{% endblock %}</h1>
@@ -88,8 +90,18 @@
 			</div>
 		</div>
 	
-		<div id="footer" style = "margin-bottom: 10px;"><div id="footer-inner">&copy; 2012 <a href = "http://yeti.albascout.ro">yeti</a>. Gata oricând! Variantă de testare - <a href = "{% url issues %}"><i class = "icon-exclamation-sign"></i> Ai dat de o problemă?</a></a></div></div>
+		<div id="footer"><div id="footer-inner">&copy; 2013 <a href = "http://yeti.albascout.ro">yeti</a>. Gata oricând! Variantă de testare - <a href = "{% url issues %}"><i class = "icon-exclamation-sign"></i> Ai dat de o problemă?</a></a></div></div>
 		{% block extrajs %}
 		{% endblock %}
+		<script type = "text/javascript">
+			$("document").ready(function () {
+				$("#menu").css({"height" : $("#content-wrapper").height()});
+				$("#content").css({"height" : $("#content-wrapper").height()})
+				$("#content-wrapper").resize(function () {
+					$("#menu").css({"height" : $("#content-wrapper").height()});
+					$("#content").css({"height" : $("#content-wrapper").height()})
+				});
+			});
+		</script>
 	</body>
 </html>

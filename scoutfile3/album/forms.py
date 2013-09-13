@@ -7,8 +7,10 @@ Created on Aug 31, 2012
 from scoutfile3.generic.forms import CrispyBaseModelForm
 from scoutfile3.album.models import FlagReport, FLAG_MOTIVES
 from django import forms
+from album.models import SetPoze
 from django.forms.widgets import RadioSelect, Textarea
 from django.core.exceptions import ValidationError
+from django.forms.fields import CharField
 
 class ReportForm(CrispyBaseModelForm):
     class Meta:
@@ -33,4 +35,17 @@ class ReportForm(CrispyBaseModelForm):
                 raise ValidationError(u"Daca ai selectat 'alt motiv' trebuie să spui și care este acesta")
         
         return self.cleaned_data
+        
+        
+class SetPozeCreateForm(CrispyBaseModelForm):
+    class Meta:
+        model = SetPoze
+        exclude = ["autor_user", "status"]
+    
+
+class SetPozeUpdateForm(CrispyBaseModelForm):
+    class Meta:
+        model = SetPoze
+        exclude = ["autor_user", "status", "zip_file", "eveniment"]
+        
         

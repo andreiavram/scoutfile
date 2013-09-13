@@ -6,7 +6,7 @@ from django.views.generic.edit import DeleteView, FormView
 from django.contrib import messages
 from scoutfile3.generic.forms import CrispyBaseDeleteForm, LoginForm,\
     IssueCreateForm
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth import logout, authenticate, login
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
@@ -224,4 +224,91 @@ class CreateIssue(FormView):
     
     def get_success_url(self):
         return reverse("issues")
+
+
+class ScoutFileAjaxException(Exception):
+    def __init__(self, *args, **kwargs):
+        self.original_exception = kwargs.get('exception', None)
+        self.extra_message = kwargs.get("extra_message", None)
+    
+    def to_response(self):
+        json_dict = {"original_exception" : "%s" % self.original_exception, "extra_message" : "%s" % self.extra_message}
+        return HttpResponse(simplejson.dumps(json_dict), status = 500, content_type = "text/json")
+    
+    @classmethod
+    def validation_compose(self, missing = {}, errors = {}, call = ""):
+        return ScoutFileAjaxException(extra_message = "%s: Validation error, missing required params: %s, params that errored out %s" % (call, missing, errors))
+        
+    @classmethod
+    def generic_response(cls, e, stack_trace):
+        json = {"status" : "error", "exception" : "%s" % e, "trace" : "%s" % stack_trace}
+        return HttpResponse(simplejson.dumps(json), status = 500, content_type = "text/json")
+    
+    def __unicode__(self):
+        return "Error: $s, %s" % (self.original_exception, self.extra_message)
+
+class JSONView(View):
+    """ Generic abstract view for API calls
+    """
+    _params = {}
+    
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            return super(JSONView, self).dispatch(request, *args, **kwargs)
+        except ScoutFileAjaxException, e:
+            return e.to_response()
+        except Exception, e:
+            return ScoutFileAjaxException.generic_response(e, traceback.format_exc())
+    
+    @property
+    def params(self):
+        return self._params
+    
+    def parse_json_data(self):
+        try:
+            json = simplejson.loads(self.request.body)
+        except simplejson.JSONDecodeError, e:
+            json = self.request.POST.dict()
+        except Exception, e:
+            json = {}
+        
+        return json
+       
+    def validate(self, use_global_kwargs = True, **kwargs):
+        error_dict = {}
+        error_dict['missing'] = []
+        error_dict['error'] = []
+        
+        if use_global_kwargs:
+            kwargs.update(self.kwargs)
+        
+        self.cleaned_data = {}
+        #   checking and cleaning required params
+        for param in self.params:
+            if not kwargs.has_key(param):
+                if self.params.get(param).get("type", "optional") == "required":
+                    error_dict['missing'].append(param)
+                continue
+            
+            validator = getattr(self, "clean_%s" % param, self.default_cleaner)
+            try:
+                # ISSUE on len(INT) 
+                #if self.params.get(param).get("type", "optional") == "optional" and len(kwargs.get(param, "")) == 0:
+                if self.params.get(param).get("type", "optional") == "optional" and (kwargs.get(param) in ['', None]):
+                    continue
+                self.cleaned_data[param] = validator(kwargs.get(param))
+            except ScoutFileAjaxException, e:
+                error_dict['error'].append((param, e))
                 
+        if len(error_dict['missing']) + len(error_dict['error']):
+            raise ScoutFileAjaxException.validation_compose(missing = error_dict['missing'], 
+                                                          errors = error_dict['error'], call = self.__class__.__name__)
+        
+    def default_cleaner(self, value):
+        """ This is the default cleaner, by default it simply returns the value as
+        it got it """ 
+        return value
+    
+    def construct_json_response(self, **kwargs):
+        json = {}
+        return simplejson.dumps(json)           
