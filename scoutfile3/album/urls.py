@@ -3,6 +3,7 @@ from album.views import EvenimentDetail, ZiDetail, PozaDetail,\
     RotateImage, EvenimentStats, ZiStats, FlagImage, EvenimentList, \
     SetImaginiUpload, SetImaginiDeleteAjax, SetImaginiToate,\
     SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate
+from scoutfile3.album.views import ChangeImagineVisibility
 
 
 urlpatterns = patterns('scoutfile3.album.views',
@@ -23,4 +24,5 @@ urlpatterns = patterns('scoutfile3.album.views',
        (r'poza/(?P<pk>\d+)/$', PozaDetail.as_view(), {}, "poza_detail"),
        (r'poza/(?P<pk>\d+)/rotate/$', RotateImage.as_view(), {}, "poza_rotate"),
        (r'poza/(?P<pk>\d+)/flag/$', FlagImage.as_view(), {}, "poza_flag"),
+       (r'poza/visibility/', ChangeImagineVisibility.as_view(), {}, "poza_visibility"),
 )

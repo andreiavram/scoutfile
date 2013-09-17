@@ -29,6 +29,7 @@ urlpatterns = patterns('',
                        
     url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
     (r'ajax_select/', include('ajax_select.urls')),
+    (r'^photologue/', include('photologue.urls')),
 
     (r'login/$', Login.as_view(), {}, "login"),
     (r'logout/$', Logout.as_view(), {}, "logout"),

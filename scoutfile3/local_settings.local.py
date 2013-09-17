@@ -7,7 +7,7 @@ TEMPLATE_DEBUG = DEBUG
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'scoutfile3_base',                      # Or path to database file if using sqlite3.
+        'NAME': 'scoutfile3',                      # Or path to database file if using sqlite3.
         'USER': 'root',                      # Not used with sqlite3.
         'PASSWORD': 'sql123.',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -24,3 +24,6 @@ RECAPTCHA_PUBLIC_KEY = '6Leo2boSAAAAAMs0TyrzCbEEral5RbTs3qOKpws8'
 RECAPTCHA_PRIVATE_KEY = '6Leo2boSAAAAAJpxCUHYB6B1I1sDvZqFL1_dtwlh'
 RECAPTCHA_USE_SSL = True
 USE_EMAIL_CONFIRMATION = False
+
+# MEDIA_ROOT = "/vagrant/media/"
+# STATIC_ROOT = "/vagrant/static/"

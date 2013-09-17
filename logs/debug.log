@@ -6318,3 +6318,1483 @@ DEBUG 2013-09-11 01:20:42,150 generic 8579 140643166783296 execute "ALTER TABLE 
 DEBUG 2013-09-11 01:20:42,171 generic 8579 140643166783296 execute "ALTER TABLE `album_imagine` MODIFY `published_status` integer NOT NULL;;" with params "[]"
 DEBUG 2013-09-11 01:20:42,330 generic 8579 140643166783296 execute "ALTER TABLE `album_imagine` ALTER COLUMN `published_status` DROP DEFAULT;" with params "[]"
 DEBUG 2013-09-11 01:20:42,523 generic 8579 140643166783296 execute "SET FOREIGN_KEY_CHECKS=0;" with params "[]"
+DEBUG 2013-09-15 17:07:02,752 views 11513 140340495087360 http://yeti.albascout.ro/redmine/issues.json?project_id=1&limit=10&key=f393aac0746069a9de25eb251b0171b1ff1ed793&status_id=closed&sort=updated_on:desc
+DEBUG 2013-09-15 17:09:33,191 views 11513 140340503480064 SetImaginiUpload - form valid
+DEBUG 2013-09-15 17:10:39,212 models 11722 139646236821248 SetPoze: fisier extras <zipfile.ZipInfo object at 0x1f6b118>
+DEBUG 2013-09-15 17:10:39,213 models 11722 139646236821248 SetPoze skipping <zipfile.ZipInfo object at 0x1f6b118> pozetestalbum/ 
+DEBUG 2013-09-15 17:10:39,213 models 11722 139646236821248 SetPoze: fisier extras <zipfile.ZipInfo object at 0x1f6b1e0>
+DEBUG 2013-09-15 17:10:39,213 models 11722 139646236821248 SetPoze: extracting file pozetestalbum/DSC_6859.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+ERROR 2013-09-15 17:10:39,581 models 11722 139646236821248 SetPoze: error extracting files: No module named cv (Traceback (most recent call last):
+  File "/vagrant/scoutfile3/album/models.py", line 155, in process_zip_file
+    im.save()
+  File "/vagrant/scoutfile3/album/models.py", line 274, in save
+    self.find_faces()
+  File "/vagrant/scoutfile3/album/models.py", line 295, in find_faces
+    import cv
+ImportError: No module named cv
+)
+DEBUG 2013-09-15 22:29:40,307 views 1657 139740965136128 SetImaginiUpload - form valid
+DEBUG 2013-09-15 23:42:46,409 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36ed118>
+DEBUG 2013-09-15 23:42:46,409 models 1829 139772218062592 SetPoze skipping <zipfile.ZipInfo object at 0x36ed118> pozetestalbum/ 
+DEBUG 2013-09-15 23:42:46,409 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36ed1e0>
+DEBUG 2013-09-15 23:42:46,409 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6859.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:42:49,819 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36ed2a8>
+DEBUG 2013-09-15 23:42:49,819 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6858.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:42:50,687 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36ed370>
+DEBUG 2013-09-15 23:42:50,687 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6861.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:42:51,558 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36ed438>
+DEBUG 2013-09-15 23:42:51,558 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6862.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:42:52,490 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36ed500>
+DEBUG 2013-09-15 23:42:52,491 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6860.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:42:53,438 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36ed5c8>
+DEBUG 2013-09-15 23:42:53,438 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6864.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:42:54,306 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36ed690>
+DEBUG 2013-09-15 23:42:54,306 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6865.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:42:55,132 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36ed758>
+DEBUG 2013-09-15 23:42:55,133 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6866.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:42:55,967 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36ed820>
+DEBUG 2013-09-15 23:42:55,967 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6867.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:42:56,884 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36ed8e8>
+DEBUG 2013-09-15 23:42:56,884 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6868.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:42:57,904 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36ed9b0>
+DEBUG 2013-09-15 23:42:57,904 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6870.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:42:58,853 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36eda78>
+DEBUG 2013-09-15 23:42:58,854 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6872.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:42:59,836 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36edb40>
+DEBUG 2013-09-15 23:42:59,837 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6871.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:00,694 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36edc08>
+DEBUG 2013-09-15 23:43:00,694 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6873.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:01,579 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36edcd0>
+DEBUG 2013-09-15 23:43:01,580 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6863.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:02,582 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36edd98>
+DEBUG 2013-09-15 23:43:02,583 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6875.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:02,728 base 1657 139740965136128 Configuring Raven for host: http://cce06e32cfae4025af7c2b39b889bc27:79ab9be2ff1e428babc298166b5ad9f5@sentry.albascout.ro://2
+DEBUG 2013-09-15 23:43:03,807 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36ede60>
+DEBUG 2013-09-15 23:43:03,808 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6876.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:04,693 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x36edf28>
+DEBUG 2013-09-15 23:43:04,694 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6874.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:05,602 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x3717050>
+DEBUG 2013-09-15 23:43:05,602 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6878.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:06,446 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x3717118>
+DEBUG 2013-09-15 23:43:06,446 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6877.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:07,241 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x37171e0>
+DEBUG 2013-09-15 23:43:07,241 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6879.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:08,070 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x37172a8>
+DEBUG 2013-09-15 23:43:08,071 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6881.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:08,998 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x3717370>
+DEBUG 2013-09-15 23:43:08,998 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6882.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:09,987 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x3717438>
+DEBUG 2013-09-15 23:43:09,987 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6884.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:11,147 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x3717500>
+DEBUG 2013-09-15 23:43:11,148 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6883.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:12,022 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x37175c8>
+DEBUG 2013-09-15 23:43:12,023 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6886.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:12,957 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x3717690>
+DEBUG 2013-09-15 23:43:12,957 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6885.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:13,934 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x3717758>
+DEBUG 2013-09-15 23:43:13,934 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6888.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:14,773 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x3717820>
+DEBUG 2013-09-15 23:43:14,774 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6889.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:15,652 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x37178e8>
+DEBUG 2013-09-15 23:43:15,652 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6887.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:16,414 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x37179b0>
+DEBUG 2013-09-15 23:43:16,414 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6869.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-15 23:43:17,338 models 1829 139772218062592 SetPoze: fisier extras <zipfile.ZipInfo object at 0x3717a78>
+DEBUG 2013-09-15 23:43:17,339 models 1829 139772218062592 SetPoze: extracting file pozetestalbum/DSC_6880.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+ERROR 2013-09-15 23:43:44,013 base 1657 139740965136128 Unable to reach Sentry log server: <urlopen error [Errno -3] Temporary failure in name resolution> (url: http://sentry.albascout.ro//api/store/)
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/raven/base.py", line 490, in send_remote
+    self._send_remote(url=url, data=data, headers=headers)
+  File "/virtualenv/local/lib/python2.7/site-packages/raven/base.py", line 464, in _send_remote
+    return transport.send(data, headers)
+  File "/virtualenv/local/lib/python2.7/site-packages/raven/transport/base.py", line 171, in send
+    response = urllib2.urlopen(req, data, self.timeout).read()
+  File "/usr/lib/python2.7/urllib2.py", line 126, in urlopen
+    return _opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 400, in open
+    response = self._open(req, data)
+  File "/usr/lib/python2.7/urllib2.py", line 418, in _open
+    '_open', req)
+  File "/usr/lib/python2.7/urllib2.py", line 378, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 1207, in http_open
+    return self.do_open(httplib.HTTPConnection, req)
+  File "/usr/lib/python2.7/urllib2.py", line 1177, in do_open
+    raise URLError(err)
+URLError: <urlopen error [Errno -3] Temporary failure in name resolution>
+ERROR 2013-09-15 23:43:44,039 base 1657 139740965136128 Failed to submit message: 'IOError: decoder jpeg not available'
+ERROR 2013-09-15 23:43:44,040 base 1657 139740965136128 Internal Server Error: /album/eveniment/ccl2013/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/defaulttags.py", line 185, in render
+    nodelist.append(node.render(context))
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/defaulttags.py", line 185, in render
+    nodelist.append(node.render(context))
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 337, in _get_SIZE_url
+    self.create_size(photosize)
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 429, in create_size
+    im = self.resize_image(im, photosize)
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 392, in resize_image
+    im = im.resize((int(x), int(y)), Image.ANTIALIAS).crop(box)
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1290, in resize
+    self.load()
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/ImageFile.py", line 189, in load
+    d = Image._getdecoder(self.mode, d, a, self.decoderconfig)
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 385, in _getdecoder
+    raise IOError("decoder %s not available" % decoder_name)
+IOError: decoder jpeg not available
+ERROR 2013-09-15 23:44:15,737 base 1657 139740980020992 Unable to reach Sentry log server: <urlopen error [Errno -3] Temporary failure in name resolution> (url: http://sentry.albascout.ro//api/store/)
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/raven/base.py", line 490, in send_remote
+    self._send_remote(url=url, data=data, headers=headers)
+  File "/virtualenv/local/lib/python2.7/site-packages/raven/base.py", line 464, in _send_remote
+    return transport.send(data, headers)
+  File "/virtualenv/local/lib/python2.7/site-packages/raven/transport/base.py", line 171, in send
+    response = urllib2.urlopen(req, data, self.timeout).read()
+  File "/usr/lib/python2.7/urllib2.py", line 126, in urlopen
+    return _opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 400, in open
+    response = self._open(req, data)
+  File "/usr/lib/python2.7/urllib2.py", line 418, in _open
+    '_open', req)
+  File "/usr/lib/python2.7/urllib2.py", line 378, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 1207, in http_open
+    return self.do_open(httplib.HTTPConnection, req)
+  File "/usr/lib/python2.7/urllib2.py", line 1177, in do_open
+    raise URLError(err)
+URLError: <urlopen error [Errno -3] Temporary failure in name resolution>
+ERROR 2013-09-15 23:44:15,741 base 1657 139740980020992 Failed to submit message: 'IOError: decoder jpeg not available'
+ERROR 2013-09-15 23:44:15,743 base 1657 139740980020992 Internal Server Error: /album/eveniment/ccl2013/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/defaulttags.py", line 185, in render
+    nodelist.append(node.render(context))
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/defaulttags.py", line 185, in render
+    nodelist.append(node.render(context))
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 337, in _get_SIZE_url
+    self.create_size(photosize)
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 429, in create_size
+    im = self.resize_image(im, photosize)
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 392, in resize_image
+    im = im.resize((int(x), int(y)), Image.ANTIALIAS).crop(box)
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1290, in resize
+    self.load()
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/ImageFile.py", line 189, in load
+    d = Image._getdecoder(self.mode, d, a, self.decoderconfig)
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 385, in _getdecoder
+    raise IOError("decoder %s not available" % decoder_name)
+IOError: decoder jpeg not available
+ERROR 2013-09-15 23:44:22,982 base 1657 139740720396032 Unable to reach Sentry log server: <urlopen error [Errno -3] Temporary failure in name resolution> (url: http://sentry.albascout.ro//api/store/)
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/raven/base.py", line 490, in send_remote
+    self._send_remote(url=url, data=data, headers=headers)
+  File "/virtualenv/local/lib/python2.7/site-packages/raven/base.py", line 464, in _send_remote
+    return transport.send(data, headers)
+  File "/virtualenv/local/lib/python2.7/site-packages/raven/transport/base.py", line 171, in send
+    response = urllib2.urlopen(req, data, self.timeout).read()
+  File "/usr/lib/python2.7/urllib2.py", line 126, in urlopen
+    return _opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 400, in open
+    response = self._open(req, data)
+  File "/usr/lib/python2.7/urllib2.py", line 418, in _open
+    '_open', req)
+  File "/usr/lib/python2.7/urllib2.py", line 378, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 1207, in http_open
+    return self.do_open(httplib.HTTPConnection, req)
+  File "/usr/lib/python2.7/urllib2.py", line 1177, in do_open
+    raise URLError(err)
+URLError: <urlopen error [Errno -3] Temporary failure in name resolution>
+ERROR 2013-09-15 23:44:22,991 base 1657 139740720396032 Failed to submit message: 'IOError: decoder jpeg not available'
+ERROR 2013-09-15 23:44:23,008 base 1657 139740720396032 Internal Server Error: /album/eveniment/ccl2013/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/defaulttags.py", line 185, in render
+    nodelist.append(node.render(context))
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/defaulttags.py", line 185, in render
+    nodelist.append(node.render(context))
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 337, in _get_SIZE_url
+    self.create_size(photosize)
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 429, in create_size
+    im = self.resize_image(im, photosize)
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 392, in resize_image
+    im = im.resize((int(x), int(y)), Image.ANTIALIAS).crop(box)
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1290, in resize
+    self.load()
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/ImageFile.py", line 189, in load
+    d = Image._getdecoder(self.mode, d, a, self.decoderconfig)
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 385, in _getdecoder
+    raise IOError("decoder %s not available" % decoder_name)
+IOError: decoder jpeg not available
+DEBUG 2013-09-16 01:26:59,282 base 2002 140482172663552 Configuring Raven for host: http://cce06e32cfae4025af7c2b39b889bc27:79ab9be2ff1e428babc298166b5ad9f5@sentry.albascout.ro://2
+ERROR 2013-09-16 01:27:02,203 base 2002 140482172663552 Internal Server Error: /album/poza/5933/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 332, in _get_SIZE_size
+    return Image.open(self._get_SIZE_filename(size)).size
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1976, in open
+    fp = builtins.open(fp, "rb")
+IOError: [Errno 2] No such file or directory: '/vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/cache/DSC_6858_large.JPG'
+DEBUG 2013-09-16 01:28:59,532 views 2002 140482189448960 SetImaginiUpload - form valid
+DEBUG 2013-09-16 01:29:16,379 models 2093 140278945064704 SetPoze: fisier extras <zipfile.ZipInfo object at 0x33622a8>
+DEBUG 2013-09-16 01:29:16,379 models 2093 140278945064704 SetPoze: extracting file untitled-602.jpg to /vagrant/media/album/1/4/Andrei_AVRAM
+ERROR 2013-09-16 01:29:16,647 models 2093 140278945064704 SetPoze: error extracting files: cannot identify image file (Traceback (most recent call last):
+  File "/vagrant/scoutfile3/album/models.py", line 155, in process_zip_file
+    im.save()
+  File "/vagrant/scoutfile3/album/models.py", line 242, in save
+    im = Image.open(self.image)
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 2008, in open
+    raise IOError("cannot identify image file")
+IOError: cannot identify image file
+)
+DEBUG 2013-09-16 19:51:03,232 views 2280 139730179962624 http://yeti.albascout.ro/redmine/issues.json?project_id=1&limit=10&key=f393aac0746069a9de25eb251b0171b1ff1ed793&status_id=closed&sort=updated_on:desc
+DEBUG 2013-09-16 19:51:46,477 views 2280 139730163177216 http://yeti.albascout.ro/redmine/issues.json?project_id=1&limit=50&key=f393aac0746069a9de25eb251b0171b1ff1ed793&status_id=closed&sort=updated_on:desc
+DEBUG 2013-09-16 19:55:15,769 views 2280 139730179962624 SetImaginiUpload - form valid
+DEBUG 2013-09-16 19:56:02,947 models 2485 139836646766336 SetPoze: fisier extras <zipfile.ZipInfo object at 0x33c72a8>
+DEBUG 2013-09-16 19:56:02,947 models 2485 139836646766336 SetPoze skipping <zipfile.ZipInfo object at 0x33c72a8> pozetestalbum/ 
+DEBUG 2013-09-16 19:56:02,948 models 2485 139836646766336 SetPoze: fisier extras <zipfile.ZipInfo object at 0x33c7370>
+DEBUG 2013-09-16 19:56:02,948 models 2485 139836646766336 SetPoze: extracting file pozetestalbum/DSC_6859.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+ERROR 2013-09-16 19:56:03,158 models 2485 139836646766336 SetPoze: error extracting files: cannot identify image file (Traceback (most recent call last):
+  File "/vagrant/scoutfile3/album/models.py", line 155, in process_zip_file
+    im.save()
+  File "/vagrant/scoutfile3/album/models.py", line 242, in save
+    im = Image.open(self.image)
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 2008, in open
+    raise IOError("cannot identify image file")
+IOError: cannot identify image file
+)
+DEBUG 2013-09-16 20:05:26,703 views 2515 140032871651072 SetImaginiUpload - form valid
+ERROR 2013-09-16 20:09:22,136 models 2534 140622728148736 SetPoze: error extracting files: [Errno 17] File exists: '/vagrant/media/album/1/4/Andrei_AVRAM' (Traceback (most recent call last):
+  File "/vagrant/scoutfile3/album/models.py", line 144, in process_zip_file
+    os.makedirs(os.path.join(MEDIA_ROOT, event_path))
+  File "/virtualenv/lib/python2.7/os.py", line 157, in makedirs
+    mkdir(name, mode)
+OSError: [Errno 17] File exists: '/vagrant/media/album/1/4/Andrei_AVRAM'
+)
+DEBUG 2013-09-16 20:11:07,789 views 2515 140032871651072 SetImaginiDeleteAjax: user is superuser: True, user is same membru object True
+DEBUG 2013-09-16 20:12:58,984 views 2515 140032871651072 SetImaginiUpload - form valid
+ERROR 2013-09-16 20:14:11,259 models 2586 140466641975040 SetPoze: error extracting files: [Errno 17] File exists: '/vagrant/media/album/1/4/Andrei_AVRAM' (Traceback (most recent call last):
+  File "/vagrant/scoutfile3/album/models.py", line 144, in process_zip_file
+    os.makedirs(os.path.join(MEDIA_ROOT, event_path))
+  File "/virtualenv/lib/python2.7/os.py", line 157, in makedirs
+    mkdir(name, mode)
+OSError: [Errno 17] File exists: '/vagrant/media/album/1/4/Andrei_AVRAM'
+)
+DEBUG 2013-09-16 20:32:32,028 views 1729 139821825652480 SetImaginiUpload - form valid
+DEBUG 2013-09-16 20:32:47,166 models 1745 140660880688896 SetPoze: fisier extras <zipfile.ZipInfo object at 0x39f72a8>
+DEBUG 2013-09-16 20:32:47,166 models 1745 140660880688896 SetPoze skipping <zipfile.ZipInfo object at 0x39f72a8> pozetestalbum/ 
+DEBUG 2013-09-16 20:32:47,166 models 1745 140660880688896 SetPoze: fisier extras <zipfile.ZipInfo object at 0x39f7370>
+DEBUG 2013-09-16 20:32:47,166 models 1745 140660880688896 SetPoze: extracting file pozetestalbum/DSC_6859.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:32:47,301 models 1745 140660880688896 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6859.JPG
+ERROR 2013-09-16 20:32:47,421 models 1745 140660880688896 SetPoze: error extracting files: cannot identify image file (Traceback (most recent call last):
+  File "/vagrant/scoutfile3/album/models.py", line 156, in process_zip_file
+    im.save()
+  File "/vagrant/scoutfile3/album/models.py", line 242, in save
+    im = Image.open(self.image)
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 2008, in open
+    raise IOError("cannot identify image file")
+IOError: cannot identify image file
+)
+DEBUG 2013-09-16 20:52:45,088 views 1838 140521476134656 SetImaginiUpload - form valid
+DEBUG 2013-09-16 20:53:00,018 models 1882 140186348623616 SetPoze: fisier extras <zipfile.ZipInfo object at 0x28ba2a8>
+DEBUG 2013-09-16 20:53:00,018 models 1882 140186348623616 SetPoze skipping <zipfile.ZipInfo object at 0x28ba2a8> pozetestalbum/ 
+DEBUG 2013-09-16 20:53:00,019 models 1882 140186348623616 SetPoze: fisier extras <zipfile.ZipInfo object at 0x28ba370>
+DEBUG 2013-09-16 20:53:00,019 models 1882 140186348623616 SetPoze: extracting file pozetestalbum/DSC_6859.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:53:00,154 models 1882 140186348623616 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6859.JPG
+ERROR 2013-09-16 20:53:00,242 models 1882 140186348623616 SetPoze: error extracting files: 'ImageFieldFile' object has no attribute 'startswith' (Traceback (most recent call last):
+  File "/vagrant/scoutfile3/album/models.py", line 156, in process_zip_file
+    im.save()
+  File "/vagrant/scoutfile3/album/models.py", line 242, in save
+    im = Image.open(os.path.join(MEDIA_ROOT, self.image))
+  File "/virtualenv/lib/python2.7/posixpath.py", line 66, in join
+    if b.startswith('/'):
+AttributeError: 'ImageFieldFile' object has no attribute 'startswith'
+)
+DEBUG 2013-09-16 20:53:31,545 views 1889 139707877746432 SetImaginiDeleteAjax: user is superuser: True, user is same membru object True
+DEBUG 2013-09-16 20:53:37,715 views 1889 139707877746432 SetImaginiUpload - form valid
+DEBUG 2013-09-16 20:53:46,114 models 1898 140366043948800 SetPoze: fisier extras <zipfile.ZipInfo object at 0x32d22a8>
+DEBUG 2013-09-16 20:53:46,115 models 1898 140366043948800 SetPoze skipping <zipfile.ZipInfo object at 0x32d22a8> pozetestalbum/ 
+DEBUG 2013-09-16 20:53:46,115 models 1898 140366043948800 SetPoze: fisier extras <zipfile.ZipInfo object at 0x32d2370>
+DEBUG 2013-09-16 20:53:46,115 models 1898 140366043948800 SetPoze: extracting file pozetestalbum/DSC_6859.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:53:46,253 models 1898 140366043948800 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6859.JPG
+ERROR 2013-09-16 20:53:46,273 models 1898 140366043948800 SetPoze: error extracting files: cannot identify image file (Traceback (most recent call last):
+  File "/vagrant/scoutfile3/album/models.py", line 156, in process_zip_file
+    im.save()
+  File "/vagrant/scoutfile3/album/models.py", line 242, in save
+    im = Image.open(os.path.join(MEDIA_ROOT, "%s" % self.image))
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 2008, in open
+    raise IOError("cannot identify image file")
+IOError: cannot identify image file
+)
+DEBUG 2013-09-16 20:56:24,159 views 1913 140575474755328 SetImaginiDeleteAjax: user is superuser: True, user is same membru object True
+DEBUG 2013-09-16 20:56:29,677 views 1913 140575474755328 SetImaginiUpload - form valid
+DEBUG 2013-09-16 20:56:43,743 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22872a8>
+DEBUG 2013-09-16 20:56:43,744 models 1925 139992458675968 SetPoze skipping <zipfile.ZipInfo object at 0x22872a8> pozetestalbum/ 
+DEBUG 2013-09-16 20:56:43,744 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x2287370>
+DEBUG 2013-09-16 20:56:43,744 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6859.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:56:43,902 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6859.JPG
+DEBUG 2013-09-16 20:56:43,903 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6859.JPG
+DEBUG 2013-09-16 20:56:48,211 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x2287438>
+DEBUG 2013-09-16 20:56:48,211 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6858.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:56:48,381 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6858.JPG
+DEBUG 2013-09-16 20:56:48,381 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6858.JPG
+DEBUG 2013-09-16 20:56:49,274 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x2287500>
+DEBUG 2013-09-16 20:56:49,275 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6861.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:56:49,396 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6861.JPG
+DEBUG 2013-09-16 20:56:49,397 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6861.JPG
+DEBUG 2013-09-16 20:56:50,183 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22875c8>
+DEBUG 2013-09-16 20:56:50,183 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6862.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:56:50,376 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6862.JPG
+DEBUG 2013-09-16 20:56:50,377 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6862.JPG
+DEBUG 2013-09-16 20:56:51,243 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x2287690>
+DEBUG 2013-09-16 20:56:51,244 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6860.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:56:51,437 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6860.JPG
+DEBUG 2013-09-16 20:56:51,437 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6860.JPG
+DEBUG 2013-09-16 20:56:52,339 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x2287758>
+DEBUG 2013-09-16 20:56:52,339 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6864.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:56:53,632 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6864.JPG
+DEBUG 2013-09-16 20:56:53,632 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6864.JPG
+DEBUG 2013-09-16 20:56:54,418 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x2287820>
+DEBUG 2013-09-16 20:56:54,419 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6865.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:56:54,554 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6865.JPG
+DEBUG 2013-09-16 20:56:54,554 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6865.JPG
+DEBUG 2013-09-16 20:56:55,230 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22878e8>
+DEBUG 2013-09-16 20:56:55,230 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6866.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:56:55,368 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6866.JPG
+DEBUG 2013-09-16 20:56:55,368 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6866.JPG
+DEBUG 2013-09-16 20:56:56,078 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22879b0>
+DEBUG 2013-09-16 20:56:56,079 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6867.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:56:56,220 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6867.JPG
+DEBUG 2013-09-16 20:56:56,220 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6867.JPG
+DEBUG 2013-09-16 20:56:56,969 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x2287a78>
+DEBUG 2013-09-16 20:56:56,969 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6868.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:56:57,104 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6868.JPG
+DEBUG 2013-09-16 20:56:57,104 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6868.JPG
+DEBUG 2013-09-16 20:56:57,932 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x2287b40>
+DEBUG 2013-09-16 20:56:57,932 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6870.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:56:58,083 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6870.JPG
+DEBUG 2013-09-16 20:56:58,083 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6870.JPG
+DEBUG 2013-09-16 20:56:58,870 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x2287c08>
+DEBUG 2013-09-16 20:56:58,871 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6872.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:56:59,029 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6872.JPG
+DEBUG 2013-09-16 20:56:59,029 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6872.JPG
+DEBUG 2013-09-16 20:56:59,834 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x2287cd0>
+DEBUG 2013-09-16 20:56:59,835 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6871.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:56:59,955 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6871.JPG
+DEBUG 2013-09-16 20:56:59,955 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6871.JPG
+DEBUG 2013-09-16 20:57:00,684 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x2287d98>
+DEBUG 2013-09-16 20:57:00,684 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6873.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:00,831 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6873.JPG
+DEBUG 2013-09-16 20:57:00,831 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6873.JPG
+DEBUG 2013-09-16 20:57:01,600 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x2287e60>
+DEBUG 2013-09-16 20:57:01,600 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6863.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:01,751 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6863.JPG
+DEBUG 2013-09-16 20:57:01,752 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6863.JPG
+DEBUG 2013-09-16 20:57:02,633 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x2287f28>
+DEBUG 2013-09-16 20:57:02,634 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6875.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:02,828 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6875.JPG
+DEBUG 2013-09-16 20:57:02,829 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6875.JPG
+DEBUG 2013-09-16 20:57:03,688 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22a0050>
+DEBUG 2013-09-16 20:57:03,688 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6876.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:03,834 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6876.JPG
+DEBUG 2013-09-16 20:57:03,835 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6876.JPG
+DEBUG 2013-09-16 20:57:04,597 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22a0118>
+DEBUG 2013-09-16 20:57:04,598 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6874.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:04,712 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6874.JPG
+DEBUG 2013-09-16 20:57:04,712 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6874.JPG
+DEBUG 2013-09-16 20:57:05,459 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22a01e0>
+DEBUG 2013-09-16 20:57:05,460 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6878.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:05,568 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6878.JPG
+DEBUG 2013-09-16 20:57:05,568 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6878.JPG
+DEBUG 2013-09-16 20:57:06,307 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22a02a8>
+DEBUG 2013-09-16 20:57:06,308 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6877.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:07,899 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6877.JPG
+DEBUG 2013-09-16 20:57:07,899 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6877.JPG
+DEBUG 2013-09-16 20:57:08,686 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22a0370>
+DEBUG 2013-09-16 20:57:08,686 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6879.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:08,814 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6879.JPG
+DEBUG 2013-09-16 20:57:08,814 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6879.JPG
+DEBUG 2013-09-16 20:57:09,667 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22a0438>
+DEBUG 2013-09-16 20:57:09,667 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6881.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:09,843 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6881.JPG
+DEBUG 2013-09-16 20:57:09,844 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6881.JPG
+DEBUG 2013-09-16 20:57:10,758 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22a0500>
+DEBUG 2013-09-16 20:57:10,759 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6882.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:10,917 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6882.JPG
+DEBUG 2013-09-16 20:57:10,918 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6882.JPG
+DEBUG 2013-09-16 20:57:11,886 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22a05c8>
+DEBUG 2013-09-16 20:57:11,886 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6884.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:12,108 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6884.JPG
+DEBUG 2013-09-16 20:57:12,108 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6884.JPG
+DEBUG 2013-09-16 20:57:13,118 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22a0690>
+DEBUG 2013-09-16 20:57:13,119 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6883.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:13,272 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6883.JPG
+DEBUG 2013-09-16 20:57:13,272 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6883.JPG
+DEBUG 2013-09-16 20:57:14,252 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22a0758>
+DEBUG 2013-09-16 20:57:14,253 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6886.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:14,452 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6886.JPG
+DEBUG 2013-09-16 20:57:14,452 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6886.JPG
+DEBUG 2013-09-16 20:57:15,500 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22a0820>
+DEBUG 2013-09-16 20:57:15,501 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6885.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:15,719 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6885.JPG
+DEBUG 2013-09-16 20:57:15,720 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6885.JPG
+DEBUG 2013-09-16 20:57:16,694 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22a08e8>
+DEBUG 2013-09-16 20:57:16,695 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6888.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:16,858 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6888.JPG
+DEBUG 2013-09-16 20:57:16,858 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6888.JPG
+DEBUG 2013-09-16 20:57:17,859 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22a09b0>
+DEBUG 2013-09-16 20:57:17,860 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6889.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:18,076 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6889.JPG
+DEBUG 2013-09-16 20:57:18,076 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6889.JPG
+DEBUG 2013-09-16 20:57:19,013 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22a0a78>
+DEBUG 2013-09-16 20:57:19,013 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6887.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:19,160 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6887.JPG
+DEBUG 2013-09-16 20:57:19,161 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6887.JPG
+DEBUG 2013-09-16 20:57:19,999 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22a0b40>
+DEBUG 2013-09-16 20:57:19,999 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6869.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:20,202 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6869.JPG
+DEBUG 2013-09-16 20:57:20,203 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6869.JPG
+DEBUG 2013-09-16 20:57:21,182 models 1925 139992458675968 SetPoze: fisier extras <zipfile.ZipInfo object at 0x22a0c08>
+DEBUG 2013-09-16 20:57:21,183 models 1925 139992458675968 SetPoze: extracting file pozetestalbum/DSC_6880.JPG to /vagrant/media/album/1/4/Andrei_AVRAM
+DEBUG 2013-09-16 20:57:21,325 models 1925 139992458675968 SetPoze: poza: album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6880.JPG
+DEBUG 2013-09-16 20:57:21,325 models 1925 139992458675968 Imagine.save: opening file: /vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/DSC_6880.JPG
+DEBUG 2013-09-16 21:02:05,800 base 1913 140575474755328 Configuring Raven for host: http://cce06e32cfae4025af7c2b39b889bc27:79ab9be2ff1e428babc298166b5ad9f5@sentry.albascout.ro://2
+ERROR 2013-09-16 21:02:06,897 base 1913 140575474755328 Internal Server Error: /album/poza/5964/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 332, in _get_SIZE_size
+    return Image.open(self._get_SIZE_filename(size)).size
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1976, in open
+    fp = builtins.open(fp, "rb")
+IOError: [Errno 2] No such file or directory: '/vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/cache/DSC_6859_large.JPG'
+ERROR 2013-09-16 21:03:01,188 base 1913 140575474755328 Internal Server Error: /album/poza/5964/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 332, in _get_SIZE_size
+    return Image.open(self._get_SIZE_filename(size)).size
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1976, in open
+    fp = builtins.open(fp, "rb")
+IOError: [Errno 2] No such file or directory: '/vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/cache/DSC_6859_large.JPG'
+ERROR 2013-09-16 21:03:04,426 base 1913 140575474755328 Internal Server Error: /album/poza/5964/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 332, in _get_SIZE_size
+    return Image.open(self._get_SIZE_filename(size)).size
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1976, in open
+    fp = builtins.open(fp, "rb")
+IOError: [Errno 2] No such file or directory: '/vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/cache/DSC_6859_large.JPG'
+ERROR 2013-09-16 21:03:06,015 base 1913 140575474755328 Internal Server Error: /album/poza/5964/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 332, in _get_SIZE_size
+    return Image.open(self._get_SIZE_filename(size)).size
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1976, in open
+    fp = builtins.open(fp, "rb")
+IOError: [Errno 2] No such file or directory: '/vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/cache/DSC_6859_large.JPG'
+DEBUG 2013-09-16 21:06:44,054 base 2063 140549196982016 Configuring Raven for host: http://cce06e32cfae4025af7c2b39b889bc27:79ab9be2ff1e428babc298166b5ad9f5@sentry.albascout.ro://2
+ERROR 2013-09-16 21:06:44,541 base 2063 140549196982016 Internal Server Error: /album/poza/5964/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 335, in _get_SIZE_size
+    return Image.open(self._get_SIZE_filename(size)).size
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1976, in open
+    fp = builtins.open(fp, "rb")
+IOError: [Errno 2] No such file or directory: '/vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/cache/DSC_6859_large.JPG'
+ERROR 2013-09-16 21:06:46,863 base 2063 140549196982016 Internal Server Error: /album/poza/5964/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 335, in _get_SIZE_size
+    return Image.open(self._get_SIZE_filename(size)).size
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1976, in open
+    fp = builtins.open(fp, "rb")
+IOError: [Errno 2] No such file or directory: '/vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/cache/DSC_6859_large.JPG'
+ERROR 2013-09-16 21:09:52,539 base 2063 140549196982016 Internal Server Error: /album/poza/5964/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 335, in _get_SIZE_size
+    return Image.open(self._get_SIZE_filename(size)).size
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1976, in open
+    fp = builtins.open(fp, "rb")
+IOError: [Errno 2] No such file or directory: '/vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/cache/DSC_6859_large.JPG'
+DEBUG 2013-09-16 21:11:22,671 generic 2078 140100703807232 execute "SET FOREIGN_KEY_CHECKS=0;" with params "[]"
+DEBUG 2013-09-16 21:11:22,730 generic 2078 140100703807232 execute "SET FOREIGN_KEY_CHECKS=0;" with params "[]"
+DEBUG 2013-09-16 21:11:22,732 generic 2078 140100703807232 execute "CREATE TABLE `photologue_gallery` (`id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY, `date_added` datetime NOT NULL, `title` varchar(100) NOT NULL UNIQUE, `title_slug` varchar(50) NOT NULL UNIQUE, `description` longtext NOT NULL, `is_public` bool NOT NULL, `tags` varchar(255) NOT NULL)" with params "[]"
+DEBUG 2013-09-16 21:15:04,007 generic 2115 140629002770176 execute "SET FOREIGN_KEY_CHECKS=0;" with params "[]"
+DEBUG 2013-09-16 21:15:04,122 generic 2115 140629002770176 execute "SET FOREIGN_KEY_CHECKS=0;" with params "[]"
+DEBUG 2013-09-16 21:15:04,125 generic 2115 140629002770176 execute "CREATE TABLE `photologue_gallery` (`id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY, `date_added` datetime NOT NULL, `title` varchar(100) NOT NULL UNIQUE, `title_slug` varchar(50) NOT NULL UNIQUE, `description` longtext NOT NULL, `is_public` bool NOT NULL, `tags` varchar(255) NOT NULL)" with params "[]"
+DEBUG 2013-09-16 21:15:04,130 generic 2115 140629002770176 execute "CREATE TABLE `photologue_gallery_photos` (`id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY, `gallery_id` integer NOT NULL, `photo_id` integer NOT NULL)" with params "[]"
+DEBUG 2013-09-16 21:15:04,135 generic 2115 140629002770176 execute "ALTER TABLE `photologue_gallery_photos` ADD CONSTRAINT `photologue_gallery_photos_gallery_id_66baa6b5cca2390_uniq` UNIQUE (`gallery_id`, `photo_id`)" with params "[]"
+DEBUG 2013-09-16 21:15:04,151 generic 2115 140629002770176 execute "CREATE TABLE `photologue_galleryupload` (`id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY, `zip_file` varchar(100) NOT NULL, `gallery_id` integer NULL, `title` varchar(75) NOT NULL, `caption` longtext NOT NULL, `description` longtext NOT NULL, `is_public` bool NOT NULL, `tags` varchar(255) NOT NULL)" with params "[]"
+DEBUG 2013-09-16 21:15:04,158 generic 2115 140629002770176 execute "CREATE TABLE `photologue_photo` (`id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY, `image` varchar(100) NOT NULL, `date_taken` datetime NULL, `view_count` integer UNSIGNED NOT NULL, `crop_from` varchar(10) NOT NULL, `effect_id` integer NULL, `title` varchar(100) NOT NULL UNIQUE, `title_slug` varchar(50) NOT NULL UNIQUE, `caption` longtext NOT NULL, `date_added` datetime NOT NULL, `is_public` bool NOT NULL, `tags` varchar(255) NOT NULL)" with params "[]"
+DEBUG 2013-09-16 21:15:04,165 generic 2115 140629002770176 execute "CREATE TABLE `photologue_photoeffect` (`id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY, `name` varchar(30) NOT NULL UNIQUE, `description` longtext NOT NULL, `transpose_method` varchar(15) NOT NULL, `color` double precision NOT NULL, `brightness` double precision NOT NULL, `contrast` double precision NOT NULL, `sharpness` double precision NOT NULL, `filters` varchar(200) NOT NULL, `reflection_size` double precision NOT NULL, `reflection_strength` double precision NOT NULL, `background_color` varchar(7) NOT NULL)" with params "[]"
+DEBUG 2013-09-16 21:15:04,171 generic 2115 140629002770176 execute "CREATE TABLE `photologue_watermark` (`id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY, `name` varchar(30) NOT NULL UNIQUE, `description` longtext NOT NULL, `image` varchar(100) NOT NULL, `style` varchar(5) NOT NULL, `opacity` double precision NOT NULL)" with params "[]"
+DEBUG 2013-09-16 21:15:04,178 generic 2115 140629002770176 execute "CREATE TABLE `photologue_photosize` (`id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY, `name` varchar(20) NOT NULL UNIQUE, `width` integer UNSIGNED NOT NULL, `height` integer UNSIGNED NOT NULL, `quality` integer UNSIGNED NOT NULL, `upscale` bool NOT NULL, `crop` bool NOT NULL, `pre_cache` bool NOT NULL, `increment_count` bool NOT NULL, `effect_id` integer NULL, `watermark_id` integer NULL)" with params "[]"
+DEBUG 2013-09-16 21:15:04,182 generic 2115 140629002770176 execute "ALTER TABLE `photologue_gallery_photos` ADD CONSTRAINT `gallery_id_refs_id_1a4563a0` FOREIGN KEY (`gallery_id`) REFERENCES `photologue_gallery` (`id`);" with params "[]"
+DEBUG 2013-09-16 21:15:04,189 generic 2115 140629002770176 execute "CREATE INDEX `photologue_gallery_photos_cb7c733d` ON `photologue_gallery_photos` (`gallery_id`);" with params "[]"
+DEBUG 2013-09-16 21:15:04,205 generic 2115 140629002770176 execute "ALTER TABLE `photologue_gallery_photos` ADD CONSTRAINT `photo_id_refs_id_41c9ecc` FOREIGN KEY (`photo_id`) REFERENCES `photologue_photo` (`id`);" with params "[]"
+DEBUG 2013-09-16 21:15:04,212 generic 2115 140629002770176 execute "CREATE INDEX `photologue_gallery_photos_7c6c8bb1` ON `photologue_gallery_photos` (`photo_id`);" with params "[]"
+DEBUG 2013-09-16 21:15:04,225 generic 2115 140629002770176 execute "ALTER TABLE `photologue_galleryupload` ADD CONSTRAINT `gallery_id_refs_id_90f5ac28` FOREIGN KEY (`gallery_id`) REFERENCES `photologue_gallery` (`id`);" with params "[]"
+DEBUG 2013-09-16 21:15:04,233 generic 2115 140629002770176 execute "CREATE INDEX `photologue_galleryupload_cb7c733d` ON `photologue_galleryupload` (`gallery_id`);" with params "[]"
+DEBUG 2013-09-16 21:15:04,251 generic 2115 140629002770176 execute "ALTER TABLE `photologue_photo` ADD CONSTRAINT `effect_id_refs_id_3aefc8e` FOREIGN KEY (`effect_id`) REFERENCES `photologue_photoeffect` (`id`);" with params "[]"
+DEBUG 2013-09-16 21:15:04,260 generic 2115 140629002770176 execute "CREATE INDEX `photologue_photo_eb185d3f` ON `photologue_photo` (`effect_id`);" with params "[]"
+DEBUG 2013-09-16 21:15:04,276 generic 2115 140629002770176 execute "ALTER TABLE `photologue_photosize` ADD CONSTRAINT `effect_id_refs_id_8c67f1f5` FOREIGN KEY (`effect_id`) REFERENCES `photologue_photoeffect` (`id`);" with params "[]"
+DEBUG 2013-09-16 21:15:04,283 generic 2115 140629002770176 execute "CREATE INDEX `photologue_photosize_eb185d3f` ON `photologue_photosize` (`effect_id`);" with params "[]"
+DEBUG 2013-09-16 21:15:04,299 generic 2115 140629002770176 execute "ALTER TABLE `photologue_photosize` ADD CONSTRAINT `watermark_id_refs_id_887783e0` FOREIGN KEY (`watermark_id`) REFERENCES `photologue_watermark` (`id`);" with params "[]"
+DEBUG 2013-09-16 21:15:04,307 generic 2115 140629002770176 execute "CREATE INDEX `photologue_photosize_8036ac11` ON `photologue_photosize` (`watermark_id`);" with params "[]"
+DEBUG 2013-09-16 21:15:04,338 generic 2115 140629002770176 execute "SET FOREIGN_KEY_CHECKS=0;" with params "[]"
+DEBUG 2013-09-16 21:15:04,341 generic 2115 140629002770176 execute "SET FOREIGN_KEY_CHECKS=0;" with params "[]"
+DEBUG 2013-09-16 21:15:04,342 generic 2115 140629002770176 execute "
+            SELECT kc.`constraint_name`, kc.`column_name`, kc.`table_name`,
+                kc.`referenced_table_name`, kc.`referenced_column_name`
+            FROM information_schema.key_column_usage AS kc
+            WHERE
+                kc.table_schema = %s
+        " with params "['scoutfile3']"
+DEBUG 2013-09-16 21:15:04,347 generic 2115 140629002770176 execute "
+            SELECT c.constraint_name, c.table_name, c.constraint_type
+            FROM information_schema.table_constraints AS c
+            WHERE
+                c.table_schema = %s
+        " with params "['scoutfile3']"
+DEBUG 2013-09-16 21:15:04,351 generic 2115 140629002770176 execute "ALTER TABLE `photologue_gallery` ;" with params "[]"
+DEBUG 2013-09-16 21:15:04,352 generic 2115 140629002770176 execute "ALTER TABLE `photologue_gallery` MODIFY `title` varchar(50) NOT NULL;;" with params "[]"
+DEBUG 2013-09-16 21:15:04,360 generic 2115 140629002770176 execute "ALTER TABLE `photologue_gallery` ALTER COLUMN `title` DROP DEFAULT;" with params "[]"
+DEBUG 2013-09-16 21:15:04,365 generic 2115 140629002770176 execute "
+            SELECT kc.`constraint_name`, kc.`column_name`, kc.`table_name`,
+                kc.`referenced_table_name`, kc.`referenced_column_name`
+            FROM information_schema.key_column_usage AS kc
+            WHERE
+                kc.table_schema = %s
+        " with params "['scoutfile3']"
+DEBUG 2013-09-16 21:15:04,370 generic 2115 140629002770176 execute "
+            SELECT c.constraint_name, c.table_name, c.constraint_type
+            FROM information_schema.table_constraints AS c
+            WHERE
+                c.table_schema = %s
+        " with params "['scoutfile3']"
+DEBUG 2013-09-16 21:15:04,374 generic 2115 140629002770176 execute "ALTER TABLE `photologue_galleryupload` ;" with params "[]"
+DEBUG 2013-09-16 21:15:04,375 generic 2115 140629002770176 execute "ALTER TABLE `photologue_galleryupload` MODIFY `title` varchar(50) NOT NULL;;" with params "[]"
+DEBUG 2013-09-16 21:15:04,384 generic 2115 140629002770176 execute "ALTER TABLE `photologue_galleryupload` ALTER COLUMN `title` DROP DEFAULT;" with params "[]"
+DEBUG 2013-09-16 21:15:04,389 generic 2115 140629002770176 execute "SET FOREIGN_KEY_CHECKS=0;" with params "[]"
+DEBUG 2013-09-16 21:15:04,390 generic 2115 140629002770176 execute "
+            SELECT kc.`constraint_name`, kc.`column_name`, kc.`table_name`,
+                kc.`referenced_table_name`, kc.`referenced_column_name`
+            FROM information_schema.key_column_usage AS kc
+            WHERE
+                kc.table_schema = %s
+        " with params "['scoutfile3']"
+DEBUG 2013-09-16 21:15:04,395 generic 2115 140629002770176 execute "
+            SELECT c.constraint_name, c.table_name, c.constraint_type
+            FROM information_schema.table_constraints AS c
+            WHERE
+                c.table_schema = %s
+        " with params "['scoutfile3']"
+DEBUG 2013-09-16 21:15:04,399 generic 2115 140629002770176 execute "ALTER TABLE `photologue_photo` ;" with params "[]"
+DEBUG 2013-09-16 21:15:04,400 generic 2115 140629002770176 execute "ALTER TABLE `photologue_photo` MODIFY `title` varchar(50) NOT NULL;;" with params "[]"
+DEBUG 2013-09-16 21:15:04,407 generic 2115 140629002770176 execute "ALTER TABLE `photologue_photo` ALTER COLUMN `title` DROP DEFAULT;" with params "[]"
+DEBUG 2013-09-16 21:15:04,430 generic 2115 140629002770176 execute "SET FOREIGN_KEY_CHECKS=0;" with params "[]"
+DEBUG 2013-09-16 21:15:04,432 generic 2115 140629002770176 execute "
+            SELECT kc.`constraint_name`, kc.`column_name`, kc.`table_name`,
+                kc.`referenced_table_name`, kc.`referenced_column_name`
+            FROM information_schema.key_column_usage AS kc
+            WHERE
+                kc.table_schema = %s
+        " with params "['scoutfile3']"
+DEBUG 2013-09-16 21:15:04,436 generic 2115 140629002770176 execute "
+            SELECT c.constraint_name, c.table_name, c.constraint_type
+            FROM information_schema.table_constraints AS c
+            WHERE
+                c.table_schema = %s
+        " with params "['scoutfile3']"
+DEBUG 2013-09-16 21:15:04,440 generic 2115 140629002770176 execute "ALTER TABLE `photologue_photosize` ;" with params "[]"
+DEBUG 2013-09-16 21:15:04,441 generic 2115 140629002770176 execute "ALTER TABLE `photologue_photosize` MODIFY `name` varchar(40) NOT NULL;;" with params "[]"
+DEBUG 2013-09-16 21:15:04,449 generic 2115 140629002770176 execute "ALTER TABLE `photologue_photosize` ALTER COLUMN `name` DROP DEFAULT;" with params "[]"
+DEBUG 2013-09-16 21:15:04,471 generic 2115 140629002770176 execute "SET FOREIGN_KEY_CHECKS=0;" with params "[]"
+ERROR 2013-09-16 21:16:16,846 base 2063 140549113771776 Internal Server Error: /admin/photologue/photosize/add/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 111, in get_response
+    response = callback(request, *callback_args, **callback_kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/contrib/admin/options.py", line 366, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/decorators.py", line 91, in _wrapped_view
+    response = view_func(request, *args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/decorators/cache.py", line 89, in _wrapped_view_func
+    response = view_func(request, *args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/contrib/admin/sites.py", line 196, in inner
+    return view(request, *args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/decorators.py", line 25, in _wrapper
+    return bound_func(*args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/decorators.py", line 91, in _wrapped_view
+    response = view_func(request, *args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/decorators.py", line 21, in bound_func
+    return func(self, *args2, **kwargs2)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/transaction.py", line 209, in inner
+    return func(*args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/contrib/admin/options.py", line 955, in add_view
+    self.save_model(request, new_object, form, False)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/contrib/admin/options.py", line 709, in save_model
+    obj.save()
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 726, in save
+    super(PhotoSize, self).save(*args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/base.py", line 463, in save
+    self.save_base(using=using, force_insert=force_insert, force_update=force_update)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/base.py", line 551, in save_base
+    result = manager._insert([self], fields=fields, return_id=update_pk, using=using, raw=raw)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/manager.py", line 203, in _insert
+    return insert_query(self.model, objs, fields, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/query.py", line 1593, in insert_query
+    return query.get_compiler(using=using).execute_sql(return_id)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 912, in execute_sql
+    cursor.execute(sql, params)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/backends/util.py", line 40, in execute
+    return self.cursor.execute(sql, params)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/backends/mysql/base.py", line 114, in execute
+    return self.cursor.execute(query, args)
+  File "/virtualenv/local/lib/python2.7/site-packages/MySQLdb/cursors.py", line 201, in execute
+    self.errorhandler(self, exc, value)
+  File "/virtualenv/local/lib/python2.7/site-packages/MySQLdb/connections.py", line 36, in defaulterrorhandler
+    raise errorclass, errorvalue
+IntegrityError: (1062, "Duplicate entry 'profile' for key 'name'")
+ERROR 2013-09-16 21:17:17,699 base 2063 140549096986368 Internal Server Error: /album/poza/5964/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 335, in _get_SIZE_size
+    return Image.open(self._get_SIZE_filename(size)).size
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1976, in open
+    fp = builtins.open(fp, "rb")
+IOError: [Errno 2] No such file or directory: '/vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/cache/DSC_6859_large.JPG'
+ERROR 2013-09-16 21:17:19,923 base 2063 140549096986368 Internal Server Error: /album/poza/5964/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 335, in _get_SIZE_size
+    return Image.open(self._get_SIZE_filename(size)).size
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1976, in open
+    fp = builtins.open(fp, "rb")
+IOError: [Errno 2] No such file or directory: '/vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/cache/DSC_6859_large.JPG'
+DEBUG 2013-09-16 23:18:49,415 base 1577 140499807631104 Configuring Raven for host: http://cce06e32cfae4025af7c2b39b889bc27:79ab9be2ff1e428babc298166b5ad9f5@sentry.albascout.ro://2
+ERROR 2013-09-16 23:18:49,858 base 1577 140499807631104 Internal Server Error: /album/poza/5965/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 335, in _get_SIZE_size
+    return Image.open(self._get_SIZE_filename(size)).size
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1976, in open
+    fp = builtins.open(fp, "rb")
+IOError: [Errno 2] No such file or directory: '/vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/cache/DSC_6858_large.JPG'
+ERROR 2013-09-16 23:38:11,167 base 1577 140499807631104 Internal Server Error: /album/poza/5965/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 335, in _get_SIZE_size
+    return Image.open(self._get_SIZE_filename(size)).size
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1976, in open
+IOError: [Errno 2] No such file or directory: '/vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/cache/DSC_6858_large.JPG'
+ERROR 2013-09-16 23:38:16,788 base 1577 140499807631104 Internal Server Error: /album/poza/5965/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 335, in _get_SIZE_size
+    return Image.open(self._get_SIZE_filename(size)).size
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1976, in open
+IOError: [Errno 2] No such file or directory: '/vagrant/media/album/1/4/Andrei_AVRAM/pozetestalbum/cache/DSC_6858_large.JPG'
+DEBUG 2013-09-17 02:47:09,585 base 2777 139711294281472 Configuring Raven for host: http://cce06e32cfae4025af7c2b39b889bc27:79ab9be2ff1e428babc298166b5ad9f5@sentry.albascout.ro://2
+ERROR 2013-09-17 02:47:09,977 base 2777 139711294281472 Internal Server Error: /album/eveniment/zi/26/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 111, in get_response
+    response = callback(request, *callback_args, **callback_kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/base.py", line 48, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/vagrant/scoutfile3/album/views.py", line 80, in dispatch
+    return super(ZiDetail, self).dispatch(request, *args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/base.py", line 69, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/detail.py", line 99, in get
+    context = self.get_context_data(object=self.object)
+  File "/vagrant/scoutfile3/album/views.py", line 89, in get_context_data
+    centru_local = self.object.set_poze.eveniment.centru_local
+AttributeError: 'ZiEveniment' object has no attribute 'set_poze'
+DEBUG 2013-09-17 02:47:40,656 base 2788 140405883504384 Configuring Raven for host: http://cce06e32cfae4025af7c2b39b889bc27:79ab9be2ff1e428babc298166b5ad9f5@sentry.albascout.ro://2
+ERROR 2013-09-17 02:47:40,895 base 2788 140405883504384 Internal Server Error: /album/eveniment/zi/26/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 111, in get_response
+    response = callback(request, *callback_args, **callback_kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/base.py", line 48, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/vagrant/scoutfile3/album/views.py", line 80, in dispatch
+    return super(ZiDetail, self).dispatch(request, *args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/base.py", line 69, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/detail.py", line 99, in get
+    context = self.get_context_data(object=self.object)
+  File "/vagrant/scoutfile3/album/views.py", line 90, in get_context_data
+    calitate = TipAsociereMembruStructura.objects.get(nume__iexact = u"PÄstrÄtor al amintirilor", content_types__in = [ContentType.objects.get_for_model(centru_local)])
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/manager.py", line 131, in get
+    return self.get_query_set().get(*args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/query.py", line 366, in get
+    % self.model._meta.object_name)
+DoesNotExist: TipAsociereMembruStructura matching query does not exist.
+DEBUG 2013-09-18 01:00:21,678 generic 1779 140409491588864 execute "SET FOREIGN_KEY_CHECKS=0;" with params "[]"
+DEBUG 2013-09-18 01:00:21,703 generic 1779 140409491588864 execute "SET FOREIGN_KEY_CHECKS=0;" with params "[]"
+DEBUG 2013-09-18 01:00:21,704 generic 1779 140409491588864 execute "ALTER TABLE `album_eveniment` ADD COLUMN `custom_cover_photo_id` integer NULL;" with params "[]"
+DEBUG 2013-09-18 01:00:21,708 generic 1779 140409491588864 execute "ALTER TABLE `album_eveniment` ;" with params "[]"
+DEBUG 2013-09-18 01:00:21,709 generic 1779 140409491588864 execute "ALTER TABLE `album_eveniment` MODIFY `custom_cover_photo_id` integer NULL;;" with params "[]"
+DEBUG 2013-09-18 01:00:21,712 generic 1779 140409491588864 execute "ALTER TABLE `album_eveniment` ALTER COLUMN `custom_cover_photo_id` DROP DEFAULT;" with params "[]"
+DEBUG 2013-09-18 01:00:21,715 generic 1779 140409491588864 execute "ALTER TABLE `album_eveniment` ADD CONSTRAINT `custom_cover_photo_id_refs_id_51e5aa82` FOREIGN KEY (`custom_cover_photo_id`) REFERENCES `album_imagine` (`id`);" with params "[]"
+DEBUG 2013-09-18 01:00:21,718 generic 1779 140409491588864 execute "CREATE INDEX `album_eveniment_34d9ea1a` ON `album_eveniment` (`custom_cover_photo_id`);" with params "[]"
+DEBUG 2013-09-18 01:28:24,083 base 1848 140632046429952 Configuring Raven for host: http://cce06e32cfae4025af7c2b39b889bc27:79ab9be2ff1e428babc298166b5ad9f5@sentry.albascout.ro://2
+ERROR 2013-09-18 01:28:24,969 base 1848 140632046429952 Internal Server Error: /album/eveniment/ccl2013/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 111, in get_response
+    response = callback(request, *callback_args, **callback_kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/base.py", line 48, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/vagrant/scoutfile3/album/views.py", line 46, in dispatch
+    return super(EvenimentDetail, self).dispatch(request, *args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/base.py", line 69, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/detail.py", line 99, in get
+    context = self.get_context_data(object=self.object)
+  File "/vagrant/scoutfile3/album/views.py", line 53, in get_context_data
+    zile[zi_eveniment] = zi_eveniment.filter_photos(autor=self.autor, user=self.request.user)
+  File "/vagrant/scoutfile3/../scoutfile3/album/models.py", line 126, in filter_photos
+    images = images.exclude(visibility_level__lt=self.eveniment.get_visibility_level(user))
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/query.py", line 631, in exclude
+    return self._filter_or_exclude(True, *args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/query.py", line 640, in _filter_or_exclude
+    clone.query.add_q(~Q(*args, **kwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/sql/query.py", line 1247, in add_q
+    self.add_q(child, used_aliases, force_having=force_having)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/sql/query.py", line 1250, in add_q
+    can_reuse=used_aliases, force_having=force_having)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/sql/query.py", line 1122, in add_filter
+    process_extras=process_extras)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/sql/query.py", line 1316, in setup_joins
+    "Choices are: %s" % (name, ", ".join(names)))
+FieldError: Cannot resolve keyword 'visibility_level' into field. Choices are: crop_from, data, date_taken, descriere, detectedface, effect, eveniment, exifdata, flagreport, id, image, is_deleted, is_face_processed, is_flagged, published_status, resolution_x, resolution_y, score, set_poze, titlu, view_count
+ERROR 2013-09-18 01:28:24,996 base 1848 140632031545088 Internal Server Error: /album/eveniment/ccl2013/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 111, in get_response
+    response = callback(request, *callback_args, **callback_kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/base.py", line 48, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/vagrant/scoutfile3/album/views.py", line 46, in dispatch
+    return super(EvenimentDetail, self).dispatch(request, *args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/base.py", line 69, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/detail.py", line 99, in get
+    context = self.get_context_data(object=self.object)
+  File "/vagrant/scoutfile3/album/views.py", line 53, in get_context_data
+    zile[zi_eveniment] = zi_eveniment.filter_photos(autor=self.autor, user=self.request.user)
+  File "/vagrant/scoutfile3/../scoutfile3/album/models.py", line 126, in filter_photos
+    images = images.exclude(visibility_level__lt=self.eveniment.get_visibility_level(user))
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/query.py", line 631, in exclude
+    return self._filter_or_exclude(True, *args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/query.py", line 640, in _filter_or_exclude
+    clone.query.add_q(~Q(*args, **kwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/sql/query.py", line 1247, in add_q
+    self.add_q(child, used_aliases, force_having=force_having)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/sql/query.py", line 1250, in add_q
+    can_reuse=used_aliases, force_having=force_having)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/sql/query.py", line 1122, in add_filter
+    process_extras=process_extras)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/db/models/sql/query.py", line 1316, in setup_joins
+    "Choices are: %s" % (name, ", ".join(names)))
+FieldError: Cannot resolve keyword 'visibility_level' into field. Choices are: crop_from, data, date_taken, descriere, detectedface, effect, eveniment, exifdata, flagreport, id, image, is_deleted, is_face_processed, is_flagged, published_status, resolution_x, resolution_y, score, set_poze, titlu, view_count
+DEBUG 2013-09-18 01:30:12,316 base 1860 140270607644416 Configuring Raven for host: http://cce06e32cfae4025af7c2b39b889bc27:79ab9be2ff1e428babc298166b5ad9f5@sentry.albascout.ro://2
+ERROR 2013-09-18 01:30:12,882 base 1860 140270607644416 Internal Server Error: /album/poza/5995/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 111, in get_response
+    response = callback(request, *callback_args, **callback_kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/base.py", line 48, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/vagrant/scoutfile3/album/views.py", line 111, in dispatch
+    return super(PozaDetail, self).dispatch(request, *args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/base.py", line 69, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/detail.py", line 98, in get
+    self.object = self.get_object()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/detail.py", line 46, in get_object
+    % self.__class__.__name__)
+AttributeError: Generic detail view PozaDetail must be called with either an object pk or a slug.
+ERROR 2013-09-18 01:30:29,358 base 1860 140270690445056 Internal Server Error: /album/poza/5973/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 111, in get_response
+    response = callback(request, *callback_args, **callback_kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/base.py", line 48, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/vagrant/scoutfile3/album/views.py", line 111, in dispatch
+    return super(PozaDetail, self).dispatch(request, *args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/base.py", line 69, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/detail.py", line 98, in get
+    self.object = self.get_object()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/views/generic/detail.py", line 46, in get_object
+    % self.__class__.__name__)
+AttributeError: Generic detail view PozaDetail must be called with either an object pk or a slug.
+DEBUG 2013-09-18 01:41:09,055 base 2228 139857130641152 Configuring Raven for host: http://cce06e32cfae4025af7c2b39b889bc27:79ab9be2ff1e428babc298166b5ad9f5@sentry.albascout.ro://2
+ERROR 2013-09-18 01:41:10,394 base 2228 139857130641152 Internal Server Error: /album/set/all/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/defaulttags.py", line 185, in render
+    nodelist.append(node.render(context))
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/defaulttags.py", line 424, in render
+    raise e
+NoReverseMatch: Reverse for 'eveniment_detail' with arguments '()' and keyword arguments '{'slug': ''}' not found.
+ERROR 2013-09-18 01:49:58,907 base 2228 139857122248448 Internal Server Error: /album/set/all/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/defaulttags.py", line 185, in render
+    nodelist.append(node.render(context))
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/defaulttags.py", line 424, in render
+    raise e
+NoReverseMatch: Reverse for 'eveniment_detail' with arguments '()' and keyword arguments '{'slug': ''}' not found.
+DEBUG 2013-09-18 01:50:14,232 views 2228 139857122248448 http://yeti.albascout.ro/redmine/issues.json?project_id=1&limit=10&key=f393aac0746069a9de25eb251b0171b1ff1ed793&status_id=closed&sort=updated_on:desc
+DEBUG 2013-09-18 02:25:43,358 views 2228 139857122248448 http://yeti.albascout.ro/redmine/issues.json?project_id=1&limit=10&key=f393aac0746069a9de25eb251b0171b1ff1ed793&status_id=closed&sort=updated_on:desc
+DEBUG 2013-09-18 02:29:01,030 views 2228 139857122248448 http://yeti.albascout.ro/redmine/issues.json?project_id=1&limit=10&key=f393aac0746069a9de25eb251b0171b1ff1ed793&status_id=closed&sort=updated_on:desc
+DEBUG 2013-09-18 02:29:48,162 views 2228 139857122248448 http://yeti.albascout.ro/redmine/issues.json?project_id=1&limit=10&key=f393aac0746069a9de25eb251b0171b1ff1ed793&status_id=closed&sort=updated_on:desc
+DEBUG 2013-09-18 02:30:00,734 views 2228 139857139033856 http://yeti.albascout.ro/redmine/issues.json?project_id=1&limit=10&key=f393aac0746069a9de25eb251b0171b1ff1ed793&status_id=closed&sort=updated_on:desc
+DEBUG 2013-09-18 02:30:24,094 views 2228 139857105463040 http://yeti.albascout.ro/redmine/issues.json?project_id=1&limit=10&key=f393aac0746069a9de25eb251b0171b1ff1ed793&status_id=closed&sort=updated_on:desc

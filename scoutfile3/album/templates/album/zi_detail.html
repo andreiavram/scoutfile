@@ -70,6 +70,19 @@
 					<a href = "javascript:void()" class = "btn btn-mini" id = "score_{{ image.id }}">{{ image.score }}</a>
 					<a href = "javascript:void()" class = "btn btn-mini thumbs_down" data-image = "{{ image.id }}"><i class = "icon-thumbs-down"></i></a>
 				</div>
+                {% if media_manager or request.user.is_superuser %}
+                <div class = "btn-group" style = "position: absolute; left: 70px; bottom: 10px; opacity: 1">
+                    <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class = "icon-eye-open"> </i> <span id = "current_visibility_{{ image.id }}">{{ image.get_published_status_display }}</span>
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        {% for state in visibility_states %}
+                            <li><a href = "#" data-imagine = "{{ image.id }}" data-value = "{{ state.0 }}" class = "visibility_action">{{ state.1 }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
 				<div class = "btn-group" style = "position: absolute; right: 10px; bottom: 10px; opacity: 1">
 					<a href = "{% url album:poza_flag pk=image.id %}" class = "btn btn-mini flag" data-image = "{{ image.id }}"><i class = "icon-flag"></i></a>
 				</div>
@@ -77,4 +90,25 @@
 		{% endfor %}
 		</ul>
 		{% paginate %}
+{% endblock %}
+
+{% block extrajs %}
+        <script>
+        $("document").ready(function () {
+            $(".visibility_action").click(function (e) {
+                var imagine_id = $(this).data("imagine");
+                $.post("{% url album:poza_visibility %}",
+                        {"imagine": $(this).data("imagine"), "new_status": $(this).data("value"), "csrfmiddlewaretoken" : "{{ csrf_token }}"},
+                        function (data) {
+                            $("#current_visibility_" + imagine_id).fadeOut(200, function () {
+                                console.log(data);
+                                $(this).text(data.new_status_string);
+                            }).fadeIn(200);
+                        },
+                        "json");
+                e.preventDefault();
+            });
+
+        });
+    </script>
 {% endblock %}
