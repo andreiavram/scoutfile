@@ -53,6 +53,7 @@
 	    		</div>
 	    	</div>
 	    </div>
+        <div id = "wrap">
 		<div id = "content-wrapper" class = "container-fluid">
 			<div class = "row">
 				<div id="menu" class="span3">
@@ -82,15 +83,20 @@
 					    	setTimeout("hide_messages()", 1000 * 3);
 					    </script>
 						</div>
-						
 						{% block content %}
 						{% endblock %}
 					</div>
 				</div>
 			</div>
 		</div>
-	
-		<div id="footer"><div id="footer-inner">&copy; 2013 <a href = "http://yeti.albascout.ro">yeti</a>. Gata oricând! Variantă de testare - <a href = "{% url issues %}"><i class = "icon-exclamation-sign"></i> Ai dat de o problemă?</a></a></div></div>
+        </div>
+
+        <div id="footer">
+                <div id = "footer-inner">
+                &copy; 2013 <a href = "http://yeti.albascout.ro">yeti</a>. Gata oricând! Variantă de testare - <a href = "{% url issues %}"><i class = "icon-exclamation-sign"></i> Ai dat de o problemă?</a></a>
+                </div>
+        </div>
+
 		{% block extrajs %}
 		{% endblock %}
 		<script type = "text/javascript">

@@ -2,9 +2,9 @@
 from django.db import models
 import tagging
 from photologue.models import ImageModel
-import Image
+from PIL import Image
 import datetime
-from scoutfile3.structuri.models import CentruLocal, Membru
+from scoutfile3.structuri.models import CentruLocal, Membru, TipAsociereMembruStructura
 from scoutfile3.settings import MEDIA_ROOT
 import os
 from zipfile import ZipFile
@@ -16,6 +16,7 @@ from django.contrib.contenttypes.models import ContentType
 
 logger = logging.getLogger(__name__)
 
+
 class Eveniment(models.Model):
     centru_local = models.ForeignKey(CentruLocal)
     nume = models.CharField(max_length = 255)
@@ -23,6 +24,8 @@ class Eveniment(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     slug = models.CharField(max_length = 255)
+
+    custom_cover_photo = models.ForeignKey("Imagine", null=True, blank=True)
     
     class Meta:
         verbose_name = u"Eveniment"
@@ -62,6 +65,9 @@ class Eveniment(models.Model):
         return autori
     
     def cover_photo(self):
+        if self.custom_cover_photo:
+            return self.custom_cover_photo
+
         if self.setpoze_set.all().count() == 0:
             return None
         
@@ -70,10 +76,30 @@ class Eveniment(models.Model):
                 return set_poze.imagine_set.all()[0]
         
         return None
-    
+
+    @property
     def total_poze(self):
         return Imagine.objects.filter(set_poze__eveniment = self).count()
-    
+
+    def get_visibility_level(self, user=None):
+        if user is None:
+            return 4
+
+        #   decide visibility level to go for
+        if user is not None and user.is_authenticated():
+            visibility_level = 3    #   this means organization level, logged in user
+            user_profile = user.get_profile().membru
+            if user_profile.centru_local == self.centru_local:
+                visibility_level = 2
+                if user_profile.are_calitate(TipAsociereMembruStructura.objects.get(nume=u"Păstrător al amintirilor"), self.centru_local):
+                    visibility_level = 1
+
+        #   superuser override
+        if user.is_superuser:
+            visibility_level = 1
+
+        return visibility_level
+
 class ZiEveniment(models.Model):
     eveniment = models.ForeignKey(Eveniment)
     date = models.DateField()
@@ -91,11 +117,13 @@ class ZiEveniment(models.Model):
             return self.titlu
         return u"Ziua %d" % self.index
     
-    def filter_photos(self, autor = None):
+    def filter_photos(self, autor=None, user=None):
         backward_limit = datetime.datetime.combine(self.date, datetime.time(0, 0, 0)) + datetime.timedelta(hours = 3)
         images = Imagine.objects.filter(set_poze__eveniment = self.eveniment, data__gte = backward_limit, data__lte = self.date + datetime.timedelta(days = 1))
-        if autor != None:
-            images = images.filter(set_poze__autor__icontains = autor)
+        if autor is not None:
+            images = images.filter(set_poze__autor__icontains=autor)
+
+        images = images.exclude(published_status__lt=self.eveniment.get_visibility_level(user))
         images = images.order_by("data")
         return images
     
@@ -142,7 +170,7 @@ class SetPoze(models.Model):
             event_path = os.path.join(MEDIA_ROOT, event_path_no_root) 
             if not os.path.exists(os.path.join(MEDIA_ROOT, event_path)):
                 os.makedirs(os.path.join(MEDIA_ROOT, event_path))
-            
+
             with ZipFile(self.zip_file) as zf:
                 for f in zf.infolist():
                     logger.debug("SetPoze: fisier extras %s" % f)
@@ -152,6 +180,7 @@ class SetPoze(models.Model):
                     logger.debug("SetPoze: extracting file %s to %s" % (f.filename, event_path))
                     zf.extract(f, event_path)
                     im = Imagine(set_poze = self, titlu = os.path.basename(f.filename), image = os.path.join(event_path_no_root, f.filename))
+                    logger.debug("SetPoze: poza: %s" % im.image)
                     im.save()
                     
         except Exception, e:
@@ -164,8 +193,7 @@ class SetPoze(models.Model):
         self.save()
     
         os.unlink(os.path.join(MEDIA_ROOT, "%s" % self.zip_file))
-    
-        
+
 IMAGINE_PUBLISHED_STATUS = ((1, "Secret"), (2, "Centru Local"), (3, "Organizație"), (4, "Public"))
 class Imagine(ImageModel):
     set_poze = models.ForeignKey(SetPoze)
@@ -211,8 +239,11 @@ class Imagine(ImageModel):
     def get_day(self):
         return self.set_poze.eveniment.zieveniment_set.get(date = self.data)
 
-    def get_next_photo(self, autor = None):
-        photo = Imagine.objects.filter(set_poze__eveniment = self.set_poze.eveniment, data__gt = self.data, data__lte = self.get_day().date + datetime.timedelta(days = 1))
+    def get_next_photo(self, autor = None, user=None):
+        photo = Imagine.objects.filter(published_status__gte = self.set_poze.eveniment.get_visibility_level(user=user),
+                                       set_poze__eveniment = self.set_poze.eveniment,
+                                       data__gt = self.data,
+                                       data__lte = self.get_day().date + datetime.timedelta(days = 1))
         if autor != None:
             photo = photo.filter(set_poze__autor__icontains = autor)
             
@@ -222,10 +253,12 @@ class Imagine(ImageModel):
             return photo[0]
         return None
     
-    def get_prev_photo(self, autor = None):
+    def get_prev_photo(self, autor = None, user=None):
         backward_limit = datetime.datetime.combine(self.get_day().date, datetime.time(0, 0, 0)) + datetime.timedelta(hours = 3)
-        photo = Imagine.objects.filter(set_poze__eveniment = self.set_poze.eveniment, data__lt = self.data, data__gte = backward_limit)
-        if autor != None:
+        photo = Imagine.objects.filter(published_status__gte = self.set_poze.eveniment.get_visibility_level(user=user),
+                                       set_poze__eveniment = self.set_poze.eveniment,
+                                       data__lt = self.data, data__gte = backward_limit)
+        if autor is not None:
             photo = photo.filter(set_poze__autor__icontains = autor)
         photo = photo.order_by("-data")
 
@@ -238,21 +271,22 @@ class Imagine(ImageModel):
      
     def save(self, *args, **kwargs):
         im = None
-        if self.resolution_x == None or self.resolution_y == None:
-            im = Image.open(self.image)
+        if self.resolution_x is None or self.resolution_y is None:
+            logger.debug("Imagine.save: opening file: %s" % os.path.join(MEDIA_ROOT, "%s" % self.image))
+            im = Image.open(os.path.join(MEDIA_ROOT, "%s" % self.image))
             self.resolution_x, self.resolution_y = im.size
         
         on_create = False
-        if self.id == None:
+        if self.id is None:
             on_create = True
-            if im == None:
+            if im is None:
                 im = Image.open(self.image)
             info = im._getexif()
     
             exif_data = {}
             
             #    get current EXIF data
-            if info != None:
+            if info is not None:
                 for tag, value in info.items():
                     from ExifTags import TAGS
                     decoded = TAGS.get(tag, tag)
@@ -304,7 +338,9 @@ class Imagine(ImageModel):
                 fata.save()
                 
         self.is_face_processed = True
-        self.save()        
+        self.save()
+
+
         
         
 # tagging.register(Imagine)

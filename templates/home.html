@@ -1,11 +1,11 @@
 {% extends 'base.html'%}
 
 {% block content %}
-	<div class = 'row'>
+	<div class = 'row-fluid'>
 	<div class = 'span4'>
 		<img src = "{{ STATIC_URL }}images/bufnita.png" />
 	</div>
-	<div class = "span6">
+	<div class = "span8">
 		<p>{% if user.is_authenticated %}Bine ai revenit, {{ user.get_profile.prenume }}.{% endif %} Nu uita că varianta de software pe care lucrezi este una de test, uite câteva modificări realizate în ultima vreme:</p>
 		<ul>
 			{% for issue in issues.issues %}
