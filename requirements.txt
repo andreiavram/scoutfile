@@ -1,7 +1,7 @@
 Django==1.4.3
 MySQL-python==1.2.4
 Pillow==2.1.0
-South==0.7.6
+South==0.8.2
 URLObject==2.3.1
 Unidecode==0.04.12
 argparse==1.2.1
@@ -14,7 +14,7 @@ django-debug-toolbar==0.9.4
 django-extensions==1.1.0
 django-less==0.7
 django-pagination==1.0.7
-django-photologue==2.5
+django-photologue==2.6.1
 django-recaptcha==0.0.6
 django-tagging==0.3.1
 djangorestframework==0.3.3
