@@ -194,6 +194,20 @@ class SetImaginiUpload(CreateView):
         else:
             return "text/plain"
 
+    def handle_zip_upload(self, f, byte_ranges):
+        local_file_name = self.object.zip_file
+
+        import io
+        if not os.path.exists(local_file_name):
+            # create empty file with given size
+            with io.open(local_file_name, "w+b") as fp:
+                fp.write("\0" * int(byte_ranges[2]))
+
+        with io.open(local_file_name, "a+b") as destination:
+            destination.seek(int(byte_ranges[0]))
+            for chunk in f.chunks():
+                destination.write(chunk)
+
     @allow_by_afiliere([("Eveniment, Centru Local", "Lider")], pkname="slug")
     def dispatch(self, request, *args, **kwargs):
         self.eveniment = get_object_or_404(Eveniment, slug = kwargs.pop("slug"))
@@ -201,26 +215,44 @@ class SetImaginiUpload(CreateView):
     
     def form_valid(self, form):
         logger.debug("%s - form valid" % self.__class__.__name__)
-        self.object = form.save(commit = False)
 
-        from structuri.models import Membru
-        self.object.autor_user = Membru.objects.get(id = self.request.user.get_profile().id)
-
-        if not self.object.autor:
-            self.object.autor = "%s" % self.object.autor_user.nume_complet()
-
-        self.object.eveniment = self.eveniment
-        
-        #    have this in mind when migrated to chunked uploads!
-        self.object.status = 1
-        self.object.save()
-        
+        import re
+        byte_ranges = re.findall(r"bytes (\d+)-(\d+)/(\d+)", self.request.META['HTTP_CONTENT_RANGE'])
+        logger.debug("%s - byte ranges %s to %s out of %s" % (self.__class__.__name__, byte_ranges[0][0], byte_ranges[0][1], byte_ranges[0][2]))
         f = self.request.FILES.get('zip_file')
-        
+
+        session_key = "{0}-{1}".format(self.request.user.id, f.name.replace("-", "+"))
+        if session_key in self.request.session:
+            self.object = get_object_or_404(self.model, id = int(self.request.session[session_key]))
+            logger.debug("%s - retrieving existing set (%d)" % (self.__class__.__name__, self.object.id))
+        else:
+            self.object = form.save(commit = False)
+            from scoutfile3.structuri.models import Membru
+            self.object.autor_user = Membru.objects.get(id = self.request.user.get_profile().id)
+
+            if not self.object.autor:
+                self.object.autor = "%s" % self.object.autor_user.nume_complet()
+
+            self.object.eveniment = self.eveniment
+            self.object.zip_file = "/" + os.path.join("tmp", "{0}_{1}_{2}".format(self.request.user.id, datetime.datetime.now().strftime("%Y%m%d%H%M%S"), f.name))
+            self.object.save()
+
+            self.request.session[session_key] = self.object.id
+            logger.debug("%s - no match on session_key, creating new object with file data" % (self.__class__.__name__))
+
+        self.handle_zip_upload(f, byte_ranges[0])
+
+        #   if this is the last chunk, update set info
+        if int(byte_ranges[0][1]) == int(byte_ranges[0][2]) - 1:
+            self.object.status = 1
+            self.object.save()
+            logger.debug("%s - removing session key from session dict" % self.__class__.__name__)
+            del self.request.session[session_key]
+
         data = {"files" : [{'name': f.name, 
-                 'url': self.object.zip_file.url, 
-                 'thumbnail_url': STATIC_URL + "album/zip.png",
-                 'size' : os.stat(MEDIA_ROOT + "%s" % self.object.zip_file).st_size,
+                 #'url': self.object.zip_file.url,
+                 #'thumbnail_url': STATIC_URL + "album/zip.png",
+                 'size' : int(byte_ranges[0][1]) - int(byte_ranges[0][0]),
                  'type' :  "application/zip",
                  #'descriere' : self.object.descriere, 
                  'delete_url': "http" + ("s" if self.request.is_secure() else "") + "://" + self.request.get_host() + reverse("album:set_poze_delete_ajax", kwargs = {"pk" : self.object.id}), 
@@ -256,11 +288,11 @@ class SetImaginiDeleteAjax(View):
         return self.post(request, *args, **kwargs)
     
     def post(self, request, *args, **kwargs):
-        from structuri.models import Membru
+        from scoutfile3.structuri.models import Membru
         logger.debug("%s: user is superuser: %s, user is same membru object %s" % (self.__class__.__name__, request.user.is_superuser, Membru.objects.get(id = request.user.get_profile().id) == self.set_poze.autor_user))
         if request.user.is_superuser or Membru.objects.get(id = request.user.get_profile().id) == self.set_poze.autor_user:
             try:
-                os.unlink(MEDIA_ROOT + "%s" % self.set_poze.zip_file)
+                os.unlink(self.set_poze.zip_file)
             except Exception, e:
                 logger.info("%s - could not delete file, file does not exit" % self.__class__.__name__)
             self.set_poze.delete()

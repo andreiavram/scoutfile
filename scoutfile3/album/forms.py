@@ -10,7 +10,8 @@ from django import forms
 from album.models import SetPoze
 from django.forms.widgets import RadioSelect, Textarea
 from django.core.exceptions import ValidationError
-from django.forms.fields import CharField
+from django.forms.fields import CharField, FileField
+
 
 class ReportForm(CrispyBaseModelForm):
     class Meta:
@@ -40,7 +41,7 @@ class ReportForm(CrispyBaseModelForm):
 class SetPozeCreateForm(CrispyBaseModelForm):
     class Meta:
         model = SetPoze
-        exclude = ["autor_user", "status"]
+        exclude = ["autor_user", "status", "zip_file"]
     
 
 class SetPozeUpdateForm(CrispyBaseModelForm):
@@ -48,4 +49,4 @@ class SetPozeUpdateForm(CrispyBaseModelForm):
         model = SetPoze
         exclude = ["autor_user", "status", "zip_file", "eveniment"]
         
-        
+    zip_file = FileField()

@@ -10,7 +10,7 @@ import os
 from zipfile import ZipFile
 import logging
 import traceback
-from settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT
+from scoutfile3.settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
@@ -142,7 +142,7 @@ class SetPoze(models.Model):
     eveniment = models.ForeignKey(Eveniment)
     autor = models.CharField(max_length = 255, null = True, blank = True, help_text = u"Lăsați gol dacă încărcați pozele proprii")
     autor_user = models.ForeignKey(Membru, null = True, blank = True)
-    zip_file = models.FileField(null = True, blank = True, upload_to = lambda instance, file_name: "tmp/{0}-{1}".format(datetime.datetime.now().strftime("%Y%m%d%H%M%S"), file_name))
+    zip_file = models.FilePathField(null = True, blank = True, path = "/tmp")
     status = models.IntegerField(default = 0, choices = SET_POZE_STATUSES)
     
     offset_secunde = models.IntegerField(default = 0, help_text = "Numărul de secunde cu care ceasul camerei voastre a fost decalat față de ceasul corect (poate fi și negativ). Foarte util pentru sincronizarea pozelor de la mai mulți fotografi")
@@ -192,7 +192,7 @@ class SetPoze(models.Model):
         self.status = 3
         self.save()
     
-        os.unlink(os.path.join(MEDIA_ROOT, "%s" % self.zip_file))
+        os.unlink(self.zip_file)
 
 IMAGINE_PUBLISHED_STATUS = ((1, "Secret"), (2, "Centru Local"), (3, "Organizație"), (4, "Public"))
 class Imagine(ImageModel):
@@ -288,8 +288,8 @@ class Imagine(ImageModel):
             #    get current EXIF data
             if info is not None:
                 for tag, value in info.items():
-                    from ExifTags import TAGS
-                    decoded = TAGS.get(tag, tag)
+                    from PIL import ExifTags
+                    decoded = ExifTags.TAGS.get(tag, tag)
                     if decoded == u"Maker Note":
                         continue
                     
