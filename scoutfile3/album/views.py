@@ -17,10 +17,9 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport
-from album.forms import ReportForm, EvenimentCreateForm
+from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm
 from album.models import SetPoze
 from album.forms import SetPozeCreateForm, SetPozeUpdateForm
-from settings import MEDIA_ROOT, STATIC_URL
 from scoutfile3.structuri.models import Membru
 from scoutfile3.generic.views import JSONView, ScoutFileAjaxException
 from scoutfile3.album.models import IMAGINE_PUBLISHED_STATUS

@@ -7,7 +7,7 @@ Created on Aug 31, 2012
 from scoutfile3.generic.forms import CrispyBaseModelForm
 from scoutfile3.album.models import FlagReport, FLAG_MOTIVES
 from django import forms
-from album.models import SetPoze
+from album.models import SetPoze, Eveniment
 from django.forms.widgets import RadioSelect, Textarea
 from django.core.exceptions import ValidationError
 from django.forms.fields import CharField, FileField
