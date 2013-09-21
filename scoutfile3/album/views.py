@@ -37,16 +37,16 @@ class EvenimentList(ListView):
         return super(EvenimentList, self).get_queryset(*args, **kwargs)
     
 
-class EvenimentDetail(DetailView):
+class AlbumEvenimentDetail(DetailView):
     model = Eveniment
     template_name = "album/eveniment_detail.html"
     
     def dispatch(self, request, *args, **kwargs):
         self.autor = request.GET['autor'] if "autor" in request.GET else None
-        return super(EvenimentDetail, self).dispatch(request, *args, **kwargs)
+        return super(AlbumEvenimentDetail, self).dispatch(request, *args, **kwargs)
     
     def get_context_data(self, *args, **kwargs):
-        current = super(EvenimentDetail, self).get_context_data(*args, **kwargs)
+        current = super(AlbumEvenimentDetail, self).get_context_data(*args, **kwargs)
         
         zile = {}
         for zi_eveniment in self.object.zieveniment_set.all():
@@ -252,7 +252,7 @@ class SetImaginiUpload(CreateView):
         data = {"files" : [{'name': f.name, 
                  #'url': self.object.zip_file.url,
                  #'thumbnail_url': STATIC_URL + "album/zip.png",
-                 'size' : int(byte_ranges[0][1]) - int(byte_ranges[0][0]),
+                 'size' : int(byte_ranges[0][2]),
                  'type' :  "application/zip",
                  #'descriere' : self.object.descriere, 
                  'delete_url': "http" + ("s" if self.request.is_secure() else "") + "://" + self.request.get_host() + reverse("album:set_poze_delete_ajax", kwargs = {"pk" : self.object.id}), 
@@ -404,3 +404,25 @@ class ChangeImagineVisibility(JSONView):
     def construct_json_response(self, **kwargs):
         json_dict = {"result" : kwargs.get("result", False), "new_status_string" : kwargs.get("imagine").get_published_status_display()}
         return simplejson.dumps(json_dict)
+
+class EvenimentCreate(CreateView):
+    model = Eveniment
+    form_class = EvenimentCreateForm
+    template_name = "album/eveniment_form.html"
+
+    @allow_by_afiliere([("Centru Local", "Lider")])
+    def dispatch(self, request, *args, **kwargs):
+        return super(CreateView, self).dispatch(request, *args, **kwargs)
+
+class EvenimentUpdate(UpdateView):
+    model = Eveniment
+    form_class = EvenimentUpdateForm
+    template_name = "album/eveniment_form.html"
+
+    @allow_by_afiliere([("Centru Local", "Lider")])
+    def dispatch(self, request, *args, **kwargs):
+        return super(EvenimentUpdate, self).dispatch(self, request, *args, **kwargs)
+
+class EvenimentDetail(DetailView):
+    model = Eveniment
+    template_name = "album/eveniment_main_detail.html"

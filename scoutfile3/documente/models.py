@@ -3,10 +3,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
-import tagging
 import datetime
-from settings import VALOARE_IMPLICITA_COTIZATIE_NATIONAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL
-from structuri.models import Membru
+from scoutfile3.settings import VALOARE_IMPLICITA_COTIZATIE_NATIONAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL
+from scoutfile3.structuri.models import Membru
 
 # Create your models here.
 
@@ -43,7 +42,7 @@ class Document(models.Model):
             self.data_inregistrare = self.date_created
         return super(Document, self).save(force_insert = force_insert, force_update = force_update, using = using)
     
-tagging.register(Document)
+# tagging.register(Document)
 
 class TipAsociereDocument(models.Model):
     nume = models.CharField(max_length = 255)
