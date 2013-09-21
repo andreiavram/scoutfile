@@ -31,7 +31,7 @@ class Eveniment(models.Model):
     facebook_event_link = models.URLField(null=True, blank=True)
     tags = TaggableManager()
 
-    locatie_text = models.CharField(null=True, blank=True)
+    locatie_text = models.CharField(max_length=1024, null=True, blank=True)
     locatie_lat = models.FloatField(default=0)
     locatie_long = models.FloatField(default=0)
 
