@@ -24,7 +24,7 @@ $(function () {
     	dataType : "json",
     	paramName : "zip_file",
         acceptFileTypes: /(\.|\/)(zip)$/i,
-        maxFileSize: 2 * 1024 * 1000 * 1000, // 5 MB
+        maxFileSize: 2 * 1024 * 1000 * 1000, // 2GB
         maxChunkSize: 1 * 1000 * 1024
     });
 
