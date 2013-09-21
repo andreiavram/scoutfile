@@ -1,6 +1,5 @@
 #coding: utf-8
 from django.db import models
-import tagging
 from photologue.models import ImageModel
 from PIL import Image
 import datetime
@@ -13,6 +12,8 @@ import traceback
 from scoutfile3.settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from taggit.managers import TaggableManager
+from structuri.models import RamuraDeVarsta
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,16 @@ class Eveniment(models.Model):
     slug = models.CharField(max_length = 255)
 
     custom_cover_photo = models.ForeignKey("Imagine", null=True, blank=True)
+
+    facebook_event_link = models.URLField(null=True, blank=True)
+    tags = TaggableManager()
+
+    locatie_text = models.CharField(null=True, blank=True)
+    locatie_lat = models.FloatField(default=0)
+    locatie_long = models.FloatField(default=0)
+
+    #TODO: add visibility settings to events
+
     
     class Meta:
         verbose_name = u"Eveniment"
@@ -100,6 +111,20 @@ class Eveniment(models.Model):
 
         return visibility_level
 
+STATUS_PARTICIPARE = ((1, u"Cu semnul întrebării"), (2, u"Sigur"), (3, u"Avans plătit"), (4, u"Participare efectivă"), (5, u"Participare anulată"))
+class ParticipareEveniment(models.Model):
+    membru = models.ForeignKey(Membru)
+    eveniment = models.ForeignKey(Eveniment)
+    data_sosire = models.DateTimeField(null=True, blank=True)
+    data_plecare = models.DateTimeField(null=True, blank=True)
+
+    status_participare = models.IntegerField(default=1, choices=STATUS_PARTICIPARE)
+    detalii = models.TextField(null=True, blank=True)
+
+    @property
+    def is_partiala(self):
+        return self.data_sosire.date() != self.eveniment.start_date.date() or self.data_plecare.date() != self.eveniment.end_date.date()
+
 class ZiEveniment(models.Model):
     eveniment = models.ForeignKey(Eveniment)
     date = models.DateField()
@@ -144,12 +169,15 @@ class SetPoze(models.Model):
     autor_user = models.ForeignKey(Membru, null = True, blank = True)
     zip_file = models.FilePathField(null = True, blank = True, path = "/tmp")
     status = models.IntegerField(default = 0, choices = SET_POZE_STATUSES)
-    
+    procent_procesat = models.IntegerField()
+
+    date_uploaded = models.DateTimeField(auto_now=True)
     offset_secunde = models.IntegerField(default = 0, help_text = "Numărul de secunde cu care ceasul camerei voastre a fost decalat față de ceasul corect (poate fi și negativ). Foarte util pentru sincronizarea pozelor de la mai mulți fotografi")
     
     class Meta:
         verbose_name = u"Set poze"
         verbose_name_plural = "seturi poze"
+        ordering = ["-date_uploaded"]
 
     def __unicode__(self):
         return u"Set %s (%s)" % (self.autor, self.eveniment) 
@@ -158,10 +186,6 @@ class SetPoze(models.Model):
         return u"%s" % self.autor.strip()
     
     def process_zip_file(self):
-        #    create event and author folders, if required
-        #    flat unzip and rename photos to folder
-        #    add photos to database
-        
         self.status = 2
         self.save()
         
@@ -172,6 +196,8 @@ class SetPoze(models.Model):
                 os.makedirs(os.path.join(MEDIA_ROOT, event_path))
 
             with ZipFile(self.zip_file) as zf:
+                total_count = len(zf.infolist())
+                current_count = 0
                 for f in zf.infolist():
                     logger.debug("SetPoze: fisier extras %s" % f)
                     if f.filename.endswith("/") or os.path.splitext(f.filename)[1].lower() not in (".jpg", ".jpeg", ".png"):
@@ -182,6 +208,11 @@ class SetPoze(models.Model):
                     im = Imagine(set_poze = self, titlu = os.path.basename(f.filename), image = os.path.join(event_path_no_root, f.filename))
                     logger.debug("SetPoze: poza: %s" % im.image)
                     im.save()
+                    current_count += 1
+                    current_percent = current_count * 100. / total_count
+                    if current_percent - 5 > self.procent_procesat:
+                        self.procent_procesat = int(current_percent)
+                        self.save()
                     
         except Exception, e:
             self.status = 4
@@ -209,6 +240,8 @@ class Imagine(ImageModel):
     is_face_processed = models.BooleanField()
     
     published_status = models.IntegerField(default = 2, choices = IMAGINE_PUBLISHED_STATUS)
+
+    tags = TaggableManager()
     
     class Meta:
         verbose_name = u"Imagine"
@@ -329,13 +362,15 @@ class Imagine(ImageModel):
         import cv
         
         imcolor = cv.LoadImage("%s/%s" % (MEDIA_ROOT, self.image)) #@UndefinedVariable
-        haarFace = cv.Load(os.path.join(STATIC_ROOT, "haarcascade_frontalface_default.xml"))  # @UndefinedVariable
-        storage = cv.CreateMemStorage() #@UndefinedVariable
-        detectedFaces = cv.HaarDetectObjects(imcolor, haarFace, storage, min_size = (200, 200)) #@UndefinedVariable
-        if detectedFaces:
-            for face in detectedFaces:
-                fata = DetectedFace(imagine = self, x = face[0][0], y = face[0][1], width = face[0][2], height = face[0][3])
-                fata.save()
+        detectors = ["haarcascade_frontalface_default.xml", "haarcascade_profileface.xml"]
+        for detector in detectors:
+            haarFace = cv.Load(os.path.join(STATIC_ROOT, detector))  # @UndefinedVariable
+            storage = cv.CreateMemStorage() #@UndefinedVariable
+            detectedFaces = cv.HaarDetectObjects(imcolor, haarFace, storage, min_size = (200, 200)) #@UndefinedVariable
+            if detectedFaces:
+                for face in detectedFaces:
+                    fata = DetectedFace(imagine = self, x = face[0][0], y = face[0][1], width = face[0][2], height = face[0][3])
+                    fata.save()
                 
         self.is_face_processed = True
         self.save()

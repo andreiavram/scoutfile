@@ -130,7 +130,7 @@ INSTALLED_APPS = (
     'south', 'photologue',
     'dajax', 'dajaxice',
     'crispy_forms', 'djangorestframework', 'captcha',
-    'ajax_select', "tagging", 'pagination', 'less',
+    'ajax_select', "taggit", 'pagination', 'less',
     
     'scoutfile3.structuri', 'scoutfile3.generic', 'scoutfile3.album',
     'scoutfile3.patrocle', 'scoutfile3.documente', 'scoutfile3.extra',

@@ -29,8 +29,8 @@
 				<td>{{ forloop.counter }}</td>
 				<td>{{ set_poze.autor }}</td>
 				<td>{{ set_poze.autor_user }}</td>
-				<td><a href = "{% url album:eveniment_detail slug=eveniment.slug %}">{{ set_poze.eveniment }}</a></td>
-				<td>{{ set_poze.get_status_display }}</td>
+				<td><a href = "{% url album:eveniment_detail slug=set_poze.eveniment.slug %}">{{ set_poze.eveniment }}</a></td>
+				<td>{{ set_poze.get_status_display }} {%  if set_poze.status == 2 or set_poze.status == 4 %}({{ set_poze.procent_procesat }}%){%  endif %}</td>
 				<td>{{ set_poze.imagine_set.all.count }}</td>
 				<td><div class = "btn-group">
 					<a href = "{% url album:set_poze_delete_ajax pk=set_poze.id %}" class = "btn btn-mini delete"><i class = "icon-trash"></i></a>
