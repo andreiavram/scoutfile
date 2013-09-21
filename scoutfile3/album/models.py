@@ -169,7 +169,7 @@ class SetPoze(models.Model):
     autor_user = models.ForeignKey(Membru, null = True, blank = True)
     zip_file = models.FilePathField(null = True, blank = True, path = "/tmp")
     status = models.IntegerField(default = 0, choices = SET_POZE_STATUSES)
-    procent_procesat = models.IntegerField()
+    procent_procesat = models.IntegerField(default=0)
 
     date_uploaded = models.DateTimeField(auto_now=True)
     offset_secunde = models.IntegerField(default = 0, help_text = "Numărul de secunde cu care ceasul camerei voastre a fost decalat față de ceasul corect (poate fi și negativ). Foarte util pentru sincronizarea pozelor de la mai mulți fotografi")
@@ -217,7 +217,8 @@ class SetPoze(models.Model):
         except Exception, e:
             self.status = 4
             self.save()
-            logger.error("SetPoze: error extracting files: %s (%s)" % (e, traceback.format_exc()))
+            os.unlink(self.zip_file)
+            logger.error("SetPoze: error extracting files: %s (%s), deleting uploaded file" % (e, traceback.format_exc()))
             return
             
         self.status = 3

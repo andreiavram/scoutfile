@@ -41,15 +41,13 @@ class ReportForm(CrispyBaseModelForm):
 class SetPozeCreateForm(CrispyBaseModelForm):
     class Meta:
         model = SetPoze
-        exclude = ["autor_user", "status", "zip_file"]
+        exclude = ["autor_user", "status", "zip_file", "procent_procesat"]
     
 
 class SetPozeUpdateForm(CrispyBaseModelForm):
     class Meta:
         model = SetPoze
-        exclude = ["autor_user", "status", "zip_file", "eveniment"]
-        
-    zip_file = FileField()
+        exclude = ["procent_procesat", "autor_user", "status", "zip_file", "eveniment"]
 
 class EvenimentCreateForm(CrispyBaseModelForm):
     class Meta:

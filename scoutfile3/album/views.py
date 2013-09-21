@@ -209,7 +209,7 @@ class SetImaginiUpload(CreateView):
 
     @allow_by_afiliere([("Eveniment, Centru Local", "Lider")], pkname="slug")
     def dispatch(self, request, *args, **kwargs):
-        self.eveniment = get_object_or_404(Eveniment, slug = kwargs.pop("slug"))
+        self.eveniment = get_object_or_404(Eveniment, slug = kwargs.get("slug"))
         return super(SetImaginiUpload, self).dispatch(request, *args, **kwargs)
     
     def form_valid(self, form):
@@ -307,17 +307,23 @@ class SetImaginiToate(ListView):
     
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
+        self.membru = request.user.get_profile().membru
         return super(SetImaginiToate, self).dispatch(request, *args, **kwargs)
     
     def get_queryset(self):
-        return self.model.objects.all()
-    
+        return self.model.objects.filter(eveniment__centru_local = self.membru.centru_local)
+
+    def get_context_data(self, **kwargs):
+        current = super(SetImaginiToate, self).get_context_data(**kwargs)
+        current.update({"media_manager" : self.membru.are_calitate(u"Păstrător al amintirilor", self.membru.centru_local)})
+        return current
+
 class SetImaginiUser(SetImaginiToate):
     def get_queryset(self):
         qs = super(SetImaginiUser, self).get_queryset()
         qs = qs.filter(autor_user = Membru.objects.get(id = self.request.user.get_profile().id))
         return qs
-    
+
     def get_context_data(self, **kwargs):
         current = super(SetImaginiUser, self).get_context_data(**kwargs)
         current.update({"user_only" : True})
@@ -358,14 +364,14 @@ class SetPozeUpdate(UpdateView):
 
     @method_decorator(login_required)    
     def dispatch(self, request, *args, **kwargs):
-        if self.autor_user_id != request.user.get_profile().id:
+        self.object = get_object_or_404(self.model, id = kwargs.get("pk"))
+        if self.object.autor_user_id != request.user.get_profile().id:
             return HttpResponseNotAllowed()
         return super(SetPozeUpdate, self).dispatch(request, *args, **kwargs)
-    
-    
+
     def form_valid(self, form):
         messages.success(self.request, "Actualizări salvate!")
-        
+        return super(SetPozeUpdate, self).form_valid(form)
     
     def get_success_url(self):
         return reverse("album:set_poze_edit", kwargs = {"pk" : self.object.id})

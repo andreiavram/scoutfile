@@ -277,13 +277,15 @@ class Membru(Utilizator):
         return [self.centru_local, ]
     
     def are_calitate(self, calitate, structura):
-        return AsociereMembruStructura.objects.filter(content_type = ContentType.objects.get_for_model(structura),
+        qs = AsociereMembruStructura.objects.filter(content_type = ContentType.objects.get_for_model(structura),
                                                       object_id = structura.id,
                                                       tip_asociere__content_types__in = (ContentType.objects.get_for_model(structura), ),
                                                       tip_asociere__nume__iexact = calitate, 
                                                       moment_inceput__isnull = False,
                                                       moment_incheiere__isnull = True,
-                                                      membru = self).count() != 0
+                                                      membru = self)
+        # logger.debug("%s" % qs.count())
+        return qs.count() != 0
     
     @permalink    
     def get_home_link(self):
