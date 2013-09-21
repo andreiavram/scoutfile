@@ -17,7 +17,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport
-from album.forms import ReportForm
+from album.forms import ReportForm, EvenimentCreateForm
 from album.models import SetPoze
 from album.forms import SetPozeCreateForm, SetPozeUpdateForm
 from settings import MEDIA_ROOT, STATIC_URL

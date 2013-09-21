@@ -50,3 +50,13 @@ class SetPozeUpdateForm(CrispyBaseModelForm):
         exclude = ["autor_user", "status", "zip_file", "eveniment"]
         
     zip_file = FileField()
+
+class EvenimentCreateForm(CrispyBaseModelForm):
+    class Meta:
+        model = Eveniment
+
+
+class EvenimentUpdateForm(EvenimentCreateForm):
+    pass
+
+

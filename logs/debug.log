@@ -13031,3 +13031,114 @@ DEBUG 2013-09-21 02:20:18,571 generic 2896 139672395966208 execute "CREATE INDEX
 DEBUG 2013-09-21 02:20:18,588 generic 2896 139672395966208 execute "ALTER TABLE `album_participareeveniment` ADD CONSTRAINT `eveniment_id_refs_id_a2cd69fc` FOREIGN KEY (`eveniment_id`) REFERENCES `album_eveniment` (`id`);" with params "[]"
 DEBUG 2013-09-21 02:20:18,596 generic 2896 139672395966208 execute "CREATE INDEX `album_participareeveniment_943af0d0` ON `album_participareeveniment` (`eveniment_id`);" with params "[]"
 DEBUG 2013-09-21 02:20:19,040 generic 2896 139672395966208 execute "SET FOREIGN_KEY_CHECKS=0;" with params "[]"
+DEBUG 2013-09-21 16:49:58,794 base 3444 140105570895616 Configuring Raven for host: http://cce06e32cfae4025af7c2b39b889bc27:79ab9be2ff1e428babc298166b5ad9f5@sentry.albascout.ro://2
+ERROR 2013-09-21 16:50:00,730 base 3444 140105570895616 Unable to reach Sentry log server: timed out (url: http://sentry.albascout.ro//api/store/)
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/raven/base.py", line 490, in send_remote
+    self._send_remote(url=url, data=data, headers=headers)
+  File "/virtualenv/local/lib/python2.7/site-packages/raven/base.py", line 464, in _send_remote
+    return transport.send(data, headers)
+  File "/virtualenv/local/lib/python2.7/site-packages/raven/transport/base.py", line 171, in send
+    response = urllib2.urlopen(req, data, self.timeout).read()
+  File "/usr/lib/python2.7/urllib2.py", line 126, in urlopen
+    return _opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 400, in open
+    response = self._open(req, data)
+  File "/usr/lib/python2.7/urllib2.py", line 418, in _open
+    '_open', req)
+  File "/usr/lib/python2.7/urllib2.py", line 378, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 1207, in http_open
+    return self.do_open(httplib.HTTPConnection, req)
+  File "/usr/lib/python2.7/urllib2.py", line 1180, in do_open
+    r = h.getresponse(buffering=True)
+  File "/usr/lib/python2.7/httplib.py", line 1030, in getresponse
+    response.begin()
+  File "/usr/lib/python2.7/httplib.py", line 407, in begin
+    version, status, reason = self._read_status()
+  File "/usr/lib/python2.7/httplib.py", line 365, in _read_status
+    line = self.fp.readline()
+  File "/usr/lib/python2.7/socket.py", line 447, in readline
+    data = self._sock.recv(self._rbufsize)
+timeout: timed out
+ERROR 2013-09-21 16:50:00,733 base 3444 140105570895616 Failed to submit message: "NameError: name 'EvenimentCreateForm' is not defined"
+ERROR 2013-09-21 16:50:00,734 base 3444 140105570895616 Internal Server Error: /album/poza/6349/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 101, in get_response
+    request.path_info)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 298, in resolve
+    for pattern in self.url_patterns:
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 328, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 323, in urlconf_module
+    self._urlconf_module = import_module(self.urlconf_name)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/importlib.py", line 35, in import_module
+    __import__(name)
+  File "/vagrant/scoutfile3/urls.py", line 19, in <module>
+    (r'^album/', include('album.urls', namespace = 'album')),
+  File "/virtualenv/local/lib/python2.7/site-packages/django/conf/urls/__init__.py", line 24, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/importlib.py", line 35, in import_module
+    __import__(name)
+  File "/vagrant/scoutfile3/album/urls.py", line 2, in <module>
+    from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail,\
+  File "/vagrant/scoutfile3/album/views.py", line 408, in <module>
+    class EvenimentCreate(CreateView):
+  File "/vagrant/scoutfile3/album/views.py", line 410, in EvenimentCreate
+    form_class = EvenimentCreateForm
+NameError: name 'EvenimentCreateForm' is not defined
+ERROR 2013-09-21 16:50:00,740 base 3444 140105556010752 Unable to reach Sentry log server: timed out (url: http://sentry.albascout.ro//api/store/)
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/raven/base.py", line 490, in send_remote
+    self._send_remote(url=url, data=data, headers=headers)
+  File "/virtualenv/local/lib/python2.7/site-packages/raven/base.py", line 464, in _send_remote
+    return transport.send(data, headers)
+  File "/virtualenv/local/lib/python2.7/site-packages/raven/transport/base.py", line 171, in send
+    response = urllib2.urlopen(req, data, self.timeout).read()
+  File "/usr/lib/python2.7/urllib2.py", line 126, in urlopen
+    return _opener.open(url, data, timeout)
+  File "/usr/lib/python2.7/urllib2.py", line 400, in open
+    response = self._open(req, data)
+  File "/usr/lib/python2.7/urllib2.py", line 418, in _open
+    '_open', req)
+  File "/usr/lib/python2.7/urllib2.py", line 378, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python2.7/urllib2.py", line 1207, in http_open
+    return self.do_open(httplib.HTTPConnection, req)
+  File "/usr/lib/python2.7/urllib2.py", line 1180, in do_open
+    r = h.getresponse(buffering=True)
+  File "/usr/lib/python2.7/httplib.py", line 1030, in getresponse
+    response.begin()
+  File "/usr/lib/python2.7/httplib.py", line 407, in begin
+    version, status, reason = self._read_status()
+  File "/usr/lib/python2.7/httplib.py", line 365, in _read_status
+    line = self.fp.readline()
+  File "/usr/lib/python2.7/socket.py", line 447, in readline
+    data = self._sock.recv(self._rbufsize)
+timeout: timed out
+ERROR 2013-09-21 16:50:00,761 base 3444 140105556010752 Failed to submit message: "NameError: name 'EvenimentCreateForm' is not defined"
+ERROR 2013-09-21 16:50:00,768 base 3444 140105556010752 Internal Server Error: /album/poza/6349/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 101, in get_response
+    request.path_info)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 298, in resolve
+    for pattern in self.url_patterns:
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 328, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/urlresolvers.py", line 323, in urlconf_module
+    self._urlconf_module = import_module(self.urlconf_name)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/importlib.py", line 35, in import_module
+    __import__(name)
+  File "/vagrant/scoutfile3/urls.py", line 19, in <module>
+    (r'^album/', include('album.urls', namespace = 'album')),
+  File "/virtualenv/local/lib/python2.7/site-packages/django/conf/urls/__init__.py", line 24, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/importlib.py", line 35, in import_module
+    __import__(name)
+  File "/vagrant/scoutfile3/album/urls.py", line 2, in <module>
+    from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail,\
+  File "/vagrant/scoutfile3/album/views.py", line 408, in <module>
+    class EvenimentCreate(CreateView):
+  File "/vagrant/scoutfile3/album/views.py", line 410, in EvenimentCreate
+    form_class = EvenimentCreateForm
+NameError: name 'EvenimentCreateForm' is not defined
