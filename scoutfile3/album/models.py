@@ -1,4 +1,5 @@
 #coding: utf-8
+from django.core.mail import send_mail
 from django.db import models
 from photologue.models import ImageModel
 from PIL import Image
@@ -13,7 +14,7 @@ from scoutfile3.settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from taggit.managers import TaggableManager
-from structuri.models import RamuraDeVarsta
+from scoutfile3 import settings
 
 logger = logging.getLogger(__name__)
 
@@ -218,12 +219,20 @@ class SetPoze(models.Model):
                     
         except Exception, e:
             self.status = 4
+            send_mail(u"Eroare la procesarea fisierului %s" % os.path.basename(self.zip_file),
+                      u"Arhiva încărcată de tine în evenimentul {0} nu a putut fi procesată. Eroarea a fost\n{1}".format(self.eveniment, e),
+                      settings.SERVER_EMAIL,
+                      self.autor_user.email)
             self.save()
             os.unlink(self.zip_file)
             logger.error("SetPoze: error extracting files: %s (%s), deleting uploaded file" % (e, traceback.format_exc()))
             return
             
         self.status = 3
+        send_mail(u"Arhivă procesată cu succes %s" % os.path.basename(self.zip_file),
+                  u"Arhiva încărcată de tine în evenimentul {0} a fost procesată cu succes și este disponibilă pe ScoutFile.".format(self.eveniment, e),
+                  settings.SERVER_EMAIL,
+                  self.autor_user.email)
         self.save()
     
         os.unlink(self.zip_file)
