@@ -112,6 +112,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
     'django.contrib.auth.context_processors.auth',
     'django.contrib.messages.context_processors.messages',
+    'context_processors.product_version',
 )
 
 #if DEVELOPMENT:
@@ -261,3 +262,5 @@ VALOARE_IMPLICITA_COTIZATIE_LOCAL = 0
 VALOARE_IMPLICITA_COTIZATIE_NATIONAL = 50
 
 SCOUTFILE_ALBUM_STORAGE_ROOT = "album"
+
+from version import *
