@@ -141,15 +141,16 @@ class ZiEveniment(models.Model):
         if self.titlu != None and self.titlu != "":
             return self.titlu
         return u"Ziua %d" % self.index
-    
+
     def filter_photos(self, autor=None, user=None):
         backward_limit = datetime.datetime.combine(self.date, datetime.time(0, 0, 0)) + datetime.timedelta(hours = 3)
         images = Imagine.objects.filter(set_poze__eveniment = self.eveniment, data__gte = backward_limit, data__lte = self.date + datetime.timedelta(days = 1))
         if autor is not None:
             images = images.filter(set_poze__autor__icontains=autor)
 
-        images = images.exclude(published_status__lt=self.eveniment.get_visibility_level(user))
-        images = images.order_by("data")
+        if user:
+            images = images.exclude(published_status__lt=self.eveniment.get_visibility_level(user))
+            images = images.order_by("data")
         return images
     
     def author_distribution(self):
@@ -200,6 +201,7 @@ class SetPoze(models.Model):
                 current_count = 0
                 for f in zf.infolist():
                     logger.debug("SetPoze: fisier extras %s" % f)
+                    f.external_attr = 0777 << 16L
                     if f.filename.endswith("/") or os.path.splitext(f.filename)[1].lower() not in (".jpg", ".jpeg", ".png"):
                         logger.debug("SetPoze skipping %s %s %s" % (f, f.filename, os.path.splitext(f.filename)[1].lower()))
                         continue

@@ -17,9 +17,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         seturi = SetPoze.objects.filter(status = 1)
         for set_poze in seturi:
-            self.stdout.write("Processing set %d" % set_poze.id)
+            logger.info("Processing set %d" % set_poze.id)
             try:
                 set_poze.process_zip_file()
             except Exception, e:
                 logger.error("Management command process_albums crashed: %s %s" % (e, traceback.format_exc()))
-                self.stdout.write("Set %d (%s) crashed %s" % (set_poze.id, set_poze.autor_user, e))
+                logger.error("Set %d (%s) crashed %s" % (set_poze.id, set_poze.autor_user, e))

@@ -84,6 +84,8 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware',
+    'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -156,6 +158,10 @@ AJAX_SELECT_INLINES = False
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'root' : {
+      'level' : 'WARNING',
+      'handlers' : ['sentry'],
+    },
     'formatters': {
         'verbose': {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
@@ -178,7 +184,16 @@ LOGGING = {
         'null': {
             'level':'DEBUG',
             'class':'django.utils.log.NullHandler',
-        },                 
+        },
+        'sentry' : {
+            'level' : 'ERROR',
+            'class' : 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        }
     },
     'loggers': {
         'django.request': {
@@ -191,6 +206,12 @@ LOGGING = {
             'handlers': ['default'],
             'propagate': True,
             'level':'DEBUG',
+        },
+
+        'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
         },
         
         'django.db.backends' : {
@@ -214,11 +235,6 @@ FIXTURE_DIRS = ["%s/fixtures" % FILE_ROOT, ]
 #        'INDEX_NAME': 'haystack',
 #    },
 #}
-
-
-RAVEN_CONFIG = {
-    'dsn': 'http://cce06e32cfae4025af7c2b39b889bc27:79ab9be2ff1e428babc298166b5ad9f5@sentry.albascout.ro//2',
-}
 
 AUTH_PROFILE_MODULE = 'structuri.Utilizator'
 LOGIN_URL = "/login/"
