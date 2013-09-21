@@ -136,7 +136,7 @@ class IndexView(TemplateView):
         
         
         for issue in json_object["issues"]:
-            issue["updated_on"] = datetime.datetime.strptime(issue["updated_on"][0:-6], "%Y/%m/%d %H:%M:%S")
+            issue["updated_on"] = datetime.datetime.strptime(issue["updated_on"], "%Y-%m-%dT%H:%M:%SZ")
         
         context_data.update({"issues" : json_object})
         return context_data
@@ -177,7 +177,7 @@ class Issues(TemplateView):
         
         
         for issue in json_object["issues"]:
-            issue["updated_on"] = datetime.datetime.strptime(issue["updated_on"][0:-6], "%Y/%m/%d %H:%M:%S")
+            issue["updated_on"] = datetime.datetime.strptime(issue["updated_on"], "%Y-%m-%dT%H:%M:%SZ")
         
         context_data.update({"issues" : json_object})
         return context_data
