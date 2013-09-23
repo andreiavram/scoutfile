@@ -59,8 +59,8 @@ class EvenimentCreateForm(CrispyBaseModelForm):
         model = Eveniment
         exclude = ["centru_local", "slug", "custom_cover_photo", "locatie_text", "locatie_geo"]
 
-    start_date = forms.DateTimeField(required=True, widget=BootstrapDateTimeInput())
-    end_date = forms.DateTimeField(required=True, widget=BootstrapDateTimeInput())
+    start_date = forms.DateTimeField(required=True, widget=BootstrapDateTimeInput(), label=u"Data început")
+    end_date = forms.DateTimeField(required=True, widget=BootstrapDateTimeInput(), label=u"Data sfârșit")
 
     # def __init__(self, *args, **kwargs):
     #     super(EvenimentCreateForm, self).__init__(*args, **kwargs)
