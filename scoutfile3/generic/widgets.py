@@ -1,12 +1,14 @@
 #   based on https://github.com/zokis/django-bootstrap-datetimepicker
 from django import forms
 from django.conf import settings
+from django.db.models.aggregates import Count
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.safestring import mark_safe
 
 from datetime import date, datetime
+from taggit.models import TaggedItem, Tag
 
 
 DATETIME_INPUT_FORMATS = getattr(settings, 'DATETIME_INPUT_FORMATS', None)
@@ -67,6 +69,14 @@ class TaggitTagsInput(forms.TextInput):
             "screen": ("generic/css/tagmanager.css", )
         }
 
+    def __init__(self, *args, **kwargs):
+        self.show_available_tags = kwargs.pop("show_available_tags", False)
+        self.tag_limit = kwargs.pop("tag_limit", 20)
+        return super(TaggitTagsInput, self).__init__(*args, **kwargs)
+
     def render(self, name, value, attrs=None):
-        context = {"name": name, "value": value, "attrs": attrs}
+        tags = None
+        if self.show_available_tags:
+            tags = Tag.objects.all().annotate(num_times=Count("taggit_taggeditem_items")).order_by("-num_times")[:self.tag_limit]
+        context = {"name": name, "value": value, "attrs": attrs, "tags" : tags}
         return render_to_string("generic/tag_input_widget.html", context)

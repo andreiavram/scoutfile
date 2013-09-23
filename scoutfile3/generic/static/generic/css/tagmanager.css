@@ -149,4 +149,6 @@ input[type="text"].tm-input {
     margin: 0;
 }
 
-
+.tm-existing a {
+    text-decoration: none;
+}
