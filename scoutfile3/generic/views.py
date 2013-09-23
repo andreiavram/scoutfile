@@ -1,9 +1,11 @@
 #coding: utf-8
 from django.views.generic.base import TemplateView, View
 from django.contrib.contenttypes.models import ContentType
+from django.views.generic.list import ListView
 import logging
 from django.views.generic.edit import DeleteView, FormView
 from django.contrib import messages
+from taggit.models import Tag
 from scoutfile3.generic.forms import CrispyBaseDeleteForm, LoginForm,\
     IssueCreateForm
 from django.http import HttpResponseRedirect, HttpResponse
@@ -311,4 +313,19 @@ class JSONView(View):
     
     def construct_json_response(self, **kwargs):
         json = {}
-        return simplejson.dumps(json)           
+        return simplejson.dumps(json)
+
+class TagsJson(ListView):
+    model = Tag
+    template_name = "generic/tags.json"
+
+    def get_queryset(self):
+        q = self.request.GET.get("q", None)
+        qs = self.model.objects.all()
+        if q:
+            qs = qs.filter(name__icontains = q)
+
+        return qs
+
+
+

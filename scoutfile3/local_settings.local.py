@@ -27,3 +27,4 @@ USE_EMAIL_CONFIRMATION = False
 
 # MEDIA_ROOT = "/vagrant/media/"
 # STATIC_ROOT = "/vagrant/static/"
+

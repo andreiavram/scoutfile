@@ -20,6 +20,7 @@ from album.models import Eveniment, ZiEveniment, Imagine, FlagReport
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm
 from album.models import SetPoze
 from album.forms import SetPozeCreateForm, SetPozeUpdateForm
+from generic.views import GenericDeleteView
 from scoutfile3.structuri.models import Membru
 from scoutfile3.generic.views import JSONView, ScoutFileAjaxException
 from scoutfile3.album.models import IMAGINE_PUBLISHED_STATUS
@@ -426,7 +427,17 @@ class EvenimentUpdate(UpdateView):
 
     @allow_by_afiliere([("Centru Local", "Lider")])
     def dispatch(self, request, *args, **kwargs):
-        return super(EvenimentUpdate, self).dispatch(self, request, *args, **kwargs)
+        return super(EvenimentUpdate, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        messages.success(self.request, u"Evenimentul a fost actualizat")
+        return super(EvenimentUpdate, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse("album:eveniment_detail", kwargs = {"slug": self.object.slug})
+
+class EvenimentDelete(GenericDeleteView):
+    pass
 
 class EvenimentDetail(DetailView):
     model = Eveniment

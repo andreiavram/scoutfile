@@ -6,5 +6,8 @@
 		</label>
 	{% endif %}	
     <div class="controls">
-    	<div class = "input-append date">{% crispy_field field %}<span class = "add-on"><i class = "icon-th"></i></span>{% include 'bootstrap/layout/help_text_and_errors.html' %}</div></div>
+    	<div class = "input-append date">
+                {% crispy_field field %}<span class = "add-on icon-calendar"></span>{% include 'bootstrap/layout/help_text_and_errors.html' %}
+        </div>
+    </div>
 </div>
