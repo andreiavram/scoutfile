@@ -3,8 +3,11 @@
 		<li class = "disabled"><a href = ""><i class = "icon-download"></i> Download toate</a>
 		<li class = "disabled"><a href = ""><i class = "icon-download-alt"></i> Torrent</a>
 		<li><a href = "{% url album:eveniment_upload slug=object.slug %}"><i class = "icon-upload"></i> Upload set poze</a></li>
-		<li class = "nav-header">Locații</li>
-		<li><a href = "{% url album:eveniment_detail slug=eveniment.slug %}"><i class = "icon-home"></i> Poze</a></li>
+		<li class = "nav-header">Administrare</li>
+        <li><a href = "{% url album:eveniment_update slug=eveniment.slug %}"><i class = "icon-pencil"></i> Editează</a></li>
+        <li class = "nav-header">Locații</li>
+        <li><a href = "{% url album:eveniment_main_detail slug=eveniment.slug %}"><i class = "icon-home"> Prezentare</i></a></li>
+		<li><a href = "{% url album:eveniment_detail slug=eveniment.slug %}"><i class = "icon-picture"></i> Album</a></li>
 		<li><a href = "{% url album:eveniment_stats pk=object.id %}"><i class = "icon-list-alt"></i> Statistici</a></li>
 		<li><a href = "{% url album:eveniment_seturi_toate slug=object.slug %}"><i class = "icon-list"></i> Seturi de poze</a></li>
 		<li class = "nav-header">Fotografi</li>

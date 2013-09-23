@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block extrahead %}
+    {{  form.media }}
+{% endblock %}
+
+{% block page_title %}
+    {% if object.titlu %}{{ object.titlu }}{% else %}Eveniment nou{% endif %}
+{% endblock %}
+
+{% block context_menu %}
+    {% if object %}
+        {% with object as eveniment %}
+            {% include "album/eveniment_context_menu.html" %}
+        {% endwith %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {% crispy form form.helper %}
+{% endblock %}
