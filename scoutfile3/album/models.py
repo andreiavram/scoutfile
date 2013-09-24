@@ -25,12 +25,11 @@ class Eveniment(models.Model):
     descriere = models.TextField(null=True, blank=True)
     start_date = models.DateTimeField(verbose_name=u"Începe pe", help_text=u"Folosește selectorul de date pentru a defini o dată de început")
     end_date = models.DateTimeField(verbose_name=u"Ține până pe", help_text=u"Folosește selectorul de date pentru a defini o dată de sfârșit")
-    slug = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True)
 
     custom_cover_photo = models.ForeignKey("Imagine", null=True, blank=True)
 
     facebook_event_link = models.URLField(null=True, blank=True, verbose_name=u"Link eveniment Facebook", help_text=u"Folosește copy/paste pentru a lua link-ul din Facebook")
-    tags = TaggableManager()
 
     locatie_text = models.CharField(max_length=1024, null=True, blank=True, verbose_name = u"Locație")
     #   TODO: implementează situatia în care evenimentul are mai mult de o singură locație

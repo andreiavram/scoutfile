@@ -57,29 +57,17 @@ class SetPozeUpdateForm(CrispyBaseModelForm):
 class EvenimentCreateForm(CrispyBaseModelForm):
     class Meta:
         model = Eveniment
-        exclude = ["centru_local", "slug", "custom_cover_photo", "locatie_text", "locatie_geo"]
+        exclude = ["centru_local", "custom_cover_photo"]
 
     start_date = forms.DateTimeField(required=True, widget=BootstrapDateTimeInput(), label=u"Data început")
     end_date = forms.DateTimeField(required=True, widget=BootstrapDateTimeInput(), label=u"Data sfârșit")
-
-    # def __init__(self, *args, **kwargs):
-    #     super(EvenimentCreateForm, self).__init__(*args, **kwargs)
-    #     self.helper.layout = Layout(
-    #         "nume", "descriere",
-    #         Field("start_date", css_class = "datepicker", template = "fields/datepicker.html"),
-    #         Field("end_date", css_class = "datepicker", template = "fields/datepicker.html")
-    #     )
-
+    locatie_geo = forms.CharField(widget=GeoCoordinatesInput, required=False, label = u"Geolocație", help_text=u"Folosiți harta pentru a alege o locație")
+    facebook_event_link = forms.URLField(widget=FacebookLinkWidget, required=False, label=u"Link eveniment Facebook")
 
 class EvenimentUpdateForm(EvenimentCreateForm):
     class Meta:
         model = Eveniment
-        exclude = ["centru_local", "slug", "custom_cover_photo"]
-
-    locatie_geo = forms.CharField(widget=GeoCoordinatesInput, required=False, label = u"Geolocație", help_text=u"Folosiți harta pentru a alege o locație")
-    facebook_event_link = forms.URLField(widget=FacebookLinkWidget, required=False, label=u"Link eveniment Facebook")
-    tags = TagField(widget=TaggitTagsInput, required=True)
-
+        exclude = ["centru_local", "custom_cover_photo"]
 
     def get_success_url(self):
         return reverse("album:eveniment_detail")

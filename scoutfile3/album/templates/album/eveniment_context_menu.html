@@ -5,11 +5,13 @@
 		<li><a href = "{% url album:eveniment_upload slug=object.slug %}"><i class = "icon-upload"></i> Upload set poze</a></li>
 		<li class = "nav-header">Administrare</li>
         <li><a href = "{% url album:eveniment_update slug=eveniment.slug %}"><i class = "icon-pencil"></i> Editează</a></li>
+        <li><a class = "delete" href = "{% url album:eveniment_delete slug=eveniment.slug %}"><i class = "icon-trash"></i> Șterge</a></li>
         <li class = "nav-header">Locații</li>
         <li><a href = "{% url album:eveniment_main_detail slug=eveniment.slug %}"><i class = "icon-home"> Prezentare</i></a></li>
 		<li><a href = "{% url album:eveniment_detail slug=eveniment.slug %}"><i class = "icon-picture"></i> Album</a></li>
 		<li><a href = "{% url album:eveniment_stats pk=object.id %}"><i class = "icon-list-alt"></i> Statistici</a></li>
 		<li><a href = "{% url album:eveniment_seturi_toate slug=object.slug %}"><i class = "icon-list"></i> Seturi de poze</a></li>
+        <li><a href = "{% url album:index %}"><i class = "icon-list"></i> Listă</a></li>
 		<li class = "nav-header">Fotografi</li>
 		{% for autor in object.get_autori %}
 			<li><a href = "{% url album:eveniment_detail slug=object.slug %}?autor={{ autor }}"><i class = "icon-user"></i>  {{ autor }}</a></li>

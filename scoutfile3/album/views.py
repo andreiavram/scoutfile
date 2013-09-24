@@ -416,9 +416,19 @@ class EvenimentCreate(CreateView):
     form_class = EvenimentCreateForm
     template_name = "album/eveniment_form.html"
 
-    @allow_by_afiliere([("Centru Local", "Lider")])
+    @allow_by_afiliere([("Utilizator, Centru Local", "Lider")])
     def dispatch(self, request, *args, **kwargs):
+        self.centru_local = request.user.utilizator.membru.centru_local
         return super(CreateView, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.centru_local = self.centru_local
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("album:eveniment_detail", kwargs = {"slug": self.object.slug})
 
 class EvenimentUpdate(UpdateView):
     model = Eveniment
@@ -431,13 +441,22 @@ class EvenimentUpdate(UpdateView):
 
     def form_valid(self, form):
         messages.success(self.request, u"Evenimentul a fost actualizat")
+        #   make sure tags will be recreated - this is a bit lazy and can be improved
+        self.object.tags.clear()
         return super(EvenimentUpdate, self).form_valid(form)
 
     def get_success_url(self):
         return reverse("album:eveniment_detail", kwargs = {"slug": self.object.slug})
 
 class EvenimentDelete(GenericDeleteView):
-    pass
+    model = Eveniment
+
+    @allow_by_afiliere([("Eveniment, Centru Local", u"Păstrător al amintirilor")], pkname="slug")
+    def dispatch(self, request, *args, **kwargs):
+        return super(EvenimentDelete, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse("album:index")
 
 class EvenimentDetail(DetailView):
     model = Eveniment
