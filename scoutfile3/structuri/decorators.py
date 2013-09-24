@@ -33,6 +33,12 @@ def allow_by_afiliere(asocieri, pkname = "pk", combine = False):
             #    pass-through for system administrators
             if args[0].user.groups.filter(name__icontains = u"administrator").count():
                 return view_func(self, *args, **kwargs)
+
+
+            text_asocieri = ", ".join(["%s @ %s" % (s, a) for s, a in asocieri])
+
+            if not args[0].user.is_authenticated():
+                return redirect_with_error(args[0], text_asocieri)
             
             lookups = {"Centru Local" : lambda : get_object_or_404(CentruLocal, id = kwargs.get(pkname)),
              "Unitate" :  lambda : get_object_or_404(Unitate, id = kwargs.get(pkname)),
@@ -48,13 +54,10 @@ def allow_by_afiliere(asocieri, pkname = "pk", combine = False):
              "Afiliere, Membru, *, Patrula" : lambda : get_object_or_404(AsociereMembruStructura, id = kwargs.get(pkname)).get_structura(ContentType.objects.get_for_model(Patrula)),
              "InformatieContact, Centru Local" : lambda : get_object_or_404(InformatieContact, id = kwargs.get(pkname)).content_object,
              "InformatieContact, Membru, Centru Local" : lambda : get_object_or_404(InformatieContact, id = kwargs.get(pkname)).content_object.centru_local,
-             "Eveniment, Centru Local" : lambda: get_object_or_404(Eveniment, slug = kwargs.get(pkname)).centru_local
+             "Eveniment, Centru Local" : lambda: get_object_or_404(Eveniment, slug = kwargs.get(pkname)).centru_local,
+             "Utilizator, Centru Local" : lambda: args[0].user.utilizator.membru.centru_local,
              }
-            
-            text_asocieri = ", ".join(["%s @ %s" % (s, a) for s, a in asocieri]) 
-            
-            if not args[0].user.is_authenticated():
-                return redirect_with_error(args[0], text_asocieri)
+
             
             login_ok = False
             for structura_ref, calitate in asocieri:

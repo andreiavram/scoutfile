@@ -2,7 +2,7 @@ from django.conf.urls.defaults import patterns
 from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail,\
     RotateImage, EvenimentStats, ZiStats, FlagImage, EvenimentList, \
     SetImaginiUpload, SetImaginiDeleteAjax, SetImaginiToate,\
-    SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate, EvenimentCreate, EvenimentUpdate, EvenimentDetail
+    SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate, EvenimentCreate, EvenimentUpdate, EvenimentDetail, EvenimentDelete
 from scoutfile3.album.views import ChangeImagineVisibility
 
 
@@ -18,8 +18,9 @@ urlpatterns = patterns('scoutfile3.album.views',
 
        (r'eveniment/create/$', EvenimentCreate.as_view(), {}, "eveniment_create"),
        (r'eveniment/(?P<slug>\w+)/edit/$', EvenimentUpdate.as_view(), {}, "eveniment_update"),
+       (r'eveniment/(?P<slug>\w+)/delete/$', EvenimentDelete.as_view(), {}, "eveniment_delete"),
        (r'eveniment/(?P<slug>\w+)/$', EvenimentDetail.as_view(), {}, "eveniment_main_detail"),
-       
+
        (r'set/(?P<pk>\d+)/$', SetPozeUpdate.as_view(), {}, "set_poze_edit"),
        (r'set/(?P<pk>\d+)/delete/$', SetImaginiDeleteAjax.as_view(), {}, "set_poze_delete_ajax"),
        (r'set/mine/$', SetImaginiUser.as_view(), {}, "set_poze_user"),
