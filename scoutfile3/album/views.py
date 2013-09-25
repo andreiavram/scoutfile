@@ -17,7 +17,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport
-from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm
+from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm
 from album.models import SetPoze
 from album.forms import SetPozeCreateForm, SetPozeUpdateForm
 from generic.views import GenericDeleteView
@@ -138,6 +138,17 @@ class PozaDetail(DetailView):
 class PozaUpdate(UpdateView):
     model = Imagine
     template_name = "album/poza_form.html"
+    form_class = PozaTagsForm
+
+    #TODO: add authentication verification here (who can edit these things?)
+
+    def form_valid(self, form):
+        self.object.tags.clear()
+        messages.success(self.request, u"Modificări salvate")
+        return super(PozaUpdate, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse("album:poza_detail", kwargs = {"pk": self.object.id})
     
 class FlagImage(CreateView):
     model = FlagReport

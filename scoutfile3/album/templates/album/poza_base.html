@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block extrahead %}
+	<script type = "text/javascript">
+		function after_vote(data) {
+			console.log(data);
+			jQuery("#score_" + data.picture_id).html(data.current_score);
+		}
+	
+		jQuery(document).ready(function () {
+			jQuery(".thumbs_up").click(function (event) {
+				console.log("thumbs_up");
+				Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id" : jQuery(this).data("image"), "score" : 1});
+				event.preventDefault();
+				return false;
+			});
+			
+			jQuery(".thumbs_down").click(function (event) {
+				Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id" : jQuery(this).data("image"), "score" : -1});
+				event.preventDefault();
+				return false;
+			});
+			
+			$(document).keydown(function(e){
+                //  ignore key bindings on form elements - we want to be able to still type ...
+                if ($(":input").is(":focus")) {
+                    return true;
+                }
+
+			    {% if prev_photo %}
+			    if (e.keyCode == 37) { 
+			       	window.location.href = "{% url album:poza_detail pk=prev_photo.id %}{% if autor %}?autor={{ autor }}{% endif %}";
+			       	return false;
+			    }
+			    {% endif %}
+			    
+			    {% if next_photo %}
+			    if (e.keyCode == 39) {
+			    	window.location.href = "{% url album:poza_detail pk=next_photo.id %}{% if autor %}?autor={{ autor }}{% endif %}";
+			    	return false;
+			    }
+			    {% endif %}
+			    
+			    if (e.keyCode == 76) {
+			    	//	l key was pressed = like
+					Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id" : {{ object.id }}, "score" : 1});
+			    	return false;
+			    }
+			    
+			    if (e.keyCode == 72) {
+			    	//	h key was pressed = hate
+			    	Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id" : {{ object.id }}, "score" : -1});
+			    	return false;
+			    }
+
+                if (e.keyCode == 69) {
+                    // e key was pressed = go to edit
+                    window.location.href = "{% url album:poza_edit pk=object.id %}";
+                    return false;
+                }
+			    
+			});			
+		});
+		
+	</script>
+{% endblock %}
+
+{% block page_title %}
+	{% if object.titlu %}{{ object.titlu }}{% else %}Imagine{% endif %}
+	<div class = "pull-right btn-toolbar">
+		<div class = "btn-group">
+			<a class = "btn" href = "{% url album:poza_flag pk=object.id %}"><i class = "icon-flag"></i></a>
+		</div>
+		<div class = "btn-group">
+			<a href = "{% url album:zi_detail pk=object.get_day.id %}?page={{ zi_page }}" class = "btn"><i class = "icon-chevron-up"></i></a>
+		</div>
+		<div class = "btn-group">
+			<a href = "javascript:void()" class = "btn thumbs_up" data-image = "{{ object.id }}"><i class = "icon-thumbs-up"></i></a>
+			<a href = "javascript:void()" class = "btn disabled" id = "score_{{ object.id }}">{{ object.score }}</a>
+			<a href = "javascript:void()" class = "btn thumbs_down" data-image = "{{ object.id }}"><i class = "icon-thumbs-down"></i></a>
+		</div>
+		<div class = "btn-group">
+			<a href = "{% url album:poza_rotate pk=object.id %}?direction=ccw" class = "btn"><i class = "icon-arrow-left"></i></a>
+			<a href = "javascript:void();" class = "btn disabled"><i class = "icon-refresh"></i></a>
+			<a href = "{% url album:poza_rotate pk=object.id %}?direction=cw" class = "btn"><i class = "icon-arrow-right"></i></a>
+		</div>
+		<div class = "btn-group">
+			<a href = "{{ object.image.url }}" class = "btn"><i class = "icon-picture"></i> Original</a>
+			<a href = "{{ object.get_profile_url }}" class = "btn"><i class = "icon-picture"></i> Profil</a>
+		</div>
+
+        {% if media_manager or request.user.is_superuser %}
+        <div class = 'btn-group'>
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class = "icon-eye-open"> </i> <span id = "current_visibility">{{ object.get_published_status_display }}</span>
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                {% for state in visibility_states %}
+                    <li><a href = "#" data-value = "{{ state.0 }}" class = "visibility_action">{{ state.1 }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+	</div> 
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Acțiuni</li>
+		<li class = "disabled"><a href = ""><i class = "icon-download"></i> Download toate</a></li>
+		<li class = "disabled"><a href = ""><i class = "icon-download-alt"></i> Torrent</a></li>
+        <li><a href = "{% url album:poza_edit pk=object.id %}"><i class = "icon-pencil"></i> Editează</a></li>
+		<li class = "nav-header">Locații</li>
+		<li><a href = "{% url album:eveniment_detail slug=object.set_poze.eveniment.slug %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ object.set_poze.eveniment }}</a></li>
+		<li><a href = "{% url album:zi_detail pk=object.get_day.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ object.get_day }}</a></li>
+
+        <li class = "nav-header">Tag-uri</li>
+        <li>{% for tag in object.tags.all %}
+            <span class = "tag tag-small">{{ tag.name }}</span>
+        {% endfor %}
+        </li>
+
+	    <li class = "nav-header">EXIF</li>
+		{% for exif in object.interesting_exifdata %}
+			<li><strong>{{ exif.key }}</strong>: {{ exif.value }}</li>
+		{% endfor %}
+		<li><strong>Autor</strong>: {{ object.set_poze.autor }}</li>
+        <li class = "nav-header">Scurtături</li>
+		<li><i class = "icon-arrow-left"></i> și <i class = "icon-arrow-right"></i> navigație poze</li>
+        <li><em>L</em> pentru like</li>
+        <li><em>H</em> pentru hate</li>
+    </ul>
+
+{% endblock %}
+
+{% block content %}
+{% endblock %}
+
+{% block extrajs %}
+    <script>
+        $("document").ready(function () {
+            $(".image-container").mouseenter(function () {
+                $(".face").fadeIn(200);
+            }).mouseleave(function () {
+                        $(".face").fadeOut(200);
+                    })
+
+            //  change visibility settings
+            $(".visibility_action").click(function (e) {
+                $.post("{% url album:poza_visibility %}",
+                        {"imagine": {{ object.id }}, "new_status": $(this).data("value"), "csrfmiddlewaretoken" : "{{ csrf_token }}"},
+                        function (data) {
+                            $("#current_visibility").fadeOut(200, function () {
+                                console.log(data);
+                                $(this).text(data.new_status_string);
+                            }).fadeIn(200);
+                        },
+                        "json");
+                e.preventDefault();
+            });
+
+        });
+
+
+    </script>
+{% endblock %}
