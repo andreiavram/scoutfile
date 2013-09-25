@@ -264,7 +264,7 @@ class Imagine(ImageModel):
     set_poze = models.ForeignKey(SetPoze)
     data = models.DateTimeField(null=True, blank=True)
     titlu = models.CharField(max_length=1024, null=True, blank=True)
-    descriere = models.CharField(max_length=2048, null=True, blank=True)
+    descriere = models.TextField(null=True, blank=True)
     resolution_x = models.IntegerField(null=True, blank=True)
     resolution_y = models.IntegerField(null=True, blank=True)
 

@@ -75,6 +75,6 @@ class EvenimentUpdateForm(EvenimentCreateForm):
 class PozaTagsForm(CrispyBaseModelForm):
     class Meta:
         model = Imagine
-        fields = ["tags", ]
+        fields = ["tags", "titlu", "descriere"]
 
     tags = TagField(required=False, widget=TaggitTagsInput, label=u"Tag-uri")
