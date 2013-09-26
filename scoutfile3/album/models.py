@@ -265,14 +265,15 @@ class SetPoze(models.Model):
                 "SetPoze: error extracting files: %s (%s), deleting uploaded file" % (e, traceback.format_exc()))
             return
 
+        self.procent_procesat = int(current_percent)
         self.status = 3
+        self.save()
+
         send_mail(u"Arhivă procesată cu succes %s" % os.path.basename(self.zip_file),
                   u"Arhiva încărcată de tine în evenimentul {0} a fost procesată cu succes și este disponibilă pe ScoutFile.".format(
                       self.eveniment, e),
                   settings.SERVER_EMAIL,
-                  self.autor_user.email)
-        self.save()
-
+                  [self.autor_user.email, ])
         os.unlink(self.zip_file)
 
 
