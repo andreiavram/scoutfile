@@ -196,11 +196,6 @@ LOGGING = {
             'level' : 'ERROR',
             'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
         },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
-        }
     },
     'loggers': {
         'django.request': {
@@ -217,7 +212,7 @@ LOGGING = {
 
         'sentry.errors': {
             'level': 'DEBUG',
-            'handlers': ['console'],
+            'handlers': ['default'],
             'propagate': False,
         },
         
@@ -229,7 +224,7 @@ LOGGING = {
 
        'raven': {
             'level': 'DEBUG',
-            'handlers': ['console'],
+            'handlers': ['default'],
             'propagate': False,
         },
             
