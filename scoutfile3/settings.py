@@ -139,7 +139,7 @@ INSTALLED_APPS = (
     'scoutfile3.patrocle', 'scoutfile3.documente', 'scoutfile3.extra',
     
     'raven.contrib.django.raven_compat',
-    'django_extensions'  
+    'django_extensions', 'gunicorn'
 )
 
 
@@ -158,7 +158,7 @@ AJAX_SELECT_INLINES = False
 # more details on how to customize your logging configuration.
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'root' : {
       'level' : 'WARNING',
       'handlers' : ['sentry'],
