@@ -258,21 +258,21 @@ class SetPoze(models.Model):
                       u"Arhiva încărcată de tine în evenimentul {0} nu a putut fi procesată. Eroarea a fost\n{1}".format(
                           self.eveniment, e),
                       settings.SERVER_EMAIL,
-                      self.autor_user.email)
+                      [self.autor_user.email. ])
             self.save()
             os.unlink(self.zip_file)
             logger.error(
                 "SetPoze: error extracting files: %s (%s), deleting uploaded file" % (e, traceback.format_exc()))
             return
 
-        self.procent_procesat = int(current_percent)
+        self.procent_procesat = 100
         self.status = 3
         self.save()
 
         send_mail(u"Arhivă procesată cu succes %s" % os.path.basename(self.zip_file),
                   u"Arhiva încărcată de tine în evenimentul {0} a fost procesată cu succes și este disponibilă pe ScoutFile.".format(
                       self.eveniment, e),
-                  settings.SERVER_EMAIL,
+                  settings.SYSTEM_EMAIL,
                   [self.autor_user.email, ])
         os.unlink(self.zip_file)
 
