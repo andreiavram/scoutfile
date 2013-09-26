@@ -17,7 +17,7 @@
 			<div class = "row" style = "position:relative;">
 				<div class = "span3">
 					<a href = "{% url album:eveniment_detail slug=eveniment.slug %}">
-						<img class = "thumbnail" src = "{%  if eveniment.cover_photo %}{{ eveniment.cover_photo.get_thumbnail_url }}{% else %}http://placeholder.it/320x240{% endif %}" />
+						<img class = "thumbnail" src = "{%  if eveniment.cover_photo %}{{ eveniment.cover_photo.get_thumbnail_url }}{% else %}http://placehold.it/320x240{% endif %}" />
 					</a>
 				</div>
 				<div class = "span7" style = "position: relative">
