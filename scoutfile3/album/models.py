@@ -160,7 +160,7 @@ class ZiEveniment(models.Model):
     class Meta:
         verbose_name = u"Zi eveniment"
         verbose_name_plural = u"Zile eveniment"
-        ordering = ["date"]
+        ordering = ["index"]
 
     def __unicode__(self):
         if self.titlu != None and self.titlu != "":
