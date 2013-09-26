@@ -292,7 +292,7 @@ class Imagine(ImageModel):
     is_flagged = models.BooleanField()
     is_face_processed = models.BooleanField()
 
-    published_status = models.IntegerField(default=2, choices=IMAGINE_PUBLISHED_STATUS)
+    published_status = models.IntegerField(default=2, choices=IMAGINE_PUBLISHED_STATUS, verbose_name=u"Vizibilitate")
 
     tags = TaggableManager()
 
