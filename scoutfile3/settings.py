@@ -185,7 +185,7 @@ LOGGING = {
         'error' : {
             'level' : 'ERROR',
             'class' : 'logging.FileHandler',
-            'filename' : '%s/logs/error.log' % PATH_ROOT,
+            'filename' : '%s/logs/error.log' % FILE_ROOT,
             'formatter' : 'verbose',
         },
         'null': {
