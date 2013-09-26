@@ -257,8 +257,8 @@ class SetPoze(models.Model):
             send_mail(u"Eroare la procesarea fisierului %s" % os.path.basename(self.zip_file),
                       u"Arhiva încărcată de tine în evenimentul {0} nu a putut fi procesată. Eroarea a fost\n{1}".format(
                           self.eveniment, e),
-                      settings.SERVER_EMAIL,
-                      [self.autor_user.email. ])
+                      settings.SYSTEM_EMAIL,
+                      [self.autor_user.email, ])
             self.save()
             os.unlink(self.zip_file)
             logger.error(
