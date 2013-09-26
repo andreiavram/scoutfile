@@ -7,19 +7,24 @@
 {% endblock %}
 
 {% block content %}
-{#	<div class = "well">{% if object.is_face_processed %}Face processed {{ object.detectedface_set.all.count }} faces found {% else %}not processed{% endif %}</div>#}
-	{% if object.flagreport_set.all.count %}<div class = "alert alert-warning"><i class = "icon-flag"></i> Această poză a fost marcată de {% if object.flagreport_set.all.count > 1 %}mai mulți utilizatori{% else %}un utilizator{% endif %} ca nepotrivită pentru acest album, și urmează să fie analizată de un lider sau de fotograf.</div>{% endif %}
-	<div class = "image-container" style = "position: relative; text-align: center; float:left; ">
-        <div style = "opacity: .5">
-		<div style = "margin-left: auto; margin-right: auto;width : {{ object.get_large_size.0 }}px; background-color: black; padding: 5px;">
-		<img src = "{{ object.get_large_url }}?{{ random_value }}" style = "" />
-		<div style = "bottom: 10px; right: 10px; position: absolute; background: #000; color: #fff; border: 1px solid #666; opacity: 0.7; padding: 5px 10px;">&copy; {{ object.data|date:"Y" }}, {{ object.set_poze.autor }}</div>
-		</div>
+    {#	<div class = "well">{% if object.is_face_processed %}Face processed {{ object.detectedface_set.all.count }} faces found {% else %}not processed{% endif %}</div>#}
+    {% if object.flagreport_set.all.count %}
+        <div class="alert alert-warning">
+        <i class="icon-flag"></i> Această poză a fost marcată de {% if object.flagreport_set.all.count > 1 %}mai mulți
+            utilizatori{% else %}un utilizator{% endif %} ca nepotrivită pentru acest album, și urmează să fie analizată
+        de un lider sau de fotograf.</div>{% endif %}
+    <div class="image-container" style="position: relative; text-align: center; float:left; ">
+        <div style="opacity: .2">
+            <div style="margin-left: auto; margin-right: auto;width : {{ object.get_large_size.0 }}px; background-color: black; padding: 5px;">
+                <img src="{{ object.get_large_url }}?{{ random_value }}" style=""/>
+
+                <div style="bottom: 10px; right: 10px; position: absolute; background: #000; color: #fff; border: 1px solid #666; opacity: 0.7; padding: 5px 10px;">&copy; {{ object.data|date:"Y" }}, {{ object.set_poze.autor }}</div>
+            </div>
         </div>
-        <div style = "position: absolute; text-align: left;; width: 100%; top: 40px; ">
+        <div style="position: absolute; text-align: left;; width: 100%; top: 40px; ">
             {% crispy form form.helper %}
         </div>
-	</div>
+    </div>
 
 
 {% endblock %}

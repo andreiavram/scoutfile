@@ -150,7 +150,9 @@ class PozaUpdate(UpdateView):
     template_name = "album/poza_form.html"
     form_class = PozaTagsForm
 
-    #TODO: add authentication verification here (who can edit these things?)
+    @allow_by_afiliere([("Imagine, Centru Local", u"Lider")])
+    def dispatch(self, request, *args, **kwargs):
+        return super(PozaUpdate, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         self.object.tags.clear()
@@ -159,6 +161,28 @@ class PozaUpdate(UpdateView):
 
     def get_success_url(self):
         return reverse("album:poza_detail", kwargs = {"pk": self.object.id})
+
+    def get_context_data(self, **kwargs):
+        current = super(PozaUpdate, self).get_context_data(**kwargs)
+
+        centru_local = self.object.set_poze.eveniment.centru_local
+        calitate = TipAsociereMembruStructura.objects.get(nume__iexact = u"Păstrător al amintirilor", content_types__in = [ContentType.objects.get_for_model(centru_local)])
+        if self.request.user.get_profile().membru.are_calitate(calitate, centru_local):
+            current.update({"media_manager": True})
+
+        return current
+
+
+class PozaDelete(GenericDeleteView):
+    model = Imagine
+    template_name = "album/poza_form.html"
+
+    @allow_by_afiliere([("Imagine, Centru Local", u"Păstrător al amintirilor")])
+    def dispatch(self, request, *args, **kwargs):
+        return super(PozaDelete, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse("album:eveniment_detail", kwargs={"slug": self.object.set_poze.eveniment.slug})
     
 class FlagImage(CreateView):
     model = FlagReport
@@ -187,6 +211,7 @@ class FlagImage(CreateView):
         return current
 
 class RotateImage(View):
+    @allow_by_afiliere([("Imagine, Centru Local", u"Păstrător al amintirilor")])
     def dispatch(self, request, *args, **kwargs):
         self.imagine = get_object_or_404(Imagine, id = kwargs.pop("pk"))
         
