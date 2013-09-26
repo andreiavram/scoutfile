@@ -182,13 +182,19 @@ LOGGING = {
             'filename' : "%s/logs/debug.log" % FILE_ROOT,
             'formatter' : 'verbose',
         },
+        'error' : {
+            'level' : 'ERROR',
+            'class' : 'logging.FileHandler',
+            'filename' : '%s/logs/error.log' % PATH_ROOT,
+            'formatter' : 'verbose',
+        },
         'null': {
             'level':'DEBUG',
             'class':'django.utils.log.NullHandler',
         },
         'sentry' : {
             'level' : 'ERROR',
-            'class' : 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
         },
         'console': {
             'level': 'DEBUG',
@@ -219,7 +225,13 @@ LOGGING = {
             'handlers' : ['null', ], 
             'propagate' : False,
             'level': 'DEBUG',
-        }        
+        },
+
+       'raven': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
             
     }
 }
