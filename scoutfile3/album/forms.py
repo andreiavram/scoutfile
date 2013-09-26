@@ -11,7 +11,7 @@ from generic.widgets import BootstrapDateTimeInput, GeoCoordinatesInput, Faceboo
 from scoutfile3.generic.forms import CrispyBaseModelForm
 from scoutfile3.album.models import FlagReport, FLAG_MOTIVES
 from django import forms
-from album.models import SetPoze, Eveniment, Imagine
+from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
 from django.forms.widgets import RadioSelect, Textarea
 from django.core.exceptions import ValidationError
 from django.forms.fields import CharField, FileField
@@ -78,3 +78,9 @@ class PozaTagsForm(CrispyBaseModelForm):
         fields = ["tags", "titlu", "descriere"]
 
     tags = TagField(required=False, widget=TaggitTagsInput, label=u"Tag-uri")
+
+class ZiForm(CrispyBaseModelForm):
+    class Meta:
+        model = ZiEveniment
+        fields = ["titlu", "descriere"]
+
