@@ -1,6 +1,7 @@
 #coding: utf-8
 from django.core.mail import send_mail
 from django.db import models
+from django.db.models.query_utils import Q
 from photologue.models import ImageModel
 from PIL import Image
 import datetime
@@ -54,7 +55,6 @@ class Eveniment(models.Model):
         retval = super(Eveniment, self).save(*args, **kwargs)
 
         if on_create:
-            #    just on create
             zi_index = 1
             date = self.start_date
             while date <= self.end_date:
@@ -63,6 +63,25 @@ class Eveniment(models.Model):
                 date += datetime.timedelta(days=1)
 
                 zi_eveniment.titlu = u"Ziua %d" % zi_eveniment.index
+                zi_eveniment.save()
+
+        else:
+            #   check if days have to be recreated
+            zile_eveniment = self.zieveniment_set.all().order_by("index")
+            if zile_eveniment[0].date == self.start_date and zile_eveniment[zile_eveniment.count() - 1].date == self.end_date:
+                #   same dates means do nothing
+                return retval
+
+            #   delete days outside the current span
+            self.zieveniment_set.filter(Q(date__lte = self.start_date) | Q(date__gte = self.end_date)).delete()
+            zi_index = 1
+            date = self.start_date
+
+            #   create only the days that were added by time shift. recreate index for all days
+            while date <= self.end_date:
+                zi_eveniment, created = ZiEveniment.get_or_create(eveniment=self, date=date)
+                date += datetime.timedelta(days=1)
+                zi_eveniment.index = zi_index
                 zi_eveniment.save()
 
         return retval
@@ -135,7 +154,7 @@ class ZiEveniment(models.Model):
     eveniment = models.ForeignKey(Eveniment)
     date = models.DateField()
     titlu = models.CharField(max_length=255)
-    descriere = models.CharField(max_length=1024)
+    descriere = models.TextField(null=True, blank=True)
     index = models.IntegerField(default=1)
 
     class Meta:

@@ -17,7 +17,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport
-from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm
+from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm
 from album.models import SetPoze
 from album.forms import SetPozeCreateForm, SetPozeUpdateForm
 from generic.views import GenericDeleteView
@@ -89,6 +89,16 @@ class ZiDetail(DetailView):
 
         return current
 
+class ZiEdit(UpdateView):
+    model = ZiEveniment
+    template_name = "album/zi_form.html"
+    form_class = ZiForm
+
+    def dispatch(self, request, *args, **kwargs):
+        return super(ZiEdit, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse("album:zi_detail", kwargs={"pk" : self.object.id})
 
 class ZiStats(DetailView):
     model = ZiEveniment
