@@ -22,4 +22,4 @@ class Command(BaseCommand):
                 set_poze.process_zip_file()
             except Exception, e:
                 logger.error("Management command process_albums crashed: %s %s" % (e, traceback.format_exc()))
-                logger.error("Set %d (%s) crashed %s" % (set_poze.id, set_poze.autor_user, e))
+                logger.error("Set %d (%s) crashed" % (set_poze.id, set_poze.autor_user))
