@@ -271,7 +271,7 @@ class SetPoze(models.Model):
 
         send_mail(u"Arhivă procesată cu succes %s" % os.path.basename(self.zip_file),
                   u"Arhiva încărcată de tine în evenimentul {0} a fost procesată cu succes și este disponibilă pe ScoutFile.".format(
-                      self.eveniment, e),
+                      self.eveniment),
                   settings.SYSTEM_EMAIL,
                   [self.autor_user.email, ])
         os.unlink(self.zip_file)
