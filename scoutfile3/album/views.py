@@ -550,8 +550,6 @@ class ImagineTagSearchJSON(JSONView):
     def post(self, request, *args, **kwargs):
         self.validate(**self.parse_json_data())
 
-        logger.debug("Tags: %s" % self.cleaned_data['tags'])
-
         qs = Imagine.objects.filter(tags__name__in=self.cleaned_data['tags'])
         qs = qs.order_by("-data")
 
@@ -560,7 +558,6 @@ class ImagineTagSearchJSON(JSONView):
 
         total_count = qs.count()
         qs = qs[offset:offset + limit]
-        logger.debug("QS: %s" % qs)
 
         return HttpResponse(self.construct_json_response(queryset=qs, total_count=total_count))
 
