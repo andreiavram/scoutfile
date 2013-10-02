@@ -117,7 +117,8 @@
 		<li class = "nav-header">Locații</li>
 		<li><a href = "{% url album:eveniment_detail slug=object.set_poze.eveniment.slug %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ object.set_poze.eveniment }}</a></li>
 		<li><a href = "{% url album:zi_detail pk=object.get_day.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ object.get_day }}</a></li>
-
+        <li class = "nav-header">Căutare</li>
+        <li><a href = "{% url album:tag_search %}"><i class = "icon-search"></i> Căutare după tag-uri</a></li>
         <li class = "nav-header">Tag-uri</li>
         <li>{% for tag in object.tags.all %}
             <span class = "tag tag-small">{{ tag.name }}</span>

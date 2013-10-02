@@ -28,3 +28,6 @@ USE_EMAIL_CONFIRMATION = False
 # MEDIA_ROOT = "/vagrant/media/"
 # STATIC_ROOT = "/vagrant/static/"
 
+RAVEN_CONFIG = {
+    'dsn': 'http://d7e2875a012341e592603b37604c5728:ebf178b496c54a73a536c5e79d7eeff5@sentry.albascout.ro/5',
+}

@@ -1,7 +1,9 @@
 # coding: utf-8
+from django.db.models.aggregates import Count
+from django.utils.simplejson import dumps
 from django.views.generic.edit import UpdateView, CreateView
 from django.views.generic.detail import DetailView
-from django.views.generic.base import View
+from django.views.generic.base import View, TemplateView
 from django.shortcuts import get_object_or_404
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404, HttpResponseRedirect, HttpResponse,\
@@ -15,6 +17,8 @@ import logging
 import os
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from taggit.models import Tag
+from taggit.utils import parse_tags
 
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm
@@ -507,3 +511,69 @@ class EvenimentDelete(GenericDeleteView):
 class EvenimentDetail(DetailView):
     model = Eveniment
     template_name = "album/eveniment_main_detail.html"
+
+class ImagineTagSearch(TemplateView):
+    template_name = "album/tags_search.html"
+
+    def get_context_data(self, **kwargs):
+        tags = Tag.objects.all().annotate(num_times=Count("taggit_taggeditem_items")).order_by("-num_times")[:20]
+        current = super(ImagineTagSearch, self).get_context_data(**kwargs)
+        current.update({"tags" : tags})
+        return current
+
+class ImagineTagSearchJSON(JSONView):
+    _params = {"tags" : {"type" : "required"},
+               "limit" : {"type" : "optional"},
+               "offset" : {"type" : "optional"},
+               "authors" : {"type" : "optional"}}
+
+    def clean_limit(self, value):
+        try:
+            limit = int(value)
+            return limit if limit > 0 else 10
+        except Exception, e:
+            raise ScoutFileAjaxException("Bad limit", original_exception=e)
+
+    def clean_offset(self, value):
+        try:
+            offset = int(value)
+            return offset if offset > 0 else 0
+        except Exception, e:
+            raise ScoutFileAjaxException("Bad offset", original_exception=e)
+
+    def clean_tags(self, value):
+        return parse_tags(value)
+
+    def clean_authors(self, value):
+        return value
+
+    def post(self, request, *args, **kwargs):
+        self.validate(**self.parse_json_data())
+
+        logger.debug("Tags: %s" % self.cleaned_data['tags'])
+
+        qs = Imagine.objects.filter(tags__name__in=self.cleaned_data['tags'])
+        qs = qs.order_by("-data")
+
+        limit = self.cleaned_data.get("limit", 10)
+        offset = self.cleaned_data.get("offset", 0)
+
+        total_count = qs.count()
+        qs = qs[offset:offset + limit]
+        logger.debug("QS: %s" % qs)
+
+        return HttpResponse(self.construct_json_response(queryset=qs, total_count=total_count))
+
+    def imagine_to_json(self, imagine):
+        return {"id" : imagine.id,
+                "url_thumb" : imagine.get_thumbnail_url(),
+                "url_detail" : reverse("album:poza_detail", kwargs = {"pk" : imagine.id}),
+                }
+    
+    def construct_json_response(self, queryset, total_count, **kwargs):
+        response_json = {"data" : [self.imagine_to_json(im) for im in queryset],
+                         "offset" : self.cleaned_data['offset'],
+                         "limit" : self.cleaned_data['limit'],
+                         "count" : queryset.count(),
+                         "total_count" : total_count}
+        return dumps(response_json)    

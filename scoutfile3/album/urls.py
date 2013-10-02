@@ -2,7 +2,7 @@ from django.conf.urls.defaults import patterns
 from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     RotateImage, EvenimentStats, ZiStats, FlagImage, EvenimentList, \
     SetImaginiUpload, SetImaginiDeleteAjax, SetImaginiToate, \
-    SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate, EvenimentCreate, EvenimentUpdate, EvenimentDetail, EvenimentDelete, PozaUpdate, ZiEdit, PozaDelete
+    SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate, EvenimentCreate, EvenimentUpdate, EvenimentDetail, EvenimentDelete, PozaUpdate, ZiEdit, PozaDelete, ImagineTagSearch, ImagineTagSearchJSON
 from scoutfile3.album.views import ChangeImagineVisibility
 
 
@@ -33,4 +33,7 @@ urlpatterns = patterns('scoutfile3.album.views',
                        (r'poza/visibility/', ChangeImagineVisibility.as_view(), {}, "poza_visibility"),
                        (r'poza/(?P<pk>\d+)/edit/$', PozaUpdate.as_view(), {}, "poza_edit"),
                        (r'poza/(?P<pk>\d+)/delete/$', PozaDelete.as_view(), {}, "poza_delete"),
+
+                       (r'tag/search/$', ImagineTagSearch.as_view(), {}, "tag_search"),
+                       (r'tag/search/do/$', ImagineTagSearchJSON.as_view(), {}, "tag_search_json"),
 )
