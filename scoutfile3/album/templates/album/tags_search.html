@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load pagination_tags %}
+
+{% block page_title %}
+    Căutare după tag-uri
+{% endblock %}
+
+{% block context_menu %}
+    {% include "album/main_context_menu.html" %}
+{% endblock %}
+
+{% block extrahead %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}generic/css/tagmanager.css"/>
+{% endblock %}
+
+{% block extrajs %}
+    <script src="{{ STATIC_URL }}generic/js/typeahead.js"></script>
+    <script src="{{ STATIC_URL }}generic/js/tagmanager.js"></script>
+    <script>
+        $(document).ready(function () {
+            $(".tm-input").each(function (index) {
+                var field_name = $(this).data("field-name");
+                var ajax_url = $(this).data("ajax-url");
+
+
+                var tagApi = $(this).tagsManager({
+                    hiddenTagListName: field_name,
+                    tagsContainer: "#" + field_name + "_tag_container",
+                });
+
+                $(this).typeahead({
+                    name: 'tags',
+                    limit: 20,
+                    remote: ajax_url + "?q=%QUERY"
+                }).on('typeahead:selected', function (e, d) {
+                            tagApi.tagsManager("pushTag", d.value);
+                        });
+            });
+
+            $(".tm-existing-item").click(function (e) {
+                $($(this).data("target")).tagsManager("pushTag", $(this).text());
+                e.preventDefault();
+                return false;
+            })
+
+            $("#tags-search-form").submit(function () {
+                offset = 0;
+                $("#rezultate-list").html("");
+                get_photos();
+                stop_flag = false;
+                return false;
+            });
+
+            $(window).scroll(function () {
+                if (($(window).scrollTop() >= $(document).height() - $(window).height() * 1.5) && !(stop_flag)) {
+                    get_photos();
+                }
+            });
+
+        });
+
+        var offset = 0;
+        var limit = 9;
+        var stop_flag = true;
+
+        function get_photos() {
+            stop_flag = true;
+            $.post("{% url album:tag_search_json %}",
+                    {"offset": offset, "limit": limit, "tags": $("[name='tags']").val(), "csrfmiddlewaretoken": "{{ csrf_token }}"},
+                    function (data) {
+                        $("#msg").html("<i class = 'icon-search'></i> Am găsit " + data.total_count + " imagini tag-uite cu <strong>" + $("[name='tags']").val() + "</strong>, cele mai recente mai sus");
+
+                        $.each(data.data, function (index, element) {
+                            $("#rezultate-list").append(' \
+                                <li class="span3" style="position: relative;"> \
+                                    <a href="' + element.url_detail + '" class="thumbnail"> \
+                                        <img src="' + element.url_thumb + '"> \
+                                    </a> \
+                                </li>');
+
+                        });
+                        offset += data.count;
+                        if (offset < data.total_count) {
+                            stop_flag = false;
+                        } else {
+                            stop_flag = true;
+                        }
+                    }, "json");
+
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+
+    <form class="form-inline" id="tags-search-form">
+        <fieldset>
+            <input id="id_tags"
+                   data-field-name="tags" data-ajax-url="{% url generic:tag_list %}" type="text" name="tags_edit"
+                   placeholder="scrie tag-uri aici" class="tm-input" style="margin-bottom: 0px;"/>
+            <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i> Caută</button>
+            <br/><br/>
+            {% if tags %}
+                <div class="tag_suggestions">
+                    <strong>Tag-uri existente: </strong>
+                    {% for tag in tags %}
+                        <span class="tm-existing tm-tag tm-tag-small">
+                <a class="tm-existing-item" href="#" data-target="#id_tags">{{ tag }}</a>
+            </span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div id="tags_tag_container">
+            </div>
+        </fieldset>
+    </form>
+    <h2>Rezultate</h2>
+    <p id="msg" class = "alert alert-info">Scrie câteva tag-uri și apasă pe <i class="icon-search"></i> Caută în formularul de deasupra.</p>
+    <div id="rezultate">
+        <ul id="rezultate-list" class="thumbnails">
+
+        </ul>
+    </div>
+{% endblock %}

@@ -158,7 +158,7 @@ AJAX_SELECT_INLINES = False
 # more details on how to customize your logging configuration.
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'root' : {
       'level' : 'WARNING',
       'handlers' : ['sentry'],

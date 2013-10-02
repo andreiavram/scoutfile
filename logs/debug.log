@@ -1,0 +1,360 @@
+INFO 2013-09-26 11:24:59,614 base 4056 140128426956544 Raven is not configured (disabled). Please see documentation for more information.
+INFO 2013-09-28 16:34:57,475 base 4888 139756483663616 Raven is not configured (disabled). Please see documentation for more information.
+INFO 2013-10-01 02:34:19,830 base 5636 140167046223616 Raven is not configured (disabled). Please see documentation for more information.
+INFO 2013-10-01 02:54:04,999 base 5668 140220812277504 Raven is not configured (disabled). Please see documentation for more information.
+INFO 2013-10-01 03:14:46,532 base 5800 140133872375552 Raven is not configured (disabled). Please see documentation for more information.
+INFO 2013-10-02 00:18:06,797 base 6521 140244305311488 Raven is not configured (disabled). Please see documentation for more information.
+DEBUG 2013-10-02 01:59:28,911 base 6995 140030668277504 Configuring Raven for host: http://d7e2875a012341e592603b37604c5728:ebf178b496c54a73a536c5e79d7eeff5@sentry.albascout.ro:/5
+DEBUG 2013-10-02 02:06:35,721 views 7134 140510953973504 Tags: []
+DEBUG 2013-10-02 02:06:35,729 views 7134 140510953973504 QS: []
+DEBUG 2013-10-02 02:09:31,973 views 7134 140511079728896 Tags: [u'CCL2013', u'petrecere petrecere', u'supremia', u'whada']
+DEBUG 2013-10-02 02:09:31,984 views 7134 140511079728896 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 02:19:39,069 base 7134 140511079728896 Configuring Raven for host: http://d7e2875a012341e592603b37604c5728:ebf178b496c54a73a536c5e79d7eeff5@sentry.albascout.ro:/5
+DEBUG 2013-10-02 02:25:08,641 views 7134 140510979151616 Tags: [u'mario', u'supremia', u'tag input is awesoem', u'whada']
+DEBUG 2013-10-02 02:25:08,650 views 7134 140510979151616 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 02:25:20,792 views 7134 140511079728896 Tags: [u'CCL2013', u'petrecere petrecere', u'supliment']
+DEBUG 2013-10-02 02:25:20,801 views 7134 140511079728896 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 02:26:01,347 views 7134 140510962366208 Tags: [u'CCL2013', u'petrecere petrecere', u'supremia', u'whada']
+DEBUG 2013-10-02 02:26:01,357 views 7134 140510962366208 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 02:26:02,493 views 7134 140510962366208 Tags: [u'CCL2013', u'petrecere petrecere', u'supremia', u'whada']
+DEBUG 2013-10-02 02:26:02,502 views 7134 140510962366208 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 02:28:25,125 views 7134 140510987544320 Tags: [u'CCL2013', u'petrecere petrecere']
+DEBUG 2013-10-02 02:28:25,135 views 7134 140510987544320 QS: [<Imagine: Imagine object>]
+DEBUG 2013-10-02 02:29:07,291 views 7134 140510962366208 Tags: [u'mario', u'outdoor', u'p']
+DEBUG 2013-10-02 02:29:07,301 views 7134 140510962366208 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 02:29:26,862 views 7134 140510995937024 Tags: [u'CCL2013', u'petrecere petrecere']
+DEBUG 2013-10-02 02:29:26,869 views 7134 140510995937024 QS: [<Imagine: Imagine object>]
+DEBUG 2013-10-02 02:29:39,680 views 7134 140510987544320 Tags: [u'CCL2013', u'petrecere petrecere', u'whada']
+DEBUG 2013-10-02 02:29:39,698 views 7134 140510987544320 QS: [<Imagine: Imagine object>]
+DEBUG 2013-10-02 02:32:19,088 views 7134 140510995937024 Tags: [u'supremia', u'tag input is awesoem', u'whada']
+DEBUG 2013-10-02 02:32:19,097 views 7134 140510995937024 QS: [<Imagine: Imagine object>]
+DEBUG 2013-10-02 02:32:36,866 views 7134 140510962366208 Tags: [u'CCL2013', u'petrecere petrecere', u'supliment']
+DEBUG 2013-10-02 02:32:36,876 views 7134 140510962366208 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 02:53:26,776 views 7134 140511079728896 Tags: [u'CCL2013', u'petrecere petrecere', u'supliment', u'whada']
+DEBUG 2013-10-02 02:53:26,785 views 7134 140511079728896 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>]
+ERROR 2013-10-02 02:56:37,719 base 7134 140510970758912 Internal Server Error: /album/poza/6798/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 335, in _get_SIZE_size
+    return Image.open(self._get_SIZE_filename(size)).size
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1976, in open
+    fp = builtins.open(fp, "rb")
+IOError: [Errno 2] No such file or directory: '/vagrant/media/album/1/4/Andrei_AVRAM/YetiSeria1/cache/DSC_6342_large.JPG'
+ERROR 2013-10-02 02:56:51,301 base 7134 140510953973504 Internal Server Error: /album/poza/6798/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 335, in _get_SIZE_size
+    return Image.open(self._get_SIZE_filename(size)).size
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1976, in open
+    fp = builtins.open(fp, "rb")
+IOError: [Errno 2] No such file or directory: '/vagrant/media/album/1/4/Andrei_AVRAM/YetiSeria1/cache/DSC_6342_large.JPG'
+ERROR 2013-10-02 02:56:51,319 base 7134 140510979151616 Internal Server Error: /album/poza/6798/
+Traceback (most recent call last):
+  File "/virtualenv/local/lib/python2.7/site-packages/django/core/handlers/base.py", line 136, in get_response
+    response = response.render()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 104, in render
+    self._set_content(self.rendered_content)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/response.py", line 81, in rendered_content
+    content = template.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 140, in render
+    return self._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 123, in render
+    return compiled_parent._render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 134, in _render
+    return self.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 823, in render
+    bit = self.render_node(node, context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 74, in render_node
+    return node.render(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/debug.py", line 84, in render
+    output = self.filter_expression.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 571, in resolve
+    obj = self.var.resolve(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 721, in resolve
+    value = self._resolve_lookup(context)
+  File "/virtualenv/local/lib/python2.7/site-packages/django/template/base.py", line 772, in _resolve_lookup
+    current = current()
+  File "/virtualenv/local/lib/python2.7/site-packages/django/utils/functional.py", line 11, in _curried
+    return _curried_func(*(args+moreargs), **dict(kwargs, **morekwargs))
+  File "/virtualenv/local/lib/python2.7/site-packages/photologue/models.py", line 335, in _get_SIZE_size
+    return Image.open(self._get_SIZE_filename(size)).size
+  File "/virtualenv/local/lib/python2.7/site-packages/PIL/Image.py", line 1976, in open
+    fp = builtins.open(fp, "rb")
+IOError: [Errno 2] No such file or directory: '/vagrant/media/album/1/4/Andrei_AVRAM/YetiSeria1/cache/DSC_6342_large.JPG'
+DEBUG 2013-10-02 02:57:56,195 views 7134 140510970758912 Tags: [u'outdoor']
+DEBUG 2013-10-02 02:57:56,207 views 7134 140510970758912 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 02:58:17,509 views 7134 140510970758912 Tags: []
+DEBUG 2013-10-02 02:58:17,514 views 7134 140510970758912 QS: []
+DEBUG 2013-10-02 02:58:19,924 views 7134 140510970758912 Tags: []
+DEBUG 2013-10-02 02:58:19,931 views 7134 140510970758912 QS: []
+DEBUG 2013-10-02 02:58:19,971 views 7134 140510970758912 Tags: []
+DEBUG 2013-10-02 02:58:19,980 views 7134 140510970758912 QS: []
+DEBUG 2013-10-02 02:58:20,065 views 7134 140510970758912 Tags: []
+DEBUG 2013-10-02 02:58:20,078 views 7134 140510970758912 QS: []
+DEBUG 2013-10-02 02:58:20,094 views 7134 140510995937024 Tags: []
+DEBUG 2013-10-02 02:58:20,104 views 7134 140510995937024 QS: []
+DEBUG 2013-10-02 02:58:20,117 views 7134 140510970758912 Tags: []
+DEBUG 2013-10-02 02:58:20,152 views 7134 140510970758912 QS: []
+DEBUG 2013-10-02 02:58:20,574 views 7134 140510970758912 Tags: []
+DEBUG 2013-10-02 02:58:20,577 views 7134 140510970758912 QS: []
+DEBUG 2013-10-02 02:58:20,594 views 7134 140510995937024 Tags: []
+DEBUG 2013-10-02 02:58:20,600 views 7134 140510995937024 QS: []
+DEBUG 2013-10-02 02:59:09,839 views 7134 140510953973504 Tags: [u'outdoor']
+DEBUG 2013-10-02 02:59:09,852 views 7134 140510953973504 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:03:13,889 views 7134 140510953973504 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:03:13,901 views 7134 140510953973504 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:05:35,359 views 7134 140510987544320 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:05:35,378 views 7134 140510987544320 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:05:36,547 views 7134 140510987544320 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:05:36,565 views 7134 140510987544320 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:05:36,596 views 7134 140510970758912 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:05:36,624 views 7134 140510970758912 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:05:58,838 views 7134 140510995937024 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:05:58,851 views 7134 140510995937024 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:06:05,802 views 7134 140510995937024 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:06:05,815 views 7134 140510995937024 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:06:05,838 views 7134 140510987544320 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:06:05,863 views 7134 140510987544320 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:06:05,918 views 7134 140510979151616 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:06:05,951 views 7134 140510979151616 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:06:22,801 views 7134 140511079728896 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:06:22,824 views 7134 140511079728896 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:06:23,809 views 7134 140511079728896 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:06:23,832 views 7134 140510987544320 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:06:23,843 views 7134 140511079728896 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:06:23,859 views 7134 140510987544320 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:06:23,887 views 7134 140510995937024 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:06:23,956 views 7134 140510995937024 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:06:59,974 views 7134 140511079728896 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:06:59,992 views 7134 140511079728896 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:07:01,155 views 7134 140511079728896 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:01,169 views 7134 140511079728896 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:07:01,507 views 7134 140511079728896 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:01,522 views 7134 140511079728896 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:07:22,221 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:22,235 views 7134 140510962366208 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:07:23,527 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:23,542 views 7134 140510962366208 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:07:24,909 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:24,933 views 7134 140510962366208 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:07:25,247 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:25,259 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:25,312 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:25,323 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:25,631 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:25,641 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:26,767 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:26,777 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:26,845 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:26,859 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:26,996 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:27,006 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:27,124 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:27,132 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:27,523 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:27,531 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:27,591 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:27,603 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:27,643 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:27,653 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:28,877 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:28,885 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:28,936 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:28,945 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:28,973 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:28,985 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:29,125 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:29,138 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:29,156 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:29,170 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:29,195 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:29,207 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:29,292 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:29,304 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:29,427 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:29,436 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:29,483 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:29,492 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:29,524 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:29,536 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:29,566 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:29,585 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:29,637 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:29,647 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:29,697 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:29,713 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:29,826 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:29,835 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:29,857 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:29,883 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:07:30,010 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:07:30,021 views 7134 140510962366208 QS: []
+DEBUG 2013-10-02 03:08:20,710 views 7134 140510987544320 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:08:20,722 views 7134 140510987544320 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:08:25,867 views 7134 140510995937024 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:08:25,881 views 7134 140510995937024 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:08:27,972 views 7134 140510995937024 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:08:27,989 views 7134 140510995937024 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:08:29,503 views 7134 140510995937024 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:08:29,518 views 7134 140510995937024 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:08:41,276 views 7134 140510995937024 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:08:41,285 views 7134 140510995937024 QS: []
+DEBUG 2013-10-02 03:08:41,309 views 7134 140510995937024 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:08:41,326 views 7134 140510995937024 QS: []
+DEBUG 2013-10-02 03:08:42,189 views 7134 140510995937024 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:08:42,197 views 7134 140510995937024 QS: []
+DEBUG 2013-10-02 03:08:42,351 views 7134 140510995937024 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:08:42,358 views 7134 140510995937024 QS: []
+DEBUG 2013-10-02 03:08:42,411 views 7134 140510995937024 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:08:42,419 views 7134 140510995937024 QS: []
+DEBUG 2013-10-02 03:08:42,495 views 7134 140510995937024 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:08:42,510 views 7134 140510995937024 QS: []
+DEBUG 2013-10-02 03:08:43,327 views 7134 140510995937024 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:08:43,337 views 7134 140510995937024 QS: []
+DEBUG 2013-10-02 03:08:44,037 views 7134 140510995937024 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:08:44,046 views 7134 140510995937024 QS: []
+DEBUG 2013-10-02 03:08:44,592 views 7134 140510995937024 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:08:44,609 views 7134 140510995937024 QS: []
+DEBUG 2013-10-02 03:09:05,243 views 7134 140510970758912 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:09:05,258 views 7134 140510970758912 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:09:06,617 views 7134 140510970758912 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:09:06,634 views 7134 140510970758912 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:09:07,910 views 7134 140510970758912 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:09:07,928 views 7134 140510970758912 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:09:32,990 views 7134 140510987544320 Tags: [u'fripturist']
+DEBUG 2013-10-02 03:09:33,006 views 7134 140510987544320 QS: []
+DEBUG 2013-10-02 03:09:38,905 views 7134 140510995937024 Tags: [u'CCL2013']
+DEBUG 2013-10-02 03:09:38,917 views 7134 140510995937024 QS: []
+DEBUG 2013-10-02 03:09:53,412 views 7134 140510979151616 Tags: [u'supremia']
+DEBUG 2013-10-02 03:09:53,427 views 7134 140510979151616 QS: []
+DEBUG 2013-10-02 03:13:53,213 views 7134 140510995937024 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:13:53,225 views 7134 140510995937024 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:14:15,260 views 7134 140510962366208 Tags: [u'outdoor']
+DEBUG 2013-10-02 03:14:15,271 views 7134 140510962366208 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:14:19,725 views 7134 140510962366208 Tags: [u'fripturist', u'outdoor', u'p']
+DEBUG 2013-10-02 03:14:19,745 views 7134 140510962366208 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:14:29,725 views 7134 140510962366208 Tags: [u'fripturist', u'outdoor', u'p']
+DEBUG 2013-10-02 03:14:29,740 views 7134 140510962366208 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:14:30,405 views 7134 140510962366208 Tags: [u'fripturist', u'outdoor', u'p']
+DEBUG 2013-10-02 03:14:30,418 views 7134 140510962366208 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:15:17,489 views 7134 140510987544320 Tags: [u'fripturist', u'outdoor', u'supliment']
+DEBUG 2013-10-02 03:15:17,501 views 7134 140510987544320 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:15:33,335 views 7134 140511079728896 Tags: [u'outdoor', u'supremia', u'tag input is awesoem']
+DEBUG 2013-10-02 03:15:33,348 views 7134 140511079728896 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:15:39,651 views 7134 140511079728896 Tags: [u'outdoor', u'supremia', u'tag input is awesoem']
+DEBUG 2013-10-02 03:15:39,666 views 7134 140511079728896 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:15:40,174 views 7134 140511079728896 Tags: [u'outdoor', u'supremia', u'tag input is awesoem']
+DEBUG 2013-10-02 03:15:40,188 views 7134 140511079728896 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:15:50,356 views 7134 140511079728896 Tags: [u'fripturist', u'mario', u'outdoor', u'supremia', u'tag input is awesoem']
+DEBUG 2013-10-02 03:15:50,372 views 7134 140511079728896 QS: [<Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>, <Imagine: Imagine object>]
+DEBUG 2013-10-02 03:21:14,565 base 7994 140603245446912 Configuring Raven for host: http://d7e2875a012341e592603b37604c5728:ebf178b496c54a73a536c5e79d7eeff5@sentry.albascout.ro:/5

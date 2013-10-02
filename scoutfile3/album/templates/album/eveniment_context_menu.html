@@ -3,7 +3,9 @@
 		<li class = "disabled"><a href = ""><i class = "icon-download"></i> Download toate</a>
 		<li class = "disabled"><a href = ""><i class = "icon-download-alt"></i> Torrent</a>
 		<li><a href = "{% url album:eveniment_upload slug=object.slug %}"><i class = "icon-upload"></i> Upload set poze</a></li>
-		<li class = "nav-header">Administrare</li>
+		<li class = "nav-header">Căutare</li>
+        <li><a href = "{% url album:tag_search %}"><i class = "icon-search"></i> Căutare după tag-uri</a></li>
+        <li class = "nav-header">Administrare</li>
         <li><a href = "{% url album:eveniment_update slug=eveniment.slug %}"><i class = "icon-pencil"></i> Editează</a></li>
         <li><a class = "delete" href = "{% url album:eveniment_delete slug=eveniment.slug %}"><i class = "icon-trash"></i> Șterge</a></li>
         <li class = "nav-header">Locații</li>
