@@ -251,7 +251,8 @@ class SetImaginiUpload(CreateView):
         if not os.path.exists(local_file_name):
             # create empty file with given size
             with io.open(local_file_name, "w+b") as fp:
-                fp.write("\0" * int(byte_ranges[2]))
+                fp.seek(int(byte_ranges[2]) - 1)
+                fp.write("\0")
 
         with io.open(local_file_name, "a+b") as destination:
             destination.seek(int(byte_ranges[0]))
