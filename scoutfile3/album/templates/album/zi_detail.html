@@ -31,9 +31,7 @@
 		{% autopaginate object_list 30 as object_list %}
 		<div class = "alert alert-info">Albumul pentru <a href = "{% url album:eveniment_detail slug=object.eveniment.slug %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ object.eveniment }}</a>, <strong>{{ object.filter_photos.count }}</strong> fotografii pentru {{ object.date|date:"l, d F Y" }}</div>
 		{% if autor %}<div class = "alert alert-success">Arăt doar pozele de la <strong>{{ autor }}</strong></div>{% endif %}
-		{% if object.descriere %}
-			<p>{{ object.descriere }}</p>
-		{% endif %}
+		{% if object.descriere %}{{ object.descriere|linebreaks }}{% endif %}
 		
 		{% paginate %}
 		<ul class = "thumbnails">

@@ -19,5 +19,9 @@
 			<li><a href = "{% url album:zi_detail pk=object.id %}?autor={{ autor }}"><i class = "icon-user"></i>  {{ autor }}</a></li>
 		{% endfor %}
 		<li><a href = "{% url album:zi_detail pk=object.id %}"><i class= "icon-user-md"></i><strong> Toți autorii</strong></a></li>
+        <li class = "nav-header">Zile</li>
+        {% for zi in object.eveniment.zieveniment_set.all %}
+            <li><a href = "{% url album:zi_detail pk=zi.id %}"><i class ="icon-calendar"></i> {% if zi.titlu %}{{ zi.titlu }}{% else %}Ziua {{ zi.index }}{% endif %}</a></li>
+        {%  endfor  %}
 	</ul>
 {% endblock %}
