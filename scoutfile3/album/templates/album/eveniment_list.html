@@ -13,7 +13,7 @@
 	<ul class = "unstyled span11">
 	{% autopaginate object_list 4 as object_list %}
 	{% for eveniment in object_list %}
-		<li class = "span11">
+		<li class = "span11" style = "margin-bottom: 20px;">
 			<div class = "row" style = "position:relative;">
 				<div class = "span3">
 					<a href = "{% url album:eveniment_detail slug=eveniment.slug %}">
@@ -22,13 +22,19 @@
 				</div>
 				<div class = "span7" style = "position: relative">
 					<h2><a href = "{% url album:eveniment_detail slug=eveniment.slug %}">{{ eveniment }}</a></h2>
-					{% if eveniment.descriere %}<p>{{ eveniment.descriere }}</p>{% endif %} 
-					<p>Conține {{ eveniment.total_poze }} fotografii de la {{ eveniment.get_autori|length }} fotografi <i class = "icon-star"></i> 
-					A început {{ eveniment.start_date|date:"l, d F Y" }} și a ținut până {{ eveniment.end_date|date:"l, d F Y" }} <i class = "icon-star"></i> {% for autor in eveniment.get_autori %}<a href = "{% url album:eveniment_detail slug=eveniment.slug %}?autor={{ autor }}">{{ autor }}</a> <i class = 'icon-star'></i> {% endfor %}</p>
+					{% if eveniment.descriere %}<p>{{ eveniment.descriere|truncatewords:50 }}</p>{% endif %}
+					<p><strong>Conține {{ eveniment.total_poze }} fotografii de la {{ eveniment.get_autori|length }} fotografi <i class = "icon-star"></i>
+					A început {{ eveniment.start_date|date:"l, d F Y" }} și a ținut până {{ eveniment.end_date|date:"l, d F Y" }} <i class = "icon-star"></i> {% for autor in eveniment.get_autori %}<a href = "{% url album:eveniment_detail slug=eveniment.slug %}?autor={{ autor }}">{{ autor }}</a> <i class = 'icon-star'></i> {% endfor %}</strong></p>
+                    <div class = "btn-toolbar">
 					<div class = "btn-group">
 						<a href = "{% url album:eveniment_detail slug=eveniment.slug %}" class = "btn btn-primary"><i class = "icon-white icon-picture"></i> Deschide</a>
 						<a href = "{% url album:eveniment_stats pk=eveniment.id %}" class = "btn"><i class = "icon-th"></i> Statistici</a>
 					</div>
+                    <div class = "btn-group pull-right">
+                        {% if eveniment.locatie_text %}<a href ="{%  url album:eveniment_detail slug=eveniment.slug %}" class = "btn disabled"><i class = "icon-map-marker"></i> {{ eveniment.locatie_text }}</a>{% endif %}
+                        {% if eveniment.facebook_event_link %}<a href ="{{ eveniment.facebook_event_link }}" class = "btn"><i class = "icon-facebook"></i> Eveniment Facebook</a>{% endif %}
+                    </div>
+                    </div>
 				</div>
 			</div>
 		</li>

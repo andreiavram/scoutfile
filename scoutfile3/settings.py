@@ -113,6 +113,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.contrib.messages.context_processors.messages',
     'context_processors.product_version',
+    'context_processors.api_keys',
 )
 
 #if DEVELOPMENT:
