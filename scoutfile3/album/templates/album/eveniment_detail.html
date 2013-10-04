@@ -50,7 +50,7 @@
                 class="icon-star"></i> {% for autor in object.get_autori %}
             <a href="{% url album:eveniment_detail slug=object.slug %}?autor={{ autor }}">{{ autor }}</a>
             <i class='icon-star'></i> {% endfor %}</strong>
-    <div class="row">
+    <div class="row-fluid">
         <div class="span3">
             <div class="map-canvas" id="map_canvas" style="height: 300px; width: 100%; border: 1px solid #efefef; padding: 5px; background-color: #ccc">
                 <div style = "position: relative; top: 120px; left: 120px; color: #333;"><i style = "color: #333" class = "icon-pushpin icon-4x"></i></div>
@@ -59,7 +59,7 @@
             {% if object.locatie_text %}<strong>Locație: </strong>{{ object.locatie_text }}{% endif %}
             </div>
         </div>
-        <div class="span6">
+        <div class="span9" style = "text-align: justify">
             {% if object.descriere %}{{ object.descriere|linebreaks }}{% endif %}
         </div>
     </div>
@@ -72,7 +72,7 @@
         {% if zi.descriere %}{{ zi.descriere|linebreaks|truncatewords:50 }}{% endif %}
         <p style = "font-weight: bold"><i class = "icon-star-empty"></i> {{ zi.date|date:"l, d F Y" }}, {{ zi.filter_photos.count }} fotografii</p>
         <ul class="thumbnails">
-            {% for image in zi_photos|slice:":3" %}
+            {% for image in zi_photos|slice:":4" %}
                 <li class="span3">
                     <a href="{% url album:poza_detail pk=image.id %}{% if autor %}?autor={{ autor }}{% endif %}"
                        class="thumbnail">
