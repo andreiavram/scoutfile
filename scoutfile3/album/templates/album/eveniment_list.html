@@ -13,8 +13,8 @@
 	<ul class = "unstyled span11">
 	{% autopaginate object_list 4 as object_list %}
 	{% for eveniment in object_list %}
-		<li class = "span11" style = "margin-bottom: 20px;">
-			<div class = "row" style = "position:relative;">
+		<li style = "margin-bottom: 20px;">
+			<div class = "" style = "position:relative;">
 				<div class = "span3">
 					<a href = "{% url album:eveniment_detail slug=eveniment.slug %}">
 						<img class = "thumbnail" src = "{%  if eveniment.cover_photo %}{{ eveniment.cover_photo.get_thumbnail_url }}{% else %}http://placehold.it/320x240{% endif %}" />

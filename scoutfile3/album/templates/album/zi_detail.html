@@ -2,80 +2,109 @@
 {% load pagination_tags %}
 
 {% block extrahead %}
-	<script type = "text/javascript">
-		function after_vote(data) {
-			console.log(data);
-			jQuery("#score_" + data.picture_id).html(data.current_score);
-		}
-	
-		jQuery(document).ready(function () {
-			jQuery(".thumbs_up").click(function (event) {
-				console.log("thumbs_up");
-				Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id" : jQuery(this).data("image"), "score" : 1});
-				event.preventDefault();
-				return false;
-			});
-			
-			jQuery(".thumbs_down").click(function (event) {
-				Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id" : jQuery(this).data("image"), "score" : -1});
-				event.preventDefault();
-				return false;
-			});
-								
-		});
-		
-	</script>
+    <script type="text/javascript">
+        function after_vote(data) {
+            console.log(data);
+            jQuery("#score_" + data.picture_id).html(data.current_score);
+        }
+
+        jQuery(document).ready(function () {
+            jQuery(".thumbs_up").click(function (event) {
+                console.log("thumbs_up");
+                Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id": jQuery(this).data("image"), "score": 1});
+                event.preventDefault();
+                return false;
+            });
+
+            jQuery(".thumbs_down").click(function (event) {
+                Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id": jQuery(this).data("image"), "score": -1});
+                event.preventDefault();
+                return false;
+            });
+
+            $(".imagine").popover({"placement" : "bottom", "html" : true, "trigger": "hover", "content": function () { return $($(this).data("contentsource")).html(); }});
+        });
+
+    </script>
 {% endblock %}
 
 {% block content %}
-		{% autopaginate object_list 30 as object_list %}
-		<div class = "alert alert-info">Albumul pentru <a href = "{% url album:eveniment_detail slug=object.eveniment.slug %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ object.eveniment }}</a>, <strong>{{ object.filter_photos.count }}</strong> fotografii pentru {{ object.date|date:"l, d F Y" }}</div>
-		{% if autor %}<div class = "alert alert-success">Arăt doar pozele de la <strong>{{ autor }}</strong></div>{% endif %}
-		{% if object.descriere %}{{ object.descriere|linebreaks }}{% endif %}
-		
-		{% paginate %}
-		<ul class = "thumbnails">
-		{% for image in object_list %}
-			<li class = "span3" style = "position: relative;">
-				<a href = "{% url album:poza_detail pk=image.id %}{% if autor %}?autor={{ autor }}{% endif %}" class = 'thumbnail'>
-					<img src = "{{ image.get_thumbnail_url }}" />
-				</a>
-				<div class = "btn-group" style = "position: absolute; left: 10px; bottom: 10px; opacity: 1" id = "picture_{{ image.id }}">
-					<a href = "javascript:void()" class = "btn btn-mini thumbs_up" data-image = "{{ image.id }}"><i class = "icon-thumbs-up"></i></a>
-					<a href = "javascript:void()" class = "btn btn-mini" id = "score_{{ image.id }}">{{ image.score }}</a>
-					<a href = "javascript:void()" class = "btn btn-mini thumbs_down" data-image = "{{ image.id }}"><i class = "icon-thumbs-down"></i></a>
-				</div>
-                {% if media_manager or request.user.is_superuser %}
-                <div class = "btn-group" style = "position: absolute; left: 70px; bottom: 10px; opacity: 1">
-                    <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class = "icon-eye-open"> </i> <span id = "current_visibility_{{ image.id }}">{{ image.get_published_status_display }}</span>
-                        <span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        {% for state in visibility_states %}
-                            <li><a href = "#" data-imagine = "{{ image.id }}" data-value = "{{ state.0 }}" class = "visibility_action">{{ state.1 }}</a></li>
-                        {% endfor %}
-                    </ul>
+    {% autopaginate object_list 30 as object_list %}
+    <div class="alert alert-info">Albumul pentru <a href="
+            {% url album:eveniment_detail slug=object.eveniment.slug %}{% if autor %}?autor={{ autor }}{% endif %}"><i
+            class="icon-list"></i> {{ object.eveniment }}</a>, <strong>{{ object.filter_photos.count }}</strong>
+        fotografii pentru {{ object.date|date:"l, d F Y" }}</div>
+    {% if autor %}
+        <div class="alert alert-success">Arăt doar pozele de la <strong>{{ autor }}</strong></div>{% endif %}
+    {% if object.descriere %}{{ object.descriere|linebreaks }}{% endif %}
+
+    {% paginate %}
+
+    <div class="thumbnails">
+        {% for image in object_list %}
+            {% if forloop.counter0|divisibleby:4 %}
+                <div class="row-fluid" style="margin-bottom: 20px"><!-- begin divider -->
+            {% endif %}
+        <div class="span3" style="position: relative;">
+            <div class="thumbnail">
+                <a href="{% url album:poza_detail pk=image.id %}{% if autor %}?autor={{ autor }}{% endif %}">
+                    <img src="{{ image.get_thumbnail_url }}" class="imagine" data-title = "{{ image.titlu }}" data-contentsource = "#source_{{ image.id }}" />
+                </a>
+                <div style = "display:none" id = "source_{{ image.id }}">
+                   <div class = "current-tags">
+                    {% for tag in image.tags.all|slice:"10" %}
+                        <span class = "tag tag-small">{{ tag.name }}</span>
+                    {% endfor %}
+                    </div>
                 </div>
-                {% endif %}
-				<div class = "btn-group" style = "position: absolute; right: 10px; bottom: 10px; opacity: 1">
-					<a href = "{% url album:poza_flag pk=image.id %}" class = "btn btn-mini flag" data-image = "{{ image.id }}"><i class = "icon-flag"></i></a>
-				</div>
-			</li>
-		{% endfor %}
-		</ul>
-		{% paginate %}
+                <div class="btn-toolbar" style = "width: 91%; position: absolute; top: 0px; left: 10px">
+                    <div class="btn-group" style=""
+                         id="picture_{{ image.id }}">
+                        <a href="javascript:void()" class="btn btn-mini thumbs_up" data-image="{{ image.id }}"><i
+                                class="icon-thumbs-up"></i></a>
+                        <a href="javascript:void()" class="btn btn-mini" id="score_{{ image.id }}">{{ image.score }}</a>
+                        <a href="javascript:void()" class="btn btn-mini thumbs_down" data-image="{{ image.id }}"><i
+                                class="icon-thumbs-down"></i></a>
+                    </div>
+                    {% if media_manager or request.user.is_superuser %}
+                        <div class="btn-group">
+                            <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="icon-eye-open"> </i> <span
+                                    id="current_visibility_{{ image.id }}">{{ image.get_published_status_display }}</span>
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                {% for state in visibility_states %}
+                                    <li><a href="#" data-imagine="{{ image.id }}" data-value="{{ state.0 }}"
+                                           class="visibility_action">{{ state.1 }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    <div class="btn-group pull-right">
+                        <a href="{% url album:poza_flag pk=image.id %}" class="btn btn-mini flag"
+                           data-image="{{ image.id }}"><i class="icon-flag"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if forloop.counter0|add:1|divisibleby:4 %}
+            </div> <!-- end divider -->
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% paginate %}
 {% endblock %}
 
 {% block extrajs %}
-        <script>
+    <script>
         $("document").ready(function () {
             $(".visibility_action").click(function (e) {
                 var imagine_id = $(this).data("imagine");
                 $.post("{% url album:poza_visibility %}",
-                        {"imagine": $(this).data("imagine"), "new_status": $(this).data("value"), "csrfmiddlewaretoken" : "{{ csrf_token }}"},
+                        {"imagine": $(this).data("imagine"), "new_status": $(this).data("value"), "csrfmiddlewaretoken": "{{ csrf_token }}"},
                         function (data) {
-                            $("#current_visibility_" + imagine_id).fadeOut(200, function () {
+                            $("#current_visibility_" + imagine_id).fadeOut(200,function () {
                                 console.log(data);
                                 $(this).text(data.new_status_string);
                             }).fadeIn(200);
