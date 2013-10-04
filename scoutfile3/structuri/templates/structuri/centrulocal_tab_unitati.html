@@ -5,6 +5,8 @@
 			<th>#</th>
 			<th>Nume</th>
 			<th>Ramura de vârstă</th>
+            <th>Patrule</th>
+            <th>Membri (fără lideri)</th>
 			<th>&nbsp;</th>
 		</tr>
 	</thead>
@@ -14,6 +16,16 @@
 			<td>{{ forloop.counter }}</td>
 			<td><a href = "{% url structuri:unitate_detail pk=unitate.id %}">{{ unitate.nume }}</a></td>
 			<td>{{ unitate.ramura_de_varsta }}</td>
+            <td>
+                <ul class = "unstyled">
+                {% for patrula in unitate.patrula_set.all %}
+                     <li><a href = "{% url structuri:patrula_detail pk=patrula.id %}"><i class = "icon-group"></i> {{ patrula }}</a></li>
+                {% endfor %}
+                </ul>
+            </td>
+            <td>
+                {{ unitate.total_membri_activi }}
+            </td>
 			<td>
 			    
 				<div class="btn-group pull-right">
