@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 import datetime
 from scoutfile3.settings import VALOARE_IMPLICITA_COTIZATIE_NATIONAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL
-from scoutfile3.structuri.models import Membru
+# from scoutfile3.structuri.models import Membru
 
 # Create your models here.
 
@@ -13,7 +13,7 @@ class Document(models.Model):
     date_created = models.DateTimeField(auto_now_add = True)
     date_modified = models.DateTimeField(auto_now = True)
     data_inregistrare = models.DateField(null = True, blank = True)
-    
+
     titlu = models.CharField(max_length = 1024)
     descriere = models.CharField(max_length = 2048, null = True, blank = True)
     
@@ -65,14 +65,30 @@ class AsociereDocument(models.Model):
         self.document_ctype = ContentType.objects.get_for_model(self.document)
         return super(AsociereDocument, self).save(force_insert = force_insert, force_update = force_update,
                                                   using = using)
-    
+
+    @classmethod
+    def inregistreaza(cls, document=None, to=None, tip=None, responsabil=None):
+        tip_asociere = TipAsociereDocument.objects.get_or_create(slug="beneficiar-cotizatie-sociala")
+
+        asociere_kwargs = dict(
+            document=document,
+            content_type=ContentType.objects.get_for_model(to),
+            object_id=to.id,
+            tip_asociere=tip,
+            responsabil=responsabil
+        )
+
+        asociere = cls(**asociere_kwargs)
+        asociere.save()
+        return asociere
+
 class TipDocument(models.Model):
     slug = models.CharField(max_length = 255)
     nume = models.CharField(max_length = 255)
     descriere = models.TextField(null = True, blank = True)
     
 class Chitanta(Document):
-    casier = models.ForeignKey(Membru)
+    casier = models.ForeignKey("structuri.Membru")
     serie = models.CharField(max_length = 255)
     numar = models.IntegerField(default = 0)
     suma = models.FloatField(default = 0)
@@ -139,7 +155,7 @@ class Trimestru(models.Model):
         trimestru_nou.data_inceput = datetime.date(year = 2011, month = 10, day = 1)
         trimestru_nou.data_sfarsit = datetime.date(year = 2012, month = 1, day = 1) - datetime.timedelta(days = 1)
         trimestru_nou.save()
-        return trimestru_nou() 
+        return trimestru_nou
          
     @classmethod
     def trimestru_pentru_data(cls, data):
@@ -196,7 +212,7 @@ class PlataCotizatieTrimestru(models.Model):
     partial = models.BooleanField()
     final = models.BooleanField()
     suma = models.FloatField()
-    membru = models.ForeignKey(Membru)
+    membru = models.ForeignKey("structuri.Membru")
     chitanta = models.ForeignKey("ChitantaCotizatie")
     
     tip_inregistrare = models.CharField(max_length = 255, choices = MOTIVE_INREGISTRARE_PLATA_COTIZATIE, default = "normal")
@@ -297,12 +313,12 @@ class SerieDocument(models.Model):
         return numar_curent
         
 class DocumentCotizatieSociala(Document):
-    nume_parinte = models.CharField(max_length = 255, null = True, blank = True)
+    nume_parinte = models.CharField(max_length = 255, null = True, blank = True) #  poate fi null pentru persoane peste 18 ani
     motiv = models.CharField(max_length = 2048, null = True, blank = True)
     este_valabil = models.BooleanField()
     
-    def save(self, force_insert=False, force_update=False, using=None):
+    def save(self, **kwargs):
         self.tip_document = TipDocument.objects.get(slug = "declaratie-cotizatie-sociala")
-        return super(DocumentCotizatieSociala, self).save(force_insert = force_insert, force_update = force_update, using = using)
+        return super(DocumentCotizatieSociala, self).save(**kwargs)
 
 ctype_deciziecotizatie = ContentType.objects.get_for_model(DecizieCotizatie)    
