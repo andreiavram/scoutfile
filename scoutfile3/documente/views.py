@@ -1,4 +1,4 @@
-# Create your views here.
+#coding=utf8
 from django.contrib.contenttypes.models import ContentType
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
