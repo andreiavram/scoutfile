@@ -114,8 +114,9 @@ class Eveniment(models.Model):
         return Imagine.objects.filter(set_poze__eveniment=self).count()
 
     def get_visibility_level(self, user=None):
+        visibility_level = 4
         if user is None:
-            return 4
+            return visibility_level
 
         #   decide visibility level to go for
         if user is not None and user.is_authenticated():
