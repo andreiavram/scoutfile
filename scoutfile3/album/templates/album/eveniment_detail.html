@@ -2,29 +2,85 @@
 {% load tab_tags %}
 
 {% block page_title %}
-	{{ object }}
+    {{ object }}
+    {% if object.facebook_event_link %}<a class = "btn pull-right" href = "{{ object.facebook_event_link }}"><i class = "icon-facebook"></i> Evenimentul pe Facebook</a>{% endif %}
 {% endblock %}
 
 {% block context_menu %}
-	{% include 'album/eveniment_context_menu.html' %}
+    {% include 'album/eveniment_context_menu.html' %}
 {% endblock %}
 
+{% block extrajs %}
+    <script src="http://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&sensor=true"></script>
+    <script>
+        $(document).ready(function () {
+            var current_coordinates = $("#id_" + $(this).data("field-name")).val();
+            var location_lat = {{ object.locatie_geo_lat }};
+            var location_long = {{ object.locatie_geo_long }};
 
+            if ((location_lat == 0) && (location_long == 0)) {
+                $("#map_canvas").html("");
+                return;
+            }
+
+            var location = new google.maps.LatLng(location_lat, location_long);
+            var map_options = {
+                center: location,
+                zoom: 11,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            }
+
+            var map = new google.maps.Map(document.getElementById("map_canvas"), map_options);
+            var marker = new google.maps.Marker({
+                position: location,
+                map: map,
+                title: "{{ object.nume }}"
+            });
+        })
+
+    </script>
+{% endblock %}
 
 {% block content %}
-	{% if autor %}<div class = "alert alert-success">Arăt doar pozele de la <strong>{{ autor }}</strong></div>{% endif %}
-	{% for zi, zi_photos in zile.items %}
-		<h2><a href = "{% url album:zi_detail pk=zi.id %}{% if autor %}?autor={{ autor }}{% endif %}">Ziua {{ zi.index }}{% if zi.titlu %} - {{ zi.titlu }}{% endif %} <i class = "icon-chevron-right" style = "margin-top: 10px"></i></a></h2>
-		{% if zi.descriere %}<p>{{ zi.descriere }}</p>{% endif %}
-		<p>{{ zi.date|date:"l, d F Y" }}, {{ zi.filter_photos.count }} fotografii</p>
-		<ul class = "thumbnails">
-		{% for image in zi_photos|slice:":3" %}
-			<li class = "span3">
-				<a href = "{% url album:poza_detail pk=image.id %}{% if autor %}?autor={{ autor }}{% endif %}" class = "thumbnail">
-					<img src = "{{ image.get_thumbnail_url }}" />
-				</a>
-			</li>
-		{% endfor %}
-		</ul>
-	{% endfor %}
+    {% if autor %}
+        <div class="alert alert-success">Arăt doar pozele de la <strong>{{ autor }}</strong></div>{% endif %}
+    <p><strong>Conține {{ object.total_poze }} fotografii de la {{ object.get_autori|length }} fotografi <i
+            class="icon-star"></i>
+        A început {{ object.start_date|date:"l, d F Y" }} și a ținut până {{ object.end_date|date:"l, d F Y" }} <i
+                class="icon-star"></i> {% for autor in object.get_autori %}
+            <a href="{% url album:eveniment_detail slug=object.slug %}?autor={{ autor }}">{{ autor }}</a>
+            <i class='icon-star'></i> {% endfor %}</strong>
+    <div class="row-fluid">
+        <div class="span3">
+            <div class="map-canvas" id="map_canvas" style="height: 300px; width: 100%; border: 1px solid #efefef; padding: 5px; background-color: #ccc">
+                <div style = "position: relative; top: 120px; left: 120px; color: #333;"><i style = "color: #333" class = "icon-pushpin icon-4x"></i></div>
+            </div>
+            <div style = "text-align: right">
+            {% if object.locatie_text %}<strong>Locație: </strong>{{ object.locatie_text }}{% endif %}
+            </div>
+        </div>
+        <div class="span9" style = "text-align: justify">
+            {% if object.descriere %}{{ object.descriere|linebreaks }}{% endif %}
+        </div>
+    </div>
+
+    {% for zi, zi_photos in zile %}
+        <h2><a href="{% url album:zi_detail pk=zi.id %}{% if autor %}?autor={{ autor }}{% endif %}">Ziua
+            {{ zi.index }}{% if zi.titlu %} - {{ zi.titlu }}{% endif %} <i class="icon-chevron-right"
+                                                                           style="margin-top: 10px"></i></a>
+        </h2>
+        {% if zi.descriere %}{{ zi.descriere|linebreaks|truncatewords:50 }}{% endif %}
+        <p style = "font-weight: bold"><i class = "icon-star-empty"></i> {{ zi.date|date:"l, d F Y" }}, {{ zi.filter_photos.count }} fotografii</p>
+        <ul class="thumbnails">
+            {% for image in zi_photos|slice:":4" %}
+                <li class="span3">
+                    <a href="{% url album:poza_detail pk=image.id %}{% if autor %}?autor={{ autor }}{% endif %}"
+                       class="thumbnail">
+                        <img src="{{ image.get_thumbnail_url }}"/>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+
 {% endblock %}

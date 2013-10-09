@@ -26,6 +26,7 @@ $(function () {
         acceptFileTypes: /(\.|\/)(zip)$/i,
         maxFileSize: 2 * 1024 * 1000 * 1000, // 2GB
         maxChunkSize: 1 * 1000 * 1024
+        // limitConcurrentUploads: 3
     });
 
     // Enable iframe cross-domain access via redirect option:
