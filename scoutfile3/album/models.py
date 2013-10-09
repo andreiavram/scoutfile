@@ -79,10 +79,12 @@ class Eveniment(models.Model):
 
             #   create only the days that were added by time shift. recreate index for all days
             while date <= self.end_date:
-                zi_eveniment, created = ZiEveniment.get_or_create(eveniment=self, date=date)
+                zi_eveniment, created = ZiEveniment.objects.get_or_create(eveniment=self, date=date)
                 date += datetime.timedelta(days=1)
                 zi_eveniment.index = zi_index
+                zi_index += 1
                 zi_eveniment.save()
+
 
         return retval
 
@@ -112,8 +114,9 @@ class Eveniment(models.Model):
         return Imagine.objects.filter(set_poze__eveniment=self).count()
 
     def get_visibility_level(self, user=None):
+        visibility_level = 4
         if user is None:
-            return 4
+            return visibility_level
 
         #   decide visibility level to go for
         if user is not None and user.is_authenticated():
@@ -131,6 +134,14 @@ class Eveniment(models.Model):
 
         return visibility_level
 
+    def locatie_geo_lat(self):
+        if not self.locatie_geo:
+            return 0
+        return self.locatie_geo.split(";")[0]
+    def locatie_geo_long(self):
+        if not self.locatie_geo:
+            return 0
+        return self.locatie_geo.split(";")[1]
 
 STATUS_PARTICIPARE = ((1, u"Cu semnul întrebării"), (2, u"Sigur"), (3, u"Avans plătit"), (4, u"Participare efectivă"),
                       (5, u"Participare anulată"))
@@ -160,7 +171,7 @@ class ZiEveniment(models.Model):
     class Meta:
         verbose_name = u"Zi eveniment"
         verbose_name_plural = u"Zile eveniment"
-        ordering = ["index"]
+        ordering = ["index", "date"]
 
     def __unicode__(self):
         if self.titlu != None and self.titlu != "":

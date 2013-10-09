@@ -52,10 +52,10 @@ class AlbumEvenimentDetail(DetailView):
     def get_context_data(self, *args, **kwargs):
         current = super(AlbumEvenimentDetail, self).get_context_data(*args, **kwargs)
         
-        zile = {}
-        for zi_eveniment in self.object.zieveniment_set.all():
-            zile[zi_eveniment] = zi_eveniment.filter_photos(autor=self.autor, user=self.request.user)
-        
+        zile = []
+        for zi_eveniment in self.object.zieveniment_set.all().order_by("index", "date"):
+            zile.append((zi_eveniment, zi_eveniment.filter_photos(autor=self.autor, user=self.request.user)))
+
         current.update({"zile" : zile, "autor" : self.autor})
         
         return current
@@ -251,7 +251,8 @@ class SetImaginiUpload(CreateView):
         if not os.path.exists(local_file_name):
             # create empty file with given size
             with io.open(local_file_name, "w+b") as fp:
-                fp.write("\0" * int(byte_ranges[2]))
+                fp.seek(int(byte_ranges[2]) - 1)
+                fp.write("\0")
 
         with io.open(local_file_name, "a+b") as destination:
             destination.seek(int(byte_ranges[0]))
@@ -491,8 +492,6 @@ class EvenimentUpdate(UpdateView):
 
     def form_valid(self, form):
         messages.success(self.request, u"Evenimentul a fost actualizat")
-        #   make sure tags will be recreated - this is a bit lazy and can be improved
-        self.object.tags.clear()
         return super(EvenimentUpdate, self).form_valid(form)
 
     def get_success_url(self):
