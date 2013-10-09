@@ -2,8 +2,9 @@ from django.conf.urls.defaults import patterns, include, url
 
 from django.contrib import admin
 from django.views.generic.base import TemplateView
-from scoutfile3.generic.views import Logout, Login, IndexView, Issues,\
+from generic.views import Logout, Login, IndexView, Issues,\
     CreateIssue
+from django.conf import settings
 admin.autodiscover()
 
 # New import
@@ -19,16 +20,16 @@ urlpatterns = patterns('',
     (r'^generic/', include('generic.urls', namespace = 'generic')),
     (r'^patrocle/', include('patrocle.urls', namespace = 'patrocle')),
     (r'^documente/', include('documente.urls', namespace = 'documente')),
+    (r'^extra/', include('extra.urls', namespace = 'extra')),
     
     (r'issues/$', Issues.as_view(), {}, "issues"),
     (r'issues/create/$', CreateIssue.as_view(), {}, "create_issue"),
     
     ('^$', IndexView.as_view(template_name = "home.html"), {}, "index"),
                        
-#     (r'^dajaxice/', include('dajaxice.urls')),
-# New style
     url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
     (r'ajax_select/', include('ajax_select.urls')),
+    (r'^photologue/', include('photologue.urls')),
 
     (r'login/$', Login.as_view(), {}, "login"),
     (r'logout/$', Logout.as_view(), {}, "logout"),
@@ -38,3 +39,11 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += staticfiles_urlpatterns()
+
+#    temp media fix
+if settings.DEBUG:
+    urlpatterns += patterns('',
+        url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {
+            'document_root': settings.MEDIA_ROOT,
+        }),
+   )

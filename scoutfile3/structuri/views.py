@@ -43,6 +43,10 @@ import traceback
 
 logger = logging.getLogger(__name__)
 
+
+#    definitii ctypes
+ctype_centrulocal = ContentType.objects.get_for_model(CentruLocal)
+
 class CentruLocalCreate(CreateView):
     model = CentruLocal
     form_class = CentruLocalAdminCreateForm
@@ -1617,5 +1621,135 @@ class GetSpeedList(View):
             data = []             
         return HttpResponse(simplejson.dumps(data))
         
-    
+        
+class CentruLocalSeriiDocumente(ListView):
+#     model = SerieDocument
+#     template_name = "structuri/cl_serii_documente.html"
+#     
+#     def dispatch(self, request, *args, **kwargs):
+#         self.centru_local = get_object_or_404(CentruLocal, id = kwargs.pop("pk"))
+#         return super(CentruLocalSeriiDocumente, self).dispatch(request, *args, **kwargs)
+#     
+#     def get_queryset(self):
+#         filter_args = {"object_id" : self.centru_local.id,
+#                        "content_type" : ctype_centrulocal }
+#         qs = super(CentruLocalSeriiDocumente, self).get_queryset().filter(**filter_args)
+#         return qs.order_by("-data_inceput")
+#     
+#     def get_context_data(self, **kwargs):
+#         data = super(CentruLocalSeriiDocumente, self).get_context_data(**kwargs)
+#         data.update({"centru_local" : self.centru_local})
+#         return data
+    pass
             
+class CentruLocalAdaugaSerieDocument(CreateView):
+#     model = SerieDocument
+#     template_name = "structuri/cl_serie_form.html"
+#     form_class = SerieCreateForm
+#     
+#     def dispatch(self, request, *args, **kwargs):
+#         self.centru_local = get_object_or_404(CentruLocal, id = kwargs.pop("pk"))
+#         return super(CentruLocalAdaugaSerieDocument, self).dispatch(request, *args, **kwargs)
+#     
+#     def get_success_url(self):
+#         return reverse("structuri:cl_serii_documente", kwargs = {"pk" : self.centru_local.id})
+#     
+#     def form_valid(self, form):
+#         self.object = form.save(commit = False)
+#         self.object.object_id = self.centru_local.id
+#         self.object.content_type = ctype_centrulocal
+#         self.object.save()
+#         return HttpResponseRedirect(self.get_success_url())
+#     
+#     def get_context_data(self, **kwargs):
+#         data = super(CentruLocalAdaugaSerieDocument, self).get_context_data(**kwargs)
+#         data.update({"centru_local" : self.centru_local})
+#         return data
+    pass
+
+class CentruLocalModificaSerieDocument(UpdateView):
+#     model = SerieDocument
+#     template_name = "structuri/cl_serie_form.html"
+#     form_class = SerieUpdateForm
+#     
+#     def get_success_url(self):
+#         return reverse("structuri:cl_serii_documente", kwargs = {"pk" : self.centru_local.id})
+    pass
+    
+class CentruLocalCuantumuriCotizatii(ListView):
+    template_name = "structuri/cl_cuantumuri_cotizatie.html"
+    
+    def dispatch(self, request, *args, **kwargs):
+        self.centru_local = get_object_or_404(CentruLocal, id = kwargs.pop("pk"))
+        return super(CentruLocalCuantumuriCotizatii, self).dispatch(request, *args, **kwargs)
+    
+    def get_queryset(self):
+        from documente.models import ctype_deciziecotizatie
+        filter_args = {"document_ctype" : ctype_deciziecotizatie,
+                       "content_type" : ctype_centrulocal,
+                       "object_id" : self.centru_local.id }
+        from documente.models import AsociereDocument
+        qs = AsociereDocument.objects.prefetch_related().kwargs(**filter_args)
+        qs = qs.order_by("-moment_asociere")
+        return qs
+        
+    def get_context_data(self, **kwargs):
+        data = super(CentruLocalCuantumuriCotizatii, self).get_context_data(**kwargs)
+        data.update({"centru_local" : self.centru_local})
+        return data
+    
+class CentruLocalAddCuantumCotizatie(CreateView):
+#     from documente.models import DecizieCotizatie
+#     model = DecizieCotizatie
+#     form_class = DecizieCotizatieCreateForm
+#     template_name = "structuri/cl_cuantum_cotizatie_form.html"
+#     
+#     def dispatch(self, request, *args, **kwargs):
+#         self.centru_local = get_object_or_404(CentruLocal, pk = kwargs.pop("pk"))
+#         return super(CentruLocalAddCuantumCotizatie, self).dispatch(request, *args, **kwargs)
+#     
+#     def form_valid(self, form):
+#         self.object = form.save(commit = False)
+#         self.object.save()
+# 
+#         from documente.models import DecizieCotizatie        
+#         asociere = AsociereCreate(document = self.object,
+#                        document_ctype = ContentType.objects.get_for_model(DecizieCotizatie),
+#                        content_type = ctype_centrulocal,
+#                        object_id = self.centru_local.id)
+#         asociere.save()
+#         
+#         return HttpResponseRedirect(self.get_success_url())
+#     
+#     def get_success_url(self):
+#         return reverse("structuri:cl_cuantum_cotizatie", kwargs = {"pk" : self.centru_local.id})
+#         
+#     def get_context_data(self, **kwargs):
+#         data = super(CentruLocalAddCuantumCotizatie, self).get_context_data(**kwargs)
+#         data.update({"centru_local" : self.centru_local})
+#         return data
+    pass
+    
+class MembruDocumenteCotizatieSociala(ListView):
+    #TODO: implement this
+    pass
+
+class MembruDocumentCotizatieSociala(CreateView):
+    #TODO: implement this
+    pass
+
+class MembruIstoricPlatiCotizatie(ListView):
+    #TODO: implement this
+    pass
+
+class MembruAdaugaPlataCotizatie(CreateView):
+    #TODO: implement this
+    pass
+
+class CentruLocalIstoricPlatiCotizatie(ListView):
+    #TODO: implement this
+    pass
+
+class CentruLocalAdaugaPlataCotizatie(CreateView):
+    #TODO: implement this
+    pass

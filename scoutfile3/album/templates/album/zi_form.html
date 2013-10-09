@@ -1,0 +1,14 @@
+{% extends 'album/zi_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block extrahead %}
+    {{ form.media }}
+{% endblock %}
+
+{% block page_title %}
+    Ziua {{ object.index }}, {{ object.eveniment }}
+{% endblock %}
+
+{% block content %}
+    {% crispy form form.helper %}
+{% endblock %}

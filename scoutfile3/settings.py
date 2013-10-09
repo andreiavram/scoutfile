@@ -1,64 +1,18 @@
 # coding: utf-8
 import os.path
 
-if os.path.exists("/etc/DJANGO_DEV_MACHINE"):
-    DEVELOPMENT = True
-    DEBUG = True
-else:
-    DEVELOPMENT = False
-    DEBUG = True
-
-TEMPLATE_DEBUG = DEBUG
-
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
-    ("Andrei AVRAM", "andrei.avram@scout.ro")
+    ("Andrei AVRAM", "andrei.avram@albascout.ro")
 )
 
 MANAGERS = ADMINS
 
 
-components =  os.path.abspath(__file__).split(os.sep)[:-2]
+components = os.path.abspath(__file__).split(os.sep)[:-2]
 FILE_ROOT = str.join(os.sep, components)
 
-if DEVELOPMENT:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'scoutfile3_base',                      # Or path to database file if using sqlite3.
-            'USER': 'root',                      # Not used with sqlite3.
-            'PASSWORD': 'sql123.',                  # Not used with sqlite3.
-            'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-            'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-            'OPTIONS': {
-                        "init_command": "SET foreign_key_checks = 0;",
-             },
-        }
-    }
-    
-#     FILE_ROOT = "/home/yeti/Workspace/scoutfile3/"
-    URL_ROOT = "http://localhost/"
-    DAJAXICE_MEDIA_PREFIX = "dajaxice"
-
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'scoutfile3_base',                      # Or path to database file if using sqlite3.
-            'USER': 'root',                      # Not used with sqlite3.
-            'PASSWORD': 'me11on_',                  # Not used with sqlite3.
-            'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-            'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-            'OPTIONS': {
-                        "init_command": "SET foreign_key_checks = 0;",
-             },
-        }
-    }
-    
-#     FILE_ROOT = "/yetiweb/scoutfile/"
-    URL_ROOT = "http://projects.albascout.ro/"
-    DAJAXICE_MEDIA_PREFIX = "dajaxice"
-    
+from local_settings import *
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -90,7 +44,7 @@ MEDIA_ROOT = '%s/media/' % FILE_ROOT
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = '%smedia/scoutfile/' % URL_ROOT
+MEDIA_URL = '/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -100,22 +54,15 @@ STATIC_ROOT = '%s/static/' % FILE_ROOT
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_URL = '%sstatic/scoutfile/' % URL_ROOT 
-
-# URL prefix for admin static files -- CSS, JavaScript and images.
-# Make sure to use a trailing slash.
-# Examples: "http://foo.com/static/admin/", "/static/admin/".
-ADMIN_MEDIA_PREFIX = '%sadmin/' % STATIC_URL
+STATIC_URL = '/static/' 
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    ("js", "%sjs" % STATIC_ROOT),
-    ("images", "%simages" % STATIC_ROOT),
-    ("css", "%scss" % STATIC_ROOT),
-    ("font", "%sfont" % STATIC_ROOT),
+    ("js", "%s/js" % STATIC_ROOT),
+    ("images", "%s/images" % STATIC_ROOT),
+    ("css", "%s/css" % STATIC_ROOT),
+    ("font", "%s/font" % STATIC_ROOT),
+    ("jquery_upload", "%s/jquery_upload" % STATIC_ROOT),
 )
 
 # List of finder classes that know how to find static files in
@@ -123,7 +70,6 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
     'dajaxice.finders.DajaxiceFinder'
 )
 
@@ -134,10 +80,12 @@ SECRET_KEY = '^bhel7)sli5=u125nc2a-%$&%ucd)gd-p5@u9cn-o)^w+==jk&'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
+    'raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware',
+    'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -146,7 +94,7 @@ MIDDLEWARE_CLASSES = (
     'pagination.middleware.PaginationMiddleware',
 )
 
-ROOT_URLCONF = 'scoutfile3.urls'
+ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -164,6 +112,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
     'django.contrib.auth.context_processors.auth',
     'django.contrib.messages.context_processors.messages',
+    'context_processors.product_version',
+    'context_processors.api_keys',
 )
 
 #if DEVELOPMENT:
@@ -184,12 +134,13 @@ INSTALLED_APPS = (
     'south', 'photologue',
     'dajax', 'dajaxice',
     'crispy_forms', 'djangorestframework', 'captcha',
-    'ajax_select', "tagging", 'pagination', 'less',
+    'ajax_select', "taggit", 'pagination', 'less',
     
     'scoutfile3.structuri', 'scoutfile3.generic', 'scoutfile3.album',
-    'scoutfile3.patrocle', 'scoutfile3.documente',
+    'scoutfile3.patrocle', 'scoutfile3.documente', 'scoutfile3.extra',
     
-    'raven.contrib.django.raven_compat',  
+    'raven.contrib.django.raven_compat',
+    'django_extensions', 'gunicorn'
 )
 
 
@@ -201,10 +152,6 @@ AJAX_LOOKUP_CHANNELS = {
 AJAX_SELECT_BOOTSTRAP = False
 AJAX_SELECT_INLINES = False
 
-
-#if DEVELOPMENT:
-#    INSTALLED_APPS += ("debug_toolbar", )
-
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error.
@@ -213,6 +160,10 @@ AJAX_SELECT_INLINES = False
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'root' : {
+      'level' : 'WARNING',
+      'handlers' : ['sentry'],
+    },
     'formatters': {
         'verbose': {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
@@ -232,10 +183,20 @@ LOGGING = {
             'filename' : "%s/logs/debug.log" % FILE_ROOT,
             'formatter' : 'verbose',
         },
+        'error' : {
+            'level' : 'ERROR',
+            'class' : 'logging.FileHandler',
+            'filename' : '%s/logs/error.log' % FILE_ROOT,
+            'formatter' : 'verbose',
+        },
         'null': {
             'level':'DEBUG',
             'class':'django.utils.log.NullHandler',
-        },                 
+        },
+        'sentry' : {
+            'level' : 'ERROR',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+        },
     },
     'loggers': {
         'django.request': {
@@ -249,12 +210,24 @@ LOGGING = {
             'propagate': True,
             'level':'DEBUG',
         },
+
+        'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['default'],
+            'propagate': False,
+        },
         
         'django.db.backends' : {
             'handlers' : ['null', ], 
             'propagate' : False,
             'level': 'DEBUG',
-        }        
+        },
+
+       'raven': {
+            'level': 'DEBUG',
+            'handlers': ['default'],
+            'propagate': False,
+        },
             
     }
 }
@@ -272,11 +245,6 @@ FIXTURE_DIRS = ["%s/fixtures" % FILE_ROOT, ]
 #    },
 #}
 
-
-RAVEN_CONFIG = {
-    'dsn': 'http://cce06e32cfae4025af7c2b39b889bc27:79ab9be2ff1e428babc298166b5ad9f5@sentry.albascout.ro//2',
-}
-
 AUTH_PROFILE_MODULE = 'structuri.Utilizator'
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/edit/"
@@ -289,15 +257,6 @@ EMAIL_HOST_USER = "sistem@albascout.ro"
 EMAIL_HOST_PASSWORD = "yetiRulz1_"
 EMAIL_USE_TLS = True
 
-if DEVELOPMENT:
-    RECAPTCHA_PUBLIC_KEY = '6Leo2boSAAAAAMs0TyrzCbEEral5RbTs3qOKpws8'
-    RECAPTCHA_PRIVATE_KEY = '6Leo2boSAAAAAJpxCUHYB6B1I1sDvZqFL1_dtwlh'
-else:
-    RECAPTCHA_PUBLIC_KEY = '6Ld1_tUSAAAAADX2GeFK7g56q9EE3dz5OZX99FOi'
-    RECAPTCHA_PRIVATE_KEY = '6Ld1_tUSAAAAAHZTsyehDAEmvlacDimNomNCLGyo'
-
-RECAPTCHA_USE_SSL = True
-USE_EMAIL_CONFIRMATION = False
 
 LESS_OUTPUT_DIR = "less_cache"
 
@@ -310,3 +269,34 @@ REDMINE_API_KEY = "f393aac0746069a9de25eb251b0171b1ff1ed793"
 VALOARE_IMPLICITA_COTIZATIE_LOCAL = 0
 VALOARE_IMPLICITA_COTIZATIE_NATIONAL = 50
 
+SCOUTFILE_ALBUM_STORAGE_ROOT = "album"
+
+from version import *
+
+DATE_INPUT_FORMATS = (
+    '%d.%m.%Y',
+    '%Y-%m-%d', '%m/%d/%Y', '%m/%d/%y', # '2006-10-25', '10/25/2006', '10/25/06'
+    '%b %d %Y', '%b %d, %Y',            # 'Oct 25 2006', 'Oct 25, 2006'
+    '%d %b %Y', '%d %b, %Y',            # '25 Oct 2006', '25 Oct, 2006'
+    '%B %d %Y', '%B %d, %Y',            # 'October 25 2006', 'October 25, 2006'
+    '%d %B %Y', '%d %B, %Y',            # '25 October 2006', '25 October, 2006'
+)
+
+DATETIME_INPUT_FORMATS = (
+    '%d.%m.%Y %H:%M %p',
+    '%d.%m.%Y %H:%M:%S',
+    '%Y-%m-%d %H:%M:%S',     # '2006-10-25 14:30:59'
+    '%Y-%m-%d %H:%M:%S.%f',  # '2006-10-25 14:30:59.000200'
+    '%Y-%m-%d %H:%M',        # '2006-10-25 14:30'
+    '%Y-%m-%d',              # '2006-10-25'
+    '%m/%d/%Y %H:%M:%S',     # '10/25/2006 14:30:59'
+    '%m/%d/%Y %H:%M:%S.%f',  # '10/25/2006 14:30:59.000200'
+    '%m/%d/%Y %H:%M',        # '10/25/2006 14:30'
+    '%m/%d/%Y',              # '10/25/2006'
+    '%m/%d/%y %H:%M:%S',     # '10/25/06 14:30:59'
+    '%m/%d/%y %H:%M:%S.%f',  # '10/25/06 14:30:59.000200'
+    '%m/%d/%y %H:%M',        # '10/25/06 14:30'
+    '%m/%d/%y',              # '10/25/06'
+)
+
+GOOGLE_API_KEY = "AIzaSyCIiQgKmmRv2SLBj8KTbx6HB7Kn_6LIU-o"
