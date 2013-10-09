@@ -1,0 +1,22 @@
+<table>
+	<thead>
+		<tr>
+			<td>Categorie</td>
+			<td>Cercetaș</td>
+			<td>Sursa</td>
+			<td>Conținut</td>
+		</tr>
+	</thead>
+	<tbody>
+		{% for entry in entries %}
+			<tr>
+				<td>{{ entry.categoriecuriozitate }}</td>
+				<td>{{ entry.numesiprenume }}</td>
+				<td>{{ entry.sursadeinformare }}</td>
+				<td>{{ entry.curiozitate }}</td>
+			</tr>
+		{% empty %}
+			<tr><td colspan = "4"><em>Nu există înregistrări</em></td></tr>
+		{% endfor %}		
+	</tbody>
+</table>

@@ -1,2 +1,6 @@
 *.pyc
 *.log
+media/*
+.project
+.pydevproject
+logs/*”

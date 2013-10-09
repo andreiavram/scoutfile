@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+	Set poze {{ object.autor }}, {{ object.eveniment }}
+{% endblock %}
+
+{% block context_menu %}
+	{% include "album/main_context_menu.html" %}
+{% endblock %}
+
+{% block content %}
+	<div class = "alert alert-info">Starea curentă a setului este <strong>{{ object.get_status_display }}</strong></div>
+	{% crispy form form.helper %}
+{% endblock %}
+
+
+{% block extrajs %}
+{% endblock %}

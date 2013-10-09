@@ -6,13 +6,7 @@
 {% endblock %}
 
 {% block context_menu %}
-	<ul class = "nav nav-list">
-		<li class = "nav-header">Acțiuni</li>
-		<li class = "disabled"><a href = ""><i class = "icon-download"></i> Download toate</a>
-		<li class = "disabled"><a href = ""><i class = "icon-download-alt"></i> Torrent</a>
-		<li class = "nav-header">Locații</li>
-		<li><a href = "{% url album:eveniment_detail slug=object.slug %}">{{ object }}</a></li>
-	</ul>
+	{% include 'album/eveniment_context_menu.html' %}
 {% endblock %}
 
 {% block extrahead %}

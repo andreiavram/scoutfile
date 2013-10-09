@@ -4,6 +4,7 @@ Created on Sep 18, 2012
 
 @author: yeti
 '''
+from album.models import Imagine
 from scoutfile3.structuri.models import CentruLocal, Patrula, Unitate, Membru,\
     AsociereMembruStructura, InformatieContact
 from django.shortcuts import get_object_or_404
@@ -12,12 +13,14 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 import logging
 from django.contrib.contenttypes.models import ContentType
+from scoutfile3.album.models import Eveniment
 
 logger = logging.getLogger()
 
 def redirect_with_error(request, msg = None):
     messages.error(request, u"Nu ai suficiente drepturi pentru această acțiune (%s)" % msg)
     return HttpResponseRedirect(reverse("login") + "?err")
+
 
 def allow_by_afiliere(asocieri, pkname = "pk", combine = False):
     def _view_wrapper(view_func):
@@ -31,6 +34,12 @@ def allow_by_afiliere(asocieri, pkname = "pk", combine = False):
             #    pass-through for system administrators
             if args[0].user.groups.filter(name__icontains = u"administrator").count():
                 return view_func(self, *args, **kwargs)
+
+
+            text_asocieri = ", ".join(["%s @ %s" % (s, a) for s, a in asocieri])
+
+            if not args[0].user.is_authenticated():
+                return redirect_with_error(args[0], text_asocieri)
             
             lookups = {"Centru Local" : lambda : get_object_or_404(CentruLocal, id = kwargs.get(pkname)),
              "Unitate" :  lambda : get_object_or_404(Unitate, id = kwargs.get(pkname)),
@@ -46,12 +55,11 @@ def allow_by_afiliere(asocieri, pkname = "pk", combine = False):
              "Afiliere, Membru, *, Patrula" : lambda : get_object_or_404(AsociereMembruStructura, id = kwargs.get(pkname)).get_structura(ContentType.objects.get_for_model(Patrula)),
              "InformatieContact, Centru Local" : lambda : get_object_or_404(InformatieContact, id = kwargs.get(pkname)).content_object,
              "InformatieContact, Membru, Centru Local" : lambda : get_object_or_404(InformatieContact, id = kwargs.get(pkname)).content_object.centru_local,
+             "Eveniment, Centru Local" : lambda: get_object_or_404(Eveniment, slug = kwargs.get(pkname)).centru_local,
+             "Utilizator, Centru Local" : lambda: args[0].user.utilizator.membru.centru_local,
+             "Imagine, Centru Local" : lambda: get_object_or_404(Imagine, pk = kwargs.get(pkname)).set_poze.eveniment.centru_local,
              }
-            
-            text_asocieri = ", ".join(["%s @ %s" % (s, a) for s, a in asocieri]) 
-            
-            if not args[0].user.is_authenticated():
-                return redirect_with_error(args[0], text_asocieri)
+
             
             login_ok = False
             for structura_ref, calitate in asocieri:
@@ -67,9 +75,12 @@ def allow_by_afiliere(asocieri, pkname = "pk", combine = False):
                         login_ok = False
                         break
 
-                    login_ok = login_ok or False
-                
-                login_ok = login_ok or True
+                    # login_ok = login_ok or False
+                    logger.debug("allow_by_afiliere matched rule! %s %s" % (structura_ref, calitate))
+                else:
+                    login_ok = True
+
+                #login_ok = login_ok or True
 
             if not login_ok:
                 return redirect_with_error(args[0], text_asocieri)

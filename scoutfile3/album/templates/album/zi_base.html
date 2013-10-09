@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block page_title %}
+	Ziua {{ object.index }}{% if object.titlu %} - {{ object.titlu }}{% endif %}
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Acțiuni</li>
+		<li class = "disabled"><a href = ""><i class = "icon-download"></i> Download toate</a>
+		<li class = "disabled"><a href = ""><i class = "icon-download-alt"></i> Torrent</a>
+        <li><a href = "{% url album:zi_edit pk=object.id %}"><i class = "icon-pencil"></i> Editează</a></li>
+		<li class = "nav-header">Locații</li>
+		<li><a href = "{% url album:eveniment_detail slug=object.eveniment.slug %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ object.eveniment }}</a>
+		<li><a href = "{% url album:zi_stats pk=object.id %}"><i class = "icon-list-alt"></i> Statistici</a></li>
+		
+		<li class = 'nav-header'>Autori</li>
+		{% for autor in object.eveniment.get_autori %}
+			<li><a href = "{% url album:zi_detail pk=object.id %}?autor={{ autor }}"><i class = "icon-user"></i>  {{ autor }}</a></li>
+		{% endfor %}
+		<li><a href = "{% url album:zi_detail pk=object.id %}"><i class= "icon-user-md"></i><strong> Toți autorii</strong></a></li>
+        <li class = "nav-header">Zile</li>
+        {% for zi in object.eveniment.zieveniment_set.all %}
+            <li><a href = "{% url album:zi_detail pk=zi.id %}"><i class ="icon-calendar"></i> {% if zi.titlu %}{{ zi.titlu }}{% else %}Ziua {{ zi.index }}{% endif %}</a></li>
+        {%  endfor  %}
+	</ul>
+{% endblock %}

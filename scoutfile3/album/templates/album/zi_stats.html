@@ -1,19 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'album/zi_base.html' %}
 {% load tab_tags %}
 
 {% block page_title %}
 	{{ object }}
-{% endblock %}
-
-{% block context_menu %}
-	<ul class = "nav nav-list">
-		<li class = "nav-header">Acțiuni</li>
-		<li><a href = ""><i class = "icon-download"></i> Download toate</a>
-		<li><a href = ""><i class = "icon-download-alt"></i> Torrent</a>
-		<li class = "nav-header">Locații</li>
-		<li><a href = "{% url album:eveniment_detail slug=object.eveniment.slug %}"><i class = "icon-list"></i> {{ object.eveniment }}</a></li>
-		<li><a href = "{% url album:zi_detail pk=object.id %}"><i class = "icon-list"></i> {{ object }}</a></li>
-	</ul>
 {% endblock %}
 
 {% block extrahead %}
@@ -56,5 +45,4 @@
 
 {% block content %}
 	<div id = "chart_div"></div>
-	
 {% endblock %}
