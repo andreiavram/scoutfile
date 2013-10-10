@@ -30,6 +30,7 @@ from scoutfile3.generic.views import JSONView, ScoutFileAjaxException
 from scoutfile3.album.models import IMAGINE_PUBLISHED_STATUS
 from scoutfile3.structuri.models import TipAsociereMembruStructura
 from scoutfile3.structuri.decorators import allow_by_afiliere
+from scoutfile3 import settings
 
 logger = logging.getLogger(__name__)
 
@@ -306,7 +307,7 @@ class SetImaginiUpload(CreateView):
                  'size' : int(byte_ranges[0][2]),
                  'type' :  "application/zip",
                  #'descriere' : self.object.descriere, 
-                 'delete_url': "http" + ("s" if self.request.is_secure() else "") + "://" + self.request.get_host() + reverse("album:set_poze_delete_ajax", kwargs = {"pk" : self.object.id}), 
+                 'delete_url': settings.URL_ROOT + reverse("album:set_poze_delete_ajax", kwargs = {"pk" : self.object.id}),
                  'delete_type': "DELETE"}]}
         
         response = HttpResponse(simplejson.dumps(data), mimetype = self.response_mimetype())
