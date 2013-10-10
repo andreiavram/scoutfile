@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+    Adaugă declarație pe proprie răspundere pentru cotizație socială
+{% endblock %}
+
+{% block extrahead %}
+    {{ form.media }}
+{% endblock %}
+
+{% block context_menu %}
+    <ul class="nav nav-list">
+        <li class="nav-header">Locații</li>
+        <li><a href="{% url structuri:membru_detail pk=membru.id %}#documente"><i class="icon-chevron-left"></i> Înapoi
+            la documente</a></li>
+    </ul>
+{% endblock %}
+
+{% block content %}
+    <div class = "alert alert-info"><i class = "icon-user"></i> Declarația este pentru <strong>{{ membru }}</strong></div>
+      {% crispy form form.helper %}
+{% endblock %}

@@ -44,13 +44,13 @@ class Structura(models.Model):
 
     def ocupant_functie(self, nume_functie=None):
         search_kwargs = dict(
-            content_type=ContentType.objects.membru.get_for_model(self),
+            content_type=ContentType.objects.get_for_model(self),
             object_id=self.id, tip_asociere__nume=nume_functie,
             moment_incheiere__isnull=True
         )
-        cercetasi = AsociereMembruStructura(**search_kwargs).select_related("membru").values("membru", flat=True)
+        cercetasi = AsociereMembruStructura.objects.filter(**search_kwargs).select_related("membru")
         if cercetasi.count():
-            return cercetasi[0]
+            return cercetasi[0].membru
 
         return None
 

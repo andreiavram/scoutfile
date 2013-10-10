@@ -1,4 +1,5 @@
 # coding: utf-8
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -13,11 +14,12 @@ class Document(models.Model):
     date_created = models.DateTimeField(auto_now_add = True)
     date_modified = models.DateTimeField(auto_now = True)
     data_inregistrare = models.DateField(null = True, blank = True)
+    numar_inregistrare = models.IntegerField(default=0)
 
     titlu = models.CharField(max_length = 1024)
     descriere = models.CharField(max_length = 2048, null = True, blank = True)
     
-    fisier = models.FileField(upload_to = lambda file_name, instance: instance, null = True, blank = True)
+    fisier = models.FileField(upload_to = lambda instance, file_name: "declaratii/%s" % file_name, null = True, blank = True)
     url = models.URLField(max_length = 2048, null = True, blank = True)
     
     version_number = models.IntegerField(default = 0)
@@ -35,7 +37,10 @@ class Document(models.Model):
         return u"%s" % self.titlu
     
     def referinta(self):
-        return "%d / %s" % (self.id, self.date_inregistrare.strftime("%d.%m.%Y"))
+        return "%d / %s" % (self.id, self.data_inregistrare.strftime("%d.%m.%Y"))
+
+    def edit_link(self):
+        return ""
     
     def save(self, force_insert=False, force_update=False, using=None):
         if not self.data_inregistrare:
@@ -65,16 +70,20 @@ class AsociereDocument(models.Model):
         self.document_ctype = ContentType.objects.get_for_model(self.document)
         return super(AsociereDocument, self).save(force_insert = force_insert, force_update = force_update,
                                                   using = using)
+    def document_edit_link(self):
+        return self.document_ctype.get_object_for_this_type(id=self.document.id).edit_link()
 
     @classmethod
     def inregistreaza(cls, document=None, to=None, tip=None, responsabil=None):
-        tip_asociere = TipAsociereDocument.objects.get_or_create(slug="beneficiar-cotizatie-sociala")
+        tip_asociere, created = TipAsociereDocument.objects.get_or_create(slug="beneficiar-cotizatie-sociala")
+        if created:
+            tip_asociere.save()
 
         asociere_kwargs = dict(
             document=document,
             content_type=ContentType.objects.get_for_model(to),
             object_id=to.id,
-            tip_asociere=tip,
+            tip_asociere=tip_asociere,
             responsabil=responsabil
         )
 
@@ -86,6 +95,9 @@ class TipDocument(models.Model):
     slug = models.CharField(max_length = 255)
     nume = models.CharField(max_length = 255)
     descriere = models.TextField(null = True, blank = True)
+
+    def __unicode__(self):
+        return u"{0}".format(self.nume)
     
 class Chitanta(Document):
     casier = models.ForeignKey("structuri.Membru")
@@ -313,12 +325,17 @@ class SerieDocument(models.Model):
         return numar_curent
         
 class DocumentCotizatieSociala(Document):
-    nume_parinte = models.CharField(max_length = 255, null = True, blank = True) #  poate fi null pentru persoane peste 18 ani
+    nume_parinte = models.CharField(max_length = 255, null = True, blank = True, verbose_name = u"Nume părinte", help_text = u"Lasă gol pentru cercetași adulți") #  poate fi null pentru persoane peste 18 ani
     motiv = models.CharField(max_length = 2048, null = True, blank = True)
-    este_valabil = models.BooleanField()
-    
+    este_valabil = models.BooleanField(verbose_name = u"Este valabilă?", help_text=u"Bifează doar dacă cererea a fost aprobată de Consiliu")
+
+    def edit_link(self):
+        return reverse("structuri:membru_cotizatiesociala_modifica", kwargs={"pk":self.id})
+
     def save(self, **kwargs):
-        self.tip_document = TipDocument.objects.get(slug = "declaratie-cotizatie-sociala")
+        self.tip_document, created = TipDocument.objects.get_or_create(slug = "declaratie-cotizatie-sociala")
+        if created:
+            self.tip_document.save()
         return super(DocumentCotizatieSociala, self).save(**kwargs)
 
 ctype_deciziecotizatie = ContentType.objects.get_for_model(DecizieCotizatie)    
