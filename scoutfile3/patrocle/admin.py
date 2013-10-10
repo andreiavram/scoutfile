@@ -5,7 +5,7 @@ Created on Sep 27, 2012
 @author: yeti
 '''
 from django.contrib import admin
-from scoutfile3.patrocle.models import SMSMessage, Credit
+from patrocle.models import SMSMessage, Credit
 from django.contrib.admin.options import ModelAdmin
 
 class SMSAdmin(ModelAdmin):

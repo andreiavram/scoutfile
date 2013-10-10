@@ -1,6 +1,6 @@
 #coding: utf8
 from django.conf.urls.defaults import patterns
-from scoutfile3.structuri.views import CentruLocalCreate, CentruLocalUpdate,\
+from structuri.views import CentruLocalCreate, CentruLocalUpdate,\
     CentruLocalDetail, CentruLocalList, CentruLocalMembruCreate,\
     CentruLocalMembruAsociaza, CentruLocalTabBrief, CentruLocalTabUnitati,\
     CentruLocalTabLideri, CentruLocalTabMembri, CentruLocalUnitateCreate,\
@@ -23,7 +23,7 @@ from scoutfile3.structuri.views import CentruLocalCreate, CentruLocalUpdate,\
     MembriForPatrocle, MembruDestinatarRepr, PersoanaContactDestinatarRepr,\
     MembriFaraAfilieri, GetSpeedList, MembruTabDocumente
 
-urlpatterns = patterns('scoutfile3.structuri.views',
+urlpatterns = patterns('structuri.views',
     (r'centrulocal/adauga/$', CentruLocalCreate.as_view(), {}, "cl_add"),
     (r'centrulocal/(?P<pk>\d+)/schimba/$', CentruLocalUpdate.as_view(), {}, "cl_edit"),
     (r'centrulocal/(?P<pk>\d+)/$', CentruLocalDetail.as_view(), {}, "cl_detail"),

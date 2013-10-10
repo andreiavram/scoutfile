@@ -405,7 +405,7 @@ class Membru(Utilizator):
     #    Patrocle specific code
 
     def rezerva_credit(self):
-        from scoutfile3.patrocle.models import Credit
+        from patrocle.models import Credit
 
         credit = Credit.objects.filter(content_type=ContentType.objects.get_for_model(CentruLocal),
                                        object_id=self.centru_local.id,
@@ -416,7 +416,7 @@ class Membru(Utilizator):
         credit = credit[0]
 
         if credit.credit_disponibil() > 0:
-            from scoutfile3.patrocle.models import RezervareCredit
+            from patrocle.models import RezervareCredit
 
             rezervare = RezervareCredit(credit=credit, content_type=ContentType.objects.get_for_model(self),
                                         object_id=self.id)
@@ -425,7 +425,7 @@ class Membru(Utilizator):
         return True
 
     def elibereaza_credit(self):
-        from scoutfile3.patrocle.models import RezervareCredit
+        from patrocle.models import RezervareCredit
 
         rezervari = RezervareCredit.objects.filter(content_type=ContentType.objects.get_for_model(self),
                                                    object_id=self.id)

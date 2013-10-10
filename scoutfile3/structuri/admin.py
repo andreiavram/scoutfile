@@ -4,7 +4,7 @@ Created on Jul 1, 2012
 
 @author: yeti
 '''
-from scoutfile3.structuri.models import RamuraDeVarsta, CentruLocal, Unitate,\
+from structuri.models import RamuraDeVarsta, CentruLocal, Unitate,\
     Patrula, TipAsociereMembruStructura, AsociereMembruStructura, Membru,\
     TipInformatieContact, InformatieContact, AsociereMembruFamilie,\
     TipRelatieFamilie

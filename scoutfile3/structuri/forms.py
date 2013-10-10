@@ -5,10 +5,10 @@ Created on Jun 9, 2012
 @author: yeti
 '''
 from django import forms
-from scoutfile3.structuri.models import Membru, CentruLocal, Unitate, Patrula,\
+from structuri.models import Membru, CentruLocal, Unitate, Patrula,\
     AsociereMembruStructura, InformatieContact, TipInformatieContact,\
     AsociereMembruFamilie, PersoanaDeContact
-from scoutfile3.generic.forms import CrispyBaseModelForm, CrispyBaseForm,\
+from generic.forms import CrispyBaseModelForm, CrispyBaseForm,\
     CrispyBaseDeleteForm
 from django.forms.widgets import Textarea, PasswordInput
 from crispy_forms.layout import Fieldset, Layout, Submit, Field
@@ -16,8 +16,7 @@ from django.core.exceptions import ValidationError
 from captcha.fields import ReCaptchaField
 from django.db.models.query_utils import Q
 from ajax_select.fields import AutoCompleteSelectField
-from scoutfile3.structuri.fields import BetterROCNPField
-#from ajax_select.fields import AutoCompleteSelectField
+from structuri.fields import BetterROCNPField
 
 class UnitateMembruCreateForm(CrispyBaseModelForm):
     class Meta:

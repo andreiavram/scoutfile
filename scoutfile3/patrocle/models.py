@@ -1,13 +1,13 @@
 # coding: utf-8
 from django.db import models
-from scoutfile3.structuri.models import InformatieContact, TipInformatieContact,\
+from structuri.models import InformatieContact, TipInformatieContact,\
     Membru
 from django.contrib.contenttypes.models import ContentType
 import datetime
 from django.db.models.query_utils import Q
 import logging
 from django.contrib.contenttypes.generic import GenericForeignKey
-from scoutfile3.settings import SMSLINK_CONNID, SMSLINK_PASSWORD, SMSLINK_URL,\
+from settings import SMSLINK_CONNID, SMSLINK_PASSWORD, SMSLINK_URL,\
     DEBUG
 import urllib
 import urllib2
