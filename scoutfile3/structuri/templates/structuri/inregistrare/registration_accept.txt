@@ -4,7 +4,7 @@ Contul tau pe ScoutFile a fost confirmat de un lider, si este gata pentru a fi f
 
 Te poti autentifica cu noul tau cont, aici:
 
-http://{{ request.get_host }}{% url login %}
+http://{{ url_root }}{% url login %}
 
 Numai bine,
 yeti
