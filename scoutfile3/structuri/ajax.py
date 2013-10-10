@@ -4,7 +4,7 @@ Created on Sep 1, 2012
 
 @author: yeti
 '''
-from scoutfile3.structuri.models import CentruLocal, TipAsociereMembruStructura
+from structuri.models import CentruLocal, TipAsociereMembruStructura
 from django.shortcuts import get_object_or_404
 from dajax.core import Dajax
 from dajaxice.decorators import dajaxice_register

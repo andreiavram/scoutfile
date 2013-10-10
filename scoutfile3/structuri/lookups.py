@@ -5,11 +5,10 @@ Created on Sep 23, 2012
 @author: yeti
 '''
 from ajax_select import LookupChannel
-from scoutfile3.structuri.models import Membru
+from structuri.models import Membru
 from django.db.models.query_utils import Q
-from django.template.context import RequestContext
 from django.template.loader import render_to_string
-from scoutfile3.settings import STATIC_URL
+from settings import STATIC_URL
 
 
 class MembriLookup(LookupChannel):

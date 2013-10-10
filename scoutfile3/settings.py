@@ -136,8 +136,8 @@ INSTALLED_APPS = (
     'crispy_forms', 'djangorestframework', 'captcha',
     'ajax_select', "taggit", 'pagination', 'less',
     
-    'scoutfile3.structuri', 'scoutfile3.generic', 'scoutfile3.album',
-    'scoutfile3.patrocle', 'scoutfile3.documente', 'scoutfile3.extra',
+    'structuri', 'generic', 'album',
+    'patrocle', 'documente', 'extra',
     
     'raven.contrib.django.raven_compat',
     'django_extensions', 'gunicorn'
@@ -146,7 +146,7 @@ INSTALLED_APPS = (
 
 AJAX_LOOKUP_CHANNELS = {
     #   pass a dict with the model and the field to search against
-    'membri'     : ('scoutfile3.structuri.lookups', 'MembriLookup')
+    'membri'     : ('structuri.lookups', 'MembriLookup')
 }
 
 AJAX_SELECT_BOOTSTRAP = False

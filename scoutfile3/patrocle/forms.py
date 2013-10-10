@@ -4,10 +4,10 @@ Created on Sep 25, 2012
 
 @author: yeti
 '''
-from scoutfile3.generic.forms import CrispyBaseForm, CrispyBaseModelForm
+from generic.forms import CrispyBaseForm, CrispyBaseModelForm
 from django import forms
 from django.forms.widgets import Textarea, HiddenInput
-from scoutfile3.patrocle.models import Credit
+from patrocle.models import Credit
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from crispy_forms.layout import Field, Layout, Div
@@ -39,14 +39,14 @@ class SendSMSForm(CrispyBaseForm):
         return data
     
     def clean_destinatari(self):
-        from scoutfile3.structuri.models import PersoanaDeContact
+        from structuri.models import PersoanaDeContact
         data = self.cleaned_data['destinatari']
         
         destinatari = [a for a in simplejson.loads(data) if len(a) > 1]
         
         
         # Verifica accesul utilizatorului curent la trimis SMS-uri la persoana X
-        from scoutfile3.structuri.models import Membru
+        from structuri.models import Membru
         
         error_list = []
         rezervari = []

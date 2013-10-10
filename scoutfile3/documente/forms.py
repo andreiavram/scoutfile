@@ -6,16 +6,13 @@ Created on Nov 8, 2012
 '''
 from documente.models import DocumentCotizatieSociala
 from generic.widgets import BootstrapDateTimeInput, BootstrapDateInput
-from scoutfile3.generic.forms import CrispyBaseModelForm
-from scoutfile3.documente.models import Document, ChitantaCotizatie
+from generic.forms import CrispyBaseModelForm
+from documente.models import Document, ChitantaCotizatie
 from crispy_forms.layout import Field, Layout, Submit, Button
 from crispy_forms.bootstrap import FormActions, FieldWithButtons, StrictButton
 from django.forms.fields import DateField
 from django.forms.widgets import DateInput
 import datetime
-from django.views.generic.base import View
-from django.views.decorators.csrf import csrf_exempt
-
 
 class DocumentCreateForm(CrispyBaseModelForm):
     class Meta:

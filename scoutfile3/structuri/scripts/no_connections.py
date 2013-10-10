@@ -10,10 +10,8 @@ from bootstrap import bootstrap
 bootstrap("/yetiweb/scoutfile/scoutfile3/")
 
 import datetime
-from scoutfile3.structuri.models import Membru
+from structuri.models import Membru
 
-
-from scoutfile3.album.models import Eveniment, SetPoze, Imagine
 
 membri = Membru.objects.all()
 count = 0
