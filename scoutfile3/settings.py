@@ -114,6 +114,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages',
     'context_processors.product_version',
     'context_processors.api_keys',
+    'context_processors.url_root',
 )
 
 #if DEVELOPMENT:
