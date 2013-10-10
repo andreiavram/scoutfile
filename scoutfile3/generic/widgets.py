@@ -36,6 +36,23 @@ class BootstrapDateTimeInput(forms.DateTimeInput):
         context_data = {"value": value, "attrs": attrs, "name" : name, "date_only" : self.date_only}
         return render_to_string("generic/bootstrapdatetime_widget.html", context_data)
 
+class BootstrapDateInput(forms.DateInput):
+    """ This is based on http://www.eyecon.ro/bootstrap-datepicker/
+    """
+
+    class Media:
+        js = (
+            "generic/js/bootstrap-datepicker.js",
+            "generic/js/bootstrap-datepicker-init.js",
+        )
+        css = {
+            "screen" : ("generic/css/datepicker.css", )
+        }
+
+    def render(self, name, value, attrs=None):
+        context_data = {"value": value, "attrs": attrs, "name": name}
+        return render_to_string("generic/bootstrapdate_widget.html", context_data)
+
 
 class GeoCoordinatesInput(forms.TextInput):
     class Media:

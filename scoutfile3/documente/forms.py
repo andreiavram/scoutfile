@@ -4,6 +4,8 @@ Created on Nov 8, 2012
 
 @author: yeti
 '''
+from documente.models import DocumentCotizatieSociala
+from generic.widgets import BootstrapDateTimeInput, BootstrapDateInput
 from scoutfile3.generic.forms import CrispyBaseModelForm
 from scoutfile3.documente.models import Document, ChitantaCotizatie
 from crispy_forms.layout import Field, Layout, Submit, Button
@@ -49,3 +51,9 @@ class CotizatieMembruForm(CrispyBaseModelForm):
         self.helper.add_input(Button('cancel', u"Renunță", css_class = "btn-danger"))
         
         
+class DeclaratieCotizatieSocialaForm(CrispyBaseModelForm):
+    class Meta:
+        model = DocumentCotizatieSociala
+        fields = ['nume_parinte', 'motiv', 'este_valabil', 'fisier', 'numar_inregistrare', 'data_inregistrare']
+
+    data_inregistrare = DateField(widget=BootstrapDateInput, label=u"Data înregistrare")

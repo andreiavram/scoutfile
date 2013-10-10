@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django.shortcuts import get_object_or_404
+from documente.forms import DeclaratieCotizatieSocialaForm
 from documente.models import DocumentCotizatieSociala, TipAsociereDocument, AsociereDocument
 from scoutfile3.documente.models import Document, SerieDocument
 from django.core.exceptions import ImproperlyConfigured
@@ -11,7 +12,7 @@ from scoutfile3.documente.forms import DocumentCreateForm, FolderCreateForm, \
     CotizatieMembruForm
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
-from django.views.generic.base import View
+from django.views.generic.base import View, TemplateView
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import simplejson
 from structuri.models import Membru
@@ -174,7 +175,7 @@ class CuantumCotizatieNationalAdauga(CreateView):
 
 
 class DeclaratieCotizatieSocialaAdauga(CreateView):
-    # form_class = DeclaratieCotizatieSocialaForm
+    form_class = DeclaratieCotizatieSocialaForm
     template_name = "documente/declaratie_cotizatie_sociala.html"
     model = DocumentCotizatieSociala
 
@@ -185,14 +186,62 @@ class DeclaratieCotizatieSocialaAdauga(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
+        self.object.titlu = u"Declarație proprie răspundere cotizație socială"
+        self.object.uploader = self.request.user
+        self.object.save()
+
+        responsabil = self.target.centru_local.ocupant_functie(u"Secretar Centru Local")
         #   adauga asociere document
         AsociereDocument.inregistreaza(document=self.object,
-                                       to=self.target.id,
+                                       to=self.target,
                                        tip="beneficiar-cotizatie-sociala",
-                                       responsabil = self.target.ocupant_functie(u"Secretar Centru Local"))
+                                       responsabil=responsabil.user)
 
         messages.success(self.request, u"Declarație salvată")
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         return reverse("structuri:membru_detail", kwargs={"pk":self.target.id}) + "#documente"
+
+    def get_context_data(self, **kwargs):
+        data = super(DeclaratieCotizatieSocialaAdauga, self).get_context_data(**kwargs)
+        data.update({"membru" : self.target})
+        return data
+
+class DeclaratieCotizatieSocialaModifica(UpdateView):
+    template_name = "documente/declaratie_cotizatie_sociala.html"
+    model = DocumentCotizatieSociala
+    form_class = DeclaratieCotizatieSocialaForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.object = get_object_or_404(self.model, id = kwargs.get("pk"))
+        asocieri = AsociereDocument.objects.filter(document=self.object, tip_asociere__slug="beneficiar-cotizatie-sociala")
+        if asocieri.count():
+            self.target = asocieri[0].content_object
+
+        return super(DeclaratieCotizatieSocialaModifica, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=True)
+
+        messages.success(self.request, u"Declarație salvată")
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        data = super(DeclaratieCotizatieSocialaModifica, self).get_context_data(**kwargs)
+        data.update({"membru" : self.target})
+        return data
+
+    def get_success_url(self):
+        return reverse("structuri:membru_detail", kwargs={"pk":self.target.id}) + "#documente"
+
+
+class MembruAlteDocumente(TemplateView):
+    template_name = "documente/membru_adauga_documente.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
+        return super(MembruAlteDocumente, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        return {"object" : self.membru}
