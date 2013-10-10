@@ -5,7 +5,7 @@ Created on Sep 18, 2012
 @author: yeti
 '''
 from album.models import Imagine
-from scoutfile3.structuri.models import CentruLocal, Patrula, Unitate, Membru,\
+from structuri.models import CentruLocal, Patrula, Unitate, Membru,\
     AsociereMembruStructura, InformatieContact
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
@@ -13,7 +13,7 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 import logging
 from django.contrib.contenttypes.models import ContentType
-from scoutfile3.album.models import Eveniment
+from album.models import Eveniment
 
 logger = logging.getLogger()
 

@@ -4,10 +4,9 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.views.generic.base import View, TemplateView
-from scoutfile3.settings import DEBUG
-from scoutfile3.patrocle.forms import SendSMSForm, AsociereCreditForm
+from patrocle.forms import SendSMSForm, AsociereCreditForm
 import logging
-from scoutfile3.patrocle.models import SMSMessage, Credit
+from patrocle.models import SMSMessage, Credit
 import datetime
 from django.views.generic.list import ListView
 from django.utils.decorators import method_decorator
