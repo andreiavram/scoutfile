@@ -12,4 +12,4 @@ def api_keys(request):
     return { "GOOGLE_API_KEY" : settings.GOOGLE_API_KEY }
 
 def url_root(request):
-    return { "URL_ROOT" : settings.URL_ROOT }
+    return { "url_root" : settings.URL_ROOT }
