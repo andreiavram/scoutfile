@@ -6,7 +6,7 @@ import logging
 from django.views.generic.edit import DeleteView, FormView
 from django.contrib import messages
 from taggit.models import Tag
-from scoutfile3.generic.forms import CrispyBaseDeleteForm, LoginForm,\
+from generic.forms import CrispyBaseDeleteForm, LoginForm,\
     IssueCreateForm
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth import logout, authenticate, login
@@ -14,7 +14,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 import urllib
-from scoutfile3.settings import REDMINE_API_KEY
+from settings import REDMINE_API_KEY
 import urllib2
 import datetime
 import traceback
