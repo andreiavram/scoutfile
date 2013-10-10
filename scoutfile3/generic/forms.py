@@ -10,7 +10,7 @@ from crispy_forms.layout import Submit
 from django.forms.widgets import PasswordInput, Textarea
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
-from scoutfile3.settings import REDMINE_API_KEY
+from settings import REDMINE_API_KEY
 import logging
 from django.utils import simplejson
 import traceback

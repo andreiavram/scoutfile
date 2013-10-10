@@ -1,9 +1,9 @@
 #coding: utf8
 from django.conf.urls.defaults import patterns
-from scoutfile3.patrocle.views import SendSMS, ConfirmSMS, ListConfirmations,\
+from patrocle.views import SendSMS, ConfirmSMS, ListConfirmations,\
     PatrocleStats, ListaCredite, AsociazaCredit, ListGrupConfirmations
 
-urlpatterns = patterns('scoutfile3.patrocle.views',
+urlpatterns = patterns('patrocle.views',
     (r'send/$', SendSMS.as_view(), {}, "send_sms"),
     (r'confirm/$', ConfirmSMS.as_view(), {}, "confirm_sms"),
     (r'stats/$', PatrocleStats.as_view(), {}, "system_stats"), 

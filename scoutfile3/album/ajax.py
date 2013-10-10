@@ -5,7 +5,7 @@ Created on Aug 28, 2012
 @author: yeti
 '''
 from django.shortcuts import get_object_or_404
-from scoutfile3.album.models import Imagine
+from album.models import Imagine
 from dajax.core import Dajax
 from dajaxice.decorators import dajaxice_register
 

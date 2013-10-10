@@ -25,12 +25,12 @@ from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, Po
 from album.models import SetPoze
 from album.forms import SetPozeCreateForm, SetPozeUpdateForm
 from generic.views import GenericDeleteView
-from scoutfile3.structuri.models import Membru
-from scoutfile3.generic.views import JSONView, ScoutFileAjaxException
-from scoutfile3.album.models import IMAGINE_PUBLISHED_STATUS
-from scoutfile3.structuri.models import TipAsociereMembruStructura
-from scoutfile3.structuri.decorators import allow_by_afiliere
-from scoutfile3 import settings
+from structuri.models import Membru
+from generic.views import JSONView, ScoutFileAjaxException
+from album.models import IMAGINE_PUBLISHED_STATUS
+from structuri.models import TipAsociereMembruStructura
+from structuri.decorators import allow_by_afiliere
+import settings
 
 logger = logging.getLogger(__name__)
 
@@ -279,7 +279,7 @@ class SetImaginiUpload(CreateView):
             logger.debug("%s - retrieving existing set (%d)" % (self.__class__.__name__, self.object.id))
         else:
             self.object = form.save(commit = False)
-            from scoutfile3.structuri.models import Membru
+            from structuri.models import Membru
             self.object.autor_user = Membru.objects.get(id = self.request.user.get_profile().id)
 
             if not self.object.autor:
@@ -340,7 +340,7 @@ class SetImaginiDeleteAjax(View):
         return self.post(request, *args, **kwargs)
     
     def post(self, request, *args, **kwargs):
-        from scoutfile3.structuri.models import Membru
+        from structuri.models import Membru
         logger.debug("%s: user is superuser: %s, user is same membru object %s" % (self.__class__.__name__, request.user.is_superuser, Membru.objects.get(id = request.user.get_profile().id) == self.set_poze.autor_user))
         if request.user.is_superuser or Membru.objects.get(id = request.user.get_profile().id) == self.set_poze.autor_user:
             try:
