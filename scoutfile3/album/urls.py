@@ -3,10 +3,10 @@ from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     RotateImage, EvenimentStats, ZiStats, FlagImage, EvenimentList, \
     SetImaginiUpload, SetImaginiDeleteAjax, SetImaginiToate, \
     SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate, EvenimentCreate, EvenimentUpdate, EvenimentDetail, EvenimentDelete, PozaUpdate, ZiEdit, PozaDelete, ImagineTagSearch, ImagineTagSearchJSON
-from scoutfile3.album.views import ChangeImagineVisibility
+from album.views import ChangeImagineVisibility
 
 
-urlpatterns = patterns('scoutfile3.album.views',
+urlpatterns = patterns('album.views',
                        (r'eveniment/list/$', EvenimentList.as_view(), {}, "index"),
                        (r'eveniment/(?P<slug>\w+)/album/$', AlbumEvenimentDetail.as_view(), {}, "eveniment_detail"),
                        (r'eveniment/(?P<pk>\d+)/stats/$', EvenimentStats.as_view(), {}, "eveniment_stats"),

@@ -5,8 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 import datetime
-from scoutfile3.settings import VALOARE_IMPLICITA_COTIZATIE_NATIONAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL
-# from scoutfile3.structuri.models import Membru
+from settings import VALOARE_IMPLICITA_COTIZATIE_NATIONAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL
 
 # Create your models here.
 

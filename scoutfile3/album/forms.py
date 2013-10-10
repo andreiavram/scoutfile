@@ -8,8 +8,8 @@ from crispy_forms.layout import Layout, Field
 from django.core.urlresolvers import reverse
 from taggit.forms import TagField
 from generic.widgets import BootstrapDateTimeInput, GeoCoordinatesInput, FacebookLinkWidget, TaggitTagsInput
-from scoutfile3.generic.forms import CrispyBaseModelForm
-from scoutfile3.album.models import FlagReport, FLAG_MOTIVES
+from generic.forms import CrispyBaseModelForm
+from album.models import FlagReport, FLAG_MOTIVES
 from django import forms
 from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
 from django.forms.widgets import RadioSelect, Textarea

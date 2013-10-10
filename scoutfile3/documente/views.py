@@ -1,14 +1,13 @@
 #coding=utf8
-from django.contrib.contenttypes.models import ContentType
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django.shortcuts import get_object_or_404
 from documente.forms import DeclaratieCotizatieSocialaForm
 from documente.models import DocumentCotizatieSociala, TipAsociereDocument, AsociereDocument
-from scoutfile3.documente.models import Document, SerieDocument
+from documente.models import Document, SerieDocument
 from django.core.exceptions import ImproperlyConfigured
 import logging
-from scoutfile3.documente.forms import DocumentCreateForm, FolderCreateForm, \
+from documente.forms import DocumentCreateForm, FolderCreateForm, \
     CotizatieMembruForm
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
@@ -108,7 +107,7 @@ class CotizatieMembruAdauga(CreateView):
     template_name = "documente/cotizatie_form.html"
 
     def dispatch(self, request, *args, **kwargs):
-        from scoutfile3.structuri.models import Membru
+        from structuri.models import Membru
 
         self.target = get_object_or_404(Membru, id=kwargs.pop("pk"))
         return super(CotizatieMembruAdauga, self).dispatch(request, *args, **kwargs)

@@ -5,17 +5,15 @@ from django.db.models.query_utils import Q
 from photologue.models import ImageModel
 from PIL import Image
 import datetime
-# from scoutfile3.structuri.models import CentruLocal, Membru, TipAsociereMembruStructura
-from scoutfile3.settings import MEDIA_ROOT
 import os
 from zipfile import ZipFile
 import logging
 import traceback
-from scoutfile3.settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT
+from settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT, MEDIA_ROOT
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from taggit.managers import TaggableManager
-from scoutfile3 import settings
+import settings
 
 logger = logging.getLogger(__name__)
 
