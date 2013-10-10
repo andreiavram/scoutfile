@@ -5,7 +5,7 @@ from django.db.models.query_utils import Q
 from photologue.models import ImageModel
 from PIL import Image
 import datetime
-from scoutfile3.structuri.models import CentruLocal, Membru, TipAsociereMembruStructura
+# from scoutfile3.structuri.models import CentruLocal, Membru, TipAsociereMembruStructura
 from scoutfile3.settings import MEDIA_ROOT
 import os
 from zipfile import ZipFile
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class Eveniment(models.Model):
-    centru_local = models.ForeignKey(CentruLocal)
+    centru_local = models.ForeignKey("structuri.CentruLocal")
     nume = models.CharField(max_length=255, verbose_name=u"Titlu")
     descriere = models.TextField(null=True, blank=True)
     start_date = models.DateTimeField(verbose_name=u"Începe pe", help_text=u"Folosește selectorul de date pentru a defini o dată de început")
@@ -114,6 +114,7 @@ class Eveniment(models.Model):
         return Imagine.objects.filter(set_poze__eveniment=self).count()
 
     def get_visibility_level(self, user=None):
+        from structuri.models import TipAsociereMembruStructura
         visibility_level = 4
         if user is None:
             return visibility_level
@@ -148,7 +149,7 @@ STATUS_PARTICIPARE = ((1, u"Cu semnul întrebării"), (2, u"Sigur"), (3, u"Avans
 
 
 class ParticipareEveniment(models.Model):
-    membru = models.ForeignKey(Membru)
+    membru = models.ForeignKey("structuri.Membru")
     eveniment = models.ForeignKey(Eveniment)
     data_sosire = models.DateTimeField(null=True, blank=True)
     data_plecare = models.DateTimeField(null=True, blank=True)
@@ -209,7 +210,7 @@ class SetPoze(models.Model):
     eveniment = models.ForeignKey(Eveniment)
     autor = models.CharField(max_length=255, null=True, blank=True,
                              help_text=u"Lăsați gol dacă încărcați pozele proprii")
-    autor_user = models.ForeignKey(Membru, null=True, blank=True)
+    autor_user = models.ForeignKey("structuri.Membru", null=True, blank=True)
     zip_file = models.FilePathField(null=True, blank=True, path="/tmp")
     status = models.IntegerField(default=0, choices=SET_POZE_STATUSES)
     procent_procesat = models.IntegerField(default=0)
