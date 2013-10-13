@@ -1,10 +1,11 @@
 #coding=utf8
+from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django.shortcuts import get_object_or_404
-from documente.forms import DeclaratieCotizatieSocialaForm
-from documente.models import DocumentCotizatieSociala, TipAsociereDocument, AsociereDocument
-from documente.models import Document, SerieDocument
+from documente.forms import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm
+from documente.models import DocumentCotizatieSociala, TipAsociereDocument, AsociereDocument, Registru
+from documente.models import Document
 from django.core.exceptions import ImproperlyConfigured
 import logging
 from documente.forms import DocumentCreateForm, FolderCreateForm, \
@@ -132,32 +133,31 @@ class CotizatieMembruAdauga(CreateView):
         return kwargs
 
 
-class NumarInregistrareUrmatorJSON(View):
-    @csrf_exempt
-    def dispatch(self, request, *args, **kwargs):
-        return super(NumarInregistrareUrmatorJSON, self).dispatch(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        centru_local = request.user.get_profile().membru.centru_local
-        from django.contrib.contenttypes.models import ContentType
-
-        filter_kwargs = {"content_type": ContentType.objects.get_for_model(centru_local),
-                         "object_id": centru_local.id,
-                         "deschisa": True}
-        serii_disponibile = SerieDocument.objects.filter(**filter_kwargs).order_by("-document_referinta__date_created")
-        if serii_disponibile.count() != 0:
-            try:
-                numar_inregistrare = serii_disponibile[0].get_next_item()
-            except ValueError:
-                numar_inregistrare = None
-            serie = serii_disponibile[0].cod_unic
-
-        json_output = {'result': (serii_disponibile.count() > 0) and (numar_inregistrare != None),
-                       'numar_inregistrare': numar_inregistrare,
-                       'serie': serie}
-
-        return HttpResponse(simplejson.dumps(json_output))
-
+#class NumarInregistrareUrmatorJSON(View):
+#    @csrf_exempt
+#    def dispatch(self, request, *args, **kwargs):
+#        return super(NumarInregistrareUrmatorJSON, self).dispatch(request, *args, **kwargs)
+#
+#    def post(self, request, *args, **kwargs):
+#        centru_local = request.user.get_profile().membru.centru_local
+#        from django.contrib.contenttypes.models import ContentType
+#
+#        filter_kwargs = {"content_type": ContentType.objects.get_for_model(centru_local),
+#                         "object_id": centru_local.id,
+#                         "deschisa": True}
+#        serii_disponibile = SerieDocument.objects.filter(**filter_kwargs).order_by("-document_referinta__date_created")
+#        if serii_disponibile.count() != 0:
+#            try:
+#                numar_inregistrare = serii_disponibile[0].get_next_item()
+#            except ValueError:
+#                numar_inregistrare = None
+#            serie = serii_disponibile[0].cod_unic
+#
+#        json_output = {'result': (serii_disponibile.count() > 0) and (numar_inregistrare != None),
+#                       'numar_inregistrare': numar_inregistrare,
+#                       'serie': serie}
+#
+#        return HttpResponse(simplejson.dumps(json_output))
 
 class CalculeazaAcoperireSumaJSON(View):
     pass
@@ -244,3 +244,89 @@ class MembruAlteDocumente(TemplateView):
 
     def get_context_data(self, **kwargs):
         return {"object" : self.membru}
+
+class CentruLocalRegistre(ListView):
+    template_name = "documente/registru_list.html"
+    model = Registru
+
+    # TODO: add permissions check for this
+    def dispatch(self, request, *args, **kwargs):
+        from structuri.models import CentruLocal
+        self.centru_local = get_object_or_404(CentruLocal, id=kwargs.get("pk"))
+        self.inactive = False
+        if "inactive" in request.GET:
+            self.inactive = False if request.GET['inactive'] == "off" else True
+        return super(CentruLocalRegistre, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        qs = super(CentruLocalRegistre, self).get_queryset()
+        if not self.inactive:
+            qs = qs.filter(valabil = True)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        data = super(CentruLocalRegistre, self).get_context_data(**kwargs)
+        data.update({"centru_local" : self.centru_local, "inactive" : self.inactive})
+        return data
+
+class RegistruCreate(CreateView):
+    template_name = "documente/registru_form.html"
+    model = Registru
+    form_class = RegistruCreateForm
+
+    # TODO: add permissions check for this
+    def dispatch(self, request, *args, **kwargs):
+        from structuri.models import CentruLocal
+        self.centru_local = get_object_or_404(CentruLocal, id=kwargs.get("pk"))
+        return super(RegistruCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        current = super(RegistruCreate, self).get_form_kwargs()
+        current.update({"centru_local" : self.centru_local})
+        return current
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.centru_local = self.centru_local
+        self.object.owner = self.request.user.get_profile().membru
+        self.object.save()
+
+        messages.success(self.request, u"%s creat cu succes" % self.object.get_tip_registru_display())
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("documente:registru_detail", kwargs={"pk" : self.object.id})
+
+    def get_context_data(self, **kwargs):
+        data = super(RegistruCreate, self).get_context_data(**kwargs)
+        data.update({"centru_local" : self.centru_local})
+        return data
+
+class RegistruUpdate(UpdateView):
+    template_name = "documente/registru_form.html"
+    model = Registru
+    form_class = RegistruUpdateForm
+
+    # TODO: add permissions check for this
+    def dispatch(self, request, *args, **kwargs):
+        return super(RegistruUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        data = super(RegistruUpdate, self).get_context_data(**kwargs)
+        data.update({"centru_local" : self.object.centru_local})
+        return data
+
+    def form_valid(self, form):
+        messages.success(self.request, u"Registru actualizat cu succes")
+        return super(RegistruUpdate, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse("documente:registru_detail", kwargs={"pk" : self.object.id})
+
+class RegistruDetail(DetailView):
+    template_name = "documente/registru_detail.html"
+    model = Registru
+
+    # TODO: add permissions check for this
+    def dispatch(self, request, *args, **kwargs):
+        return super(RegistruDetail, self).dispatch(request, *args, **kwargs)

@@ -26,14 +26,14 @@
 			jQuery("#id_centrul_local").change(function() {
 				console.log(jQuery(this).val());
 				if (jQuery(this).val() != "") {
-					Dajaxice.scoutfile3.structuri.get_unitati(Dajax.process, {"id_centru_local" : jQuery(this).val()});
+					Dajaxice.structuri.get_unitati(Dajax.process, {"id_centru_local" : jQuery(this).val()});
 				} else {
 					jQuery("#div_id_unitate").hide("fast");
 				}
 			});
 
 			if (jQuery("#id_centrul_local").val() != "") {
-				Dajaxice.scoutfile3.structuri.get_unitati(Dajax.process, {"id_centru_local" : jQuery("#id_centrul_local").val()})
+				Dajaxice.structuri.get_unitati(Dajax.process, {"id_centru_local" : jQuery("#id_centrul_local").val()})
 			}
 			
 		});

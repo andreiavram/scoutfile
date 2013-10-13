@@ -4,7 +4,9 @@ Created on Nov 8, 2012
 
 @author: yeti
 '''
-from documente.models import DocumentCotizatieSociala
+from django.core.exceptions import ValidationError
+from django.db.models.aggregates import Max
+from documente.models import DocumentCotizatieSociala, Registru
 from generic.widgets import BootstrapDateTimeInput, BootstrapDateInput
 from generic.forms import CrispyBaseModelForm
 from documente.models import Document, ChitantaCotizatie
@@ -54,3 +56,68 @@ class DeclaratieCotizatieSocialaForm(CrispyBaseModelForm):
         fields = ['nume_parinte', 'motiv', 'este_valabil', 'fisier', 'numar_inregistrare', 'data_inregistrare']
 
     data_inregistrare = DateField(widget=BootstrapDateInput, label=u"Data înregistrare")
+
+class RegistruForm(CrispyBaseModelForm):
+    def get_intervale(self):
+        return Registru.objects.filter(**self.get_search_kwargs())
+
+    def get_search_kwargs(self):
+        return {"tip_registru" : self.cleaned_data['tip_registru'],
+                 "serie" : self.cleaned_data['serie'],
+                 "centru_local" : self.centru_local,}
+
+
+    def clean(self):
+        are_numar_sfarsit = "numar_sfarsit" in self.cleaned_data and self.cleaned_data['numar_sfarsit']
+        if are_numar_sfarsit and self.cleaned_data['numar_sfarsit'] <= self.cleaned_data['numar_inceput']:
+            raise ValidationError(u"Numărul de sfârșit poate să fie mai mare decât numărul de început")
+
+        intervale = self.get_intervale()
+        interval_deschis = intervale.filter(numar_sfarsit__isnull = True)
+
+        if are_numar_sfarsit:
+            #   daca exista deja registre cu interval deschis
+            if interval_deschis.count() and self.cleaned_data["numar_sfarsit"] >= interval_deschis[0].numar_inceput:
+                raise ValidationError(u"Suprapunere de numere cu registrul #%d" % interval_deschis[0].id)
+
+            range_kwargs = {"numar_inceput__range" : (self.cleaned_data['numar_inceput'], self.cleaned_data['numar_sfarsit']),
+                            "numar_sfarsit__range" : (self.cleaned_data['numar_inceput'], self.cleaned_data['numar_sfarsit'])}
+            intervale_suprapuse = intervale.filter(**range_kwargs)
+            if intervale_suprapuse.count():
+                raise ValidationError(u"Suprapunere de numere cu %d alte registre, te rog să reverifici" % intervale_suprapuse.count())
+        else:
+            if interval_deschis.count():
+                raise ValidationError(u"Nu se pot defini două registre cu numerotare deschisă (fără număr sfârșit) pe aceeași serie")
+            else:
+                if intervale.count():
+                    if self.cleaned_data['numar_inceput'] <= intervale.aggregate(Max("numar_sfarsit")).get("numar_sfarsit__max"):
+                        raise ValidationError(u"Suprapunere de numerotare cu un registru!")
+
+        return self.cleaned_data
+
+class RegistruCreateForm(RegistruForm):
+    class Meta:
+        model = Registru
+        exclude = ["centru_local", "owner", "document_referinta", "numar_curent", "valabil", "editabil"]
+
+    def __init__(self, *args, **kwargs):
+        self.centru_local = kwargs.pop("centru_local", None)
+        return super(RegistruCreateForm, self).__init__(*args, **kwargs)
+
+
+class RegistruUpdateForm(RegistruForm):
+    class Meta:
+        model = Registru
+        exclude = ["centru_local", "owner", "document_referinta", "numar_curent", "numar_inceput", "editabil"]
+
+    def get_intervale(self):
+        qs = super(RegistruUpdateForm, self).get_intervale()
+        qs = qs.exclude(id = self.instance.id)
+        return qs
+
+    def clean_numar_sfarsit(self):
+        numar_sfarsit = self.cleaned_data['numar_sfarsit']
+        if self.instance:
+            if self.instance.numar_curent > numar_sfarsit:
+                raise ValidationError(u"Nu se pot da numere de sfârșit mai mici decât cel mai mare număr deja înregistrat")
+        return numar_sfarsit

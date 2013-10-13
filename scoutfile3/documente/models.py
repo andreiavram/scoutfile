@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 import datetime
+from django.db.models.signals import pre_delete
+from django.dispatch.dispatcher import receiver
 from settings import VALOARE_IMPLICITA_COTIZATIE_NATIONAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL
 
 # Create your models here.
@@ -13,7 +15,6 @@ class Document(models.Model):
     date_created = models.DateTimeField(auto_now_add = True)
     date_modified = models.DateTimeField(auto_now = True)
     data_inregistrare = models.DateField(null = True, blank = True)
-    numar_inregistrare = models.IntegerField(default=0)
 
     titlu = models.CharField(max_length = 1024)
     descriere = models.CharField(max_length = 2048, null = True, blank = True)
@@ -31,12 +32,15 @@ class Document(models.Model):
     
     uploader = models.ForeignKey(User)
     tip_document = models.ForeignKey("TipDocument", null = True, blank = True)
-    
+
+    registru = models.ForeignKey("Registru", null=True, blank=True)
+    numar_inregistrare = models.PositiveIntegerField(null=True, blank=True)
+
     def __unicode__(self):
         return u"%s" % self.titlu
     
     def referinta(self):
-        return "%d / %s" % (self.id, self.data_inregistrare.strftime("%d.%m.%Y"))
+        return "%d / %s" % (self.numar_inregistrare, self.data_inregistrare.strftime("%d.%m.%Y"))
 
     def edit_link(self):
         return ""
@@ -291,38 +295,72 @@ class ChitantaCotizatie(Chitanta):
     def save(self, force_insert=False, force_update=False, using=None):
         self.tip_document = TipDocument.objects.get(slug = "cotizatie")
         return super(ChitantaCotizatie, self).save(force_insert = force_insert, force_update = force_update, using = using)
-    
-class SerieDocument(models.Model):
-    cod_unic = models.CharField(max_length = 255)
-    numar_inceput = models.IntegerField()
-    numar_sfarsit = models.IntegerField()
-    numar_curent = models.IntegerField(null = True, blank = True)
-    
-    document_referinta = models.ForeignKey(Document, null = True, blank = True)
-    
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey()
-    
-    deschisa = models.BooleanField(default = True)
-    data_inceput = models.DateTimeField(auto_now_add = True)
-    
-    def save(self, force_insert=False, force_update=False, using=None):
+
+REGISTRU_MODES = (("auto", u"Automat"), ("manual", u"Manual"))
+REGISTRU_TIPURI =(("chitantier", u"Chitanțier"), ("facturier", u"Facturier"), ("io", u"Registru intrări / ieșiri"), ("intern", u"Registru intern"))
+class Registru(models.Model):
+    centru_local = models.ForeignKey("structuri.CentruLocal")
+    owner = models.ForeignKey("structuri.Membru")
+
+    mod_functionare = models.CharField(default="auto", max_length=255, choices=REGISTRU_MODES, verbose_name=u"Tip numerotare", help_text=u"Registrul cu numerotare automată își gestionează singur numerele de înregistrare")
+    tip_registru = models.CharField(max_length=255, choices=REGISTRU_TIPURI)
+
+    #   documentul care a generat crearea registrului, spre exemplu deciziile de atribuire de numar
+    document_referinta = models.ForeignKey(Document, null=True, blank=True, related_name="registru_referinta")
+    serie = models.CharField(max_length=255, null=True, blank=True)
+
+    #   numere inregistrare
+    numar_inceput = models.IntegerField(default=1)
+    numar_sfarsit = models.IntegerField(null=True, blank=True)
+    numar_curent = models.IntegerField()
+
+    valabil = models.BooleanField(default=True)
+    editabil = models.BooleanField(default=True)
+    data_inceput = models.DateTimeField(auto_now_add=True)
+
+    def save(self, **kwargs):
         if not self.numar_curent:
             self.numar_curent = self.numar_inceput
-        return super(SerieDocument, self).save(force_insert = force_insert, force_update = force_update,
-                                               using = using)
-        
-    def get_next_item(self):
-        if not self.deschisa:
-            raise ValueError(u"Seria aceasta este epuizată")
-        
+
+        if self.numar_sfarsit and self.numar_curent > self.numar_sfarsit:
+            #   TODO: send email to Secretar Centru Local announcing him of this limitation
+            self.valabil = False
+
+        return super(Registru, self).save(**kwargs)
+
+    def numere_ramase(self):
+        if self.numar_sfarsit:
+            return self.numar_sfarsit - self.numar_curent
+        return 0
+
+    def get_numar_inregistrare(self):
+        if not self.valabil:
+            raise ValueError(u"Seria este închisă")
+
         numar_curent = self.numar_curent
-        if self.numar_curent == self.numar_sfarsit:
-            self.deschisa = False
-            self.save()
+        self.numar_curent += 1
+        if self.editabil:
+            self.editabil = False
+        self.save()
         return numar_curent
-        
+
+    def get_document(self, numar):
+        return self.document_set.get(numar_inregistrare=numar)
+
+    @classmethod
+    def get_document_cu_serie(cls, serie=None, numar=None):
+        cls.objects.get(serie=serie).get_document(numar)
+
+    def documente(self, **kwargs):
+        documente = self.document_set.filter(**kwargs).order_by("-numar_inregistrare")
+        return documente
+
+    def delete(self, **kwargs):
+        if not self.editabil:
+            #   disallow deletion of
+            return
+        return super(Registru, self).delete(**kwargs)
+
 class DocumentCotizatieSociala(Document):
     nume_parinte = models.CharField(max_length = 255, null = True, blank = True, verbose_name = u"Nume părinte", help_text = u"Lasă gol pentru cercetași adulți") #  poate fi null pentru persoane peste 18 ani
     motiv = models.CharField(max_length = 2048, null = True, blank = True)
@@ -337,4 +375,9 @@ class DocumentCotizatieSociala(Document):
             self.tip_document.save()
         return super(DocumentCotizatieSociala, self).save(**kwargs)
 
-ctype_deciziecotizatie = ContentType.objects.get_for_model(DecizieCotizatie)    
+ctype_deciziecotizatie = ContentType.objects.get_for_model(DecizieCotizatie)
+
+@receiver(pre_delete, sender = AsociereDocument)
+def delete_documentcotizatie(sender, instance, **kwargs):
+    if instance.document_ctype == ContentType.objects.get_for_model(DocumentCotizatieSociala):
+        instance.document.delete()

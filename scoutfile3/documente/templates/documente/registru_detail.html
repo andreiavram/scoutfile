@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load pagination_tags %}
+
+{% block page_title %}
+	{{  object.get_tip_registru_display }} {% if object.serie %} seria {{ object.serie }}{% endif %} {% if not object.valabil %}(închis){% endif %}
+{% endblock %}
+
+{% block extrahead %}
+{% endblock %}
+
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Locații</li>
+		<li><a href =  "{% url documente:registre pk=object.centru_local.id %}"><i class = "icon-chevron-left"> Lista de registre</i></a></li>
+        {% if object.editabil %}<li><a href = "{% url documente:registru_edit pk=object.id %}"><i class = "icon-pencil"></i> Editează</a></li>{% endif %}
+	</ul>
+{% endblock %}
+
+{% block content %}
+    <ul>
+        <li><strong>Regim funcționare</strong>: {{ object.get_mod_functionare_display }}</li>
+        <li><strong>Număr început</strong>: {{ object.numar_inceput }}</li>
+        {% if object.numar_sfarsit %}<li><strong>Număr sfârșit</strong>: {{ object.numar_sfarsit }}</li>{% endif %}
+        {% if object.mod_functionare == "auto" %}<li><strong>Următorul număr disponibil</strong>: {{ object.numar_curent }}</li>{% endif %}
+    </ul>
+
+    {% autopaginate object.documente as documente 10 %}
+
+    <table class = "table table-striped">
+        <tr>
+            <th>Referință</th>
+            <th>Titlu</th>
+            <th>Tip document</th>
+            <th>Autor (responsabil)</th>
+            <th>&nbsp</th>
+        </tr>
+        {% for document in documente %}
+            <tr>
+                <td>{{ document.numar_inregistrare }}/{{ document.data_inregistrare|date:"d.m.Y" }}</td>
+                <td>{{ document.titlu }}</td>
+                <td></td>
+                <td>{{ document.owner }}</td>
+                <td>
+                    <div class = "btn-group">
+                        <a href = "{{ document.edit_link }}" class = "btn btn-mini"><i class = "icon-pencil"></i></a>
+                    </div>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5"><em>Nu există documente înregistrate în acest registru.</em></td>
+            </tr>
+        {% endfor %}
+    </table>
+    {% paginate %}
+{% endblock %}
