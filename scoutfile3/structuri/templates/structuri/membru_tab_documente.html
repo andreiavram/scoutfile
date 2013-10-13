@@ -26,10 +26,10 @@
 		<tr id="row_{{ object.id }}">
 			<td>{{ forloop.counter }}</td>
 			<td>{{ afiliere.document.titlu }}</td>
-			<td>{{ afiliere.document.referinta }} <br />
+			<td>Nr. înreg: {{ afiliere.document.referinta }} <br />
                 {{ afiliere.moment_asociere }}
 			</td>
-            <td>{% if afiliere.document.fisier %}<a href = "{{ afiliere.document.fisier.url }}"><i class = "icon-paper-clip"></i> Document atașat</a>{% endif %}</td>
+            <td>{% if afiliere.document.fisier %}<a href = "{{ afiliere.document.fisier.url }}"><i class = "icon-paper-clip"></i> Document</a>{% endif %}</td>
 			<td>-</td>
 			<td>
 				<div class="btn-group pull-right">

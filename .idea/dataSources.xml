@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" hash="3800440242">
-    <data-source source="LOCAL" name="Scoutfile Database" product="MySQL" version="5.5.32-0ubuntu0.12.04.1" jdbc-version="4.0" driver-name="MySQL Connector Java" driver-version="mysql-connector-java-5.1.26 ( Revision: ${bzr.revision-id} )" uuid="d806f424-1986-4e8e-b0d6-f51e676d3d8e">
-      <extra-name-characters>#@</extra-name-characters>
-      <identifier-quote-string>`</identifier-quote-string>
+    <data-source source="LOCAL" name="Scoutfile Database" uuid="d806f424-1986-4e8e-b0d6-f51e676d3d8e">
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://192.168.33.10/scoutfile3</jdbc-url>
@@ -21,7 +19,7 @@
         </library>
       </libraries>
     </data-source>
-    <data-source source="LOCAL" name="Django default" product="" version="" jdbc-version="" driver-name="" driver-version="" uuid="5a6f0327-1201-46b9-9dd2-622c05483964">
+    <data-source source="LOCAL" name="Django default" uuid="5a6f0327-1201-46b9-9dd2-622c05483964">
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql:///scoutfile3</jdbc-url>
       <user-name>root</user-name>
