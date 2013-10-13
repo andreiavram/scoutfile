@@ -14,6 +14,7 @@
 
 		<li class = "nav-header">Documente</li>
         <li><a href = "{% url documente:registre pk=object.id %}"><i class = "icon-book"></i> Registre</a></li>
+        <li><a href = "{% url documente:selectie_document pk=object.id %}"><i class = "icon-file"></i> Adaugă document</a></li>
 		{% comment %}
 		<li><a href = "{% url structuri:cl_cotizatii pk=object.id %}"><i class = "icon-file"></i> Cotizații</a></li>
 		<li><a href = "{% url structuri:cl_numere pk=object.id %}"><i class = "icon-file"> Registre</i></a></li>

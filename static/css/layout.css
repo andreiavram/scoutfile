@@ -94,3 +94,11 @@ div.image-container:hover .face {
     border-radius: 3px;
     padding: 2px 4px;
 }
+
+div.document-list {
+    margin-bottom: 20px;
+    border-left: #0088cc 20px solid;
+    padding: 5px;
+    padding-left: 20px;
+    background-color: #EEE;
+}

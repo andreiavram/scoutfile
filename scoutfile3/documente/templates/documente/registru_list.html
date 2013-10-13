@@ -24,6 +24,12 @@
         <a class = "btn btn-primary" href = "{% url documente:registru_add pk=centru_local.id %}"><i class = "icon-plus-sign icon-white"></i> Crează registru</a>
     </div>
     <div class = "btn-group pull-right">
+        {% for tip in tipuri_registre %}
+        <a class = "btn {% if 'tip' in request.GET and request.GET.tip == tip.0 %}disabled{% endif %}" href = "{% url documente:registre pk=centru_local.id %}?tip={{ tip.0 }}">{{ tip.1 }}</a>
+        {% endfor %}
+        <a class = "btn {% if 'tip' not in request.GET %}disabled{% endif %}" href = "{% url documente:registre pk=centru_local.id %}">Toate</a>
+    </div>
+    <div class = "btn-group pull-right">
         <a class = "btn" href = "{% url documente:registre pk=centru_local.id %}?inactive={% if inactive %}off{% else %}on{% endif %}"> <i class = "icon-eye{% if inactive %}-close{% else %}-open{% endif %}"></i> Registre inactive</a>
     </div>
     </div>
