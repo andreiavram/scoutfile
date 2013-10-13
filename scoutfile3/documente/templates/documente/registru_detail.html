@@ -6,6 +6,7 @@
 {% endblock %}
 
 {% block extrahead %}
+    <script type="text/javascript" src="{% url generic:js_delete app_label='documente' model='Document' %}"></script>
 {% endblock %}
 
 
@@ -36,14 +37,15 @@
             <th>&nbsp</th>
         </tr>
         {% for document in documente %}
-            <tr>
+            <tr id = "row_{{ document.id }}">
                 <td>{{ document.numar_inregistrare }}/{{ document.data_inregistrare|date:"d.m.Y" }}</td>
-                <td>{{ document.titlu }}</td>
-                <td></td>
-                <td>{{ document.owner }}</td>
+                <td><a href = "{{ document.get_absolute_url }}">{{ document.titlu }}</a></td>
+                <td>{{ document.tip_document.nume }}</td>
+                <td>{% if document.owner %}{{ document.owner }}{% else %}{{ document.uploader.utilizator.membru }}{% endif %}</td>
                 <td>
-                    <div class = "btn-group">
+                    <div class = "btn-group pull-right">
                         <a href = "{{ document.edit_link }}" class = "btn btn-mini"><i class = "icon-pencil"></i></a>
+                        <a href = "#" id = "delete_{{ document.id }}" class = "btn btn-mini"><i class = "icon-trash"></i></a>
                     </div>
                 </td>
             </tr>

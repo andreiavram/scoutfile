@@ -49,7 +49,12 @@ class Document(models.Model):
         if not self.data_inregistrare:
             self.data_inregistrare = self.date_created
         return super(Document, self).save(force_insert = force_insert, force_update = force_update, using = using)
-    
+
+    def get_absolute_url(self):
+        if hasattr(self, "decizie"):
+            if hasattr(self.decizie, "deciziecotizatie"):
+                return self.decizie.deciziecotizatie.get_absolute_url()
+
 # tagging.register(Document)
 
 class TipAsociereDocument(models.Model):
@@ -116,14 +121,6 @@ class Chitanta(Document):
     def referinta(self):
         return "Seria %s, nr. %s / %s" % (self.serie, self.numar, self.date_created.strftime("%d.%m.%Y"))
 
-class Decizie(Document):
-    def save(self, force_insert=False, force_update=False, using=None):
-        self.tip_document = TipDocument.objects.get(slug = "decizie")
-        return super(Decizie, self).save(force_insert = force_insert, force_update = force_update, using = using)
-      
-class DecizieCotizatie(Decizie):
-    cuantum = models.FloatField()
-    categorie = models.CharField(max_length = 255, default = "normal")
     
 class Trimestru(models.Model):
     data_inceput = models.DateField()
@@ -337,6 +334,9 @@ class Registru(models.Model):
         if not self.valabil:
             raise ValueError(u"Seria este închisă")
 
+        if self.mod_functionare != "auto":
+            raise ValueError(u"Registrul cu numerotare manuală nu poate elibera numere de înregistrare")
+
         numar_curent = self.numar_curent
         self.numar_curent += 1
         if self.editabil:
@@ -344,12 +344,29 @@ class Registru(models.Model):
         self.save()
         return numar_curent
 
-    def get_document(self, numar):
-        return self.document_set.get(numar_inregistrare=numar)
+    def verifica_disponibilitate(self, numar):
+        if not self.valabil:
+            return False
 
-    @classmethod
-    def get_document_cu_serie(cls, serie=None, numar=None):
-        cls.objects.get(serie=serie).get_document(numar)
+        filter_kwargs = {"centru_local" : self.centru_local,
+                         "registru" : self,
+                         "numar_inregistrare" : numar}
+        documente_cnt = Document.objects.filter(**filter_kwargs).count()
+        if documente_cnt:
+            return False
+        return True
+
+
+    def get_document(self, numar):
+        try:
+            return self.document_set.get(numar_inregistrare=numar)
+        except Document.DoesNotExist:
+            return None
+
+    # TODO: mai multe registre pot avea aceeasi serie atata vreme cat nu se intersecteaza
+    #@classmethod
+    #def get_document_cu_serie(cls, serie=None, numar=None):
+    #    cls.objects.get(serie=serie).get_document(numar)
 
     def documente(self, **kwargs):
         documente = self.document_set.filter(**kwargs).order_by("-numar_inregistrare")
@@ -360,6 +377,9 @@ class Registru(models.Model):
             #   disallow deletion of
             return
         return super(Registru, self).delete(**kwargs)
+
+    def __unicode__(self):
+        return u"{0}, seria {1} ({2})".format(self.get_tip_registru_display(), self.serie, self.mod_functionare)
 
 class DocumentCotizatieSociala(Document):
     nume_parinte = models.CharField(max_length = 255, null = True, blank = True, verbose_name = u"Nume părinte", help_text = u"Lasă gol pentru cercetași adulți") #  poate fi null pentru persoane peste 18 ani
@@ -375,9 +395,43 @@ class DocumentCotizatieSociala(Document):
             self.tip_document.save()
         return super(DocumentCotizatieSociala, self).save(**kwargs)
 
-ctype_deciziecotizatie = ContentType.objects.get_for_model(DecizieCotizatie)
+
 
 @receiver(pre_delete, sender = AsociereDocument)
 def delete_documentcotizatie(sender, instance, **kwargs):
     if instance.document_ctype == ContentType.objects.get_for_model(DocumentCotizatieSociala):
         instance.document.delete()
+
+
+#   Implementare decizii
+class Decizie(Document):
+    continut = models.TextField(null=True, blank=True)
+    centru_local = models.ForeignKey("structuri.CentruLocal")
+    def save(self, **kwargs):
+        self.tip_document, created = TipDocument.objects.get_or_create(slug = "decizie", nume = "Decizie")
+        if created: self.tip_document.save()
+        return super(Decizie, self).save(**kwargs)
+
+
+CATEGORII_CUANTUM_COTIZATIE = (("local", u"Local"), ("national", u"Național"), ("local-social", u"Local (social)"), ("national-social", u"Național (social)"))
+class DecizieCotizatie(Decizie):
+    registre_compatibile = ["intern", ]
+
+
+    cuantum = models.FloatField(help_text = u"Valoare exprimată în RON pentru un an calendaristic (4 trimestre)")
+    categorie = models.CharField(max_length = 255, default = "normal", choices=CATEGORII_CUANTUM_COTIZATIE)
+    data_inceput = models.DateField()
+    data_sfarsit = models.DateField(null=True, blank=True)
+
+    def get_absolute_url(self):
+        return reverse("documente:decizie_cuantum_detail", kwargs = {"pk" : self.id})
+
+class DecizieRezervareNumere(Decizie):
+    tip_rezervare = models.CharField(max_length=255, choices=REGISTRU_TIPURI)
+    automat = models.BooleanField(default=True)
+    numar_inceput = models.IntegerField()
+    numar_sfarsit = models.IntegerField(null=True, blank=True)
+    serie = models.CharField(max_length=255)
+
+
+ctype_deciziecotizatie = ContentType.objects.get_for_model(DecizieCotizatie)

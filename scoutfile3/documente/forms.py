@@ -6,7 +6,8 @@ Created on Nov 8, 2012
 '''
 from django.core.exceptions import ValidationError
 from django.db.models.aggregates import Max
-from documente.models import DocumentCotizatieSociala, Registru
+from django.db.models.query_utils import Q
+from documente.models import DocumentCotizatieSociala, Registru, DecizieCotizatie
 from generic.widgets import BootstrapDateTimeInput, BootstrapDateInput
 from generic.forms import CrispyBaseModelForm
 from documente.models import Document, ChitantaCotizatie
@@ -121,3 +122,44 @@ class RegistruUpdateForm(RegistruForm):
             if self.instance.numar_curent > numar_sfarsit:
                 raise ValidationError(u"Nu se pot da numere de sfârșit mai mici decât cel mai mare număr deja înregistrat")
         return numar_sfarsit
+
+
+class DecizieCuantumCotizatieForm(CrispyBaseModelForm):
+    class Meta:
+        model = DecizieCotizatie
+        fields = ["registru", "numar_inregistrare", "categorie", "cuantum", "data_inceput", "continut"]
+
+    data_inceput = DateField(widget=BootstrapDateInput, label = u"Data început")
+
+    def __init__(self, *args, **kwargs):
+        self.centru_local = kwargs.pop("centru_local", None)
+        super(DecizieCuantumCotizatieForm, self).__init__(*args, **kwargs)
+        registru_filter = {"valabil" : True,
+                           "centru_local" : self.centru_local,
+                           "tip_registru__in" : DecizieCotizatie.registre_compatibile}
+        self.fields['registru'].queryset = Registru.objects.filter(**registru_filter).order_by("-data_inceput")
+        self.fields['registru'].required = True
+
+    def clean(self):
+        registru = self.cleaned_data['registru']
+
+        decizie_filter = {"centru_local" : self.centru_local,
+                          "categorie" : self.cleaned_data['categorie']}
+
+        if "data_inceput" in self.cleaned_data:
+            decizii_existente = DecizieCotizatie.objects.filter(**decizie_filter).filter(
+                Q(data_sfarsit__isnull = True, data_inceput__gte = self.cleaned_data['data_inceput']) | Q(data_sfarsit__isnull = False, data_sfarsit__gte = self.cleaned_data['data_inceput']))
+            if decizii_existente.count():
+                raise ValidationError(u"Decizia contravine unei decizii anterioare ({0})")
+
+
+            if registru.mod_functionare == "auto":
+                if "numar_inregistrare" in self.cleaned_data:
+                    try:
+                        self.cleaned_data['numar_inregistrare'] = registru.get_numar_inregistrare()
+                    except ValueError, e:
+                        raise ValidationError(u"Nu s-a putut obține număr de înregistrare pentru decizie ({0})".format(e))
+            else:
+                if registru.get_document(self.cleaned_data['numar_inregistrare']):
+                    raise ValidationError(u"Există deja un document cu acest număr de înregistrare în registrul selectat!")
+        return self.cleaned_data

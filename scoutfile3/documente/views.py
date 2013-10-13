@@ -1,10 +1,12 @@
 #coding=utf8
+import datetime
+from django.db.models.query_utils import Q
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django.shortcuts import get_object_or_404
-from documente.forms import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm
-from documente.models import DocumentCotizatieSociala, TipAsociereDocument, AsociereDocument, Registru
+from documente.forms import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm, DecizieCuantumCotizatieForm
+from documente.models import DocumentCotizatieSociala, TipAsociereDocument, AsociereDocument, Registru, REGISTRU_TIPURI, DecizieCotizatie
 from documente.models import Document
 from django.core.exceptions import ImproperlyConfigured
 import logging
@@ -256,17 +258,22 @@ class CentruLocalRegistre(ListView):
         self.inactive = False
         if "inactive" in request.GET:
             self.inactive = False if request.GET['inactive'] == "off" else True
+        self.tip = None
+        if "tip" in request.GET and request.GET['tip'] in [a[0] for a in REGISTRU_TIPURI]:
+            self.tip = request.GET['tip']
         return super(CentruLocalRegistre, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         qs = super(CentruLocalRegistre, self).get_queryset()
         if not self.inactive:
             qs = qs.filter(valabil = True)
+        if self.tip:
+            qs = qs.filter(tip_registru = self.tip)
         return qs
 
     def get_context_data(self, **kwargs):
         data = super(CentruLocalRegistre, self).get_context_data(**kwargs)
-        data.update({"centru_local" : self.centru_local, "inactive" : self.inactive})
+        data.update({"centru_local" : self.centru_local, "inactive" : self.inactive, "tipuri_registre" : REGISTRU_TIPURI})
         return data
 
 class RegistruCreate(CreateView):
@@ -330,3 +337,83 @@ class RegistruDetail(DetailView):
     # TODO: add permissions check for this
     def dispatch(self, request, *args, **kwargs):
         return super(RegistruDetail, self).dispatch(request, *args, **kwargs)
+
+class SelectieAdaugareDocument(TemplateView):
+    template_name = "documente/centru_local_adauga_documente.html"
+
+    # TODO: add permission check for this
+    def dispatch(self, request, *args, **kwargs):
+        from structuri.models import CentruLocal
+        self.centru_local = get_object_or_404(CentruLocal, id=kwargs.pop("pk"))
+        return super(SelectieAdaugareDocument, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        data = super(SelectieAdaugareDocument, self).get_context_data(**kwargs)
+        data.update({"centru_local" : self.centru_local})
+        return data
+
+class DecizieCuantumAdauga(CreateView):
+    model = DecizieCotizatie
+    form_class = DecizieCuantumCotizatieForm
+    template_name = "documente/decizie_cuantum_cotizatie_form.html"
+
+    # TODO: add permission checks for this
+    def dispatch(self, request, *args, **kwargs):
+        from structuri.models import CentruLocal
+        self.centru_local = get_object_or_404(CentruLocal, id=kwargs.pop("pk"))
+        return super(DecizieCuantumAdauga, self).dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self, **kwargs):
+        data = super(DecizieCuantumAdauga, self).get_form_kwargs(**kwargs)
+        data.update({"centru_local" : self.centru_local})
+        return data
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.centru_local = self.centru_local
+        self.object.uploader = self.request.user
+        self.object.titlu = u"Decizie cuantum cotizatie %s" % self.object.get_categorie_display()
+        self.object.data_inregistrare = datetime.date.today()
+
+        decizie_filter = {"centru_local" : self.centru_local,
+                          "categorie" : form.cleaned_data['categorie'],
+                          "data_sfarsit__isnull" : True}
+        decizii_existente = DecizieCotizatie.objects.filter(**decizie_filter)
+        if decizii_existente.count():
+            decizie_to_close = decizii_existente[0]
+            decizie_to_close.data_sfarsit = self.object.data_inceput - datetime.timedelta(days = 1)
+            decizie_to_close.save()
+
+        self.object.save()
+
+        messages.success(self.request, u"Decizia a fost înregistrată")
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("documente:registru_detail", kwargs={"pk" : self.object.registru.id})
+
+    def get_context_data(self, **kwargs):
+        data = super(DecizieCuantumAdauga, self).get_context_data(**kwargs)
+        data.update({"centru_local" : self.centru_local})
+        return data
+
+#class DecizieCuantumEdit(UpdateView):
+#    model = DecizieCotizatie
+#    form_class = DecizieCuantumCotizatieUpdateForm
+#    template_name = "documente/decizie_cuantum_cotizatie_form.html"
+#
+#    # TODO: add permission checks for this
+#    def dispatch(self, request, *args, **kwargs):
+#        return super(DecizieCuantumEdit, self).dispatch(request, *args, **kwargs)
+#
+#    def get_success_url(self):
+#        return reverse("documente:registru_detail", kwargs={"pk" : self.object.registru.id})
+
+
+class DecizieCuantumDetail(DetailView):
+    model = DecizieCotizatie
+    template_name = "documente/decizie_cuantum_cotizatie_detail.html"
+
+    # TODO: add permission checks for this
+    def dispatch(self, request, *args, **kwargs):
+        return super(DecizieCuantumDetail, self).dispatch(request, *args, **kwargs)
