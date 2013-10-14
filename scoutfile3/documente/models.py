@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 import datetime
+from django.db.models.aggregates import Sum
 from django.db.models.signals import pre_delete
 from django.dispatch.dispatcher import receiver
 from settings import VALOARE_IMPLICITA_COTIZATIE_NATIONAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL_SOCIAL, VALOARE_IMPLICITA_COTIZATIE_NATIONAL_SOCIAL
@@ -207,6 +208,7 @@ class PlataCotizatieTrimestru(models.Model):
     suma = models.FloatField()
     membru = models.ForeignKey("structuri.Membru")
     chitanta = models.ForeignKey("ChitantaCotizatie")
+    index = models.IntegerField()
 
     tip_inregistrare = models.CharField(max_length=255, choices=MOTIVE_INREGISTRARE_PLATA_COTIZATIE, default="normal")
 
@@ -221,13 +223,13 @@ class PlataCotizatieTrimestru(models.Model):
         """
 
         # gaseste ultimul trimestru inregistrat pentru membru
-        plati_membru = membru.platacotizatietrimestru_set.all().order_by("-trimestru__ordine_global")
-        plata_partiala = None
+        plati_membru = membru.platacotizatietrimestru_set.all().order_by("-trimestru__ordine_global", "-index")
+        plati_partiale = None
         if plati_membru.count() == 0:
             trimestru_initial = membru.get_trimestru_initial_cotizatie()
         elif plati_membru[0].partial and not plati_membru[0].final:
             trimestru_initial = plati_membru[0].trimestru
-            plata_partiala = plati_membru[0]
+            plati_partiale = membru.platacotizatietrimestru_set.filter(trimestru=trimestru_initial)
         else:
             trimestru_initial = Trimestru.urmatorul_trimestru(plati_membru[0].trimestru)
 
@@ -236,8 +238,9 @@ class PlataCotizatieTrimestru(models.Model):
         trimestru_curent = trimestru_initial
         plati = []
 
-        #   Sparge suma pe câte trimestre se poate. S-ar putea să existe probleme cu plata retroactivă a cotizațiilor pe documente sociale, momentan criteriul de lucru cu cotizația sociala este momentul curent.
-        #   TODO: adaugă parametru de moment pentru a verifica daca utilizatorul a beneficiat de cotizatie sociala la un moment dat
+        #   Sparge suma pe câte trimestre se poate. S-ar putea să existe probleme cu plata retroactivă a cotizațiilor pe
+        # documente sociale, momentan criteriul de lucru cu cotizația sociala este momentul curent.
+        #   TODO: adaugă parametru pentru a verifica daca utilizatorul a beneficiat de cotizatie sociala la un moment dat
         while suma > 0:
             cotizatie_trimestru_nominal = trimestru_curent.identifica_cotizatie(membru)
             cotizatie_trimestru = membru.aplica_reducere_familie(cotizatie_trimestru_nominal, trimestru_curent)
@@ -249,17 +252,17 @@ class PlataCotizatieTrimestru(models.Model):
                             "chitanta": chitanta,
                             "final": not (suma - cotizatie_trimestru < 0)}
 
-            # TODO: ce se intampla daca ai mai multe parti partiale pentru un singur trimestru (gen 5 + 5 + 5)
-            if plata_partiala:
-                if suma >= cotizatie_trimestru - plata_partiala.suma:
-                    plata_kwargs['suma'] = cotizatie_trimestru - plata_partiala.suma
+            if plati_partiale:
+                suma_colectata = plati_partiale.annotate(Sum("suma")).suma__sum
+                if suma >= cotizatie_trimestru - suma_colectata:
+                    plata_kwargs['suma'] = cotizatie_trimestru - suma_colectata
                     plata_kwargs['final'] = True
                 else:
                     plata_kwargs['suma'] = suma
                     plata_kwargs['final'] = False
                 plata_kwargs['partial'] = True
-                suma = suma - cotizatie_trimestru + plata_partiala.suma
-                plata_partiala = None
+                suma = suma - cotizatie_trimestru + suma_colectata
+                plati_partiale = None
             else:
                 suma = suma - cotizatie_trimestru
 
