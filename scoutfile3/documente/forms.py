@@ -6,15 +6,16 @@ Created on Nov 8, 2012
 '''
 from django.core.exceptions import ValidationError
 from django.db.models.aggregates import Max
+#from django.db.models.fields import CharField
 from django.db.models.query_utils import Q
-from documente.models import DocumentCotizatieSociala, Registru, DecizieCotizatie
-from generic.widgets import BootstrapDateTimeInput, BootstrapDateInput
-from generic.forms import CrispyBaseModelForm
+from documente.models import DocumentCotizatieSociala, Registru, DecizieCotizatie, Trimestru, PlataCotizatieTrimestru
+from generic.widgets import BootstrapDateInput
+from generic.forms import CrispyBaseModelForm, CrispyBaseForm
 from documente.models import Document, ChitantaCotizatie
 from crispy_forms.layout import Field, Layout, Submit, Button
 from crispy_forms.bootstrap import FormActions, FieldWithButtons, StrictButton
-from django.forms.fields import DateField
-from django.forms.widgets import DateInput
+from django.forms.fields import DateField, CharField
+from django.forms.widgets import HiddenInput
 import datetime
 
 class DocumentCreateForm(CrispyBaseModelForm):
@@ -30,26 +31,37 @@ class FolderCreateForm(CrispyBaseModelForm):
 class CotizatieMembruForm(CrispyBaseModelForm):
     class Meta:
         model = ChitantaCotizatie
-        exclude = ("version_number", "titlu", "descriere", "fisier", "url",
-                   "root_document", "folder", "locked", "is_folder", "fragment",
-                   "uploader", "tip_document", "casier")
-        
+        fields = ["fisier", "registru", "numar_inregistrare", "suma"]
 
-    data_inregistrare = DateField(input_formats = ['%d.%m.%Y', ], widget = DateInput(format = "%d.%m.%Y"),
-                                         label = u"Data",
-                                         initial = datetime.datetime.now().strftime("%d.%m.%Y"))
-    
     def __init__(self, *args, **kwargs):
+        self.centru_local = kwargs.pop("centru_local", None)
+        self.membru = kwargs.pop("membru", None)
         super(CotizatieMembruForm, self).__init__(*args, **kwargs)
-    
-        self.helper.layout = Layout(Field('numar'),
-                                    FieldWithButtons('serie', StrictButton(u"Obține număr și serie")),
-                                    Field("data_inregistrare", css_class = "datepicker", template = "fields/datepicker.html"),
-                                    Field("suma"))
+        self.fields['registru'].queryset = Registru.objects.filter(valabil = True,
+                                                          tip_registru__in = ChitantaCotizatie.registre_compatibile,
+                                                          centru_local = self.centru_local)
 
-        
-        self.helper.add_input(Button('cancel', u"Renunță", css_class = "btn-danger"))
-        
+    def clean_suma(self):
+        plati, suma, status, diff = PlataCotizatieTrimestru.calculeaza_acoperire(membru=self.membru,
+                                       suma=self.cleaned_data['suma'],
+                                       commit=False)
+        if diff < -4:
+            raise ValidationError(u"Nu se pot înregistra plăți în avans pentru mai mult de 4 trimestre!")
+        return self.cleaned_data['suma']
+
+    def clean(self):
+        registru = self.cleaned_data['registru']
+        if registru.mod_functionare == "auto":
+            if "numar_inregistrare" in self.cleaned_data:
+                try:
+                    self.cleaned_data['numar_inregistrare'] = registru.get_numar_inregistrare()
+                except ValueError, e:
+                    raise ValidationError(u"Nu s-a putut obține număr de înregistrare pentru decizie ({0})".format(e))
+        else:
+            if registru.get_document(self.cleaned_data['numar_inregistrare']):
+                raise ValidationError(u"Există deja un document cu acest număr de înregistrare în registrul selectat!")
+
+        return self.cleaned_data
         
 class DeclaratieCotizatieSocialaForm(CrispyBaseModelForm):
     class Meta:
@@ -162,4 +174,22 @@ class DecizieCuantumCotizatieForm(CrispyBaseModelForm):
             else:
                 if registru.get_document(self.cleaned_data['numar_inregistrare']):
                     raise ValidationError(u"Există deja un document cu acest număr de înregistrare în registrul selectat!")
+
         return self.cleaned_data
+
+class TransferIncasariForm(CrispyBaseForm):
+    plati = CharField(widget=HiddenInput)
+
+    #from structuri.models import Membru
+    #lider = ModelChoiceField(queryset=Membru.objects.all())
+
+    def __init__(self, *args, **kwargs):
+        self.centru_local = kwargs.pop("centru_local", None)
+        super(TransferIncasariForm, self).__init__(*args, **kwargs)
+        #self.fields['lider'].queryset = self.centru_local.cercetasi(tip_asociere=u"Lider")
+
+    def clean_plati(self):
+        plati = ChitantaCotizatie.objects.filter(id__in=self.cleaned_data['plati'].split("|"))
+        return plati
+
+

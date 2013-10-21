@@ -18,6 +18,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, \
     FormView
 from django.views.generic.list import ListView
+from documente.models import Trimestru
 from generic.views import TabbedViewMixin, GenericDeleteView
 from settings import SECRET_KEY, SYSTEM_EMAIL, MEDIA_ROOT, DEBUG, \
     USE_EMAIL_CONFIRMATION
@@ -30,7 +31,7 @@ from structuri.forms import MembruCreateForm, MembruUpdateForm, \
     UnitateLiderCreateForm, AsociereCreateForm, AsociereUpdateForm, \
     CentruLocalAdminCreateForm, CentruLocalAdminUpdateForm, \
     InformatieContactCreateForm, InformatieContactUpdateForm, \
-    InformatieContactDeleteForm, AsociereMembruFamilieForm, PersoanaDeContactForm
+    InformatieContactDeleteForm, AsociereMembruFamilieForm, PersoanaDeContactForm, SetariSpecialeCentruLocalForm
 from structuri.models import CentruLocal, AsociereMembruStructura, \
     Membru, Unitate, Patrula, TipAsociereMembruStructura, Utilizator, ImagineProfil, \
     InformatieContact, TipInformatieContact, AsociereMembruFamilie, \
@@ -1753,3 +1754,33 @@ class CentruLocalIstoricPlatiCotizatie(ListView):
 class CentruLocalAdaugaPlataCotizatie(CreateView):
     #TODO: implement this
     pass
+
+class SetariSpecialeCentruLocal(UpdateView):
+    model = CentruLocal
+    template_name = "structuri/centrulocal_form.html"
+    form_class = SetariSpecialeCentruLocalForm
+
+    # TODO: add authorization
+    def dispatch(self, request, *args, **kwargs):
+        return super(SetariSpecialeCentruLocal, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        self.object = get_object_or_404(self.model, id = kwargs.get("pk"))
+        if self.object.moment_initial_cotizatie:
+            messages.warning(request, u"Nu poate fi modificată data de începere a înregistrărilor de cotizații. Dacă considerați că există un motiv legitim pentru a face asta, contactați un administrator")
+            return HttpResponseRedirect()
+
+        return super(SetariSpecialeCentruLocal, self).get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.moment_initial_cotizatie = Trimestru.get_trimestru(year=int(form.cleaned_data['an']),
+                                                                       order=int(form.cleaned_data['trimestru']))
+        self.object.save()
+
+        messages.success(self.request, u"Moment inițial cotizație salvat, %s" % self.object.moment_initial_cotizatie)
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("structuri:cl_detail", kwargs = {"pk" : self.object.id})

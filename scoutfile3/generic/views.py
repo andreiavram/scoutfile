@@ -130,17 +130,19 @@ class IndexView(TemplateView):
         data = urllib.urlencode(values)
         url_to_send = "http://yeti.albascout.ro/redmine/issues.json" + "?" + data + "&sort=updated_on:desc"
         logger.debug(url_to_send)
-        try:
-            response = urllib2.urlopen(url_to_send)
-            json_object = simplejson.loads(response.read())
-        except Exception, e:
-            logger.error("%s: eroare la obtinerea bug-urilor: %s" % (self.__class__.__name__, e))
-        
-        
-        for issue in json_object["issues"]:
-            issue["updated_on"] = datetime.datetime.strptime(issue["updated_on"], "%Y-%m-%dT%H:%M:%SZ")
-        
-        context_data.update({"issues" : json_object})
+
+        json_object = None
+        #try:
+        #    response = urllib2.urlopen(url_to_send)
+        #    json_object = simplejson.loads(response.read())
+        #except Exception, e:
+        #    logger.error("%s: eroare la obtinerea bug-urilor: %s" % (self.__class__.__name__, e))
+
+        if json_object:
+            for issue in json_object["issues"]:
+                issue["updated_on"] = datetime.datetime.strptime(issue["updated_on"], "%Y-%m-%dT%H:%M:%SZ")
+
+            context_data.update({"issues" : json_object})
         return context_data
     
 class Issues(TemplateView):

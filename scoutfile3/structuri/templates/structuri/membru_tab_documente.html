@@ -30,7 +30,13 @@
                 {{ afiliere.moment_asociere }}
 			</td>
             <td>{% if afiliere.document.fisier %}<a href = "{{ afiliere.document.fisier.url }}"><i class = "icon-paper-clip"></i> Document</a>{% endif %}</td>
-			<td>-</td>
+			<td>{% if afiliere.document.chitanta.chitantacotizatie %}
+                    {% with afiliere.document.chitanta.chitantacotizatie as cc %}
+                        {% for ptc in cc.platacotizatietrimestru_set.all %}
+                            <strong>{{ ptc.suma }} RON</strong> pentru {{ ptc.trimestru }} {% if ptc.partial %}(partial){% endif %}{% if ptc.final and ptc.partial %}(final){% endif %}<br />
+                        {% endfor %}
+                    {% endwith %}
+                {% endif %}</td>
 			<td>
 				<div class="btn-group pull-right">
 					<a class="btn btn-mini" href="{{ afiliere.document_edit_link }}"><i class="icon-pencil"></i></a>
