@@ -1,6 +1,6 @@
 #coding: utf8
 from django.conf.urls.defaults import patterns
-from documente.views import DeclaratieCotizatieSocialaAdauga, CentruLocalRegistre, RegistruCreate, RegistruUpdate, RegistruDetail, SelectieAdaugareDocument, DecizieCuantumAdauga, DecizieCuantumDetail
+from documente.views import DeclaratieCotizatieSocialaAdauga, CentruLocalRegistre, RegistruCreate, RegistruUpdate, RegistruDetail, SelectieAdaugareDocument, DecizieCuantumAdauga, DecizieCuantumDetail, CalculeazaAcoperireCotizatie, CotizatiiCentruLocal, CotizatiiLider, PreiaIncasariCasier
 from documente.views import CotizatieMembruAdauga
 
 urlpatterns = patterns('structuri.views',
@@ -19,5 +19,9 @@ urlpatterns = patterns('structuri.views',
     (r'(?P<pk>\d+)/documente/selectie/$', SelectieAdaugareDocument.as_view(), {}, "selectie_document"),
 
     (r'(?P<pk>\d+)/documente/decizie/cuantum/adauga/$', DecizieCuantumAdauga.as_view(), {}, "decizie_cuantum_adauga"),
-    (r'documente/decizie/cuantum/(?P<pk>\d+)/$', DecizieCuantumDetail.as_view(), {}, "decizie_cuantum_detail"),
+    (r'decizie/cuantum/(?P<pk>\d+)/$', DecizieCuantumDetail.as_view(), {}, "decizie_cuantum_detail"),
+    (r'cotizatie/calculeaza-acoperire/$', CalculeazaAcoperireCotizatie.as_view(), {}, "cotizatie_calculeaza_acoperire"),
+    (r'cotizatii/centru_local/(?P<pk>\d+)/$', CotizatiiCentruLocal.as_view(), {}, "cotizatii_centru_local"),
+    (r'cotizatii/lider/(?P<pk>\d+)/$', CotizatiiLider.as_view(), {}, "cotizatii_lider"),
+    (r'cotizatii/preia/(?P<pk>\d+)/$', PreiaIncasariCasier.as_view(), {}, "transfer_cotizatii"),
 )

@@ -5,6 +5,7 @@ Created on Jun 9, 2012
 @author: yeti
 '''
 from django import forms
+import datetime
 from structuri.models import Membru, CentruLocal, Unitate, Patrula,\
     AsociereMembruStructura, InformatieContact, TipInformatieContact,\
     AsociereMembruFamilie, PersoanaDeContact
@@ -393,4 +394,14 @@ class PersoanaDeContactForm(CrispyBaseModelForm):
         
         return self.cleaned_data
     
-    
+class SetariSpecialeCentruLocalForm(CrispyBaseModelForm):
+    class Meta:
+        model = CentruLocal
+        fields = []
+
+    trimestru = forms.ChoiceField(choices=(("1", "I"), ("2", "II"), ("3", "III"), ("4", "IV")))
+    an = forms.ChoiceField(label="An", choices=((an, an) for an in range(1 + int(datetime.date.today().strftime("%Y")), 2010, -1)))
+
+    def __init__(self, *args, **kwargs):
+        super(SetariSpecialeCentruLocalForm, self).__init__(*args, **kwargs)
+        self.helper.layout = Layout(Fieldset(u"Trimestru inițial pentru cotizație în sistem", "trimestru", "an"))

@@ -86,7 +86,7 @@ class AsociereDocument(models.Model):
 
     @classmethod
     def inregistreaza(cls, document=None, to=None, tip=None, responsabil=None):
-        tip_asociere, created = TipAsociereDocument.objects.get_or_create(slug="beneficiar-cotizatie-sociala")
+        tip_asociere, created = TipAsociereDocument.objects.get_or_create(slug=tip)
         if created:
             tip_asociere.save()
 
@@ -114,8 +114,8 @@ class TipDocument(models.Model):
 
 class Chitanta(Document):
     casier = models.ForeignKey("structuri.Membru")
-    serie = models.CharField(max_length=255)
-    numar = models.IntegerField(default=0)
+    #serie = models.CharField(max_length=255)
+    #numar = models.IntegerField(default=0)
     suma = models.FloatField(default=0)
 
     def save(self, force_insert=False, force_update=False, using=None):
@@ -124,7 +124,7 @@ class Chitanta(Document):
         return super(Chitanta, self).save(force_insert=force_insert, force_update=force_update, using=using)
 
     def referinta(self):
-        return "Seria %s, nr. %s / %s" % (self.serie, self.numar, self.date_created.strftime("%d.%m.%Y"))
+        return "Seria %s, nr. %s / %s" % (self.registru.serie, self.numar_inregistrare, self.date_created.strftime("%d.%m.%Y"))
 
 
 class Trimestru(models.Model):
@@ -132,6 +132,27 @@ class Trimestru(models.Model):
     data_sfarsit = models.DateField()
     ordine_locala = models.PositiveSmallIntegerField()
     ordine_globala = models.PositiveIntegerField()
+
+    def __json__(self):
+        return {"ordine" : self.ordine_locala,
+                "ordine_globala" : self.ordine_globala,
+                "an" : self.data_inceput.strftime("%Y"),
+                "text" : self.__unicode__()}
+
+    @classmethod
+    def get_trimestru(cls, year, order):
+        if Trimestru.objects.count() == 0:
+            from django.core.management import call_command
+            call_command('genereaza_trimestre')
+
+        try:
+            return Trimestru.objects.get(data_inceput__year = year,
+                                         ordine_locala = order)
+        except Trimestru.DoesNotExist:
+            t = Trimestru.objects.all().order_by("-ordine_globala")[0]
+            while t.ordine_locala != order and t.data_inceput.year != year:
+                t = Trimestru.urmatorul_trimestru(trimestru = t)
+            return t
 
     @classmethod
     def urmatorul_trimestru(cls, trimestru=None, offset=1):
@@ -142,9 +163,9 @@ class Trimestru(models.Model):
                 #    creaza un nou trimestru, presupunand ca exista un trimestru anterior
                 trimestru_nou = Trimestru()
                 trimestru_nou.ordine_globala = trimestru.ordine_globala + 1
-                trimestru_nou.ordine_locala = trimestru.ordine_locala + 1 if trimestru.ordine_globala < 4 else 1
+                trimestru_nou.ordine_locala = trimestru.ordine_locala + 1 if trimestru.ordine_locala < 4 else 1
 
-                an_nou = trimestru.data_sfarsit.year
+                an_nou = trimestru.data_inceput.year
                 if trimestru.ordine_locala == 4:
                     an_nou += 1
 
@@ -166,12 +187,16 @@ class Trimestru(models.Model):
         if Trimestru.objects.all().count():
             raise ValueError("Metoda __urmatorul trimestru__ trebuie apelata cu un parametru trimestru")
 
-        trimestru_nou = Trimestru()
-        trimestru_nou.ordine_locala = 4
-        trimestru_nou.ordine_globala = 1
-        trimestru_nou.data_inceput = datetime.date(year=2011, month=10, day=1)
-        trimestru_nou.data_sfarsit = datetime.date(year=2012, month=1, day=1) - datetime.timedelta(days=1)
-        trimestru_nou.save()
+        #trimestru_nou = Trimestru()
+        #trimestru_nou.ordine_locala = 4
+        #trimestru_nou.ordine_globala = 1
+        #trimestru_nou.data_inceput = datetime.date(year=2011, month=10, day=1)
+        #trimestru_nou.data_sfarsit = datetime.date(year=2012, month=1, day=1) - datetime.timedelta(days=1)
+        #trimestru_nou.save()
+        from django.core.management import call_command
+        call_command('genereaza_trimestre')
+
+        return Trimestru.objects.get(data_inceput = datetime.date(year=2011, month=10, day=1))
         return trimestru_nou
 
     @classmethod
@@ -180,7 +205,10 @@ class Trimestru(models.Model):
             return cls.objects.get(data_inceput__lte=data,
                                    data_sfarsit__gte=data)
         except cls.DoesNotExist:
-            return None
+            t = Trimestru.objects.all().order_by("-ordine_globala")[0]
+            while data.year + 1 > t.data_inceput.year:
+                t = Trimestru.urmatorul_trimestru(t)
+            return Trimestru.trimestru_pentru_data(data)
 
     def data_in_trimestru(self, data):
         return (self.data_inceput <= data) and (self.data_sfarsit >= data)
@@ -193,10 +221,13 @@ class Trimestru(models.Model):
 
         pachet_cotizatii = DecizieCotizatie.get_package_for_centru_local(centru_local=membru.centru_local,
                                                                          trimestru=self,
-                                                                         sociala=membru.are_cotizatie_sociala())
+                                                                         social=membru.are_cotizatie_sociala())
         valoare_trimestriala = (pachet_cotizatii['national'] + pachet_cotizatii['local']) / 4.
         return valoare_trimestriala
 
+    def __unicode__(self):
+        numerals = ["I", "II", "III", "IV"]
+        return "trimestrul %s, %s" % (numerals[self.ordine_locala - 1], self.data_inceput.year)
 
 MOTIVE_INREGISTRARE_PLATA_COTIZATIE = (("normal", u"Plată normală"), ("inactiv", "Inactiv"))
 
@@ -207,13 +238,46 @@ class PlataCotizatieTrimestru(models.Model):
     final = models.BooleanField()
     suma = models.FloatField()
     membru = models.ForeignKey("structuri.Membru")
-    chitanta = models.ForeignKey("ChitantaCotizatie")
+    chitanta = models.ForeignKey("ChitantaCotizatie", null=True, blank=True)
     index = models.IntegerField()
 
     tip_inregistrare = models.CharField(max_length=255, choices=MOTIVE_INREGISTRARE_PLATA_COTIZATIE, default="normal")
 
+    def __json__(self):
+        return {"trimestru" : self.trimestru.__json__(),
+                "partial" : self.partial,
+                "final" : self.final,
+                "suma" : self.suma,
+                "membru" : u"%s" % self.membru}
+
     @classmethod
-    def calculeaza_acoperire(cls, membru, chitanta=None, suma=None, commit=False):
+    def calculeaza_necesar(cls, membru):
+        trimestru_initial, plati_partiale = membru.get_ultimul_trimestru_cotizatie(return_plati_partiale=True)
+        t_current = trimestru_initial
+        t_target = Trimestru.trimestru_pentru_data(data=datetime.date.today() - datetime.timedelta(days=15))
+
+        print t_current
+        print t_target
+
+        suma_necesara = 0
+        while t_current.ordine_globala < t_target.ordine_globala:
+            print t_current, t_target
+            cotizatie_trimestru_nominal = t_current.identifica_cotizatie(membru)
+            cotizatie_trimestru = membru.aplica_reducere_familie(cotizatie_trimestru_nominal, t_current)
+            if plati_partiale:
+                suma_colectata = plati_partiale.aggregate(Sum("suma"))['suma__sum']
+                suma_necesara += cotizatie_trimestru - suma_colectata
+                plati_partiale = None
+            else:
+                suma_necesara += cotizatie_trimestru
+
+            t_current = Trimestru.urmatorul_trimestru(trimestru=t_current)
+
+        return suma_necesara
+
+
+    @classmethod
+    def calculeaza_acoperire(cls, membru, chitanta=None, suma=0, commit=False, casa=None):
         """ Sparge plata de pe o chitanta in asocierile necesare pentru plati 
         trimestriale pentru un membru, cu plati partiale unde este nevoie.
         
@@ -223,20 +287,16 @@ class PlataCotizatieTrimestru(models.Model):
         """
 
         # gaseste ultimul trimestru inregistrat pentru membru
-        plati_membru = membru.platacotizatietrimestru_set.all().order_by("-trimestru__ordine_global", "-index")
-        plati_partiale = None
-        if plati_membru.count() == 0:
-            trimestru_initial = membru.get_trimestru_initial_cotizatie()
-        elif plati_membru[0].partial and not plati_membru[0].final:
-            trimestru_initial = plati_membru[0].trimestru
-            plati_partiale = membru.platacotizatietrimestru_set.filter(trimestru=trimestru_initial)
-        else:
-            trimestru_initial = Trimestru.urmatorul_trimestru(plati_membru[0].trimestru)
+        trimestru_initial, plati_partiale = membru.get_ultimul_trimestru_cotizatie(return_plati_partiale=True)
 
-        #   Inițializări
-        suma = chitanta.suma
+        #   inițializări (chitanta poate fi None pentru simulari)
+        if chitanta:
+            suma = chitanta.suma
+
         trimestru_curent = trimestru_initial
+        trimestru_plata_completa = trimestru_curent
         plati = []
+        index = 0
 
         #   Sparge suma pe câte trimestre se poate. S-ar putea să existe probleme cu plata retroactivă a cotizațiilor pe
         # documente sociale, momentan criteriul de lucru cu cotizația sociala este momentul curent.
@@ -244,6 +304,11 @@ class PlataCotizatieTrimestru(models.Model):
         while suma > 0:
             cotizatie_trimestru_nominal = trimestru_curent.identifica_cotizatie(membru)
             cotizatie_trimestru = membru.aplica_reducere_familie(cotizatie_trimestru_nominal, trimestru_curent)
+
+            #   suma, final si partial rezolva problemele platilor partiale, in toate scenariile
+            #   o singura plata partiala
+            #   mai multe plati finale si una potential partiala
+            #   o plata finala care completeaza un trimestru
 
             plata_kwargs = {"trimestru": trimestru_curent,
                             "partial": suma - cotizatie_trimestru < 0,
@@ -266,20 +331,59 @@ class PlataCotizatieTrimestru(models.Model):
             else:
                 suma = suma - cotizatie_trimestru
 
+            plata_kwargs['index'] = index
             plata = cls(**plata_kwargs)
             plati.append(plata)
+            if plata.final:
+                trimestru_plata_completa = trimestru_curent
+
+            trimestru_curent = Trimestru.urmatorul_trimestru(trimestru = trimestru_curent)
+            index += 1
+
+        #   verifica status
+        today = datetime.date.today()
+        trimestru_azi = Trimestru.trimestru_pentru_data(today)
+
+        #   se calculeaza cum va schimba plata statusul membrului fata de datorie
+        #   daca am trimestrele 1 2 3 4, 4 - 1 - 1 va fi 0, ceea ce duce la acoperire completa
+        diff = trimestru_azi.ordine_globala - trimestru_plata_completa.ordine_globala - 1
+
+        #   daca avem DOAR o plata partiala, inseamna ca nu s-a schimbat de fapt nimic, nu exista
+        #   avansare in calculul statusului, deci trebuie compensat
+        if trimestru_initial == trimestru_plata_completa and not plata.final:
+            diff += 1
+
+        #   implementare pentru perioada de gratie de 15 zile la sfarsitul fiecarui trimestru
+        if not trimestru_azi.data_in_trimestru(today - datetime.timedelta(days = 15)):
+            diff -= 1
 
         if commit:
             for plata in plati:
                 plata.save()
 
-        return plati
+        return plati, suma, membru.status_cotizatie(for_diff = diff), diff
 
+    def __unicode__(self):
+        return u"Plată pentru %s, pe %s, în valoare de %.2f RON" % (self.membru, self.trimestru, self.suma)
 
 class ChitantaCotizatie(Chitanta):
-    def save(self, force_insert=False, force_update=False, using=None):
-        self.tip_document = TipDocument.objects.get(slug="cotizatie")
-        return super(ChitantaCotizatie, self).save(force_insert=force_insert, force_update=force_update, using=using)
+    registre_compatibile = ["chitantier", ]
+    predat = models.BooleanField(default=False)
+
+    def save(self, **kwargs):
+        self.tip_document, created = TipDocument.objects.get_or_create(slug="cotizatie")
+        if created:
+            self.tip_document.nume = u"Chitanță cotizație"
+            self.tip_document.save()
+        return super(ChitantaCotizatie, self).save(**kwargs)
+
+
+    def platitor(self):
+        from structuri.models import Membru
+        asociere =  AsociereDocument.objects.get(document=self,
+                                               content_type=ContentType.objects.get_for_model(Membru),
+                                               tip_asociere__slug="platitor")
+        return asociere.content_object
 
 
 REGISTRU_MODES = (("auto", u"Automat"), ("manual", u"Manual"))

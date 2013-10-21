@@ -1,12 +1,15 @@
 #coding=utf8
 import datetime
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.aggregates import Sum
 from django.db.models.query_utils import Q
+from django.utils.simplejson import dumps
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.shortcuts import get_object_or_404
-from documente.forms import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm, DecizieCuantumCotizatieForm
-from documente.models import DocumentCotizatieSociala, TipAsociereDocument, AsociereDocument, Registru, REGISTRU_TIPURI, DecizieCotizatie
+from documente.forms import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm, DecizieCuantumCotizatieForm, TransferIncasariForm
+from documente.models import DocumentCotizatieSociala, TipAsociereDocument, AsociereDocument, Registru, REGISTRU_TIPURI, DecizieCotizatie, PlataCotizatieTrimestru, ChitantaCotizatie
 from documente.models import Document
 from django.core.exceptions import ImproperlyConfigured
 import logging
@@ -17,7 +20,8 @@ from django.core.urlresolvers import reverse
 from django.views.generic.base import View, TemplateView
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import simplejson
-from structuri.models import Membru
+from generic.views import JSONView, ScoutFileAjaxException
+from structuri.models import Membru, CentruLocal, AsociereMembruStructura
 from django.contrib import messages
 logger = logging.getLogger(__name__)
 
@@ -115,20 +119,38 @@ class CotizatieMembruAdauga(CreateView):
         self.target = get_object_or_404(Membru, id=kwargs.pop("pk"))
         return super(CotizatieMembruAdauga, self).dispatch(request, *args, **kwargs)
 
+    def get_form_kwargs(self):
+        data = super(CotizatieMembruAdauga, self).get_form_kwargs()
+        data.update({"centru_local" : self.target.centru_local,
+                     "membru" : self.target})
+        return data
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        self.object.casier = self.request.user.get_profile().membru
+        self.object.uploader = self.request.user
+        self.object.data_inregistrare = datetime.date.today()
+        self.object.titlu = u"Chitanță cotizație pentru %s" % self.target
+        self.object.save()
 
-        #    verifica numarul de inregistrare (sa nu fie duplicat, pentru centrul asta local)
-        #    obtine data de referinta (momentul 0)
-        #    fa calculele si ataseaza plati de trimestre
-        #    rescrie balanta utilizatorului
-        #    salveaza (si eventual printeaza) chitanta
+        #   ataseaza platitorul ca asociere /
+        AsociereDocument.inregistreaza(document=self.object,
+                                       to=self.target,
+                                       tip="platitor",
+                                       responsabil=self.object.casier.user)
 
+        #   stabileste si salveaza acoperirea
+        plati, rest, status, diff  = PlataCotizatieTrimestru.calculeaza_acoperire(membru=self.target,
+                                                     chitanta=self.object,
+                                                     commit=True)
 
+        msg_data = (self.object.suma, self.target, plati[-1].trimestru, u" - parțial" if (plati[-1].partial and not plati[-1].final) else "")
+        mesaj = u"Am înregistrat plata a %.2f RON pentru %s (acoperă trimestrul %s%s)" % msg_data
+        messages.success(self.request, mesaj)
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse("structuri:membru_tab_documente", kwargs={"pk": self.target.id})
+        return reverse("structuri:membru_detail", kwargs={"pk": self.target.id}) + "#documente"
 
     def get_context_data(self, **kwargs):
         kwargs.update({"object": self.target})
@@ -160,9 +182,6 @@ class CotizatieMembruAdauga(CreateView):
 #                       'serie': serie}
 #
 #        return HttpResponse(simplejson.dumps(json_output))
-
-class CalculeazaAcoperireSumaJSON(View):
-    pass
 
 
 class CuantumuriCotizatieNational(ListView):
@@ -417,3 +436,129 @@ class DecizieCuantumDetail(DetailView):
     # TODO: add permission checks for this
     def dispatch(self, request, *args, **kwargs):
         return super(DecizieCuantumDetail, self).dispatch(request, *args, **kwargs)
+
+
+class CalculeazaAcoperireCotizatie(JSONView):
+    _params = {"membru" : {"type" : "required"},
+               "suma" : {"type" : "required"}}
+
+    def clean_membru(self, value):
+        try:
+            return Membru.objects.get(id = value)
+        except Membru.DoesNotExist, e:
+            raise ScoutFileAjaxException(exception = e)
+        return None
+
+    def clean_suma(self, value):
+        return float(value)
+
+    def get(self, request, *args, **kwargs):
+        self.validate(**self.parse_json_data())
+
+        plati, rest, status_text, diff  = PlataCotizatieTrimestru.calculeaza_acoperire(membru=self.cleaned_data['membru'],
+                                                     suma=self.cleaned_data['suma'])
+
+        return HttpResponse(self.construct_json_response(plati=plati,
+                                                         suma=rest,
+                                                         status_text=status_text,
+                                                         diff=diff))
+
+    def post(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
+
+    def plati_to_json(self, plati):
+        return [p.__json__() for p in plati]
+
+    def construct_json_response(self, plati=None, **kwargs):
+        json = {"plati" : self.plati_to_json(plati),
+                "suma" : self.cleaned_data['suma'],
+                "rest" : kwargs.get("suma", 0),
+                "status" : kwargs.get("status_text", None),
+                "diff" : kwargs.get("diff", None)}
+        return dumps(json)
+
+class CasieriMixin(object):
+    def get_casieri(self, centru_local):
+        casieri = ChitantaCotizatie.objects.filter(registru__centru_local = centru_local).distinct().values_list("casier", flat=True)
+        return Membru.objects.filter(id__in = casieri)
+
+class CotizatiiCentruLocal(ListView, CasieriMixin):
+    template_name = "documente/cotizatii_list.html"
+    model = ChitantaCotizatie
+
+    # TODO: add permissions check
+    def dispatch(self, request, *args, **kwargs):
+        self.centru_local = get_object_or_404(CentruLocal, id = kwargs.pop("pk"))
+        return super(CotizatiiCentruLocal, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        #membrii = self.centru_local.cercetasi(qs=True).values_list("membru_id", flat=True)
+        return self.model.objects.filter(registru__centru_local = self.centru_local).order_by("-data_inregistrare")
+
+    def get_context_data(self, **kwargs):
+        data = super(CotizatiiCentruLocal, self).get_context_data(**kwargs)
+        data.update({"centru_local" : self.centru_local, "casieri" : self.get_casieri(self.centru_local)})
+        return data
+
+class CotizatiiLider(ListView, CasieriMixin):
+    template_name = "documente/cotizatii_list.html"
+    model = ChitantaCotizatie
+
+    def dispatch(self, request, *args, **kwargs):
+        self.lider = get_object_or_404(Membru, id = kwargs.pop("pk"))
+        return super(CotizatiiLider, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.model.objects.filter(casier = self.lider)
+
+    def get_suma_lider(self):
+        search = dict(casier=self.lider,
+                      registru__centru_local=self.lider.centru_local,
+                      predat=False)
+        return self.model.objects.filter(**search).aggregate(Sum("suma"))['suma__sum']
+
+    def get_context_data(self, **kwargs):
+        data = super(CotizatiiLider, self).get_context_data(**kwargs)
+        data.update({"lider" : self.lider, "centru_local" : self.lider.centru_local,
+                     "casieri" : self.get_casieri(centru_local=self.lider.centru_local),
+                     "suma_casa" : self.get_suma_lider(), "trezorier" : self.lider.centru_local.ocupant_functie(u"Trezorier Centru Local")})
+        return data
+
+class PreiaIncasariCasier(FormView):
+    form_class = TransferIncasariForm
+    template_name = "documente/transfer_incasari.html"
+
+    # TODO: adauga verificare permisiuni
+    def dispatch(self, request, *args, **kwargs):
+        self.lider = get_object_or_404(Membru, id=kwargs.pop("pk"))
+        return super(PreiaIncasariCasier, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        plati = form.cleaned_data['plati']
+        suma = 0
+        for p in plati:
+            p.predat = True
+            suma += p.suma
+            p.save()
+
+        messages.success(self.request, u"Am transferat %.2f RON de la %s la trezorier" % (suma, self.lider))
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("documente:cotizatii_centru_local", kwargs={"pk" : self.request.user.get_profile().membru.centru_local.id})
+
+    def get_form_kwargs(self):
+        data = super(PreiaIncasariCasier, self).get_form_kwargs()
+        data.update({"centru_local" : self.request.user.get_profile().membru.centru_local})
+        return data
+
+    def get_context_data(self, **kwargs):
+        data = super(PreiaIncasariCasier, self).get_context_data(**kwargs)
+        plati = ChitantaCotizatie.objects.filter(registru__centru_local = self.lider.centru_local,
+                                                 casier = self.lider,
+                                                 predat = False)
+        data.update({"plati" : plati,
+                     "trezorier" : self.request.user.get_profile().membru.are_calitate("Trezorier Centru Local", self.lider.centru_local),
+                     "lider" : self.lider,
+                     "suma" : plati.aggregate(Sum("suma"))['suma__sum']})
+        return data

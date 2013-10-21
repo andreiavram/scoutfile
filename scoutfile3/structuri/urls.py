@@ -22,11 +22,12 @@ from structuri.views import CentruLocalCreate, CentruLocalUpdate,\
     MembruAddFamilie, MembruEditFamilie, MembruTabFamilie,\
     MembruPersoanaDeContactCreate, MembruPersoanaDeContactUpdate,\
     MembriForPatrocle, MembruDestinatarRepr, PersoanaContactDestinatarRepr,\
-    MembriFaraAfilieri, GetSpeedList, MembruTabDocumente
+    MembriFaraAfilieri, GetSpeedList, MembruTabDocumente, SetariSpecialeCentruLocal
 
 urlpatterns = patterns('structuri.views',
     (r'centrulocal/adauga/$', CentruLocalCreate.as_view(), {}, "cl_add"),
     (r'centrulocal/(?P<pk>\d+)/schimba/$', CentruLocalUpdate.as_view(), {}, "cl_edit"),
+    (r'centrulocal/(?P<pk>\d+)/schimba/special/$', SetariSpecialeCentruLocal.as_view(), {}, "cl_edit_special"),
     (r'centrulocal/(?P<pk>\d+)/$', CentruLocalDetail.as_view(), {}, "cl_detail"),
     (r'centrulocal/list/$', CentruLocalList.as_view(), {}, "cl_list"),
     (r'centrulocal/(?P<pk>\d+)/sterge/$', CentruLocalDelete.as_view(), {}, "cl_delete"),
