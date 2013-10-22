@@ -56,6 +56,13 @@ class Document(models.Model):
             if hasattr(self.decizie, "deciziecotizatie"):
                 return self.decizie.deciziecotizatie.get_absolute_url()
 
+    def asocieri(self, tip=None, qs=True, **kwargs):
+        qs = self.asocieredocument_set.all()
+        if tip:
+            qs = qs.filter(tip_asociere__slug = tip)
+
+        return qs
+
 # tagging.register(Document)
 
 class TipAsociereDocument(models.Model):
@@ -111,6 +118,25 @@ class TipDocument(models.Model):
     def __unicode__(self):
         return u"{0}".format(self.nume)
 
+    @classmethod
+    def obtine(cls, slug):
+        tip, created = cls.objects.get_or_create(slug=slug)
+        if created:
+            tip.nume = slug.capitalize()
+            tip.save()
+
+        return tip
+
+
+class Adeziune(Document):
+    class Meta:
+        proxy = True
+
+    registre_compatibile = ["intern", ]
+
+    def save(self, **kwargs):
+        self.tip_document = TipDocument.obtine("adeziune")
+        return super(Adeziune, self).save(**kwargs)
 
 class Chitanta(Document):
     casier = models.ForeignKey("structuri.Membru")

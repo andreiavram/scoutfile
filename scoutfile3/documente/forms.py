@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.db.models.aggregates import Max
 #from django.db.models.fields import CharField
 from django.db.models.query_utils import Q
-from documente.models import DocumentCotizatieSociala, Registru, DecizieCotizatie, Trimestru, PlataCotizatieTrimestru
+from documente.models import DocumentCotizatieSociala, Registru, DecizieCotizatie, Trimestru, PlataCotizatieTrimestru, Adeziune
 from generic.widgets import BootstrapDateInput
 from generic.forms import CrispyBaseModelForm, CrispyBaseForm
 from documente.models import Document, ChitantaCotizatie
@@ -193,3 +193,41 @@ class TransferIncasariForm(CrispyBaseForm):
         return plati
 
 
+class AdeziuneCreateForm(CrispyBaseModelForm):
+    class Meta:
+        model = Adeziune
+        fields = ["fisier", "registru", "numar_inregistrare", "data_inregistrare"]
+
+    data_inregistrare = DateField(widget=BootstrapDateInput,
+                                  label = u"Data înregistrare",
+                                  help_text=u"Lasă gol pentru data de azi",
+                                  required=False)
+
+    def __init__(self, *args, **kwargs):
+        self.centru_local = kwargs.pop("centru_local")
+        super(AdeziuneCreateForm, self).__init__(*args, **kwargs)
+        registru_filter = {"valabil" : True,
+                           "centru_local" : self.centru_local,
+                           "tip_registru__in" : Adeziune.registre_compatibile}
+        self.fields['registru'].queryset = Registru.objects.filter(**registru_filter).order_by("-data_inceput")
+        self.fields['registru'].required = True
+
+
+
+    def clean(self):
+        registru = self.cleaned_data['registru']
+        if registru.mod_functionare == "auto":
+            try:
+                self.cleaned_data['numar_inregistrare'] = registru.get_numar_inregistrare()
+            except ValueError, e:
+                raise ValidationError(u"Există deja un document cu acest număr de înregistrare în registrul selectat!")
+        else:
+            if registru.get_document(self.cleaned_data['numar_inregistrare']):
+                raise ValidationError(u"Există deja un document cu acest număr de înregistrare în registrul selectat!")
+
+        return self.cleaned_data
+
+class AdeziuneUpdateForm(CrispyBaseModelForm):
+    class Meta:
+        model = Adeziune
+        fields = ["fisier"]
