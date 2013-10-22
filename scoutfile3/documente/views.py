@@ -8,8 +8,8 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.shortcuts import get_object_or_404
-from documente.forms import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm, DecizieCuantumCotizatieForm, TransferIncasariForm
-from documente.models import DocumentCotizatieSociala, TipAsociereDocument, AsociereDocument, Registru, REGISTRU_TIPURI, DecizieCotizatie, PlataCotizatieTrimestru, ChitantaCotizatie
+from documente.forms import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm, DecizieCuantumCotizatieForm, TransferIncasariForm, AdeziuneUpdateForm, AdeziuneCreateForm
+from documente.models import DocumentCotizatieSociala, TipAsociereDocument, AsociereDocument, Registru, REGISTRU_TIPURI, DecizieCotizatie, PlataCotizatieTrimestru, ChitantaCotizatie, Adeziune, TipDocument
 from documente.models import Document
 from django.core.exceptions import ImproperlyConfigured
 import logging
@@ -562,3 +562,65 @@ class PreiaIncasariCasier(FormView):
                      "lider" : self.lider,
                      "suma" : plati.aggregate(Sum("suma"))['suma__sum']})
         return data
+
+
+class AdeziuneMembruAdauga(CreateView):
+    template_name = "documente/adeziune_form.html"
+    form_class = AdeziuneCreateForm
+    model = Adeziune
+
+    # TODO: add permissions check
+    def dispatch(self, request, *args, **kwargs):
+        self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
+        return super(AdeziuneMembruAdauga, self).dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        data = super(AdeziuneMembruAdauga, self).get_form_kwargs()
+        data.update({"centru_local" : self.membru.centru_local})
+        return data
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.uploader = self.request.user
+        self.object.titlu = u"Adeziune %s" % self.membru.__unicode__()
+        if self.object.data_inregistrare is None:
+            self.object.data_inregistrare = datetime.date.today()
+        self.object.save()
+
+        AsociereDocument.inregistreaza(document=self.object,
+                                       to=self.membru,
+                                       tip="subsemnat",
+                                       responsabil=self.request.user)
+
+        messages.success(self.request, u"Salvat înregistrare pentru adeziune!")
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        data = super(AdeziuneMembruAdauga, self).get_context_data(**kwargs)
+        data.update({"membru" : self.membru})
+        return data
+
+    def get_success_url(self):
+        return reverse("structuri:membru_detail", kwargs = {"pk" : self.membru.id}) + "#documente"
+
+class AdeziuneMembruModifica(UpdateView):
+    model = Adeziune
+    form_class = AdeziuneUpdateForm
+    template_name = "documente/adeziune_form.html"
+
+    # TODO: add permissions check
+    def dispatch(self, request, *args, **kwargs):
+        return super(AdeziuneMembruAdauga, self).dispatch(request, *args, **kwargs)
+
+    def get_object(self, **kwargs):
+        self.object = super(AdeziuneMembruModifica, self).get_object(**kwargs)
+        self.membru = self.object.asocieri("subsemnat").content_object
+        return self.object
+
+    def get_context_data(self, **kwargs):
+        data = super(AdeziuneMembruModifica, self).get_context_data(**kwargs)
+        data.update({"membru" : self.membru})
+        return data
+
+    def get_success_url(self):
+        return reverse("structuri:membru_detail", kwargs = {"pk" : self.membru.id}) + "#documente"

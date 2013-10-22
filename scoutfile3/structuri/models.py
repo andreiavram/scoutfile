@@ -14,7 +14,7 @@ from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 import unidecode
-from documente.models import PlataCotizatieTrimestru
+from documente.models import PlataCotizatieTrimestru, AsociereDocument
 
 
 logger = logging.getLogger(__name__)
@@ -108,6 +108,14 @@ class CentruLocal(Structura):
             return asociere
         return [a.membru for a in asociere]
 
+
+    def adeziuni_lipsa(self):
+        cnt_membri = self.cercetasi(qs=True).count()
+        cnt_adeziuni = AsociereDocument.objects.filter(content_type=ContentType.objects.get_for_model(Membru),
+                                                       tip_asociere__nume__iexact="subsemnat",
+                                                       document__tip_document__slug="adeziune",
+                                                       document__registru__centru_local=self).count()
+        return cnt_membri - cnt_adeziuni
 
 class Unitate(Structura):
     class Meta:
@@ -585,6 +593,24 @@ class Membru(Utilizator):
     def status_cotizatie_numeric(self):
         status, curent, ultimul = self._status_cotizatie()
         return int(status)
+
+    def are_adeziune(self):
+        return self.adeziune(qs=True).count() > 0
+
+    def adeziune(self, qs=False):
+        search = {"document__tip_document__slug" : "adeziune",
+                  "tip_asociere__slug" : "subsemnat",
+                  "content_type" : ContentType.objects.get_for_model(self),
+                  "object_id" : self.id}
+
+        asociere = AsociereDocument.objects.filter(**search)
+        if qs:
+            return asociere
+        if asociere.count():
+            return asociere.document
+        return None
+
+
 
 class TipAsociereMembruStructura(models.Model):
     """

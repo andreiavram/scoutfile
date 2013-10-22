@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load cotizatie_tags %}
+
+{% block page_title %}
+    {% if object %}Modifică{% else %}Adaugă{% endif %} adeziune pentru {{ membru }}
+{% endblock %}
+
+{% block extrahead %}
+    <script>
+        function handle_numar_inregistrare() {
+            if (/\(auto\)$/.test($("#id_registru option:selected").text())) {
+                $("#id_numar_inregistrare").closest("div.control-group").hide();
+                $("#id_data_inregistrare").closest("div.control-group").hide();
+            } else {
+                $("#id_numar_inregistrare").closest("div.control-group").show();
+                $("#id_data_inregistrare").closest("div.control-group").show();
+            }
+        }
+        $("document").ready(function () {
+            handle_numar_inregistrare();
+            $("#id_registru").change(function (e) {
+                handle_numar_inregistrare();
+            })
+        });
+    </script>
+    {{ form.media }}
+{% endblock %}
+
+
+{% block context_menu %}
+    <ul class="nav nav-list">
+        <li class="nav-header">Acțiuni</li>
+        <li><a href="{% url structuri:membru_detail pk=membru.id %}#documente"><i class="icon-chevron-left"> Lista de documente</i></a></li>
+    </ul>
+{% endblock %}
+
+{% block content %}
+    {% crispy form form.helper %}
+{% endblock %}

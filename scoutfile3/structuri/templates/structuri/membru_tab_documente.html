@@ -2,7 +2,7 @@
 <div class = "btn-toolbar">
 <div class = "btn-group">
 	<a href="{% url documente:cotizatie_membru_add pk=object.id %}"	class="btn btn-primary"><i class="icon-plus-sign icon-white"></i> Adaugă cotizație</a>
-	<a href=""	class="btn"><i class="icon-plus-sign"></i> Adaugă adeziune</a>
+	<a href="{% url documente:adeziune_add pk=object.id %}"	class="btn"><i class="icon-plus-sign"></i> Adaugă adeziune</a>
 </div>
     <div class = "btn-group">
         <a href = "{% url structuri:membru_alte_documente pk=object.id %}" class = "btn"><i class = "icon-file-alt"></i> Adaugă alte documente</a>

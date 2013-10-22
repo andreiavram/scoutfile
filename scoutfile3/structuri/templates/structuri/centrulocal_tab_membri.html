@@ -42,6 +42,9 @@
 						 {{ afiliere.tip_asociere }} {% if afiliere.content_type.name != "Centru Local" %}({{ afiliere.content_object }}){% endif %}</li>
 					{% endif %}
 				{% endfor %}
+                {% if not object.membru.are_adeziune %}
+                    <a style="color: red" href = "{% url documente:adeziune_add pk=object.membru.id %}"><i class = "icon-warning-sign"></i> Nu are adeziune</a>
+                {% endif %}
 				</ul>
 			</td>
 			<td>    
