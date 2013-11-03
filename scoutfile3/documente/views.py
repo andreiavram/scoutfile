@@ -8,8 +8,15 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.shortcuts import get_object_or_404
+from reportlab.lib.enums import TA_JUSTIFY
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import cm
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen.canvas import Canvas
+from reportlab.platypus.paragraph import Paragraph
 from documente.forms import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm, DecizieCuantumCotizatieForm, TransferIncasariForm, AdeziuneUpdateForm, AdeziuneCreateForm
-from documente.models import DocumentCotizatieSociala, TipAsociereDocument, AsociereDocument, Registru, REGISTRU_TIPURI, DecizieCotizatie, PlataCotizatieTrimestru, ChitantaCotizatie, Adeziune, TipDocument
+from documente.models import DocumentCotizatieSociala, TipAsociereDocument, AsociereDocument, Registru, REGISTRU_TIPURI, DecizieCotizatie, PlataCotizatieTrimestru, ChitantaCotizatie, Adeziune, TipDocument, Chitanta
 from documente.models import Document
 from django.core.exceptions import ImproperlyConfigured
 import logging
@@ -21,8 +28,11 @@ from django.views.generic.base import View, TemplateView
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import simplejson
 from generic.views import JSONView, ScoutFileAjaxException
+from settings import MEDIA_ROOT
 from structuri.models import Membru, CentruLocal, AsociereMembruStructura
 from django.contrib import messages
+from utils.fiscal import suma2text
+
 logger = logging.getLogger(__name__)
 
 
@@ -215,7 +225,7 @@ class DeclaratieCotizatieSocialaAdauga(CreateView):
         AsociereDocument.inregistreaza(document=self.object,
                                        to=self.target,
                                        tip="beneficiar-cotizatie-sociala",
-                                       responsabil=responsabil.user)
+                                       responsabil=self.request.user)
 
         messages.success(self.request, u"Declarație salvată")
         return HttpResponseRedirect(self.get_success_url())
@@ -624,3 +634,94 @@ class AdeziuneMembruModifica(UpdateView):
 
     def get_success_url(self):
         return reverse("structuri:membru_detail", kwargs = {"pk" : self.membru.id}) + "#documente"
+
+class ChitantaPrintare(DetailView):
+    model = Chitanta
+
+    def dispatch(self, request, *args, **kwargs):
+        return super(ChitantaPrintare, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="{0}-{1}.pdf"'.format(self.object.registru.serie, self.object.numar_inregistrare)
+
+        pdf = Canvas(response, pagesize = A4)
+
+        import os
+        from reportlab.lib.styles import getSampleStyleSheet
+        from reportlab.platypus import Paragraph
+
+        pdfmetrics.registerFont(TTFont("DejaVuSans-Bold", "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans-Bold.ttf"))
+        pdfmetrics.registerFont(TTFont("DejaVuSans", "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf"))
+
+        if self.object.registru.centru_local.antet:
+            antet_path = os.path.join(MEDIA_ROOT, "%s" % self.object.registru.centru_local.antet)
+            pdf.drawInlineImage(antet_path, 2.5 * cm, 10.8 * cm, width=16. * cm, height=2.66 * cm)
+            pdf.drawInlineImage(antet_path, 2.5 * cm, 24.5 * cm, width=16. * cm, height=2.66 * cm)
+        pdf.setStrokeColorRGB(0, 0, 0)
+        pdf.rect(2. * cm, 2. * cm, 17. * cm, 12. * cm)
+        pdf.rect(2. * cm, 15.7 * cm, 17. * cm, 12 * cm)
+
+        pdf.setStrokeColorRGB(0.5, 0.5, 0.5)
+        pdf.setDash(1, 2)
+        pdf.line(0 * cm, 14.85 * cm, 21. * cm, 14.85 * cm)
+
+        pdf.setFont("DejaVuSans-Bold", 0.5 * cm, leading=None)
+        pdf.drawCentredString(10.5 * cm, 9.5 * cm, u"Chitanță")
+        pdf.drawCentredString(10.5 * cm, 23.2 * cm, u"Chitanță")
+
+        text_serie = u"seria {0}, nr. {1} / {2}".format(self.object.registru.serie, self.object.numar_inregistrare,
+                                                       self.object.data_inregistrare.strftime("%d.%m.%Y"))
+
+        pdf.setFont("DejaVuSans-Bold", 4. * cm, leading=None)
+        pdf.setFillColorRGB(0.95, 0.95, 0.95)
+        pdf.rotate(15)
+        pdf.drawString(4.5 * cm, 2. * cm, u"COPIE")
+        pdf.rotate(-15)
+
+        pdf.setFillColorRGB(0, 0, 0)
+        pdf.setFont("DejaVuSans", 0.35 * cm, leading=None)
+        pdf.drawCentredString(10.5 * cm, 8.9 * cm, text_serie)
+        pdf.drawCentredString(10.5 * cm, 22.6 * cm, text_serie)
+
+        reprezinta = self.object.descriere
+        if hasattr(self.object, "chitantacotizatie"):
+            reprezinta = []
+            for p in self.object.chitantacotizatie.platacotizatietrimestru_set.all().order_by("index"):
+                date_reprezinta = (p.trimestru.__unicode__(), p.suma, u"- parțial" if p.partial else "")
+                reprezinta.append("{0} ({1} RON{2})".format(*date_reprezinta))
+            reprezinta = ", ".join(reprezinta)
+            reprezinta = u"cotizație membru pentru {0}".format(reprezinta)
+        date_chitanta = (self.object.platitor().__unicode__(), self.object.suma, suma2text(self.object.suma).strip(), reprezinta)
+        text_chitanta = u"Am primit de la <strong>{0}</strong> suma de {1} lei, adică {2}, reprezentând {3}.".format(*date_chitanta)
+
+        style_sheet = getSampleStyleSheet()
+        style = style_sheet['Normal']
+        style.alignment = TA_JUSTIFY
+        style.fontName = "DejaVuSans"
+        style.leading = 0.85 * cm
+
+        paragraph = Paragraph(text_chitanta, style)
+        w, h  = paragraph.wrap(15. * cm, 5. * cm)
+        print w, h
+
+        paragraph.drawOn(pdf, 3. * cm, 5.5 * cm)
+        paragraph.drawOn(pdf, 3. * cm, 19.2 * cm)
+
+        pdf.drawString(12.5 * cm, 4.5 * cm, u"Casier,")
+        pdf.drawString(12.5 * cm, 18.2 * cm, u"Casier, ")
+
+        trezorier = self.object.registru.centru_local.ocupant_functie(u"Trezorier Centru Local")
+        pdf.drawString(12.5 * cm, 3.8 * cm, trezorier.__unicode__())
+        pdf.drawString(12.5 * cm, 17.5 * cm, trezorier.__unicode__())
+
+
+        pdf.showPage()
+        pdf.save()
+
+        return response
+
+class ChitantaPrintMultiple(ListView):
+    model = Chitanta

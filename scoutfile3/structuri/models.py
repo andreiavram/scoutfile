@@ -82,6 +82,8 @@ class CentruLocal(Structura):
                                                 help_text=u"Asigurați-vă că ați adăugat informațiile relevante de contact pentru tipul de corespondență ales.")
 
     moment_initial_cotizatie = models.ForeignKey("documente.Trimestru", null=True, blank=True)
+    logo = models.ImageField(null=True, blank=True, upload_to=lambda instance, filename : "cl/logo-{0}-{1}".format(instance.id, filename))
+    antet = models.ImageField(null=True, blank=True, upload_to=lambda instance, filename : "cl/antet-{0}-{1}".format(instance.id, filename))
 
     def nume_complet(self):
         if self.denumire is not None and self.denumire != "":
