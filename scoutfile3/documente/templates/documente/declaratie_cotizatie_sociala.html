@@ -7,6 +7,23 @@
 
 {% block extrahead %}
     {{ form.media }}
+    <script>
+        function handle_numar_inregistrare() {
+            if (/\(auto\)$/.test($("#id_registru option:selected").text())) {
+                $("#id_numar_inregistrare").closest("div.control-group").hide();
+                $("#id_data_inregistrare").closest("div.control-group").hide();
+            } else {
+                $("#id_numar_inregistrare").closest("div.control-group").show();
+                $("#id_data_inregistrare").closest("div.control-group").show();
+            }
+        }
+        $("document").ready(function () {
+            handle_numar_inregistrare();
+            $("#id_registru").change(function (e) {
+                handle_numar_inregistrare();
+            })
+        });
+    </script>
 {% endblock %}
 
 {% block context_menu %}

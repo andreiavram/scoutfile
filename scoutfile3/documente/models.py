@@ -153,6 +153,14 @@ class Chitanta(Document):
         return "Seria %s, nr. %s / %s" % (self.registru.serie, self.numar_inregistrare, self.date_created.strftime("%d.%m.%Y"))
 
 
+    def platitor(self):
+        from structuri.models import Membru
+        asociere =  AsociereDocument.objects.get(document=self,
+                                               content_type=ContentType.objects.get_for_model(Membru),
+                                               tip_asociere__slug="platitor")
+        return asociere.content_object
+
+
 class Trimestru(models.Model):
     data_inceput = models.DateField()
     data_sfarsit = models.DateField()
@@ -404,14 +412,6 @@ class ChitantaCotizatie(Chitanta):
         return super(ChitantaCotizatie, self).save(**kwargs)
 
 
-    def platitor(self):
-        from structuri.models import Membru
-        asociere =  AsociereDocument.objects.get(document=self,
-                                               content_type=ContentType.objects.get_for_model(Membru),
-                                               tip_asociere__slug="platitor")
-        return asociere.content_object
-
-
 REGISTRU_MODES = (("auto", u"Automat"), ("manual", u"Manual"))
 REGISTRU_TIPURI = (("chitantier", u"Chitanțier"), ("facturier", u"Facturier"), ("io", u"Registru intrări / ieșiri"),
                    ("intern", u"Registru intern"))
@@ -512,6 +512,8 @@ class DocumentCotizatieSociala(Document):
     motiv = models.CharField(max_length=2048, null=True, blank=True)
     este_valabil = models.BooleanField(verbose_name=u"Este valabilă?",
                                        help_text=u"Bifează doar dacă cererea a fost aprobată de Consiliu")
+
+    registre_compatibile = ['io', ]
 
     def edit_link(self):
         return reverse("structuri:membru_cotizatiesociala_modifica", kwargs={"pk": self.id})

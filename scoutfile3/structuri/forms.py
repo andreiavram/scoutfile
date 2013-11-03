@@ -6,6 +6,7 @@ Created on Jun 9, 2012
 '''
 from django import forms
 import datetime
+from generic.widgets import BootstrapDateInput
 from structuri.models import Membru, CentruLocal, Unitate, Patrula,\
     AsociereMembruStructura, InformatieContact, TipInformatieContact,\
     AsociereMembruFamilie, PersoanaDeContact
@@ -102,43 +103,46 @@ class MembruUpdateForm(CrispyBaseModelForm):
 class CentruLocalCreateForm(CrispyBaseModelForm):
     class Meta:
         model = CentruLocal
-        exclude = ["nume", "statut_drepturi", "statut_juridic"]
+        exclude = ["nume", "statut_drepturi", "statut_juridic", "logo", "antet", "moment_initial_cotizatie"]
         
-    data_infiintare = forms.DateField(input_formats = ['%d.%m.%Y', ], widget = forms.DateInput(format = "%d.%m.%Y"), label = u"Data înființare", required = False)    
+    data_infiintare = forms.DateField(widget=BootstrapDateInput, label = u"Data înființare", required = False)
         
     def __init__(self, *args, **kwargs):
         super(CentruLocalCreateForm, self).__init__(*args, **kwargs)
         self.helper.layout = Layout(Field("localitate"), Field("denumire"), 
-                                    Field("data_infiintare", css_class = "datepicker", template = "fields/datepicker.html"),
-                                    Field("specific"), Field("preferinte_corespondenta"))
+                                    Field("data_infiintare"), Field("specific"),
+                                    Field("preferinte_corespondenta"))
         
 class CentruLocalAdminCreateForm(CentruLocalCreateForm):
     class Meta:
         model = CentruLocal
-        exclude = ["nume", "statut_drepturi"]
+        exclude = ["nume", "statut_drepturi", "logo", "antet", "moment_initial_cotizatie"]
             
     def __init__(self, *args, **kwargs):
         super(CentruLocalAdminCreateForm, self).__init__(*args, **kwargs)
-        self.helper.layout = Layout(Field("localitate"), Field("denumire"), 
-                                    Field("data_infiintare", css_class = "datepicker", template = "fields/datepicker.html"),
-                                    Field("specific"), Field("statut_juridic"), Field("preferinte_corespondenta"),
-                                    Field("moment_initial_cotizatie"))
+        #self.helper.layout = Layout(Field("localitate"), Field("denumire"),
+        #                            Field("data_infiintare"),
+        #                            Field("specific"), Field("statut_juridic"), Field("preferinte_corespondenta"),
+        #                            Field("moment_initial_cotizatie"))
 
-class CentruLocalUpdateForm(CentruLocalCreateForm):
-    pass
 
-class CentruLocalAdminUpdateForm(CentruLocalAdminCreateForm):
+
+class CentruLocalAdminUpdateForm(CrispyBaseModelForm):
     class Meta:
         model = CentruLocal
-        exclude = ["nume",]
-            
-    def __init__(self, *args, **kwargs):
-        super(CentruLocalAdminUpdateForm, self).__init__(*args, **kwargs)
-        self.helper.layout = Layout(Field("localitate"), Field("denumire"), 
-                                    Field("data_infiintare", css_class = "datepicker", template = "fields/datepicker.html"),
-                                    Field("specific"), Field("statut_juridic"), Field("statut_drepturi"), Field("preferinte_corespondenta"))
+        exclude = ["nume", "moment_initial_cotizatie", "statut_drepturi"]
 
-        
+    data_infiintare = forms.DateField(widget=BootstrapDateInput, label = u"Data înființare", required = False)
+
+    #def __init__(self, *args, **kwargs):
+    #    super(CentruLocalAdminUpdateForm, self).__init__(*args, **kwargs)
+
+
+class CentruLocalUpdateForm(CentruLocalAdminUpdateForm):
+    class Meta:
+        model = CentruLocal
+        exclude = ["nume", "statut_drepturi", "statut_juridic", "moment_initial_cotizatie"]
+
 class UnitateCreateForm(CrispyBaseModelForm):
     class Meta:
         model = Unitate
@@ -404,4 +408,4 @@ class SetariSpecialeCentruLocalForm(CrispyBaseModelForm):
 
     def __init__(self, *args, **kwargs):
         super(SetariSpecialeCentruLocalForm, self).__init__(*args, **kwargs)
-        self.helper.layout = Layout(Fieldset(u"Trimestru inițial pentru cotizație în sistem", "trimestru", "an"))
+        self.helper.layout = Layout(Fieldset(u"Trimestru inițial pentru cotizație în sistem", "trimestru", "an"),)

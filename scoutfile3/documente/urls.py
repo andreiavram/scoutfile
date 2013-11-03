@@ -1,6 +1,6 @@
 #coding: utf8
 from django.conf.urls.defaults import patterns
-from documente.views import DeclaratieCotizatieSocialaAdauga, CentruLocalRegistre, RegistruCreate, RegistruUpdate, RegistruDetail, SelectieAdaugareDocument, DecizieCuantumAdauga, DecizieCuantumDetail, CalculeazaAcoperireCotizatie, CotizatiiCentruLocal, CotizatiiLider, PreiaIncasariCasier, AdeziuneMembruModifica, AdeziuneMembruAdauga
+from documente.views import DeclaratieCotizatieSocialaAdauga, CentruLocalRegistre, RegistruCreate, RegistruUpdate, RegistruDetail, SelectieAdaugareDocument, DecizieCuantumAdauga, DecizieCuantumDetail, CalculeazaAcoperireCotizatie, CotizatiiCentruLocal, CotizatiiLider, PreiaIncasariCasier, AdeziuneMembruModifica, AdeziuneMembruAdauga, ChitantaPrintare
 from documente.views import CotizatieMembruAdauga
 
 urlpatterns = patterns('structuri.views',
@@ -24,4 +24,6 @@ urlpatterns = patterns('structuri.views',
        (r'cotizatii/centru_local/(?P<pk>\d+)/$', CotizatiiCentruLocal.as_view(), {}, "cotizatii_centru_local"),
        (r'cotizatii/lider/(?P<pk>\d+)/$', CotizatiiLider.as_view(), {}, "cotizatii_lider"),
        (r'cotizatii/preia/(?P<pk>\d+)/$', PreiaIncasariCasier.as_view(), {}, "transfer_cotizatii"),
+
+       (r'chitanta/(?P<pk>\d+)/print/$', ChitantaPrintare.as_view(), {}, "chitanta_print"),
 )

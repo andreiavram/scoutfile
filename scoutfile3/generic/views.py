@@ -132,11 +132,11 @@ class IndexView(TemplateView):
         logger.debug(url_to_send)
 
         json_object = None
-        #try:
-        #    response = urllib2.urlopen(url_to_send)
-        #    json_object = simplejson.loads(response.read())
-        #except Exception, e:
-        #    logger.error("%s: eroare la obtinerea bug-urilor: %s" % (self.__class__.__name__, e))
+        try:
+            response = urllib2.urlopen(url_to_send)
+            json_object = simplejson.loads(response.read())
+        except Exception, e:
+            logger.error("%s: eroare la obtinerea bug-urilor: %s" % (self.__class__.__name__, e))
 
         if json_object:
             for issue in json_object["issues"]:

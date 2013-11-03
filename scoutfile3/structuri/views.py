@@ -1698,62 +1698,6 @@ class CentruLocalCuantumuriCotizatii(ListView):
         data = super(CentruLocalCuantumuriCotizatii, self).get_context_data(**kwargs)
         data.update({"centru_local" : self.centru_local})
         return data
-    
-class CentruLocalAddCuantumCotizatie(CreateView):
-#     from documente.models import DecizieCotizatie
-#     model = DecizieCotizatie
-#     form_class = DecizieCotizatieCreateForm
-#     template_name = "structuri/cl_cuantum_cotizatie_form.html"
-#     
-#     def dispatch(self, request, *args, **kwargs):
-#         self.centru_local = get_object_or_404(CentruLocal, pk = kwargs.pop("pk"))
-#         return super(CentruLocalAddCuantumCotizatie, self).dispatch(request, *args, **kwargs)
-#     
-#     def form_valid(self, form):
-#         self.object = form.save(commit = False)
-#         self.object.save()
-# 
-#         from documente.models import DecizieCotizatie        
-#         asociere = AsociereCreate(document = self.object,
-#                        document_ctype = ContentType.objects.get_for_model(DecizieCotizatie),
-#                        content_type = ctype_centrulocal,
-#                        object_id = self.centru_local.id)
-#         asociere.save()
-#         
-#         return HttpResponseRedirect(self.get_success_url())
-#     
-#     def get_success_url(self):
-#         return reverse("structuri:cl_cuantum_cotizatie", kwargs = {"pk" : self.centru_local.id})
-#         
-#     def get_context_data(self, **kwargs):
-#         data = super(CentruLocalAddCuantumCotizatie, self).get_context_data(**kwargs)
-#         data.update({"centru_local" : self.centru_local})
-#         return data
-    pass
-    
-class MembruDocumenteCotizatieSociala(ListView):
-    #TODO: implement this
-    pass
-
-class MembruDocumentCotizatieSociala(CreateView):
-    #TODO: implement this
-    pass
-
-class MembruIstoricPlatiCotizatie(ListView):
-    #TODO: implement this
-    pass
-
-class MembruAdaugaPlataCotizatie(CreateView):
-    #TODO: implement this
-    pass
-
-class CentruLocalIstoricPlatiCotizatie(ListView):
-    #TODO: implement this
-    pass
-
-class CentruLocalAdaugaPlataCotizatie(CreateView):
-    #TODO: implement this
-    pass
 
 class SetariSpecialeCentruLocal(UpdateView):
     model = CentruLocal

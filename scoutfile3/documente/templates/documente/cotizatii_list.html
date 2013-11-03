@@ -42,6 +42,7 @@
                 <th>Data</th>
                 <th>Casier</th>
                 <th>Predați</th>
+                <th>&nbsp;</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -56,6 +57,10 @@
                     <td>{{ object.data_inregistrare|date:"d.m.Y" }}</td>
                     <td><a href = "{% url documente:cotizatii_lider pk=object.casier.id %}">{{ object.casier }}</a></td>
                     <td>{% if object.predat %}<i class = "icon-ok"></i>{% else %}<i class = "icon-remove"></i>{% endif %}</td>
+                    <td><div class= ="btn-group">
+                        <a href = "{% url documente:chitanta_print pk=object.id %}" class = "btn btn-mini"><i class = "icon-print"></i></a>
+                    </div>
+                        </td>
 				</tr>
 			{% endfor %}
 		</tbody>

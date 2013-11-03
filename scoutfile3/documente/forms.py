@@ -28,6 +28,19 @@ class FolderCreateForm(CrispyBaseModelForm):
         model = Document
         fields = ("titlu", )
 
+class DocumentRegistraturaMixin(object):
+    def check_inregistrare(self):
+        registru = self.cleaned_data['registru']
+        if registru.mod_functionare == "auto":
+            try:
+                self.cleaned_data['numar_inregistrare'] = registru.get_numar_inregistrare()
+            except ValueError, e:
+                raise ValidationError(u"Există deja un document cu acest număr de înregistrare în registrul selectat!")
+        else:
+            if registru.get_document(self.cleaned_data['numar_inregistrare']):
+                raise ValidationError(u"Există deja un document cu acest număr de înregistrare în registrul selectat!")
+
+
 class CotizatieMembruForm(CrispyBaseModelForm):
     class Meta:
         model = ChitantaCotizatie
@@ -63,12 +76,23 @@ class CotizatieMembruForm(CrispyBaseModelForm):
 
         return self.cleaned_data
         
-class DeclaratieCotizatieSocialaForm(CrispyBaseModelForm):
+class DeclaratieCotizatieSocialaForm(CrispyBaseModelForm, DocumentRegistraturaMixin):
     class Meta:
         model = DocumentCotizatieSociala
-        fields = ['nume_parinte', 'motiv', 'este_valabil', 'fisier', 'numar_inregistrare', 'data_inregistrare']
+        fields = ['nume_parinte', 'motiv', 'este_valabil', 'fisier', 'registru', 'numar_inregistrare', 'data_inregistrare']
 
-    data_inregistrare = DateField(widget=BootstrapDateInput, label=u"Data înregistrare")
+    data_inregistrare = DateField(widget=BootstrapDateInput,
+                                  label=u"Data înregistrare",
+                                  required=False,
+                                  help_text=u"Lasă gol pentru data de azi")
+
+    def __init__(self, *args, **kwargs):
+        super(DeclaratieCotizatieSocialaForm, self).__init__(*args, **kwargs)
+        self.fields['registru'].queryset = Registru.objects.filter(tip_registru__in=DocumentCotizatieSociala.registre_compatibile)
+
+    def clean(self):
+        self.check_inregistrare()
+        return self.cleaned_data
 
 class RegistruForm(CrispyBaseModelForm):
     def get_intervale(self):
@@ -193,7 +217,7 @@ class TransferIncasariForm(CrispyBaseForm):
         return plati
 
 
-class AdeziuneCreateForm(CrispyBaseModelForm):
+class AdeziuneCreateForm(CrispyBaseModelForm, DocumentRegistraturaMixin):
     class Meta:
         model = Adeziune
         fields = ["fisier", "registru", "numar_inregistrare", "data_inregistrare"]
@@ -215,16 +239,7 @@ class AdeziuneCreateForm(CrispyBaseModelForm):
 
 
     def clean(self):
-        registru = self.cleaned_data['registru']
-        if registru.mod_functionare == "auto":
-            try:
-                self.cleaned_data['numar_inregistrare'] = registru.get_numar_inregistrare()
-            except ValueError, e:
-                raise ValidationError(u"Există deja un document cu acest număr de înregistrare în registrul selectat!")
-        else:
-            if registru.get_document(self.cleaned_data['numar_inregistrare']):
-                raise ValidationError(u"Există deja un document cu acest număr de înregistrare în registrul selectat!")
-
+        self.check_inregistrare()
         return self.cleaned_data
 
 class AdeziuneUpdateForm(CrispyBaseModelForm):
