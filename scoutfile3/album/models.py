@@ -255,7 +255,10 @@ class SetPoze(models.Model):
                     im = Imagine(set_poze=self, titlu=os.path.basename(f.filename),
                                  image=os.path.join(event_path_no_root, f.filename))
                     logger.debug("SetPoze: poza: %s" % im.image)
-                    im.save()
+                    try:
+                        im.save()
+                    except Exception, e:
+                        logger.error("eroare: %s %s" % (e, traceback.format_exc()))
                     current_count += 1
                     current_percent = current_count * 100. / total_count
                     if current_percent - 5 > self.procent_procesat:
