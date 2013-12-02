@@ -10,10 +10,9 @@
 {% endblock %}
 
 {% block content %}
-	<ul class = "unstyled span11">
 	{% autopaginate object_list 4 as object_list %}
 	{% for eveniment in object_list %}
-		<li style = "margin-bottom: 20px;">
+		<div class = "row-fluid" style = "margin-bottom: 20px">
 			<div class = "" style = "position:relative;">
 				<div class = "span3">
 					<a href = "{% url album:eveniment_detail slug=eveniment.slug %}">
@@ -37,8 +36,7 @@
                     </div>
 				</div>
 			</div>
-		</li>
+		</div>
 	{% endfor %}
-	</ul>
 	{% paginate %}
 {% endblock %}
