@@ -1,4 +1,4 @@
-# coding: utf-8
+    # coding: utf-8
 from django.db.models.aggregates import Count
 from django.utils.simplejson import dumps
 from django.views.generic.edit import UpdateView, CreateView
@@ -264,6 +264,14 @@ class SetImaginiUpload(CreateView):
     def dispatch(self, request, *args, **kwargs):
         self.eveniment = get_object_or_404(Eveniment, slug = kwargs.get("slug"))
         return super(SetImaginiUpload, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        #   Cleanup residual uploads here
+        for key in request.session.keys():
+            if len(key.split("-")) > 1 and key.split("-")[0] == request.user.id:
+                del request.session[key]
+
+        return super(SetImaginiUpload, self).get(request, *args, **kwargs)
     
     def form_valid(self, form):
         logger.debug("%s - form valid" % self.__class__.__name__)
