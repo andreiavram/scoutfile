@@ -47,7 +47,7 @@ class Eveniment(models.Model):
 
     def save(self, *args, **kwargs):
         on_create = False
-        if self.id == None:
+        if self.id is None:
             on_create = True
 
         retval = super(Eveniment, self).save(*args, **kwargs)
@@ -71,7 +71,7 @@ class Eveniment(models.Model):
                 return retval
 
             #   delete days outside the current span
-            self.zieveniment_set.filter(Q(date__lte = self.start_date) | Q(date__gte = self.end_date)).delete()
+            self.zieveniment_set.filter(Q(date__lt = self.start_date) | Q(date__gt = self.end_date)).delete()
             zi_index = 1
             date = self.start_date
 
