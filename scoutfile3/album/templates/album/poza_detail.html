@@ -6,9 +6,10 @@
 	<div class = "image-container" style = "position: relative; text-align: center; float:left; ">
 		<div style = "margin-left: auto; margin-right: auto;width : {{ object.get_large_size.0 }}px; background-color: black; padding: 5px;">
 		<div style = "float: left; height: 0;">
-		{% for face in object.detectedface_set.all %}
-			<div class = "face" style = "display: none; position: absolute; left: {% widthratio face.x object.resolution_x 960 %}px; top: {% widthratio face.y object.resolution_x 960 %}px; width: {% widthratio face.width object.resolution_x 960 %}px; height: {% widthratio face.height object.resolution_x 960 %}px; border: 3px dashed #3c3f41;"></div>
-		{% endfor %}
+{#        #}
+{#		{% for face in object.detectedface_set.all %}#}
+{#			<div class = "face" style = "display: none; position: absolute; left: {% widthratio face.x object.resolution_x 960 %}px; top: {% widthratio face.y object.resolution_x 960 %}px; width: {% widthratio face.width object.resolution_x 960 %}px; height: {% widthratio face.height object.resolution_x 960 %}px; border: 3px dashed #3c3f41;"></div>#}
+{#		{% endfor %}#}
 		</div>
 
             <img src = "{{ object.get_large_url }}?{{ random_value }}" style = "" />
