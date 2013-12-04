@@ -12,6 +12,8 @@ from dajaxice.decorators import dajaxice_register
 @dajaxice_register
 def vote_picture(request, picture_id, score):
     dajax = Dajax()
+
+    picture_id = int(picture_id)
     picture = get_object_or_404(Imagine, id = picture_id)
     
     if "has_voted_%d" % picture_id in request.session:
