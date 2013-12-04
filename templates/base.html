@@ -6,6 +6,8 @@
 		<meta name="viewport" content="width=device-width">
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<title>ScoutFile</title>
+        {% block meta %}
+        {% endblock %}
 		
 		{% comment %}
 		<script src="//d3nslu0hdya83q.cloudfront.net/dist/1.0/raven.min.js"></script>	
@@ -43,6 +45,8 @@
 		{% endblock %}
 	</head>
 	<body>
+        {% block fb_root %}
+        {% endblock %}
 	    <div class="navbar navbar-fixed-top">
 	   	 	<div class="navbar-inner">
 	    		<div class="container">
