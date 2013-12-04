@@ -9,7 +9,7 @@
 		<li class = "nav-header">Acțiuni</li>
 		<li class = "disabled"><a href = ""><i class = "icon-download"></i> Download toate</a>
 		<li class = "disabled"><a href = ""><i class = "icon-download-alt"></i> Torrent</a>
-        <li><a href = "{% url album:zi_edit pk=object.id %}"><i class = "icon-pencil"></i> Editează</a></li>
+        {% if media_manager %}<li><a href = "{% url album:zi_edit pk=object.id %}"><i class = "icon-pencil"></i> Editează</a></li>{% endif %}
 		<li class = "nav-header">Locații</li>
 		<li><a href = "{% url album:eveniment_detail slug=object.eveniment.slug %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ object.eveniment }}</a>
 		<li><a href = "{% url album:zi_stats pk=object.id %}"><i class = "icon-list-alt"></i> Statistici</a></li>
