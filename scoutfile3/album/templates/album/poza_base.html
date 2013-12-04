@@ -154,7 +154,7 @@
     <meta property="og:title" content="{{ object.set_poze.eveniment.nume }}" />
     <meta property="og:type" content="image" />
     <meta property="og:image" content="{{ url_root }}{{ object.get_large_url }}" />
-    <meta property="og:url" content="{{ url_root }}{{ object.get_large_url }}" />
+    <meta property="og:url" content="{{ url_root }}{% url album:poza_detail pk=object.id %}" />
     <meta property="og:description" content="{{ object.set_poze.eveniment.descriere }}" />
 {% endblock %}
 
