@@ -11,13 +11,13 @@
         jQuery(document).ready(function () {
             jQuery(".thumbs_up").click(function (event) {
                 console.log("thumbs_up");
-                Dajaxice.album.vote_picture(Dajax.process, {"picture_id": jQuery(this).data("image"), "score": 1});
+                Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id": jQuery(this).data("image"), "score": 1});
                 event.preventDefault();
                 return false;
             });
 
             jQuery(".thumbs_down").click(function (event) {
-                Dajaxice.album.vote_picture(Dajax.process, {"picture_id": jQuery(this).data("image"), "score": -1});
+                Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id": jQuery(this).data("image"), "score": -1});
                 event.preventDefault();
                 return false;
             });
