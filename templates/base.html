@@ -2,107 +2,110 @@
 {% load static from staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta name="viewport" content="width=device-width">
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<title>ScoutFile</title>
-        {% block meta %}
-        {% endblock %}
-		
-		{% comment %}
+<head>
+    <meta name="viewport" content="width=device-width">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>ScoutFile</title>
+    {% block meta %}
+    {% endblock %}
+
+    {% comment %}
 		<script src="//d3nslu0hdya83q.cloudfront.net/dist/1.0/raven.min.js"></script>	
 		<script>
 			Raven.config('http://cce06e32cfae4025af7c2b39b889bc27@yeti.albascout.ro/sentry/2').install();
 		</script>
 		{% endcomment %}
-			
-		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
-		<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel = 'stylesheet' />
-		<!--  <script src="{{ STATIC_URL }}js/jquery-1.7.2.min.js" type = "text/javascript" charset="utf-8"></script> !-->
-		<script src = '{% static "dajax/jquery.dajax.core.js" %}'></script>
 
-	    <!-- Le styles -->
-	    <link href="{{ STATIC_URL }}/css/bootstrap.css" rel="stylesheet" type = "text/css">
-	    <link href="{{ STATIC_URL }}/css/bootstrap-responsive.css" rel="stylesheet" type = "text/css">
-	    <link href="{{ STATIC_URL }}/css/font-awesome.css" rel="stylesheet" type = "text/css">
-	    
-	    <script src = "{{ STATIC_URL }}/js/bootstrap.min.js"></script>
-	
-	    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-	    <!--[if lt IE 9]>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel='stylesheet'/>
+    <!--  <script src="{{ STATIC_URL }}js/jquery-1.7.2.min.js" type = "text/javascript" charset="utf-8"></script> !-->
+    <script src='{% static "dajax/jquery.dajax.core.js" %}'></script>
+
+    <!-- Le styles -->
+    <link href="{{ STATIC_URL }}/css/bootstrap.css" rel="stylesheet" type="text/css">
+    <link href="{{ STATIC_URL }}/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+    <link href="{{ STATIC_URL }}/css/font-awesome.css" rel="stylesheet" type="text/css">
+
+    <script src="{{ STATIC_URL }}/js/bootstrap.min.js"></script>
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
 	      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 	    <![endif]-->
-	    <link rel = "stylesheet" href = "{{ STATIC_URL}}css/layout.css" type = "text/css" media = "all" />
-	    
-	    {% dajaxice_js_import %}
-	    
-	    <script type = 'text/javascript' src = "{{ STATIC_URL }}js/ajax_select.js"></script>
-	    <link type = "text/css" href = "{{ STATIC_URL }}css/ajax_select.css" rel = "stylesheet">
-	    
-		{% block extrahead %}
-		{% endblock %}
-	</head>
-	<body>
-        {% block fb_root %}
-        {% endblock %}
-	    <div class="navbar navbar-fixed-top">
-	   	 	<div class="navbar-inner">
-	    		<div class="container">
-	    		    <a class="brand" href="{% url index %}">
-				    	ScoutFile
-				    </a>
-	    			{% include 'top_menu.html' %}
-	    		</div>
-	    	</div>
-	    </div>
-        <div id = "wrap">
-		<div id = "content-wrapper" class = "container-fluid">
-			<div class = "row-fluid">
-				<div id="menu" class="span2">
-						{% block context_menu %}
-							&nbsp;
-						{% endblock %}
-				</div>
-				
-				<div id="content" class = "span10">
-					<div id="content-inner">
-						<div class = "page-header">
-							<h1>{% block page_title %}ScoutFile{% endblock %}</h1>
-						</div>
-						<div id = "message_container span10">
-						{% if messages %}
-						    {% for message in messages %}
-						    	<div id = "msg_{{ forloop.count }}" {% if message.tags %} class="django-message alert alert-{{ message.tags }}"{% endif %}>
-						    		{{ message }}
-						    		<a class="close" data-dismiss="alert" href="#">&times;</a>
-						    	</div>
-						    {% endfor %}
-						{% endif %}
-					    <script type = "text/javascript">
-					    	function hide_messages() {
-								jQuery(".django-message").hide("fast");					    		
-					    	}
-					    	setTimeout("hide_messages()", 1000 * 3);
-					    </script>
-						</div>
-						{% block content %}
-						{% endblock %}
-					</div>
-				</div>
-			</div>
-		</div>
-        </div>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/layout.css" type="text/css" media="all"/>
 
-        <div id="footer">
-                <div id = "footer-inner">
-                &copy; 2013 <a href = "http://yeti.albascout.ro">yeti</a>. Gata oricând! - Versiunea <a href = "{{ REDMINE_VERSION_URL }}"><i class = "icon-cogs"></i> {{ MAJOR_VERSION }}.{{ MINOR_VERSION }}</a> - <a href = "{% url issues %}"><i class = "icon-exclamation-sign"></i> Ai dat de o problemă?</a></a>
+    {% dajaxice_js_import %}
+
+    <script type='text/javascript' src="{{ STATIC_URL }}js/ajax_select.js"></script>
+    <link type="text/css" href="{{ STATIC_URL }}css/ajax_select.css" rel="stylesheet">
+
+    {% block extrahead %}
+    {% endblock %}
+</head>
+<body>
+{% block fb_root %}
+{% endblock %}
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="brand" href="{% url index %}">
+                ScoutFile
+            </a>
+            {% include 'top_menu.html' %}
+        </div>
+    </div>
+</div>
+<div id="wrap">
+    <div id="content-wrapper" class="container-fluid">
+        <div class="row-fluid">
+            <div id="menu" class="span2">
+                {% block context_menu %}
+                    &nbsp;
+                {% endblock %}
+            </div>
+
+            <div id="content" class="span10">
+                <div id="content-inner">
+                    <div class="page-header">
+                        <h1>{% block page_title %}ScoutFile{% endblock %}</h1>
+                    </div>
+                    <div id="message_container span10">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div id="msg_{{ forloop.count }}" {% if message.tags %}
+                                     class="django-message alert alert-{{ message.tags }}"{% endif %}>
+                                    {{ message }}
+                                    <a class="close" data-dismiss="alert" href="#">&times;</a>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        <script type="text/javascript">
+                            function hide_messages() {
+                                jQuery(".django-message").hide("fast");
+                            }
+                            setTimeout("hide_messages()", 1000 * 3);
+                        </script>
+                    </div>
+                    {% block content %}
+                    {% endblock %}
                 </div>
+            </div>
         </div>
+    </div>
+</div>
 
-		{% block extrajs %}
-		{% endblock %}
+<div id="footer">
+    <div id="footer-inner">
+        &copy; 2013 <a href="http://yeti.albascout.ro">yeti</a>. Gata oricând! - Versiunea <a
+            href="{{ REDMINE_VERSION_URL }}"><i class="icon-cogs"></i> {{ MAJOR_VERSION }}.{{ MINOR_VERSION }}</a> - <a
+            href="{% url issues %}"><i class="icon-exclamation-sign"></i> Ai dat de o problemă?</a></a>
+    </div>
+</div>
+
+{% block extrajs %}
+{% endblock %}
 {#		<script type = "text/javascript">#}
 {#			$("document").ready(function () {#}
 {#				$("#menu").css({"height" : $("#content-wrapper").height()});#}
@@ -113,5 +116,22 @@
 {#				});#}
 {#			});#}
 {#		</script>#}
-	</body>
+<script>
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-23160397-2', 'albascout.ro');
+    ga('send', 'pageview');
+
+</script>
+</body>
 </html>
