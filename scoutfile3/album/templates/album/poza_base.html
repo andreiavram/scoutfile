@@ -176,7 +176,7 @@
         {% endfor %}
         </li>
     </ul>
-    <div class="fb-like" data-href="{{ url_root }}{% url album:poza_detail id=object.id %}" data-layout="standard" data-action="like" data-show-faces="false" data-share="true"></div>
+    <div class="fb-like" data-href="{{ url_root }}{% url album:poza_detail pk=object.id %}" data-layout="standard" data-action="like" data-show-faces="false" data-share="true"></div>
     <ul class = "nav nav-list">
 
 	    <li class = "nav-header">EXIF</li>
