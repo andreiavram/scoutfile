@@ -2,7 +2,9 @@
 		<li class = "nav-header">Evenimente</li>
 		<li><a href = "{% url album:index %}"><i class = "icon-picture"></i> <strong>Toate evenimentele</strong></a></li>
         {% for eveniment in object_list %}
+            {% if eveniment.slug %}
             <li><a href = "{% url album:eveniment_detail slug=eveniment.slug %}"><i class = "icon-picture"></i> {{ eveniment }}</a></li>
+            {% endif %}
         {% endfor %}
         {% if user.is_authenticated %}<li><a href = "{% url album:eveniment_create %}"><i class = "icon-plus-sign"></i> Adaugă eveniment</a></li>{% endif %}
         {% if user.is_authenticated %}<li class = "nav-header">Seturi fotografii</li>
