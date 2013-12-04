@@ -11,7 +11,7 @@
 		{% endfor %}
 		</div>
 
-		<img src = "{{ object.get_large_url }}?{{ random_value }}" style = "" />
+            <img src = "{{ object.get_large_url }}?{{ random_value }}" style = "" />
 		{% if next_photo %}
 			<div style = "position: absolute; right: 10px; top: 10px; padding: 3px 6px; background: #000; border: 1px solid #666">
 				<a href = "{% url album:poza_detail pk=next_photo.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-chevron-right icon-white"></i></a>
