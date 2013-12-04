@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 class Eveniment(models.Model):
     centru_local = models.ForeignKey("structuri.CentruLocal")
     nume = models.CharField(max_length=255, verbose_name=u"Titlu")
-    descriere = model   s.TextField(null=True, blank=True)
+    descriere = models.TextField(null=True, blank=True)
     start_date = models.DateTimeField(verbose_name=u"Începe pe", help_text=u"Folosește selectorul de date pentru a defini o dată de început")
     end_date = models.DateTimeField(verbose_name=u"Ține până pe", help_text=u"Folosește selectorul de date pentru a defini o dată de sfârșit")
     slug = models.SlugField(max_length=255, unique=True)
