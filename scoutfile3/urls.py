@@ -1,7 +1,6 @@
 from django.conf.urls.defaults import patterns, include, url
 
 from django.contrib import admin
-from django.views.generic.base import TemplateView
 from generic.views import Logout, Login, IndexView, Issues,\
     CreateIssue
 from django.conf import settings
@@ -15,6 +14,8 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 
 urlpatterns = patterns('',
+    url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
+
     (r'^structuri/', include('structuri.urls', namespace = 'structuri')),
     (r'^album/', include('album.urls', namespace = 'album')),
     (r'^generic/', include('generic.urls', namespace = 'generic')),
@@ -26,8 +27,8 @@ urlpatterns = patterns('',
     (r'issues/create/$', CreateIssue.as_view(), {}, "create_issue"),
     
     ('^$', IndexView.as_view(template_name = "home.html"), {}, "index"),
-                       
-    url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
+
+
     (r'ajax_select/', include('ajax_select.urls')),
     (r'^photologue/', include('photologue.urls')),
 
