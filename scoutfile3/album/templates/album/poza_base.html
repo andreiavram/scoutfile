@@ -151,11 +151,11 @@
 {% endblock %}
 
 {% block meta %}
-<meta property="og:title" content="{{ object.set_poze.eveniment.nume }}" />
-<meta property="og:type" content="image" />
-<meta property="og:image" content="{{ url_root }}{{ object.get_large_url }}" />
-<meta property="og:url" content="{{ url_root }}{{ object.get_large_url }}" />
-<meta property="og:description" content="{{ object.set_poze.eveniment.descriere }}" />
+    <meta property="og:title" content="{{ object.set_poze.eveniment.nume }}" />
+    <meta property="og:type" content="image" />
+    <meta property="og:image" content="{{ url_root }}{{ object.get_large_url }}" />
+    <meta property="og:url" content="{{ url_root }}{{ object.get_large_url }}" />
+    <meta property="og:description" content="{{ object.set_poze.eveniment.descriere }}" />
 {% endblock %}
 
 {% block context_menu %}
@@ -173,10 +173,12 @@
         <li class = "nav-header">Tag-uri</li>
         <li>{% for tag in object.tags.all %}
             <span class = "tag tag-small">{{ tag.name }}</span>
+        {% empty %}
+            <em>Nu sunt</em>
         {% endfor %}
         </li>
     </ul>
-    <div class="fb-like" data-href="{{ url_root }}{% url album:poza_detail pk=object.id %}" data-layout="standard" data-action="like" data-show-faces="false" data-share="true"></div>
+    <div class="fb-like" style = "margin-left: 15px;" data-href="{{ url_root }}{% url album:poza_detail pk=object.id %}" data-layout="standard" data-action="like" data-layout = "box_count" data-width = "150" data-show-faces="false" data-share="true"></div>
     <ul class = "nav nav-list">
 
 	    <li class = "nav-header">EXIF</li>
