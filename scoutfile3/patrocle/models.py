@@ -1,7 +1,5 @@
 # coding: utf-8
 from django.db import models
-from structuri.models import InformatieContact, TipInformatieContact,\
-    Membru
 from django.contrib.contenttypes.models import ContentType
 import datetime
 from django.db.models.query_utils import Q
@@ -66,6 +64,7 @@ class SMSMessage(models.Model):
     
     def resolve_destinatar(self):
         try:
+            from structuri.models import InformatieContact, TipInformatieContact, Membru
             tip_informatie = TipInformatieContact.objects.filter(nume__icontains = "mobil")
             data = InformatieContact.objects.filter(tip_informatie__in = tip_informatie,
                                              content_type = ContentType.objects.get_for_model(Membru),
