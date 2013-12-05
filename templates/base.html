@@ -68,9 +68,11 @@
 
             <div id="content" class="span10">
                 <div id="content-inner">
+                    {% block page_title_container %}
                     <div class="page-header">
                         <h1>{% block page_title %}ScoutFile{% endblock %}</h1>
                     </div>
+                    {% endblock %}
                     <div id="message_container">
                         {% if messages %}
                             {% for message in messages %}
