@@ -379,7 +379,11 @@ class Imagine(ImageModel):
             on_create = True
             if im is None:
                 im = Image.open(self.image)
-            info = im._getexif()
+            try:
+                info = im._getexif()
+            except Exception, e:
+                info = None
+
 
             exif_data = {}
 
