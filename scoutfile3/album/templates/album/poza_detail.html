@@ -5,7 +5,7 @@
 	<div class = "btn-toolbar">
 		<div class = "btn-group">
 			<a class = "btn" href = "{% url album:poza_flag pk=object.id %}"><i class = "icon-flag"></i></a>
-            <a class = "btn make_cover" href = "javascript:void()" data-image = "{{ object.id }}"><i class = "icon-picture"></i></a>
+            {% if media_manager %}<a class = "btn make_cover" href = "javascript:void()" data-image = "{{ object.id }}"><i class = "icon-picture"></i></a>{% endif %}
 		</div>
 		<div class = "btn-group">
 			<a href = "javascript:void()" class = "btn thumbs_up" data-image = "{{ object.id }}"><i class = "icon-thumbs-up"></i></a>
