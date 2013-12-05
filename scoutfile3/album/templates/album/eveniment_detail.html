@@ -100,12 +100,11 @@
                      data-layout="box_count" data-width="150" data-show-faces="false" data-share="true"></div>
 
         </div>
-    <div class="span5" style = "text-align: justify">
+    <div class="span4" style = "text-align: justify">
             {% if object.descriere %}{{ object.descriere|linebreaks }}{% endif %}
         </div>
-        <div class="span4" style = "text-align: right">
-            <img class = "thumbnail" src = "{% if eveniment.cover_photo %}{{ eveniment.cover_photo.get_thumbnail_url }}{% else %}http://placehold.it/320x240{% endif %}" />
-            <div class="map-canvas thumbnail" id="map_canvas" style="height: 150px; width: {{ eveniment.cover_photo.get_thumbnail_size.0 }}px; border: 1px solid #efefef; padding: 5px; background-color: #ccc">
+    <div class = "span3">
+            <div class="map-canvas thumbnail" id="map_canvas" style="height: {{ eveniment.cover_photo.get_thumbnail_size.1 }}px; width: 100%; border: 1px solid #efefef; padding: 5px; background-color: #ccc">
                 <div style = "position: relative; top: 120px; left: 120px; color: #333;"><i style = "color: #333" class = "icon-pushpin icon-4x"></i></div>
             </div>
             <div style = "text-align: right">
@@ -113,6 +112,10 @@
             </div>
 
         </div>
+        <div class="span4" style = "text-align: right">
+            <img class = "thumbnail" src = "{% if eveniment.cover_photo %}{{ eveniment.cover_photo.get_thumbnail_url }}{% else %}http://placehold.it/320x240{% endif %}" />
+        </div>
+
 
 
 
