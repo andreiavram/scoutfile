@@ -50,9 +50,9 @@
 {% endblock %}
 
 {% block meta %}
-    <meta property="og:title" content="{{ object.nume }}" />
+    <meta property="og:title" content="{{ object.nume }} - Album Foto" />
     <meta property="og:type" content="object" />
-    <meta property="og:image" content="{{ url_root }}{{ object.cover_photo.get_large_url }}" />
+    <meta property="og:image" content="{{ url_root }}{{ object.cover_photo.get_thumbnail_url }}" />
     <meta property="og:url" content="{{ url_root }}{% url album:eveniment_detail slug=object.slug %}" />
     <meta property="og:description" content="{{ object.descriere }}" />
 {% endblock %}
