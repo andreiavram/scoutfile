@@ -22,6 +22,20 @@
                 return false;
             });
 
+            jQuery(".rotate_cw").click(function (event) {
+                var that = this;
+                var d = new Date();
+                jQuery.get($(this).attr('href'), function (data) { $("#poza_" + $(that).data("image")).attr("src", data + "?" + d.getTime())});
+                event.preventDefault();
+            });
+
+            jQuery(".rotate_ccw").click(function (event) {
+                var that = this;
+                var d = new Date();
+                jQuery.get($(this).attr('href'), function (data) { console.log(data, "here"); $("#poza_" + $(that).data("image")).attr("src", data  + "?" + d.getTime())});
+                event.preventDefault();
+            });
+
             $(".imagine").popover({"placement" : "bottom", "html" : true, "trigger": "hover", "content": function () { return $($(this).data("contentsource")).html(); }});
         });
 
@@ -48,7 +62,7 @@
         <div class="span3" style="position: relative;">
             <div class="thumbnail">
                 <a href="{% url album:poza_detail pk=image.id %}{% if autor %}?autor={{ autor }}{% endif %}">
-                    <img src="{{ image.get_thumbnail_url }}" class="imagine" data-title = "{{ image.titlu }}" data-contentsource = "#source_{{ image.id }}" />
+                    <img src="{{ image.get_thumbnail_url }}" class="imagine" data-title = "{{ image.titlu }}" id = "poza_{{ image.id }}" data-contentsource = "#source_{{ image.id }}" />
                 </a>
                 <div style = "display:none" id = "source_{{ image.id }}">
                    <div class = "current-tags">
@@ -67,6 +81,15 @@
                                 class="icon-thumbs-down"></i></a>
                     </div>
                     {% if media_manager or request.user.is_superuser %}
+                        <div class="btn-group" style=""
+                             id="picture_{{ image.id }}">
+                            <a href = "{% url album:poza_rotate pk=image.id %}?direction=ccw&size=thumbnail"  class="btn btn-mini rotate_ccw" data-image="{{ image.id }}"><i
+                                    class="icon-rotate-left"></i></a>
+                            <a href = "{% url album:poza_rotate pk=image.id %}?direction=cw&size=thumbnail" class="btn btn-mini rotate_cw" data-image="{{ image.id }}"><i
+                                    class="icon-rotate-right"></i></a>
+                        </div>
+
+
                         <div class="btn-group">
                             <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
                                 <i class="icon-eye-open"> </i> <span
