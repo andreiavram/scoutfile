@@ -138,8 +138,8 @@
 		<li class = "nav-header">Acțiuni</li>
 		<li class = "disabled"><a href = ""><i class = "icon-download"></i> Download toate</a></li>
 		<li class = "disabled"><a href = ""><i class = "icon-download-alt"></i> Torrent</a></li>
-        <li><a href = "{% url album:poza_edit pk=object.id %}"><i class = "icon-pencil"></i> Editează</a></li>
-        <li><a href = "{% url album:poza_delete pk=object.id %}"><i class = "icon-trash"></i> Șterge</a></li>
+        {% if media_manager %}<li><a href = "{% url album:poza_edit pk=object.id %}"><i class = "icon-pencil"></i> Editează</a></li>
+        <li><a href = "{% url album:poza_delete pk=object.id %}"><i class = "icon-trash"></i> Șterge</a></li>{% endif %}
 		<li class = "nav-header">Locații</li>
 		<li><a href = "{% url album:eveniment_detail slug=object.set_poze.eveniment.slug %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ object.set_poze.eveniment }}</a></li>
 		<li><a href = "{% url album:zi_detail pk=object.get_day.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ object.get_day }}</a></li>
