@@ -7,7 +7,7 @@ from django.views.generic.base import View, TemplateView
 from django.shortcuts import get_object_or_404
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404, HttpResponseRedirect, HttpResponse,\
-    HttpResponseForbidden, HttpResponseNotAllowed
+    HttpResponseForbidden, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.core.urlresolvers import reverse
 import datetime
 from django.contrib import messages
@@ -223,17 +223,21 @@ class RotateImage(View):
     def dispatch(self, request, *args, **kwargs):
         self.imagine = get_object_or_404(Imagine, id = kwargs.pop("pk"))
         
-        if not request.GET.has_key("direction"):
-            raise Http404
+        if "direction" not in request.GET:
+            raise Http404()
         
-        self.direction = request.GET.get("direction")
+        self.direction = request.GET.get("direction", "cw")
         if self.direction not in ("cw", "ccw"):
-            raise Http404
+            return HttpResponseBadRequest()
         
         return super(RotateImage, self).dispatch(request, *args, **kwargs)
     
-    def get(self, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         self.imagine.rotate(self.direction)
+
+        if "size" in request.GET:
+            data = getattr(self.imagine, "get_%s_url" % request.GET['size'])()
+            return HttpResponse(data)
         return HttpResponseRedirect(reverse("album:poza_detail", kwargs = {"pk" : self.imagine.id}))
     
     
@@ -620,4 +624,5 @@ class ImagineTagSearchJSON(JSONView):
                          "limit" : self.cleaned_data['limit'],
                          "count" : queryset.count(),
                          "total_count" : total_count}
-        return dumps(response_json)    
+        return dumps(response_json)
+
