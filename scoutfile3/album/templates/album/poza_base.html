@@ -193,9 +193,6 @@
         {% endfor %}
         </li>
     </ul>
-    {% if object.published_status == 4 %}
-    <div class="fb-like" style = "margin-left: 15px;" data-href="{{ url_root }}{% url album:poza_detail pk=object.id %}" data-action="like" data-layout = "box_count" data-width = "150" data-show-faces="false" data-share="true"></div>
-    {% endif %}
     <ul class = "nav nav-list">
 
 	    <li class = "nav-header">EXIF</li>
