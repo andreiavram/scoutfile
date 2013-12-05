@@ -25,6 +25,7 @@ from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, Po
 from album.models import SetPoze
 from album.forms import SetPozeCreateForm, SetPozeUpdateForm
 from generic.views import GenericDeleteView
+from settings import MEDIA_ROOT
 from structuri.models import Membru
 from generic.views import JSONView, ScoutFileAjaxException
 from album.models import IMAGINE_PUBLISHED_STATUS
@@ -483,10 +484,29 @@ class EvenimentCreate(CreateView):
         self.centru_local = request.user.utilizator.membru.centru_local
         return super(CreateView, self).dispatch(request, *args, **kwargs)
 
+    def handle_uploaded_file(self, f):
+        base_path = os.path.join("album", "%s" % f.name)
+        path = os.path.join(MEDIA_ROOT, base_path)
+        with open(path, 'wb+') as destination:
+            for chunk in f.chunks():
+                destination.write(chunk)
+
+        return base_path
+
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.centru_local = self.centru_local
+
+        if "cover_photo" in self.request.FILES:
+            path = self.handle_uploaded_file(self.request.FILES['cover_photo'])
+            cover_photo = Imagine(image = path)
+            cover_photo.save()
+            self.object.custom_cover_photo = cover_photo
+
         self.object.save()
+
+
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
@@ -501,7 +521,24 @@ class EvenimentUpdate(UpdateView):
     def dispatch(self, request, *args, **kwargs):
         return super(EvenimentUpdate, self).dispatch(request, *args, **kwargs)
 
+    def handle_uploaded_file(self, f):
+        base_path = os.path.join("album", "%d-%s" % (self.object.id, f.name))
+        path = os.path.join(MEDIA_ROOT, base_path)
+        with open(path, 'wb+') as destination:
+            for chunk in f.chunks():
+                destination.write(chunk)
+
+        return base_path
+
     def form_valid(self, form):
+        self.object = form.save(commit = False)
+        if "cover_photo" in self.request.FILES:
+            path = self.handle_uploaded_file(self.request.FILES['cover_photo'])
+            cover_photo = Imagine(image = path)
+            cover_photo.save()
+            self.object.custom_cover_photo = cover_photo
+        self.object.save()
+
         messages.success(self.request, u"Evenimentul a fost actualizat")
         return super(EvenimentUpdate, self).form_valid(form)
 

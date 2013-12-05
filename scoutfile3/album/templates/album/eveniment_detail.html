@@ -42,7 +42,26 @@
 {% endblock %}
 
 {% block content %}
-    {% if autor %}
+    <div class="row-fluid">
+        <div class="span3">
+            <img class = "thumbnail" src = "{% if eveniment.cover_photo %}{{ eveniment.cover_photo.get_thumbnail_url }}{% else %}http://placehold.it/320x240{% endif %}" />
+        </div>
+        <div class = "span3">
+            <div class="map-canvas thumbnail" id="map_canvas" style="height: 200px; width: 100%; border: 1px solid #efefef; padding: 5px; background-color: #ccc">
+                <div style = "position: relative; top: 120px; left: 120px; color: #333;"><i style = "color: #333" class = "icon-pushpin icon-4x"></i></div>
+            </div>
+            <div style = "text-align: right">
+            {% if object.locatie_text %}<strong>Locație: </strong>{{ object.locatie_text }}{% endif %}
+            </div>
+
+        </div>
+        <div class="span6" style = "text-align: justify">
+            {% if object.descriere %}{{ object.descriere|linebreaks }}{% endif %}
+        </div>
+    </div>
+    <br />
+    <div class = "row-fluid">
+        {% if autor %}
         <div class="alert alert-success">Arăt doar pozele de la <strong>{{ autor }}</strong></div>{% endif %}
     <p><strong>Conține {{ object.total_poze }} fotografii de la {{ object.get_autori|length }} fotografi <i
             class="icon-star"></i>
@@ -50,19 +69,9 @@
                 class="icon-star"></i> {% for autor in object.get_autori %}
             <a href="{% url album:eveniment_detail slug=object.slug %}?autor={{ autor }}">{{ autor }}</a>
             <i class='icon-star'></i> {% endfor %}</strong>
-    <div class="row-fluid">
-        <div class="span3">
-            <div class="map-canvas" id="map_canvas" style="height: 300px; width: 100%; border: 1px solid #efefef; padding: 5px; background-color: #ccc">
-                <div style = "position: relative; top: 120px; left: 120px; color: #333;"><i style = "color: #333" class = "icon-pushpin icon-4x"></i></div>
-            </div>
-            <div style = "text-align: right">
-            {% if object.locatie_text %}<strong>Locație: </strong>{{ object.locatie_text }}{% endif %}
-            </div>
-        </div>
-        <div class="span9" style = "text-align: justify">
-            {% if object.descriere %}{{ object.descriere|linebreaks }}{% endif %}
-        </div>
     </div>
+
+
 
     {% for zi, zi_photos in zile %}
         <h2><a href="{% url album:zi_detail pk=zi.id %}{% if autor %}?autor={{ autor }}{% endif %}">Ziua
