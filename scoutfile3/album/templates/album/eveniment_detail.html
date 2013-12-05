@@ -105,7 +105,7 @@
 
         </div>
         <div class="span4" style="text-align: justify">
-            {% if object.descriere %}{{ object.descriere|linebreaks }}<br/>{% endif %}
+            {% if object.descriere %}{{ object.descriere|safe|linebreaks }}<br/>{% endif %}
             <p><strong>Conține {{ object.total_poze }} fotografii de la {{ object.get_autori|length }} fotografi <i
                     class="icon-star"></i>
                 A început {{ object.start_date|date:"l, d F Y" }} și a ținut până {{ object.end_date|date:"l, d F Y" }}
