@@ -189,8 +189,8 @@ class ZiEveniment(models.Model):
         images = images.order_by("data")
         return images
 
-    def filter_public_photos(self, author = None, user = None):
-        return self.filter_photos(self, author=author, user=user, published_status = 4)
+    def filter_public_photos(self, autor = None, user = None):
+        return self.filter_photos(self, autor=autor, user=user, published_status = 4)
 
     def author_distribution(self):
         authors = {}
