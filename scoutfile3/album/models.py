@@ -91,6 +91,7 @@ class Eveniment(models.Model):
         return autori
 
     def cover_photo(self):
+        print self, self.custom_cover_photo
         if self.custom_cover_photo:
             return self.custom_cover_photo
 
@@ -290,7 +291,7 @@ IMAGINE_PUBLISHED_STATUS = ((1, "Secret"), (2, "Centru Local"), (3, "Organizați
 
 
 class Imagine(ImageModel):
-    set_poze = models.ForeignKey(SetPoze)
+    set_poze = models.ForeignKey(SetPoze, null=True, blank=True)
     data = models.DateTimeField(null=True, blank=True)
     titlu = models.CharField(max_length=1024, null=True, blank=True)
     descriere = models.TextField(null=True, blank=True)

@@ -6,6 +6,11 @@
 			console.log(data);
 			jQuery("#score_" + data.picture_id).html(data.current_score);
 		}
+
+        function update_message(data) {
+            jQuery("#message_container").append("<div id=\"msg_cover\" class=\"django-message alert alert-success\">" + data.message + "<a class=\"close\" data-dismiss=\"alert\" href=\"#\">&times;</a></div>");
+            setTimeout(function () { jQuery("#msg_cover").hide("fast"); }, 1000 * 3);
+        }
 	
 		jQuery(document).ready(function () {
 			jQuery(".thumbs_up").click(function (event) {
@@ -20,6 +25,12 @@
 				event.preventDefault();
 				return false;
 			});
+
+            jQuery(".make_cover").click(function (event) {
+                Dajaxice.album.make_cover(Dajax.process, {"picture_id" : jQuery(this).data("image")});
+                event.preventDefault();
+                return false;
+            });
 			
 			$(document).keydown(function(e){
                 //  ignore key bindings on form elements - we want to be able to still type ...
@@ -113,6 +124,7 @@
 	<div class = "pull-right btn-toolbar">
 		<div class = "btn-group">
 			<a class = "btn" href = "{% url album:poza_flag pk=object.id %}"><i class = "icon-flag"></i></a>
+            <a class = "btn make_cover" href = "javascript:void()" data-image = "{{ object.id }}"><i class = "icon-picture"></i></a>
 		</div>
 		<div class = "btn-group">
 			<a href = "{% url album:zi_detail pk=object.get_day.id %}?page={{ zi_page }}" class = "btn"><i class = "icon-chevron-up"></i></a>

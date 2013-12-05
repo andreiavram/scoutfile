@@ -71,7 +71,7 @@
                     <div class="page-header">
                         <h1>{% block page_title %}ScoutFile{% endblock %}</h1>
                     </div>
-                    <div id="message_container span10">
+                    <div id="message_container">
                         {% if messages %}
                             {% for message in messages %}
                                 <div id="msg_{{ forloop.count }}" {% if message.tags %}

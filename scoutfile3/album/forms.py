@@ -63,6 +63,7 @@ class EvenimentCreateForm(CrispyBaseModelForm):
     end_date = forms.DateTimeField(required=True, widget=BootstrapDateTimeInput(), label=u"Data sfârșit")
     locatie_geo = forms.CharField(widget=GeoCoordinatesInput, required=False, label = u"Geolocație", help_text=u"Folosiți harta pentru a alege o locație")
     facebook_event_link = forms.URLField(widget=FacebookLinkWidget, required=False, label=u"Link eveniment Facebook")
+    cover_photo = forms.FileField(label=u"Cover photo", required=False)
 
 class EvenimentUpdateForm(EvenimentCreateForm):
     class Meta:

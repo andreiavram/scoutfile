@@ -31,5 +31,14 @@ def vote_picture(request, picture_id, score):
     
     return dajax.json()
         
-        
-    
+@dajaxice_register
+def make_cover(request, picture_id):
+    dajax = Dajax()
+
+    picture = get_object_or_404(Imagine, id = int(picture_id))
+    picture.set_poze.eveniment.custom_cover_photo = picture
+    picture.set_poze.eveniment.save()
+
+    dajax.add_data({"message" : u"Imaginea a fost setată ca poza de copertă pentru album"}, "update_message")
+
+    return dajax.json()
