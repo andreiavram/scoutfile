@@ -174,7 +174,7 @@ class ZiEveniment(models.Model):
             return self.titlu
         return u"Ziua %d" % self.index
 
-    def filter_photos(self, autor=None, user=None):
+    def filter_photos(self, autor=None, user=None, **kwargs):
         backward_limit = datetime.datetime.combine(self.date, datetime.time(0, 0, 0)) + datetime.timedelta(hours=3)
         images = Imagine.objects.filter(set_poze__eveniment=self.eveniment, data__gte=backward_limit,
                                         data__lte=self.date + datetime.timedelta(days=1))
@@ -183,8 +183,12 @@ class ZiEveniment(models.Model):
 
         if user:
             images = images.exclude(published_status__lt=self.eveniment.get_visibility_level(user))
-            images = images.order_by("data")
+
+        images = images.order_by("data")
         return images
+
+    def filter_public_photos(self):
+        return self.filter_photos(self, author=None, user=None, published_status = 4)
 
     def author_distribution(self):
         authors = {}
