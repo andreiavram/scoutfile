@@ -47,7 +47,7 @@
             <img class = "thumbnail" src = "{% if eveniment.cover_photo %}{{ eveniment.cover_photo.get_thumbnail_url }}{% else %}http://placehold.it/320x240{% endif %}" />
         </div>
         <div class = "span3">
-            <div class="map-canvas thumbnail" id="map_canvas" style="height: 200px; width: 100%; border: 1px solid #efefef; padding: 5px; background-color: #ccc">
+            <div class="map-canvas thumbnail" id="map_canvas" style="height: {% if object.locatie_text %}200{% else %}180{% endif %}px; width: 100%; border: 1px solid #efefef; padding: 5px; background-color: #ccc">
                 <div style = "position: relative; top: 120px; left: 120px; color: #333;"><i style = "color: #333" class = "icon-pushpin icon-4x"></i></div>
             </div>
             <div style = "text-align: right">
