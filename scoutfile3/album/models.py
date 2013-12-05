@@ -184,11 +184,13 @@ class ZiEveniment(models.Model):
         if user:
             images = images.exclude(published_status__lt=self.eveniment.get_visibility_level(user))
 
+        if len(kwargs.keys()):
+            images = images.filter(**kwargs)
         images = images.order_by("data")
         return images
 
-    def filter_public_photos(self):
-        return self.filter_photos(self, author=None, user=None, published_status = 4)
+    def filter_public_photos(self, author = None, user = None):
+        return self.filter_photos(self, author=author, user=user, published_status = 4)
 
     def author_distribution(self):
         authors = {}
