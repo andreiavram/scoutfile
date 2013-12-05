@@ -149,7 +149,7 @@
         </h2>
         {% if zi.descriere %}{{ zi.descriere|linebreaks|truncatewords:50 }}{% endif %}
         <p style="font-weight: bold"><i
-                class="icon-star-empty"></i> {{ zi.date|date:"l, d F Y" }}, {{ zi.filter_photos.count }} fotografii</p>
+                class="icon-star-empty"></i> {{ zi.date|date:"l, d F Y" }}, {{ zi.filter_photos.count }} fotografii, din care {{ zi.filter_public_photos.count }} publice.</p>
         <ul class="thumbnails">
             {% for image in zi_photos|slice:":4" %}
                 <li class="span3">
