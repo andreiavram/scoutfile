@@ -119,47 +119,7 @@
     }(document, 'script', 'facebook-jssdk'));</script>
 {% endblock %}
 
-{% block page_title %}
-	{% if object.titlu %}{{ object.titlu }}{% else %}Imagine{% endif %}
-	<div class = "pull-right btn-toolbar">
-		<div class = "btn-group">
-			<a class = "btn" href = "{% url album:poza_flag pk=object.id %}"><i class = "icon-flag"></i></a>
-            <a class = "btn make_cover" href = "javascript:void()" data-image = "{{ object.id }}"><i class = "icon-picture"></i></a>
-		</div>
-		<div class = "btn-group">
-			<a href = "{% url album:zi_detail pk=object.get_day.id %}?page={{ zi_page }}" class = "btn"><i class = "icon-chevron-up"></i></a>
-		</div>
-		<div class = "btn-group">
-			<a href = "javascript:void()" class = "btn thumbs_up" data-image = "{{ object.id }}"><i class = "icon-thumbs-up"></i></a>
-			<a href = "javascript:void()" class = "btn disabled" id = "score_{{ object.id }}">{{ object.score }}</a>
-			<a href = "javascript:void()" class = "btn thumbs_down" data-image = "{{ object.id }}"><i class = "icon-thumbs-down"></i></a>
-		</div>
-        {% if media_manager %}
-		<div class = "btn-group">
-			<a href = "{% url album:poza_rotate pk=object.id %}?direction=ccw" class = "btn"><i class = "icon-arrow-left"></i></a>
-			<a href = "javascript:void();" class = "btn disabled"><i class = "icon-refresh"></i></a>
-			<a href = "{% url album:poza_rotate pk=object.id %}?direction=cw" class = "btn"><i class = "icon-arrow-right"></i></a>
-		</div>
-        {% endif %}
-		<div class = "btn-group">
-			<a href = "{{ object.image.url }}" class = "btn"><i class = "icon-picture"></i> Original</a>
-			<a href = "{{ object.get_profile_url }}" class = "btn"><i class = "icon-picture"></i> Profil</a>
-		</div>
-
-        {% if media_manager or request.user.is_superuser %}
-        <div class = 'btn-group'>
-            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                <i class = "icon-eye-open"> </i> <span id = "current_visibility">{{ object.get_published_status_display }}</span>
-                <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu">
-                {% for state in visibility_states %}
-                    <li><a href = "#" data-value = "{{ state.0 }}" class = "visibility_action">{{ state.1 }}</a></li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-	</div> 
+{% block page_title_container %}
 {% endblock %}
 
 {% block meta %}
@@ -214,6 +174,46 @@
 {% endblock %}
 
 {% block content %}
+{#    {% if object.titlu %}{{ object.titlu }}{% else %}Imagine{% endif %}#}
+	<div class = "pull-left btn-toolbar">
+		<div class = "btn-group">
+			<a class = "btn" href = "{% url album:poza_flag pk=object.id %}"><i class = "icon-flag"></i></a>
+            <a class = "btn make_cover" href = "javascript:void()" data-image = "{{ object.id }}"><i class = "icon-picture"></i></a>
+		</div>
+		<div class = "btn-group">
+			<a href = "{% url album:zi_detail pk=object.get_day.id %}?page={{ zi_page }}" class = "btn"><i class = "icon-chevron-up"></i></a>
+		</div>
+		<div class = "btn-group">
+			<a href = "javascript:void()" class = "btn thumbs_up" data-image = "{{ object.id }}"><i class = "icon-thumbs-up"></i></a>
+			<a href = "javascript:void()" class = "btn disabled" id = "score_{{ object.id }}">{{ object.score }}</a>
+			<a href = "javascript:void()" class = "btn thumbs_down" data-image = "{{ object.id }}"><i class = "icon-thumbs-down"></i></a>
+		</div>
+        {% if media_manager %}
+		<div class = "btn-group">
+			<a href = "{% url album:poza_rotate pk=object.id %}?direction=ccw" class = "btn"><i class = "icon-arrow-left"></i></a>
+			<a href = "javascript:void();" class = "btn disabled"><i class = "icon-refresh"></i></a>
+			<a href = "{% url album:poza_rotate pk=object.id %}?direction=cw" class = "btn"><i class = "icon-arrow-right"></i></a>
+		</div>
+        {% endif %}
+		<div class = "btn-group">
+			<a href = "{{ object.image.url }}" class = "btn"><i class = "icon-picture"></i> Original</a>
+			<a href = "{{ object.get_profile_url }}" class = "btn"><i class = "icon-picture"></i> Profil</a>
+		</div>
+
+        {% if media_manager or request.user.is_superuser %}
+        <div class = 'btn-group'>
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class = "icon-eye-open"> </i> <span id = "current_visibility">{{ object.get_published_status_display }}</span>
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                {% for state in visibility_states %}
+                    <li><a href = "#" data-value = "{{ state.0 }}" class = "visibility_action">{{ state.1 }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+	</div>
 {% endblock %}
 
 {% block extrajs %}
