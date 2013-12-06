@@ -35,8 +35,9 @@
                 {% endfor %}
             </ul>
         </div>
+        {% endif %}
         <div class = "btn-group pull-right">
-                    {% if prev_photo %}
+            {% if prev_photo %}
                     <a class = "btn" href="{% url album:poza_detail pk=prev_photo.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i
                             class="icon-chevron-left icon-white"></i></a>
             {% endif %}
@@ -47,7 +48,7 @@
             {% endif %}
 
         </div>
-        {% endif %}
+
 	</div>
     {#	<div class = "well">{% if object.is_face_processed %}Face processed {{ object.detectedface_set.all.count }} faces found {% else %}not processed{% endif %}</div>#}
     {% if object.flagreport_set.all.count %}
