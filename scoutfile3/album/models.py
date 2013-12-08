@@ -176,8 +176,9 @@ class ZiEveniment(models.Model):
 
     def filter_photos(self, autor=None, user=None, **kwargs):
         backward_limit = datetime.datetime.combine(self.date, datetime.time(0, 0, 0)) + datetime.timedelta(hours=3)
+        forward_limit = datetime.datetime.combine(self.date, datetime.time(3, 0, 0)) + datetime.timedelta(days = 1)
         images = Imagine.objects.filter(set_poze__eveniment=self.eveniment, data__gte=backward_limit,
-                                        data__lte=self.date + datetime.timedelta(days=1))
+                                        data__lte=forward_limit)
         if autor is not None:
             images = images.filter(set_poze__autor__icontains=autor)
 
