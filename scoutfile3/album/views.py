@@ -92,7 +92,7 @@ class ZiDetail(DetailView):
 
         centru_local = self.object.eveniment.centru_local
         calitate = TipAsociereMembruStructura.objects.get(nume__iexact = u"Păstrător al amintirilor", content_types__in = [ContentType.objects.get_for_model(centru_local)])
-        if self.request.user.is_authenticated() and self.request.user.get_profile().membru.are_calitate(calitate, centru_local):
+        if self.request.user.is_authenticated() and (self.request.user.get_profile().membru.are_calitate(calitate, centru_local) or self.request.user.is_superuser):
             current.update({"media_manager": True})
 
         return current
