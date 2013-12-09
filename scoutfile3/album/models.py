@@ -230,7 +230,9 @@ class SetPoze(models.Model):
         return u"Set %s (%s)" % (self.autor, self.eveniment)
 
     def get_autor(self):
-        return u"%s" % self.autor.strip()
+        if self.autor:
+            return u"%s" % self.autor.strip()
+        return u"%s" % self.autor_user
 
     def process_zip_file(self):
         self.status = 2
