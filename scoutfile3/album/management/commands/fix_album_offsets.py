@@ -18,4 +18,4 @@ class Command(BaseCommand):
                 imagine.save()
                 i += 1
                 if i % 100 == 0:
-                    self.stdout.write("Currently processing %dth photo" % i)
+                    self.stdout.write("Currently processing %dth photo\n" % i)
