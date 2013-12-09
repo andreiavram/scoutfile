@@ -5,6 +5,12 @@
         {% if user.is_authenticated %}
 		<li><a href = "{% url album:eveniment_upload slug=object.slug %}"><i class = "icon-upload"></i> Upload set poze</a></li>
         {% endif %}
+        <li class = "nav-header">Locații</li>
+        <li><a href = "{% url album:eveniment_main_detail slug=eveniment.slug %}"><i class = "icon-home"> Prezentare</i></a></li>
+		<li><a href = "{% url album:eveniment_detail slug=eveniment.slug %}"><i class = "icon-picture"></i> Album</a></li>
+		<li><a href = "{% url album:eveniment_stats pk=object.id %}"><i class = "icon-list-alt"></i> Statistici</a></li>
+		<li><a href = "{% url album:eveniment_seturi_toate slug=object.slug %}"><i class = "icon-list"></i> Seturi de poze</a></li>
+        <li><a href = "{% url album:index %}"><i class = "icon-chevron-left"></i> Evenimente</a></li>
 		<li class = "nav-header">Căutare</li>
         <li><a href = "{% url album:tag_search %}"><i class = "icon-search"></i> Căutare după tag-uri</a></li>
         {% if user.is_authenticated %}
@@ -18,11 +24,6 @@
         {% for autor in object.get_autori %}
 			<li><a href = "{% url album:eveniment_detail slug=object.slug %}?autor={{ autor }}"><i class = "icon-camera"></i>  {{ autor }}</a></li>
 		{% endfor %}
-        <li class = "nav-header">Locații</li>
-        <li><a href = "{% url album:eveniment_main_detail slug=eveniment.slug %}"><i class = "icon-home"> Prezentare</i></a></li>
-		<li><a href = "{% url album:eveniment_detail slug=eveniment.slug %}"><i class = "icon-picture"></i> Album</a></li>
-		<li><a href = "{% url album:eveniment_stats pk=object.id %}"><i class = "icon-list-alt"></i> Statistici</a></li>
-		<li><a href = "{% url album:eveniment_seturi_toate slug=object.slug %}"><i class = "icon-list"></i> Seturi de poze</a></li>
-        <li><a href = "{% url album:index %}"><i class = "icon-chevron-left"></i> Evenimente</a></li>
+
 
 	</ul>
