@@ -438,9 +438,15 @@ class SetPozeUpdate(UpdateView):
         return super(SetPozeUpdate, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        offset_initial = self.object.offset_secunde
+        self.object = form.save(commit = True)
+        if offset_initial != self.object.offset_secunde:
+            self.object.offset_changed = True
+            self.object.save()
+
         messages.success(self.request, "Actualizări salvate!")
-        return super(SetPozeUpdate, self).form_valid(form)
-    
+        return HttpResponseRedirect(self.get_success_url())
+
     def get_success_url(self):
         return reverse("album:set_poze_edit", kwargs = {"pk" : self.object.id})
 
