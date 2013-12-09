@@ -9,11 +9,13 @@ import os
 from zipfile import ZipFile
 import logging
 import traceback
-from settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT, MEDIA_ROOT
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+
+from settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT, MEDIA_ROOT
 from taggit.managers import TaggableManager
 import settings
+
 
 logger = logging.getLogger(__name__)
 
@@ -220,6 +222,7 @@ class SetPoze(models.Model):
     date_uploaded = models.DateTimeField(auto_now=True)
     offset_secunde = models.IntegerField(default=0,
                                          help_text="Numărul de secunde cu care ceasul camerei voastre a fost decalat față de ceasul corect (poate fi și negativ). Foarte util pentru sincronizarea pozelor de la mai mulți fotografi")
+    offset_changed = models.BooleanField(default = False)
 
     class Meta:
         verbose_name = u"Set poze"
@@ -294,6 +297,7 @@ class SetPoze(models.Model):
                   settings.SYSTEM_EMAIL,
                   [self.autor_user.email, ])
         os.unlink(self.zip_file)
+
 
 
 IMAGINE_PUBLISHED_STATUS = ((1, "Secret"), (2, "Centru Local"), (3, "Organizație"), (4, "Public"))
