@@ -65,6 +65,9 @@
                     <img src="{{ image.get_thumbnail_url }}" class="imagine" data-title = "{{ image.titlu }}" id = "poza_{{ image.id }}" data-contentsource = "#source_{{ image.id }}" />
                 </a>
                 <div style = "display:none" id = "source_{{ image.id }}">
+                   Fotografie de <a href = "#"><i class = "icon-camera">{{ image.set_poze.get_autor }}</i></a><br />
+                   Moment {{ imagine.data|date:"d F Y H:M:S" }}<br />
+                    {{ object.descriere }}
                    <div class = "current-tags">
                     {% for tag in image.tags.all|slice:"10" %}
                         <span class = "tag tag-small">{{ tag.name }}</span>
