@@ -66,7 +66,7 @@
                 </a>
                 <div style = "display:none" id = "source_{{ image.id }}">
                    Fotografie de <a href = "#"><i class = "icon-camera"></i> {{ image.set_poze.get_autor }}</a><br />
-                   Moment {{ image.data|date:"d F Y H:M:S" }}<br />
+                   Moment {{ image.data|date:"d F Y H:i:s" }}<br />
                     {% if image.descriere %}{{ image.descriere }}{% endif %}
                    <div class = "current-tags">
                     {% for tag in image.tags.all|slice:"10" %}
