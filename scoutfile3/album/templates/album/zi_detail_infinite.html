@@ -185,6 +185,7 @@
                             $("#rezultate-list div.row-fluid:last-child").append(_.template($("#imagine_template").html(), {"image": element}));
                             var element = $("#rezultate-list div.row-fluid:last-child .span3:last-child");
                             set_handlers(element);
+                            setTimeout(function () {$(element).fadeIn("fast")}, 200 + index * 80);
                             crt_cnt += 1;
 
                         });
@@ -201,7 +202,7 @@
     </script>
 
     <script type="text/template" id="imagine_template">
-        <div class="span3" style="position: relative;">
+        <div class="span3" style="position: relative; display: none;">
             <div class="thumbnail">
                 <a href="<%= image.url_detail %>{% if autor %}?autor={{ autor }}{% endif %}">
                     <img src="<%= image.url_thumb %>" class="imagine" data-title = "<%= image.titlu %>" id = "poza_<%= image.id %>" data-contentsource = "#source_<%= image.id %>" />
