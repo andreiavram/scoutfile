@@ -4,6 +4,59 @@
 
 {% block extrahead %}
     <link rel="stylesheet" href="{{ STATIC_URL }}generic/css/tagmanager.css"/>
+    <style>
+        .spinner {
+            width: 30px;
+            height: 30px;
+            position: relative;
+            border-radius: 30px;
+            border: 2px solid #666;
+            margin: 100px auto;
+        }
+
+        .spinner:after {
+            content: "";
+            position: absolute;
+            width: 15px;
+            height: 2px;
+            background: #666;
+            top: 14px;
+            left: 14px;
+            transform-origin: 1px 1px;
+            animation: spin 1s infinite linear;
+        }
+
+        .spinner:before {
+            content: "";
+            position: absolute;
+            left: 13px;
+            top: 13px;
+            height: 4px;
+            width: 4px;
+            background: #fff;
+            border-radius: 4px;
+            animation: expand 1s infinite linear alternate;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes expand {
+            from {
+                transform: scale(1);
+            }
+            to {
+                transform: scale(1.5);
+            }
+        }
+
+    </style>
     <script type="text/javascript">
         function after_vote(data) {
             console.log(data);
@@ -87,11 +140,13 @@
 
         function get_photos() {
             stop_flag = true;
+            $("#rezultate-list").append("<div class = 'row-fluid'><div class='spinner'></div></div>");
             $.post("{% url album:imagine_search_json %}",
                     {"offset": offset, "limit": limit, "zi": {{ object.id }}, "csrfmiddlewaretoken": "{{ csrf_token }}", "ordering": "asc"},
                     function (data) {
                         {#                        $("#msg").html("<i class = 'icon-search'></i> Am găsit " + data.total_count + " imagini tag-uite cu <strong>" + $("[name='tags']").val() + "</strong>, cele mai recente mai sus");#}
 
+                        $("#rezultate-list").find(".spinner").parent().remove();
                         $.each(data.data, function (index, element) {
                             if (crt_cnt % 4 == 0) {
                                 $("#rezultate-list").append('<div class="row-fluid" style="margin-bottom: 20px"></div>');
@@ -108,16 +163,12 @@
                         } else {
                             stop_flag = true;
                         }
+
                     }, "json");
 
         }
     </script>
-    <script>
-        $("document").ready(function () {
 
-
-        });
-    </script>
     <script type="text/template" id="imagine_template">
         <div class="span3" style="position: relative;">
             <div class="thumbnail">
