@@ -65,7 +65,7 @@
 
         function get_photos() {
             stop_flag = true;
-            $.post("{% url album:tag_search_json %}",
+            $.post("{% url album:imagine_search_json %}",
                     {"offset": offset, "limit": limit, "tags": $("[name='tags']").val(), "csrfmiddlewaretoken": "{{ csrf_token }}"},
                     function (data) {
                         $("#msg").html("<i class = 'icon-search'></i> Am găsit " + data.total_count + " imagini tag-uite cu <strong>" + $("[name='tags']").val() + "</strong>, cele mai recente mai sus");

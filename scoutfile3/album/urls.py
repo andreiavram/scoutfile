@@ -2,7 +2,7 @@ from django.conf.urls.defaults import patterns
 from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     RotateImage, EvenimentStats, ZiStats, FlagImage, EvenimentList, \
     SetImaginiUpload, SetImaginiDeleteAjax, SetImaginiToate, \
-    SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate, EvenimentCreate, EvenimentUpdate, EvenimentDetail, EvenimentDelete, PozaUpdate, ZiEdit, PozaDelete, ImagineTagSearch, ImagineTagSearchJSON
+    SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate, EvenimentCreate, EvenimentUpdate, EvenimentDetail, EvenimentDelete, PozaUpdate, ZiEdit, PozaDelete, ImagineTagSearch, ImagineSearchJSON, ZiDetailBeta
 from album.views import ChangeImagineVisibility
 
 
@@ -11,6 +11,7 @@ urlpatterns = patterns('album.views',
                        (r'eveniment/(?P<slug>\w+)/album/$', AlbumEvenimentDetail.as_view(), {}, "eveniment_detail"),
                        (r'eveniment/(?P<pk>\d+)/stats/$', EvenimentStats.as_view(), {}, "eveniment_stats"),
                        (r'eveniment/zi/(?P<pk>\d+)/$', ZiDetail.as_view(), {}, "zi_detail"),
+                       (r'eveniment/zi/(?P<pk>\d+)/beta/$', ZiDetailBeta.as_view(), {}, "zi_detail_infinite"),
                        (r'eveniment/zi/(?P<pk>\d+)/stats/$', ZiStats.as_view(), {}, "zi_stats"),
                        (r'eveniment/zi/(?P<pk>\d+)/edit/$', ZiEdit.as_view(), {}, "zi_edit"),
                        (r'eveniment/(?P<slug>\w+)/upload/$', SetImaginiUpload.as_view(), {}, "eveniment_upload"),
@@ -35,5 +36,5 @@ urlpatterns = patterns('album.views',
                        (r'poza/(?P<pk>\d+)/delete/$', PozaDelete.as_view(), {}, "poza_delete"),
 
                        (r'tag/search/$', ImagineTagSearch.as_view(), {}, "tag_search"),
-                       (r'tag/search/do/$', ImagineTagSearchJSON.as_view(), {}, "tag_search_json"),
+                       (r'search/$', ImagineSearchJSON.as_view(), {}, "imagine_search_json"),
 )

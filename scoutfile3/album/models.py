@@ -20,6 +20,12 @@ import settings
 logger = logging.getLogger(__name__)
 
 
+IMAGINE_PUBLISHED_STATUS = ((1, "Secret"), (2, "Centru Local"), (3, "Organizație"), (4, "Public"))
+class ParticipantiEveniment(models.Model):
+    eveniment = models.ForeignKey("Eveniment")
+    ramura_de_varsta = models.ForeignKey("structuri.RamuraDeVarsta")
+    numar = models.IntegerField()
+
 class Eveniment(models.Model):
     centru_local = models.ForeignKey("structuri.CentruLocal")
     nume = models.CharField(max_length=255, verbose_name=u"Titlu")
@@ -32,8 +38,13 @@ class Eveniment(models.Model):
     locatie_text = models.CharField(max_length=1024, null=True, blank=True, verbose_name = u"Locație")
     #   TODO: implementează situatia în care evenimentul are mai mult de o singură locație
     locatie_geo = models.CharField(max_length=1024)
-    #TODO: add visibility settings to events
 
+    #TODO: add visibility settings to events
+    published_status = models.IntegerField(default=2, choices=IMAGINE_PUBLISHED_STATUS, verbose_name=u"Vizibilitate")
+
+    ramuri_de_varsta = models.ManyToManyField("structuri.RamuraDeVarsta", null=True, blank=True, through=ParticipantiEveniment)
+
+    #   settings pentru raportul anual
 
     class Meta:
         verbose_name = u"Eveniment"
@@ -297,10 +308,6 @@ class SetPoze(models.Model):
                   settings.SYSTEM_EMAIL,
                   [self.autor_user.email, ])
         os.unlink(self.zip_file)
-
-
-
-IMAGINE_PUBLISHED_STATUS = ((1, "Secret"), (2, "Centru Local"), (3, "Organizație"), (4, "Public"))
 
 
 class Imagine(ImageModel):
