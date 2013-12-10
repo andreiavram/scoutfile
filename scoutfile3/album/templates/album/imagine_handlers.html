@@ -58,7 +58,7 @@
 
     function handle_imagini(data) {
         $(".loading").fadeOut("fast");
-        if (typeof on_data_return) {
+        if (typeof on_data_return !== "undefined") {
             on_data_return(data);
         }
 
