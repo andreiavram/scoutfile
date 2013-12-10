@@ -578,11 +578,14 @@ class ImagineTagSearch(TemplateView):
         current.update({"tags" : tags})
         return current
 
-class ImagineTagSearchJSON(JSONView):
-    _params = {"tags" : {"type" : "required"},
+class ImagineSearchJSON(JSONView):
+    _params = {"tags" : {"type" : "optional"},
                "limit" : {"type" : "optional"},
                "offset" : {"type" : "optional"},
-               "authors" : {"type" : "optional"}}
+               "authors" : {"type" : "optional"},
+               "eveniment" : {"type" : "optional"},
+               "zi" : {"type" : "optional"},
+               "ordering" : {"type" : "optional"}}
 
     def clean_limit(self, value):
         try:
@@ -591,12 +594,30 @@ class ImagineTagSearchJSON(JSONView):
         except Exception, e:
             raise ScoutFileAjaxException("Bad limit", original_exception=e)
 
+    def clean_ordering(self, value):
+        print "here"
+        print value
+        print "here"
+        return value
+
     def clean_offset(self, value):
         try:
             offset = int(value)
             return offset if offset > 0 else 0
         except Exception, e:
             raise ScoutFileAjaxException("Bad offset", original_exception=e)
+
+    def clean_eveniment(self, value):
+        try:
+            return Eveniment.objects.get(id = int(value))
+        except Exception, e:
+            raise ScoutFileAjaxException(u"Nu există evenimentul", original_exception=e)
+
+    def clean_zi(self, value):
+        try:
+            return ZiEveniment.objects.get(id = int(value))
+        except Exception, e:
+            raise ScoutFileAjaxException(u"Nu există ziua pentru eveniment", original_exception=e)
 
     def clean_tags(self, value):
         return parse_tags(value)
@@ -607,8 +628,20 @@ class ImagineTagSearchJSON(JSONView):
     def post(self, request, *args, **kwargs):
         self.validate(**self.parse_json_data())
 
-        qs = Imagine.objects.filter(tags__name__in=self.cleaned_data['tags'])
-        qs = qs.order_by("-data")
+        qs = Imagine.objects.all()
+        if "tags" in self.cleaned_data:
+            qs = qs.filter(tags__name__in=self.cleaned_data['tags'])
+        if "eveniment" in self.cleaned_data:
+            qs = qs.filter(set_poze__eveniment = self.cleaned_data['eveniment'])
+        if "zi" in self.cleaned_data:
+            qs = qs.filter(id__in = [p.id for p in self.cleaned_data['zi'].filter_photos(user=request.user)])
+        if "authors" in self.cleaned_data:
+            qs = qs.filter(set_poze__autor__icontains = self.cleaned_data['authors'])
+
+        if self.cleaned_data.get("ordering", "desc") == "desc":
+            qs = qs.order_by("-data")
+        elif self.cleaned_data.get("ordering") == "asc":
+            qs = qs.order_by("data")
 
         limit = self.cleaned_data.get("limit", 10)
         offset = self.cleaned_data.get("offset", 0)
@@ -622,6 +655,16 @@ class ImagineTagSearchJSON(JSONView):
         return {"id" : imagine.id,
                 "url_thumb" : imagine.get_thumbnail_url(),
                 "url_detail" : reverse("album:poza_detail", kwargs = {"pk" : imagine.id}),
+                "titlu" : imagine.titlu,
+                "descriere" : imagine.descriere,
+                "autor" : imagine.set_poze.get_autor(),
+                "data" : imagine.data.strftime("%d %j %Y %H:%M:%S"),
+                "tags" : [t.name for t in imagine.tags.all()[:10]],
+                "rotate_url" : reverse("album:poza_rotate", kwargs = {"pk" : imagine.id}),
+                "published_status_display" : imagine.get_published_status_display(),
+                "flag_url" : reverse("album:poza_flag", kwargs = {"pk" : imagine.id}),
+                "score" : imagine.score,
+
                 }
     
     def construct_json_response(self, queryset, total_count, **kwargs):
@@ -629,6 +672,30 @@ class ImagineTagSearchJSON(JSONView):
                          "offset" : self.cleaned_data['offset'],
                          "limit" : self.cleaned_data['limit'],
                          "count" : queryset.count(),
-                         "total_count" : total_count}
+                         "total_count" : total_count,
+                         }
         return dumps(response_json)
 
+class ZiDetailBeta(DetailView):
+    model = ZiEveniment
+    template_name = "album/zi_detail_infinite.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.GET.has_key("autor"):
+            self.autor = request.GET['autor']
+        else:
+            self.autor = None
+        return super(ZiDetailBeta, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, *args, **kwargs):
+        current = super(ZiDetailBeta, self).get_context_data(*args, **kwargs)
+
+        current.update({"autor" : self.autor,
+                        "visibility_states": IMAGINE_PUBLISHED_STATUS})
+
+        centru_local = self.object.eveniment.centru_local
+        calitate = TipAsociereMembruStructura.objects.get(nume__iexact = u"Păstrător al amintirilor", content_types__in = [ContentType.objects.get_for_model(centru_local)])
+        if self.request.user.is_authenticated() and (self.request.user.get_profile().membru.are_calitate(calitate, centru_local) or self.request.user.is_superuser):
+            current.update({"media_manager": True})
+
+        return current
