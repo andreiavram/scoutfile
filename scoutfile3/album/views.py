@@ -658,7 +658,7 @@ class ImagineSearchJSON(JSONView):
                 "titlu" : imagine.titlu,
                 "descriere" : imagine.descriere,
                 "autor" : imagine.set_poze.get_autor(),
-                "data" : imagine.data.strftime("%d %j %Y %H:%M:%S"),
+                "data" : imagine.data.strftime("%d %B %Y %H:%M:%S"),
                 "tags" : [t.name for t in imagine.tags.all()[:10]],
                 "rotate_url" : reverse("album:poza_rotate", kwargs = {"pk" : imagine.id}),
                 "published_status_display" : imagine.get_published_status_display(),
