@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load pagination_tags %}
-
+{% load staticfiles %}
 {% block page_title %}
     Căutare după tag-uri
 {% endblock %}
@@ -16,6 +16,8 @@
 {% block extrajs %}
     <script src="{{ STATIC_URL }}generic/js/typeahead.js"></script>
     <script src="{{ STATIC_URL }}generic/js/tagmanager.js"></script>
+    <script src="{% static "js/underscore-min.js" %}"></script>
+    {% include "album/imagine_handlers.html" %}
     <script>
         $(document).ready(function () {
             $(".tm-input").each(function (index) {
@@ -62,31 +64,19 @@
         var offset = 0;
         var limit = 9;
         var stop_flag = true;
+        var crt_cnt = 0;
 
-        function get_photos() {
-            stop_flag = true;
-            $.post("{% url album:imagine_search_json %}",
-                    {"offset": offset, "limit": limit, "tags": $("[name='tags']").val(), "csrfmiddlewaretoken": "{{ csrf_token }}"},
-                    function (data) {
-                        $("#msg").html("<i class = 'icon-search'></i> Am găsit " + data.total_count + " imagini tag-uite cu <strong>" + $("[name='tags']").val() + "</strong>, cele mai recente mai sus");
+        function on_data_return(data) {
+            $("#msg").html("<i class = 'icon-search'></i> Am găsit " + data.total_count + " imagini tag-uite cu <strong>" + $("[name='tags']").val() + "</strong>, cele mai recente mai sus");
+        }
 
-                        $.each(data.data, function (index, element) {
-                            $("#rezultate-list").append(' \
-                                <li class="span3" style="position: relative;"> \
-                                    <a href="' + element.url_detail + '" class="thumbnail"> \
-                                        <img src="' + element.url_thumb + '"> \
-                                    </a> \
-                                </li>');
 
-                        });
-                        offset += data.count;
-                        if (offset < data.total_count) {
-                            stop_flag = false;
-                        } else {
-                            stop_flag = true;
-                        }
-                    }, "json");
-
+        function get_request_data() {
+            return {"offset": offset,
+                "limit": limit,
+                "tags": $("[name='tags']").val(),
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                "ordering": "desc"};
         }
     </script>
 {% endblock %}
