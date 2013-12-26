@@ -359,7 +359,7 @@ class Imagine(ImageModel):
         ltime = datetime.time(data.hour, data.minute, data.second)
         magic_time = datetime.time(3, 0 ,0)
         if ltime < magic_time:
-            data = self.data - datetime.timedelta(day = 1)
+            data = self.data - datetime.timedelta(days = 1)
         return self.set_poze.eveniment.zieveniment_set.get(date=data)
 
     def get_next_photo(self, autor=None, user=None):
