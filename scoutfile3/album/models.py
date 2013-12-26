@@ -354,7 +354,13 @@ class Imagine(ImageModel):
         return
 
     def get_day(self):
-        return self.set_poze.eveniment.zieveniment_set.get(date=self.data)
+        #   compensation for (0, 3 AM) interval
+        data = self.data
+        ltime = datetime.time(data.hour, data.minute, data.second)
+        magic_time = datetime.time(3, 0 ,0)
+        if ltime < magic_time:
+            data = self.data - datetime.timedelta(day = 1)
+        return self.set_poze.eveniment.zieveniment_set.get(date=data)
 
     def get_next_photo(self, autor=None, user=None):
         photo = Imagine.objects.filter(published_status__gte=self.set_poze.eveniment.get_visibility_level(user=user),
@@ -465,6 +471,10 @@ class Imagine(ImageModel):
         self.is_face_processed = True
         self.save()
 
+
+    @classmethod
+    def filter_visibility(cls, qs, user):
+        return qs
 
 # tagging.register(Imagine)
 
