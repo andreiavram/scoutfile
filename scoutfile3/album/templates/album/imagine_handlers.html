@@ -38,7 +38,7 @@
 
         $(".imagine", element).popover({"placement": "bottom", "html": true, "trigger": "hover", "content": function () {
             return $($(this).data("contentsource")).html();
-            }
+        }
         });
 
         $(".visibility_action", element).click(function (e) {
@@ -54,6 +54,19 @@
                     "json");
             e.preventDefault();
         });
+
+        jQuery("a.detail_link", element).click(function (event) {
+            console.log(element.data("order"));
+            gallery = blueimp.Gallery(gallery_data, {index : element.data("order"), onslide : check_slide, onclose : function () { gallery = null;}})
+            event.preventDefault();
+        })
+    }
+
+    function check_slide(index, slide) {
+        if ((index > gallery_data.length - 5) && (stop_flag == false)) {
+            console.log("getting new photos");
+            get_photos();
+        }
     }
 
     function handle_imagini(data) {
@@ -62,10 +75,18 @@
             on_data_return(data);
         }
 
+        var new_gallery_data = [];
         $.each(data.data, function (index, element) {
             if (crt_cnt % 4 == 0) {
                 $("#rezultate-list").append('<div class="row-fluid" style="margin-bottom: 20px"></div>');
             }
+
+            new_gallery_data.push({title: element.titlu,
+                href: element.url_detail_img,
+                type: "image/jpeg",
+                thumbnail: element.url_thumb});
+
+            element.gallery_order_id = gallery_data.length + new_gallery_data.length - 1;
             $("#rezultate-list div.row-fluid:last-child").append(_.template($("#imagine_template").html(), {"image": element}));
             var element = $("#rezultate-list div.row-fluid:last-child .span3:last-child");
             set_handlers(element);
@@ -81,6 +102,20 @@
         } else {
             stop_flag = true;
         }
+
+        gallery_data.push.apply(gallery_data, new_gallery_data);
+        console.log("current complete gallery data");
+        console.log(gallery_data);
+
+        if ((gallery_enabled !== null) && (gallery_enabled = true)) {
+            if (gallery !== null) {
+                console.log("adding photos to gallery");
+                console.log(new_gallery_data);
+                console.log(gallery);
+                gallery.add(new_gallery_data);
+                gallery.initSlides(false);
+            }
+        }
     }
 
     function get_photos() {
@@ -95,9 +130,9 @@
     var crt_cnt = 0;
 </script>
 <script type="text/template" id="imagine_template">
-        <div class="span3" style="position: relative; display: none;">
+        <div class="span3" style="position: relative; display: none;" data-order=<%= image.gallery_order_id %>>
             <div class="thumbnail">
-                <a href="<%= image.url_detail %>{% if autor %}?autor={{ autor }}{% endif %}">
+                <a class = "detail_link" href="<%= image.url_detail %>{% if autor %}?autor={{ autor }}{% endif %}">
                     <img src="<%= image.url_thumb %>" class="imagine" data-title = "<%= image.titlu %>" id = "poza_<%= image.id %>" data-contentsource = "#source_<%= image.id %>" />
                 </a>
                 <div style = "display:none" id = "source_<%= image.id %>">

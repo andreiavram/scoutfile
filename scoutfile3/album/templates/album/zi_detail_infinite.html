@@ -3,12 +3,13 @@
 {% load pagination_tags %}
 
 {% block extrahead %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}generic/css/tagmanager.css"/>
-    {% include "album/imagine_handlers.html" %}
+    <link rel="stylesheet" href="{% static 'generic/css/tagmanager.css' %}"/>
+    <link rel="stylesheet" href="{% static 'gallery/css/blueimp-gallery.min.css' %}">
 {% endblock %}
 
 {% block extrajs %}
-    <script src="{% static "js/underscore-min.js" %}"></script>
+    <script src="{% static 'gallery/js/blueimp-gallery.min.js' %}"></script>
+    <script src="{% static 'js/underscore-min.js' %}"></script>
     <script>
         $(document).ready(function () {
             $(window).scroll(function () {
@@ -27,6 +28,25 @@
                 "ordering": "asc"};
         }
     </script>
+    <script>
+        var gallery = null;
+        var gallery_enabled = true;
+        var gallery_data = [];
+    </script>
+    {% include "album/imagine_handlers.html" %}
+
+
+    <!-- The Gallery as lightbox dialog, should be a child element of the document body -->
+    <div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
+        <div class="slides"></div>
+        <h3 class="title"></h3>
+        <a class="prev">‹</a>
+        <a class="next">›</a>
+        <a class="close">×</a>
+        <a class="play-pause"></a>
+        <ol class="indicator"></ol>
+    </div>
+
 {% endblock %}
 
 
