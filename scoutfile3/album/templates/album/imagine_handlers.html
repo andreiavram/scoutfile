@@ -44,7 +44,7 @@
         $(".visibility_action", element).click(function (e) {
             var imagine_id = $(this).data("imagine");
             $.post("{% url album:poza_visibility %}",
-                    {"imagine": $(this).data("imagine"), "new_status": $(this).data("value"), "csrfmiddlewaretoken": "{{ csrf_token }}", },
+                    {"imagine": $(this).data("imagine"), "new_status": $(this).data("value"), "csrfmiddlewaretoken": "{{ csrf_token }}" },
                     function (data) {
                         $("#current_visibility_" + imagine_id).fadeOut(200,function () {
                             console.log(data);
@@ -56,14 +56,16 @@
         });
 
         jQuery("a.detail_link", element).click(function (event) {
-            console.log(element.data("order"));
-            gallery = blueimp.Gallery(gallery_data, {index : element.data("order"), onslide : check_slide, onclose : function () { gallery = null;}})
+            gallery = blueimp.Gallery(gallery_data.slice(0), {index : element.data("order"),
+                onslide : check_slide,
+                fullScreen : true
+            })
             event.preventDefault();
         })
     }
 
     function check_slide(index, slide) {
-        if ((index > gallery_data.length - 5) && (stop_flag == false)) {
+        if ((index > gallery.list.length - 5) && (stop_flag == false)) {
             console.log("getting new photos");
             get_photos();
         }
@@ -104,16 +106,9 @@
         }
 
         gallery_data.push.apply(gallery_data, new_gallery_data);
-        console.log("current complete gallery data");
-        console.log(gallery_data);
-
         if ((gallery_enabled !== null) && (gallery_enabled = true)) {
             if (gallery !== null) {
-                console.log("adding photos to gallery");
-                console.log(new_gallery_data);
-                console.log(gallery);
                 gallery.add(new_gallery_data);
-                gallery.initSlides(false);
             }
         }
     }

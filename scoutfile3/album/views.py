@@ -661,7 +661,7 @@ class ImagineSearchJSON(JSONView):
                 "url_thumb" : imagine.get_thumbnail_url(),
                 "url_detail" : reverse("album:poza_detail", kwargs = {"pk" : imagine.id}),
                 "url_detail_img" : imagine.get_large_url(),
-                "titlu" : imagine.titlu,
+                "titlu" : "%s - %s" % (imagine.set_poze.eveniment.nume, imagine.titlu),
                 "descriere" : imagine.descriere,
                 "autor" : imagine.set_poze.get_autor(),
                 "data" : imagine.data.strftime("%d %B %Y %H:%M:%S"),
