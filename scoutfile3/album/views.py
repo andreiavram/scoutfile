@@ -638,10 +638,15 @@ class ImagineSearchJSON(JSONView):
         if "authors" in self.cleaned_data:
             qs = qs.filter(set_poze__autor__icontains = self.cleaned_data['authors'])
 
+        qs = Imagine.filter_visibility(qs, request.user)
+
         if self.cleaned_data.get("ordering", "desc") == "desc":
             qs = qs.order_by("-data")
         elif self.cleaned_data.get("ordering") == "asc":
             qs = qs.order_by("data")
+
+        #   limit users to access only available photos
+        # qs = qs.filter(published_status__lt=self.eveniment.get_visibility_level(request.user))
 
         limit = self.cleaned_data.get("limit", 10)
         offset = self.cleaned_data.get("offset", 0)
@@ -655,6 +660,7 @@ class ImagineSearchJSON(JSONView):
         return {"id" : imagine.id,
                 "url_thumb" : imagine.get_thumbnail_url(),
                 "url_detail" : reverse("album:poza_detail", kwargs = {"pk" : imagine.id}),
+                "url_detail_img" : imagine.get_large_url(),
                 "titlu" : imagine.titlu,
                 "descriere" : imagine.descriere,
                 "autor" : imagine.set_poze.get_autor(),

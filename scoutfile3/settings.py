@@ -63,6 +63,7 @@ STATICFILES_DIRS = (
     ("css", "%s/css" % STATIC_ROOT),
     ("font", "%s/font" % STATIC_ROOT),
     ("jquery_upload", "%s/jquery_upload" % STATIC_ROOT),
+    ("gallery", os.path.join(STATIC_ROOT, "gallery")),
 )
 
 # List of finder classes that know how to find static files in
