@@ -1,22 +1,26 @@
 <script type="text/javascript">
     function after_vote(data) {
         // console.log(data);
-        jQuery("#score_" + data.picture_id).html(data.current_score);
+        jQuery(".score_" + data.picture_id).html(data.current_score);
     }
 
-    function set_handlers(element) {
+    function set_handlers(element, no_popover) {
+        var popover = !(no_popover || false);
+        jQuery(".thumbs_up", element).unbind("click");
         jQuery(".thumbs_up", element).click(function (event) {
             Dajaxice.album.vote_picture(Dajax.process, {"picture_id": jQuery(this).data("image"), "score": 1});
             event.preventDefault();
             return false;
         });
 
+        jQuery(".thumbs_down", element).unbind("click");
         jQuery(".thumbs_down", element).click(function (event) {
             Dajaxice.album.vote_picture(Dajax.process, {"picture_id": jQuery(this).data("image"), "score": -1});
             event.preventDefault();
             return false;
         });
 
+        jQuery(".rotate_cw", element).unbind("click");
         jQuery(".rotate_cw", element).click(function (event) {
             var that = this;
             var d = new Date();
@@ -26,6 +30,7 @@
             event.preventDefault();
         });
 
+        jQuery(".rotate_ccw", element).unbind("click");
         jQuery(".rotate_ccw", element).click(function (event) {
             var that = this;
             var d = new Date();
@@ -36,18 +41,20 @@
             event.preventDefault();
         });
 
-        $(".imagine", element).popover({"placement": "bottom", "html": true, "trigger": "hover", "content": function () {
-            return $($(this).data("contentsource")).html();
+        if (popover) {
+            $(".imagine", element).popover({"placement": "bottom", "html": true, "trigger": "hover", "content": function () {
+                return $($(this).data("contentsource")).html();
+            }
+            });
         }
-        });
 
+        jQuery(".visibility_action", element).unbind("click");
         $(".visibility_action", element).click(function (e) {
             var imagine_id = $(this).data("imagine");
             $.post("{% url album:poza_visibility %}",
                     {"imagine": $(this).data("imagine"), "new_status": $(this).data("value"), "csrfmiddlewaretoken": "{{ csrf_token }}" },
                     function (data) {
-                        $("#current_visibility_" + imagine_id).fadeOut(200,function () {
-                            console.log(data);
+                        $(".current_visibility_" + imagine_id).fadeOut(200,function () {
                             $(this).text(data.new_status_string);
                         }).fadeIn(200);
                     },
@@ -56,9 +63,9 @@
         });
 
         jQuery("a.detail_link", element).click(function (event) {
-            gallery = blueimp.Gallery(gallery_data.slice(0), {index : element.data("order"),
-                onslide : check_slide,
-                fullScreen : true
+            gallery = blueimp.Gallery(gallery_data.slice(0), {index: element.data("order"),
+                onslide: check_slide,
+                fullScreen: true
             })
             event.preventDefault();
         })
@@ -69,6 +76,13 @@
             console.log("getting new photos");
             get_photos();
         }
+
+        var node = this.container.find('.description');
+        jQuery(node).text(this.list[index].descriere);
+        $(".sfcontrols", this.container).html(_.template($("#sfcontrols_template").html(), {"imagine": this.list[index]}));
+        set_handlers($(".sfcontrols", this.container), true);
+
+        $(".tags", this.container).html(_.template($("#tags_template").html(), {"image": this.list[index]}));
     }
 
     function handle_imagini(data) {
@@ -83,10 +97,13 @@
                 $("#rezultate-list").append('<div class="row-fluid" style="margin-bottom: 20px"></div>');
             }
 
-            new_gallery_data.push({title: element.titlu,
+            var item = {title: element.titlu,
                 href: element.url_detail_img,
                 type: "image/jpeg",
-                thumbnail: element.url_thumb});
+                thumbnail: element.url_thumb};
+            _.extend(item, element);
+
+            new_gallery_data.push(item);
 
             element.gallery_order_id = gallery_data.length + new_gallery_data.length - 1;
             $("#rezultate-list div.row-fluid:last-child").append(_.template($("#imagine_template").html(), {"image": element}));
@@ -124,6 +141,53 @@
     var stop_flag = true;
     var crt_cnt = 0;
 </script>
+<script type="text/template" id="tags_template">
+       Fotografie de <a href = "#"><i class = "icon-camera"></i> <%= image.autor %></a><br />
+       Moment <%= image.data %><br />
+       <div class = "current-tags">
+        <% _.each(image.tags, function(e) { %>
+            <span class = "tag tag-small"><%= e %></span>
+        <% }); %>
+        </div>
+</script>
+<script type="text/template" id="sfcontrols_template">
+    <div class = "btn-toolbar">
+        <div class = "btn-group">
+            <a class = "btn" href = "<%= imagine.flag_url %>" data-image = "<%= imagine.id %>"><i class = "icon-flag"></i></a>
+{#            {% if media_manager %}<a class = "btn make_cover" href = "javascript:void()" data-image = "<%= imagine.id %>"><i class = "icon-picture"></i></a>{% endif %}#}
+            <a class = "btn" href = "<%= imagine.url_detail %>"><i class = "icon-picture"></i></a>
+        </div>
+        <div class = "btn-group">
+            <a href = "javascript:void()" class = "btn thumbs_up" data-image = "<%= imagine.id %>"><i class = "icon-thumbs-up"></i></a>
+            <a href = "javascript:void()" class = "btn disabled score_<%= imagine.id %>"><%= imagine.score %></a>
+            <a href = "javascript:void()" class = "btn thumbs_down" data-image = "<%= imagine.id %>"><i class = "icon-thumbs-down"></i></a>
+        </div>
+{#        {% if media_manager %}#}
+{#        <div class = "btn-group">#}
+{#            <a href = "{% url album:poza_rotate pk=object.id %}?direction=ccw" class = "btn"><i class = "icon-rotate-left"></i></a>#}
+{#            <a href = "{% url album:poza_rotate pk=object.id %}?direction=cw" class = "btn"><i class = "icon-rotate-right"></i></a>#}
+{#        </div>#}
+{#        {% endif %}#}
+{#        <div class = "btn-group">#}
+{#            <a href = "{{ object.image.url }}" class = "btn"><i class = "icon-picture"></i> Original</a>#}
+{#            <a href = "{{ object.get_profile_url }}" class = "btn"><i class = "icon-picture"></i> Profil</a>#}
+{#        </div>#}
+
+        {% if media_manager or request.user.is_superuser %}
+        <div class = 'btn-group dropup'>
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class = "icon-eye-open"> </i> <span class = "current_visibility_<%= imagine.id %>"><%= imagine.published_status_display %></span>
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                {% for state in visibility_states %}
+                    <li><a href = "#" data-value = "{{ state.0 }}" data-imagine="<%= imagine.id %>" class = "visibility_action">{{ state.1 }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+</script>
 <script type="text/template" id="imagine_template">
         <div class="span3" style="position: relative; display: none;" data-order=<%= image.gallery_order_id %>>
             <div class="thumbnail">
@@ -145,7 +209,7 @@
                          id="picture_<%= image.id %>">
                         <a href="javascript:void()" class="btn btn-mini thumbs_up" data-image="<%= image.id %>"><i
                                 class="icon-thumbs-up"></i></a>
-                        <a href="javascript:void()" class="btn btn-mini" style = "opacity: .8" id="score_<%= image.id %>"><%= image.score %></a>
+                        <a href="javascript:void()" class="btn btn-mini score_<%= image.id %>" style = "opacity: .8"><%= image.score %></a>
                         <a href="javascript:void()" class="btn btn-mini thumbs_down" data-image="<%= image.id %>"><i
                                 class="icon-thumbs-down"></i></a>
                     </div>
@@ -162,7 +226,7 @@
                         <div class="btn-group">
                             <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
                                 <i class="icon-eye-open"> </i> <span
-                                    id="current_visibility_<%= image.id %>"><%= image.published_status_display %></span>
+                                    class="current_visibility_<%= image.id %>"><%= image.published_status_display %></span>
                                 <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu">

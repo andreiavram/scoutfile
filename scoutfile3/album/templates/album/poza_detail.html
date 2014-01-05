@@ -41,7 +41,7 @@
                     <a class = "btn" href="{% url album:poza_detail pk=prev_photo.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i
                             class="icon-chevron-left icon-white"></i></a>
             {% endif %}
-                <a href = "{% url album:zi_detail pk=object.get_day.id %}?page={{ zi_page }}" class = "btn"><i class = "icon-chevron-up"></i></a>
+                <a href = "{% url album:zi_detail pk=object.get_day.id %}" class = "btn"><i class = "icon-chevron-up"></i></a>
             {% if next_photo %}
                     <a class = "btn" href="{% url album:poza_detail pk=next_photo.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i
                             class="icon-chevron-right icon-white"></i></a>

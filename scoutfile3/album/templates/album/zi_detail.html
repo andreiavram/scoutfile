@@ -48,7 +48,7 @@
             {% url album:eveniment_detail slug=object.eveniment.slug %}{% if autor %}?autor={{ autor }}{% endif %}"><i
             class="icon-list"></i> {{ object.eveniment }}</a>, <strong>{{ object.filter_photos.count }}</strong>
         fotografii pentru {{ object.date|date:"l, d F Y" }}</div>
-    <div class = "alert">Testează varianta beta cu infinite scrolling (încărcare graduală, fără paginație) <a href = "{% url album:zi_detail_infinite pk=object.id %}">aici</a>.</div>
+
     {% if autor %}
         <div class="alert alert-success">Arăt doar pozele de la <strong>{{ autor }}</strong></div>{% endif %}
     {% if object.descriere %}{{ object.descriere|linebreaks }}{% endif %}
