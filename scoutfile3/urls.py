@@ -26,7 +26,9 @@ urlpatterns = patterns('',
     
     (r'issues/$', Issues.as_view(), {}, "issues"),
     (r'issues/create/$', CreateIssue.as_view(), {}, "create_issue"),
-    
+
+    url('', include('social.apps.django_app.urls', namespace='social')),
+
     ('^$', IndexView.as_view(template_name = "home.html"), {}, "index"),
 
 
