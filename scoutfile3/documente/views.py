@@ -1,8 +1,6 @@
 #coding=utf8
 import datetime
-from django.contrib.contenttypes.models import ContentType
 from django.db.models.aggregates import Sum
-from django.db.models.query_utils import Q
 from django.utils.simplejson import dumps
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
@@ -14,24 +12,24 @@ from reportlab.lib.units import cm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen.canvas import Canvas
-from reportlab.platypus.paragraph import Paragraph
-from documente.forms import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm, DecizieCuantumCotizatieForm, TransferIncasariForm, AdeziuneUpdateForm, AdeziuneCreateForm
-from documente.models import DocumentCotizatieSociala, TipAsociereDocument, AsociereDocument, Registru, REGISTRU_TIPURI, DecizieCotizatie, PlataCotizatieTrimestru, ChitantaCotizatie, Adeziune, TipDocument, Chitanta
-from documente.models import Document
 from django.core.exceptions import ImproperlyConfigured
 import logging
-from documente.forms import DocumentCreateForm, FolderCreateForm, \
-    CotizatieMembruForm
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
-from django.views.generic.base import View, TemplateView
-from django.views.decorators.csrf import csrf_exempt
-from django.utils import simplejson
-from generic.views import JSONView, ScoutFileAjaxException
-from settings import MEDIA_ROOT
-from structuri.models import Membru, CentruLocal, AsociereMembruStructura
+from django.views.generic.base import TemplateView
+from goodies.views import JSONView
 from django.contrib import messages
+
+from documente.forms import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm, DecizieCuantumCotizatieForm, TransferIncasariForm, AdeziuneUpdateForm, AdeziuneCreateForm
+from documente.models import DocumentCotizatieSociala, AsociereDocument, Registru, REGISTRU_TIPURI, DecizieCotizatie, PlataCotizatieTrimestru, ChitantaCotizatie, Adeziune, Chitanta
+from documente.models import Document
+from documente.forms import DocumentCreateForm, FolderCreateForm, \
+    CotizatieMembruForm
+from generic.views import ScoutFileAjaxException
+from settings import MEDIA_ROOT
+from structuri.models import Membru, CentruLocal
 from utils.fiscal import suma2text
+
 
 logger = logging.getLogger(__name__)
 
