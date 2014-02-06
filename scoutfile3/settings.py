@@ -324,6 +324,8 @@ SOCIAL_AUTH_LOGIN_ERROR_URL = "/?error-social"
 SOCIAL_AUTH_LOGIN_URL = "/login/"
 SOCIAL_AUTH_UID_LENGTH = 223
 SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
+SOCIAL_AUTH_STRATEGY = 'social.strategies.django_strategy.DjangoStrategy'
+SOCIAL_AUTH_STORAGE = 'social.apps.django_app.default.models.DjangoStorage'
 # SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email',]
 
 SOCIAL_AUTH_PIPELINE = (
