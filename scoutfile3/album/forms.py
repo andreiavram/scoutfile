@@ -4,17 +4,16 @@ Created on Aug 31, 2012
 
 @author: yeti
 '''
-from crispy_forms.layout import Layout, Field
 from django.core.urlresolvers import reverse
 from taggit.forms import TagField
-from generic.widgets import BootstrapDateTimeInput, GeoCoordinatesInput, FacebookLinkWidget, TaggitTagsInput
-from generic.forms import CrispyBaseModelForm
-from album.models import FlagReport, FLAG_MOTIVES
+from goodies.forms import CrispyBaseModelForm
 from django import forms
-from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
 from django.forms.widgets import RadioSelect, Textarea
 from django.core.exceptions import ValidationError
-from django.forms.fields import CharField, FileField
+
+from generic.widgets import BootstrapDateTimeInput, GeoCoordinatesInput, FacebookLinkWidget, TaggitTagsInput
+from album.models import FlagReport, FLAG_MOTIVES
+from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
 
 
 class ReportForm(CrispyBaseModelForm):

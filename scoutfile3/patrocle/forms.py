@@ -4,15 +4,17 @@ Created on Sep 25, 2012
 
 @author: yeti
 '''
-from generic.forms import CrispyBaseForm, CrispyBaseModelForm
+from goodies.forms import CrispyBaseForm, CrispyBaseModelForm
 from django import forms
 from django.forms.widgets import Textarea, HiddenInput
-from patrocle.models import Credit
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from crispy_forms.layout import Field, Layout, Div
 from django.utils import simplejson
 import logging
+
+from patrocle.models import Credit
+
 
 logger = logging.getLogger(__name__)
 
@@ -111,6 +113,3 @@ class AsociereCreditForm(CrispyBaseModelForm):
             raise ValidationError(u"Creditul total disponibil în sistem (%d) este mai mic decât valoarea cerută" % self.credit_maxim)
         
         return self.cleaned_data['credit']
-        
-        
-        

@@ -142,7 +142,7 @@ INSTALLED_APPS = (
     'patrocle', 'documente', 'extra',
     
     'raven.contrib.django.raven_compat',
-    'django_extensions', 'gunicorn'
+    'django_extensions', 'gunicorn', 'goodies',
 )
 
 

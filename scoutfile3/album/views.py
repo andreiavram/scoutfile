@@ -27,7 +27,8 @@ from album.forms import SetPozeCreateForm, SetPozeUpdateForm
 from generic.views import GenericDeleteView
 from settings import MEDIA_ROOT
 from structuri.models import Membru
-from generic.views import JSONView, ScoutFileAjaxException
+from goodies.views import JSONView
+from generic.views import ScoutFileAjaxException
 from album.models import IMAGINE_PUBLISHED_STATUS
 from structuri.models import TipAsociereMembruStructura
 from structuri.decorators import allow_by_afiliere

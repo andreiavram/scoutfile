@@ -8,15 +8,13 @@ from django.core.exceptions import ValidationError
 from django.db.models.aggregates import Max
 #from django.db.models.fields import CharField
 from django.db.models.query_utils import Q
-from documente.models import DocumentCotizatieSociala, Registru, DecizieCotizatie, Trimestru, PlataCotizatieTrimestru, Adeziune
-from generic.widgets import BootstrapDateInput
-from generic.forms import CrispyBaseModelForm, CrispyBaseForm
+from documente.models import DocumentCotizatieSociala, Registru, DecizieCotizatie, PlataCotizatieTrimestru, Adeziune
+from goodies.widgets import BootstrapDateInput
+from goodies.forms import CrispyBaseModelForm, CrispyBaseForm
 from documente.models import Document, ChitantaCotizatie
-from crispy_forms.layout import Field, Layout, Submit, Button
-from crispy_forms.bootstrap import FormActions, FieldWithButtons, StrictButton
 from django.forms.fields import DateField, CharField
 from django.forms.widgets import HiddenInput
-import datetime
+
 
 class DocumentCreateForm(CrispyBaseModelForm):
     class Meta:
