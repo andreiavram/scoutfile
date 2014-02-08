@@ -87,15 +87,16 @@ class FacebookLoginView(FacebookConnectView):
     def user_action(self, access_token=None, expires=None):
         profile = FacebookSession._query(access_token, 'me')
         #   create or connect user to Facebook
-        try:
-            user = User.objects.get(username=profile['email'])
-        except User.DoesNotExist:
-            return HttpResponseForbidden()
 
-        facebook_session, created_fb_session = FacebookSession.objects.get_or_create(user=user, uid=profile['id'])
+        facebook_session, created_fb_session = FacebookSession.objects.get_or_create(uid=profile['id'])
         facebook_session.access_token = access_token
         facebook_session.expires = expires
         facebook_session.save()
+
+        # try:
+        #     user = User.objects.get(id = facebook_session.user_id)
+        # except User.DoesNotExist:
+        #     return HttpResponseForbidden()
 
         user = auth.authenticate(token=access_token)
         auth.login(self.request, user)
