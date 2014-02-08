@@ -25,7 +25,6 @@ numpy==1.7.1
 oauthlib==0.6.1
 pygraphviz==1.2
 python-openid==2.2.5
-python-social-auth==0.1.21
 raven==3.1.16
 reportlab==2.7
 requests==2.2.1

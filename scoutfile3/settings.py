@@ -93,7 +93,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'pagination.middleware.PaginationMiddleware',
-    'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
@@ -117,8 +116,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'context_processors.product_version',
     'context_processors.api_keys',
     'context_processors.url_root',
-    'social.apps.django_app.context_processors.backends',
-    'social.apps.django_app.context_processors.login_redirect',
 )
 
 #if DEVELOPMENT:
@@ -143,10 +140,10 @@ INSTALLED_APPS = (
     
     'structuri', 'generic', 'album',
     'patrocle', 'documente', 'extra',
+    "utils",
     
     'raven.contrib.django.raven_compat',
     'django_extensions', 'gunicorn', 'goodies',
-    'social.apps.django_app.default',
 )
 
 
@@ -310,27 +307,11 @@ DATETIME_INPUT_FORMATS = (
 
 GOOGLE_API_KEY = "AIzaSyCIiQgKmmRv2SLBj8KTbx6HB7Kn_6LIU-o"
 
-SOCIAL_AUTH_FACEBOOK_KEY = "152554668279442"
-SOCIAL_AUTH_FACEBOOK_SECRET = "388c926e843601ac88f16274923245ea"
-SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+FACEBOOK_LOGIN_REDIRECT = "login"    #  url reverse-able string
+FACEBOOK_APP_ID = "152554668279442"
+FACEBOOK_APP_SECRET = "388c926e843601ac88f16274923245ea"
+FACEBOOK_PERMISSIONS = ['email', 'publish_stream']
 
-AUTHENTICATION_BACKENDS = (
-    "social.backends.facebook.FacebookOAuth2",
-    "django.contrib.auth.backends.ModelBackend"
-)
-
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = "/"
-SOCIAL_AUTH_LOGIN_ERROR_URL = "/?error-social"
-SOCIAL_AUTH_LOGIN_URL = "/login/"
-SOCIAL_AUTH_UID_LENGTH = 223
-SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
-SOCIAL_AUTH_STRATEGY = 'social.strategies.django_strategy.DjangoStrategy'
-SOCIAL_AUTH_STORAGE = 'social.apps.django_app.default.models.DjangoStorage'
-# SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email',]
-
-SOCIAL_AUTH_PIPELINE = (
-    'social.pipeline.social_auth.social_user',
-    'social.pipeline.social_auth.associate_user',
-    'social.pipeline.social_auth.load_extra_data',
-    'social.pipeline.user.user_details'
+AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',
+                           'utils.auth_backends.FacebookBackend',
 )

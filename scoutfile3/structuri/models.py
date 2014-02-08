@@ -15,6 +15,7 @@ from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 import unidecode
 from documente.models import PlataCotizatieTrimestru, AsociereDocument
+from utils.models import FacebookSession
 
 
 logger = logging.getLogger(__name__)
@@ -180,6 +181,10 @@ class Utilizator(models.Model):
 
     def link_confirmare(self):
         return reverse("structuri:membru_confirm_registration", kwargs={"hash": self.hash})
+
+    def facebook_connected(self):
+        #   TODO: add expiration check on facebook session manager
+        return FacebookSession.objects.filter(user = self.user).exists()
 
 
 class ImagineProfil(ImageModel):

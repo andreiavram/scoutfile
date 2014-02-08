@@ -22,7 +22,7 @@ from structuri.views import CentruLocalCreate, CentruLocalUpdate,\
     MembruAddFamilie, MembruEditFamilie, MembruTabFamilie,\
     MembruPersoanaDeContactCreate, MembruPersoanaDeContactUpdate,\
     MembriForPatrocle, MembruDestinatarRepr, PersoanaContactDestinatarRepr,\
-    MembriFaraAfilieri, GetSpeedList, MembruTabDocumente, SetariSpecialeCentruLocal
+    MembriFaraAfilieri, GetSpeedList, MembruTabDocumente, SetariSpecialeCentruLocal, MembruConfirmaFacebook
 
 urlpatterns = patterns('structuri.views',
     (r'centrulocal/adauga/$', CentruLocalCreate.as_view(), {}, "cl_add"),
@@ -119,6 +119,8 @@ urlpatterns = patterns('structuri.views',
     (r'membru/(?P<pk>\d+)/alte_documente/$', MembruAlteDocumente.as_view(), {}, "membru_alte_documente"),
     (r'membru/(?P<pk>\d+)/cotizatie-sociala/adauga/$', DeclaratieCotizatieSocialaAdauga.as_view(), {}, "membru_cotizatiesociala_adauga"),
     (r'membru/cotizatie-sociala/(?P<pk>\d+)/modifica/$', DeclaratieCotizatieSocialaModifica.as_view(), {}, "membru_cotizatiesociala_modifica"),
+
+    (r'membru/fb/confirm/$', MembruConfirmaFacebook.as_view(), {}, "membru_confirma_facebook"),
 
 
     (r'ajax/membri/list/$', MembriForPatrocle.as_view(), {}, "ajax_patrocle_membri"),   

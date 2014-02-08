@@ -40,6 +40,7 @@ import datetime
 import hashlib
 import logging
 import traceback
+from utils.views import FacebookConnectView, FacebookUserConnectView
 
 
 logger = logging.getLogger(__name__)
@@ -1853,3 +1854,15 @@ class SetariSpecialeCentruLocal(UpdateView):
 
     def get_success_url(self):
         return reverse("structuri:cl_detail", kwargs={"pk": self.object.id})
+
+class MembruConfirmaFacebook(TemplateView):
+    template_name = "structuri/confirma_facebook.html"
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(MembruConfirmaFacebook, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        data = super(MembruConfirmaFacebook, self).get_context_data(**kwargs)
+        data['facebook_connect_url'] = FacebookUserConnectView.get_facebook_endpoint(self.request)
+        return data
