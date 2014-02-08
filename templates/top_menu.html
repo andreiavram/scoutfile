@@ -22,11 +22,13 @@
 				<li><a href = "{% url logout %}"><i class = "icon-lock"></i> Logout</a></li>
 				<li><a href = "{% url structuri:membru_profil %}"><i class = "icon-user"></i> Profil</a></li>
 				<li><a href = "{% url structuri:membru_change_password %}"><i class = "icon-wrench"></i> Schimbă parola</a></li>
+                 <li><a href = "{% url structuri:membru_confirma_facebook %}"><i class = 'icon-facebook'></i>
                 {% if user.get_profile.facebook_connected %}
-                    <li><a href = "#"><i class = 'icon-facebook'></i> <em>Facebook conectat</em></a></li>
+                   Setări Facebook
                 {% else %}
-                    <li><a href = "{% url structuri:membru_confirma_facebook %}"><i class = 'icon-facebook'></i> <em>Conectează-te cu Facebook</em></a></li>
+                   <em>Conectează-te cu Facebook</em>
                 {% endif %}
+                 </a></li>
 				{% if user.is_staff %}
 				<li class = "divider"></li>
 				<li><a href = "{% url structuri:cl_list %}"><i class = "icon-list"></i> Centre Locale</a></li>
