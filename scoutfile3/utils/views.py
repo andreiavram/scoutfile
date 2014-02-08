@@ -80,7 +80,6 @@ class FacebookConnectView(View):
         if user is None or not user.is_active:
             return HttpResponseForbidden()
 
-        auth.login(self.request, user)
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -99,10 +98,11 @@ class FacebookLoginView(FacebookConnectView):
         facebook_session.save()
 
         user = auth.authenticate(token=access_token)
+        auth.login(self.request, user)
         return user
 
     def get_success_url(self):
-        return reverse("edit_home")
+        return reverse("index")
 
     @classmethod
     def get_redirect_url(cls, request):
