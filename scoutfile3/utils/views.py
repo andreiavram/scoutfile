@@ -136,6 +136,7 @@ class FacebookUserConnectView(FacebookConnectView):
             facebook_session, created_fb_session = FacebookSession.objects.get_or_create(user=self.request.user,
                                                                                          uid=profile['id'])
         except Exception, e:
+            logger.error("{0}: {1}".format(self.__class__.__name__, e))
             raise ValueError(u"Există alt utilizator autentificat deja cu Facebook cu acest cont.")
 
         facebook_session.access_token = access_token
