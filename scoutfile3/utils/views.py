@@ -1,11 +1,13 @@
 # coding: utf-8
 
 from django.contrib import auth
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib import messages
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponseForbidden
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.utils.decorators import method_decorator
 from django.views.generic.base import View
 import urllib
 import urlparse
@@ -65,20 +67,31 @@ class FacebookConnectView(View):
     def get_success_url(self):
         raise ImproperlyConfigured("This method has to be overridden")
 
+    def get_error_url(self):
+        if hasattr(settings, "FACEBOOK_ERROR_URL"):
+            try:
+                return reverse(settings.FACEBOOK_ERROR_URL)
+            except Exception:
+                pass
+        raise ImproperlyConfigured("This method has to be implemented")
+
     def get(self, request, *args, **kwargs):
         self.request = request
         try:
             access_token, expires = self.get_access_token()
         except Exception, e:
-            return HttpResponseBadRequest("Facebook bad response, %s" % e)
+            messages.error(self.request, u"Eroare la comunicarea cu Facebook ({0})".format(e))
+            return HttpResponseRedirect(self.get_error_url())
 
         try:
             user = self.user_action(access_token=access_token, expires=expires)
         except Exception, e:
-            return HttpResponseBadRequest(u"%s" % e)
+            messages.error(self.request, u"Autentificarea cu Facebook a eșuat ({0})".format(e))
+            return HttpResponseRedirect(self.get_error_url())
 
         if user is None or not user.is_active:
-            return HttpResponseForbidden()
+            messages.error(self.request, u"Autentificaea cu Facebook a eșuat (userul nu este conectat)")
+            return HttpResponseRedirect(self.get_error_url())
 
         return HttpResponseRedirect(self.get_success_url())
 
@@ -112,6 +125,10 @@ class FacebookLoginView(FacebookConnectView):
 
 
 class FacebookUserConnectView(FacebookConnectView):
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(FacebookUserConnectView, self).dispatch(request, *args, **kwargs)
+
     def user_action(self, access_token=None, expires=None):
         profile = FacebookSession._query(access_token, 'me')
 
@@ -135,3 +152,6 @@ class FacebookUserConnectView(FacebookConnectView):
     def get_redirect_url(cls, request):
         protocol = "http" + ("s" if request.is_secure() else "") + "://"
         return protocol + request.get_host() + reverse("utils:facebook_connect")
+
+    def get_error_url(self):
+        return reverse("index")
