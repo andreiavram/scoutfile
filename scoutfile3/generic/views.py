@@ -19,6 +19,7 @@ import urllib2
 import datetime
 import traceback
 from django.utils import simplejson
+from utils.views import FacebookLoginView
 
 logger = logging.getLogger(__file__)
 
@@ -56,6 +57,11 @@ class Login(FormView):
     def get_success_url(self):
         #TODO: fix this membru indirection here
         return self.request.user.get_profile().membru.get_home_link()
+
+    def get_context_data(self, **kwargs):
+        data = super(Login, self).get_context_data(**kwargs)
+        data['facebook_connect_url'] = FacebookLoginView.get_facebook_endpoint(self.request)
+        return data
     
 class Logout(View):
     def get(self, *args, **kwargs):

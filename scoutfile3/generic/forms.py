@@ -39,7 +39,7 @@ class LoginForm(forms.Form):
         self.helper.form_method = "post"
         self.helper.form_class = "form-vertical"
         self.helper.add_input(Submit('submit', u'Autentificare', css_class = "btn btn-primary"))
-        
+
         return super(LoginForm, self).__init__(*args, **kwargs)
 
 
