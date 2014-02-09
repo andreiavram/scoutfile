@@ -12,7 +12,7 @@ from django.forms.widgets import RadioSelect, Textarea
 from django.core.exceptions import ValidationError
 
 from generic.widgets import BootstrapDateTimeInput, GeoCoordinatesInput, FacebookLinkWidget, TaggitTagsInput
-from album.models import FlagReport, FLAG_MOTIVES
+from album.models import FlagReport, FLAG_MOTIVES, RaportEveniment
 from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
 
 
@@ -60,9 +60,11 @@ class EvenimentCreateForm(CrispyBaseModelForm):
 
     start_date = forms.DateTimeField(required=True, widget=BootstrapDateTimeInput(), label=u"Data început")
     end_date = forms.DateTimeField(required=True, widget=BootstrapDateTimeInput(), label=u"Data sfârșit")
-    locatie_geo = forms.CharField(widget=GeoCoordinatesInput, required=False, label = u"Geolocație", help_text=u"Folosiți harta pentru a alege o locație")
+    locatie_geo = forms.CharField(widget=GeoCoordinatesInput, required=False, label=u"Geolocație",
+                                  help_text=u"Folosiți harta pentru a alege o locație")
     facebook_event_link = forms.URLField(widget=FacebookLinkWidget, required=False, label=u"Link eveniment Facebook")
     cover_photo = forms.FileField(label=u"Cover photo", required=False)
+
 
 class EvenimentUpdateForm(EvenimentCreateForm):
     class Meta:
@@ -72,6 +74,7 @@ class EvenimentUpdateForm(EvenimentCreateForm):
     def get_success_url(self):
         return reverse("album:eveniment_detail")
 
+
 class PozaTagsForm(CrispyBaseModelForm):
     class Meta:
         model = Imagine
@@ -79,8 +82,17 @@ class PozaTagsForm(CrispyBaseModelForm):
 
     tags = TagField(required=False, widget=TaggitTagsInput, label=u"Tag-uri")
 
+
 class ZiForm(CrispyBaseModelForm):
     class Meta:
         model = ZiEveniment
         fields = ["titlu", "descriere"]
+
+
+class RaportEvenimentForm(CrispyBaseModelForm):
+    class Meta:
+        model = RaportEveniment
+        fields = ["parteneri", "obiective", "grup_tinta", "activitati", "alti_beneficiari",
+                  "promovare", "buget", "accept_publicare_raport_national"]
+
 
