@@ -20,8 +20,8 @@ from django.contrib.auth.decorators import login_required
 from taggit.models import Tag
 from taggit.utils import parse_tags
 
-from album.models import Eveniment, ZiEveniment, Imagine, FlagReport
-from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm
+from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment
+from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm
 from album.models import SetPoze
 from album.forms import SetPozeCreateForm, SetPozeUpdateForm
 from generic.views import GenericDeleteView
@@ -706,3 +706,81 @@ class ZiDetailBeta(DetailView):
             current.update({"media_manager": True})
 
         return current
+
+
+class RaportEvenimentUpdate(UpdateView):
+    form_class = RaportEvenimentForm
+    template_name = "album/eveniment_raport_form.html"
+    model = RaportEveniment
+
+    def dispatch(self, request, *args, **kwargs):
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+
+        #TODO: trateaza cazul cu mai multe leaf-uri
+        self.raport_nou = False
+        if self.eveniment.raporteveniment_set.exists():
+            kwargs['pk'] = self.eveniment.raporteveniment_set.all()[0].id
+        else:
+            self.object = self.create_raport(request)
+            self.raport_nou = True
+            kwargs['pk'] = self.object.id
+        return super(RaportEvenimentUpdate, self).dispatch(request, *args, **kwargs)
+
+    def create_raport(self, request):
+        raport_data = {"eveniment": self.eveniment,
+                       "editor": request.user.get_profile().membru,
+                        "is_leaf": True,
+                        "is_locked": False}
+        raport = RaportEveniment(**raport_data)
+        raport.save()
+        return raport
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.editor = self.request.user.get_profile().membru
+        if self.raport_nou is True:
+            self.object.save()
+        else:
+            self.object.save_new_version(user=self.request.user)
+        messages.success(self.request, u"Raportul a fost salvat!")
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("album:eveniment_detail", kwargs={"slug": self.eveniment.slug})
+
+    def get_context_data(self, **kwargs):
+        data = super(RaportEvenimentUpdate, self).get_context_data(**kwargs)
+        data['eveniment'] = self.eveniment
+        return data
+
+
+class RaportEvenimentDetail(DetailView):
+    model = Eveniment
+    template_name = "album/eveniment_raport_detail.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        #self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+        return super(RaportEvenimentDetail, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        data = super(RaportEvenimentDetail, self).get_context_data(**kwargs)
+        if self.object.raporteveniment_set.exists():
+            data['raport'] = self.object.raporteveniment_set.all()[0]
+        return data
+
+
+class RaportEvenimentHistory(ListView):
+    model = RaportEveniment
+    template_name = "album/eveniment_raport_history.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+        return super(RaportEvenimentHistory, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return RaportEveniment.objects.version_history(eveniment=self.eveniment)
+
+    def get_context_data(self, **kwargs):
+        data = super(RaportEvenimentHistory, self).get_context_data(**kwargs)
+        data['eveniment'] = self.eveniment
+        return data
