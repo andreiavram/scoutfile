@@ -18,8 +18,8 @@
         <li><a href = "{% url album:eveniment_update slug=eveniment.slug %}"><i class = "icon-pencil"></i> Editează</a></li>
         <li><a class = "delete" href = "{% url album:eveniment_delete slug=eveniment.slug %}"><i class = "icon-trash"></i> Șterge</a></li>
         <li class = "nav-header">Raportare</li>
-            <li><a href = "{% url album:eveniment_raport_update slug=eveniment.slug %}"><i class = "icon-file"></i> Raport curent</a></li>
-            <li><a href = "{% url album:eveniment_raport_detail slug=eveniment.slug %}"><i class = "icon-edit"></i> Editează raport</a></li>
+            <li><a href = "{% url album:eveniment_raport_detail slug=eveniment.slug %}"><i class = "icon-file"></i> Raport curent</a></li>
+            <li><a href = "{% url album:eveniment_raport_update slug=eveniment.slug %}"><i class = "icon-edit"></i> Editează raport</a></li>
             <li><a href = "{% url album:eveniment_raport_history slug=eveniment.slug %}"><i class = "icon-list"></i> Listă versiuni</a></li>
         {% endif %}
         <li class = "nav-header">Fotografi</li>
