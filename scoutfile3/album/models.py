@@ -22,10 +22,19 @@ logger = logging.getLogger(__name__)
 
 
 IMAGINE_PUBLISHED_STATUS = ((1, "Secret"), (2, "Centru Local"), (3, "Organizație"), (4, "Public"))
+
+
 class ParticipantiEveniment(models.Model):
     eveniment = models.ForeignKey("Eveniment")
-    ramura_de_varsta = models.ForeignKey("structuri.RamuraDeVarsta")
+    ramura_de_varsta = models.ForeignKey("structuri.RamuraDeVarsta", null=True, blank=True)
+    alta_categorie = models.CharField(max_length=255, null=True, blank=True)
     numar = models.IntegerField()
+
+
+TIPURI_EVENIMENT = (("camp", "Camp"), ("intalnire", u"Întâlnire"), ("hike", "Hike"), ("social", "Proiect social"),
+                    ("comunitate", u"Proiect de implicare în comunitate"), ("citychallange", u"City Challange"),
+                    ("international", u"Proiect internațional"), )
+
 
 class Eveniment(models.Model):
     centru_local = models.ForeignKey("structuri.CentruLocal")
@@ -36,6 +45,7 @@ class Eveniment(models.Model):
     slug = models.SlugField(max_length=255, unique=True)
     custom_cover_photo = models.ForeignKey("Imagine", null=True, blank=True)
 
+    tip_eveniment = models.CharField(max_length=255, null=True, blank=True, choices=TIPURI_EVENIMENT)
     facebook_event_link = models.URLField(null=True, blank=True, verbose_name=u"Link eveniment Facebook", help_text=u"Folosește copy/paste pentru a lua link-ul din Facebook")
     articol_site_link = models.URLField(null=True, blank=True, verbose_name=u"Link articol site", help_text=u"Link-ul de la articolul de pe site-ul Centrului Local")
 
@@ -43,13 +53,9 @@ class Eveniment(models.Model):
     #   TODO: implementează situatia în care evenimentul are mai mult de o singură locație
     locatie_geo = models.CharField(max_length=1024)
 
-
-    #TODO: add visibility settings to events
+    #   TODO: add visibility settings to events
     published_status = models.IntegerField(default=2, choices=IMAGINE_PUBLISHED_STATUS, verbose_name=u"Vizibilitate")
 
-    ramuri_de_varsta = models.ManyToManyField("structuri.RamuraDeVarsta", null=True, blank=True, through=ParticipantiEveniment)
-
-    #   settings pentru raportul anual
 
     class Meta:
         verbose_name = u"Eveniment"
@@ -58,6 +64,21 @@ class Eveniment(models.Model):
 
     def __unicode__(self):
         return u"%s" % self.nume
+
+    @property
+    def get_ramuri_de_varsta(self):
+        totals = self.participantieveniment_set.filter()
+        rdvs = {}
+        for c in totals:
+            key = c.ramura_de_varsta.slug if c.ramura_de_varsta is not None else c.alta_categorie
+            rdvs[key] = (c.numar, c)
+        return rdvs
+
+    @property
+    def raport(self):
+        if self.raporteveniment_set.all().count():
+            return self.raporteveniment_set.all()[0]
+        return None
 
     def save(self, *args, **kwargs):
         on_create = False

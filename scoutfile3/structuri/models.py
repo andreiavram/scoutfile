@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 class RamuraDeVarsta(models.Model):
     nume = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, null=True, blank=True)
     varsta_intrare = models.PositiveSmallIntegerField()
     varsta_iesire = models.PositiveSmallIntegerField(null=True, blank=True)
 

@@ -2,8 +2,9 @@
 {% load tab_tags %}
 
 {% block page_title %}
-    {{ object }}
-    {% if object.facebook_event_link %}<a class="btn pull-right" href="{{ object.facebook_event_link }}">
+    {{ object }} | {% if object.tip_eveniment %}<span style="font-weight:normal">{{ object.get_tip_eveniment_display|lower }}</span>{% endif %}
+    {% if object.facebook_event_link %}
+        <a class="btn pull-right" href="{{ object.facebook_event_link }}">
         <i class="icon-facebook"></i> Evenimentul pe Facebook</a>{% endif %}
 {% endblock %}
 
@@ -98,11 +99,17 @@
 
 {% block content %}
     <div class="row-fluid">
-        <div class="span1">
-            <div class="fb-like" style=""
+        <div class="span1" style = "text-align: right">
+            <div class="fb-like" style="text-align: right"
                  data-href="{{ url_root }}{% url album:eveniment_detail slug=object.slug %}" data-action="like"
                  data-layout="box_count" data-width="150" data-show-faces="false" data-share="true"></div>
-
+            <ul class = "unstyled" style="margin-top: 60px; font-size:14px; text-align: right">
+            {% for rdv, data in eveniment.get_ramuri_de_varsta.items %}
+                {% if data.0 != 0 %}
+                <li><strong>{{ data.0 }}</strong> <img src = "{{ STATIC_URL }}images/icon-{{ rdv }}.png"> </li>
+                {% endif %}
+            {% endfor %}
+            </ul>
         </div>
         <div class="span4" style="text-align: justify">
             {% if object.descriere %}{{ object.descriere|safe|linebreaks }}<br/>{% endif %}
@@ -116,7 +123,7 @@
         </div>
         <div class="span3">
             <div class="map-canvas thumbnail" id="map_canvas"
-                 style="height: {{ eveniment.cover_photo.get_thumbnail_size.1 }}px; width: 100%; border: 1px solid #efefef; padding: 5px; background-color: #ccc">
+                 style="height: {% if eveniment.cover_photo %}{{ eveniment.cover_photo.get_thumbnail_size.1 }}{% else %}240{% endif %}px; width: 100%; border: 1px solid #efefef; padding: 5px; background-color: #ccc">
                 <div style="position: relative; top: 120px; left: 120px; color: #333;"><i style="color: #333"
                                                                                           class="icon-pushpin icon-4x"></i>
                 </div>
@@ -124,7 +131,10 @@
             <div style="text-align: right">
                 {% if object.locatie_text %}<strong>Locație: </strong>{{ object.locatie_text }}{% endif %}
             </div>
-
+                    <ul class = "unstyled">
+            <li>{% if object.raport %}<a href = "{% url album:eveniment_raport_detail slug=eveniment.slug %}"><i class = "icon-file"></i> Detalii raport</a>{% endif %}</li>
+            <li></li>{% if object.articol_site_link %}<a href = "{{ object.articol_site_link }}"><i class = "icon-globe"></i> Articol site</a>{% endif %}</li>
+            </ul>
         </div>
         <div class="span4" style="text-align: right">
             <img class="thumbnail" src="
@@ -147,9 +157,11 @@
             {{ zi.index }}{% if zi.titlu %} - {{ zi.titlu }}{% endif %} <i class="icon-chevron-right"
                                                                            style="margin-top: 10px"></i></a>
         </h2>
+
         {% if zi.descriere %}{{ zi.descriere|linebreaks|truncatewords:50 }}{% endif %}
         <p style="font-weight: bold"><i
                 class="icon-star-empty"></i> {{ zi.date|date:"l, d F Y" }}, {{ zi.filter_photos.count }} fotografii, din care {{ zi.filter_public_photos.count }} publice.</p>
+
         <ul class="thumbnails">
             {% for image in zi_photos|slice:":4" %}
                 <li class="span3">

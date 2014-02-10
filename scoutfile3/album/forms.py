@@ -4,6 +4,7 @@ Created on Aug 31, 2012
 
 @author: yeti
 '''
+from crispy_forms.layout import Fieldset, Layout, Field
 from django.core.urlresolvers import reverse
 from taggit.forms import TagField
 from goodies.forms import CrispyBaseModelForm
@@ -56,8 +57,9 @@ class SetPozeUpdateForm(CrispyBaseModelForm):
 class EvenimentCreateForm(CrispyBaseModelForm):
     class Meta:
         model = Eveniment
-        exclude = ["centru_local", "custom_cover_photo"]
+        exclude = ["centru_local", "custom_cover_photo", "ramuri_de_varsta"]
 
+    descriere = forms.CharField(required=False, widget=Textarea(attrs={"cols": 400}))
     start_date = forms.DateTimeField(required=True, widget=BootstrapDateTimeInput(), label=u"Data început")
     end_date = forms.DateTimeField(required=True, widget=BootstrapDateTimeInput(), label=u"Data sfârșit")
     locatie_geo = forms.CharField(widget=GeoCoordinatesInput, required=False, label=u"Geolocație",
@@ -65,14 +67,25 @@ class EvenimentCreateForm(CrispyBaseModelForm):
     facebook_event_link = forms.URLField(widget=FacebookLinkWidget, required=False, label=u"Link eveniment Facebook")
     cover_photo = forms.FileField(label=u"Cover photo", required=False)
 
+    lupisori = forms.IntegerField(required=True)
+    temerari = forms.IntegerField(required=True)
+    exploratori = forms.IntegerField(required=True)
+    seniori = forms.IntegerField(required=True)
+    lideri = forms.IntegerField(required=True)
+    adulti = forms.IntegerField(required=True)
+
+    def __init__(self, *args, **kwargs):
+        super(EvenimentCreateForm, self).__init__(*args, **kwargs)
+        self.helper.layout = Layout("nume", Field("descriere", style="width:100%"), "tip_eveniment", "start_date", "end_date", "slug",
+                                    "facebook_event_link", "articol_site_link", "locatie_text", "locatie_geo",
+                                    "published_status", "cover_photo", Fieldset(u"Participanți", "lupisori", "temerari",
+                                                        "exploratori", "seniori", "lideri", "adulti"))
+
 
 class EvenimentUpdateForm(EvenimentCreateForm):
     class Meta:
         model = Eveniment
-        exclude = ["centru_local", "custom_cover_photo"]
-
-    def get_success_url(self):
-        return reverse("album:eveniment_detail")
+        exclude = ["centru_local", "custom_cover_photo", "ramuri_de_varsta"]
 
 
 class PozaTagsForm(CrispyBaseModelForm):
