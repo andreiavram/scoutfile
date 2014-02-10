@@ -1,11 +1,8 @@
 #coding: utf-8
 from django.views.generic.base import TemplateView, View
-from django.contrib.contenttypes.models import ContentType
-from django.views.generic.list import ListView
 import logging
 from django.views.generic.edit import DeleteView, FormView
 from django.contrib import messages
-from taggit.models import Tag
 from generic.forms import LoginForm, IssueCreateForm
 from goodies.forms import CrispyBaseDeleteForm
 from django.http import HttpResponseRedirect, HttpResponse
@@ -14,12 +11,14 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 import urllib
-from settings import REDMINE_API_KEY
 import urllib2
 import datetime
 import traceback
 from django.utils import simplejson
+
+from settings import REDMINE_API_KEY
 from utils.views import FacebookLoginView
+
 
 logger = logging.getLogger(__file__)
 
