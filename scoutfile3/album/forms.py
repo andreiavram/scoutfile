@@ -12,7 +12,7 @@ from django import forms
 from django.forms.widgets import RadioSelect, Textarea
 from django.core.exceptions import ValidationError
 
-from generic.widgets import BootstrapDateTimeInput, GeoCoordinatesInput, FacebookLinkWidget, TaggitTagsInput
+from goodies.widgets import BootstrapDateTimeInput, GeoCoordinatesInput, FacebookLinkWidget, TaggitTagsInput
 from album.models import FlagReport, FLAG_MOTIVES, RaportEveniment
 from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
 

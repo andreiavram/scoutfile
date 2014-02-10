@@ -25,7 +25,7 @@ from documente.models import DocumentCotizatieSociala, AsociereDocument, Registr
 from documente.models import Document
 from documente.forms import DocumentCreateForm, FolderCreateForm, \
     CotizatieMembruForm
-from generic.views import ScoutFileAjaxException
+from goodies.views import ScoutFileAjaxException
 from settings import MEDIA_ROOT
 from structuri.models import Membru, CentruLocal
 from utils.fiscal import suma2text

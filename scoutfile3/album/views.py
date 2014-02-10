@@ -24,7 +24,7 @@ from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEven
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm
 from album.models import SetPoze
 from album.forms import SetPozeCreateForm, SetPozeUpdateForm
-from generic.views import GenericDeleteView
+from goodies.views import GenericDeleteView
 from settings import MEDIA_ROOT
 from structuri.models import Membru, RamuraDeVarsta
 from goodies.views import JSONView
