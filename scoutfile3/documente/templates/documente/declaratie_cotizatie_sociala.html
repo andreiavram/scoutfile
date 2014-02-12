@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+    Adaugă declarație pe proprie răspundere pentru cotizație socială
+{% endblock %}
+
+{% block extrahead %}
+    {{ form.media }}
+    <script>
+        function handle_numar_inregistrare() {
+            if (/\(auto\)$/.test($("#id_registru option:selected").text())) {
+                $("#id_numar_inregistrare").closest("div.control-group").hide();
+                $("#id_data_inregistrare").closest("div.control-group").hide();
+            } else {
+                $("#id_numar_inregistrare").closest("div.control-group").show();
+                $("#id_data_inregistrare").closest("div.control-group").show();
+            }
+        }
+        $("document").ready(function () {
+            handle_numar_inregistrare();
+            $("#id_registru").change(function (e) {
+                handle_numar_inregistrare();
+            })
+        });
+    </script>
+{% endblock %}
+
+{% block context_menu %}
+    <ul class="nav nav-list">
+        <li class="nav-header">Locații</li>
+        <li><a href="{% url structuri:membru_detail pk=membru.id %}#documente"><i class="icon-chevron-left"></i> Înapoi
+            la documente</a></li>
+    </ul>
+{% endblock %}
+
+{% block content %}
+    <div class = "alert alert-info"><i class = "icon-user"></i> Declarația este pentru <strong>{{ membru }}</strong></div>
+      {% crispy form form.helper %}
+{% endblock %}

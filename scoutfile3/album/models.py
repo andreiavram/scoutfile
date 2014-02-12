@@ -9,13 +9,31 @@ import os
 from zipfile import ZipFile
 import logging
 import traceback
-from settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT, MEDIA_ROOT
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from album.managers import RaportEvenimentManager
+
+from settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT, MEDIA_ROOT
 from taggit.managers import TaggableManager
 import settings
 
+
 logger = logging.getLogger(__name__)
+
+
+IMAGINE_PUBLISHED_STATUS = ((1, "Secret"), (2, "Centru Local"), (3, "Organizație"), (4, "Public"))
+
+
+class ParticipantiEveniment(models.Model):
+    eveniment = models.ForeignKey("Eveniment")
+    ramura_de_varsta = models.ForeignKey("structuri.RamuraDeVarsta", null=True, blank=True)
+    alta_categorie = models.CharField(max_length=255, null=True, blank=True)
+    numar = models.IntegerField()
+
+
+TIPURI_EVENIMENT = (("camp", "Camp"), ("intalnire", u"Întâlnire"), ("hike", "Hike"), ("social", "Proiect social"),
+                    ("comunitate", u"Proiect de implicare în comunitate"), ("citychallange", u"City Challange"),
+                    ("international", u"Proiect internațional"), )
 
 
 class Eveniment(models.Model):
@@ -25,16 +43,18 @@ class Eveniment(models.Model):
     start_date = models.DateTimeField(verbose_name=u"Începe pe", help_text=u"Folosește selectorul de date pentru a defini o dată de început")
     end_date = models.DateTimeField(verbose_name=u"Ține până pe", help_text=u"Folosește selectorul de date pentru a defini o dată de sfârșit")
     slug = models.SlugField(max_length=255, unique=True)
-
     custom_cover_photo = models.ForeignKey("Imagine", null=True, blank=True)
 
+    tip_eveniment = models.CharField(max_length=255, null=True, blank=True, choices=TIPURI_EVENIMENT)
     facebook_event_link = models.URLField(null=True, blank=True, verbose_name=u"Link eveniment Facebook", help_text=u"Folosește copy/paste pentru a lua link-ul din Facebook")
+    articol_site_link = models.URLField(null=True, blank=True, verbose_name=u"Link articol site", help_text=u"Link-ul de la articolul de pe site-ul Centrului Local")
 
     locatie_text = models.CharField(max_length=1024, null=True, blank=True, verbose_name = u"Locație")
     #   TODO: implementează situatia în care evenimentul are mai mult de o singură locație
     locatie_geo = models.CharField(max_length=1024)
 
-    #TODO: add visibility settings to events
+    #   TODO: add visibility settings to events
+    published_status = models.IntegerField(default=2, choices=IMAGINE_PUBLISHED_STATUS, verbose_name=u"Vizibilitate")
 
 
     class Meta:
@@ -45,9 +65,24 @@ class Eveniment(models.Model):
     def __unicode__(self):
         return u"%s" % self.nume
 
+    @property
+    def get_ramuri_de_varsta(self):
+        totals = self.participantieveniment_set.filter()
+        rdvs = {}
+        for c in totals:
+            key = c.ramura_de_varsta.slug if c.ramura_de_varsta is not None else c.alta_categorie
+            rdvs[key] = (c.numar, c)
+        return rdvs
+
+    @property
+    def raport(self):
+        if self.raporteveniment_set.all().count():
+            return self.raporteveniment_set.all()[0]
+        return None
+
     def save(self, *args, **kwargs):
         on_create = False
-        if self.id == None:
+        if self.id is None:
             on_create = True
 
         retval = super(Eveniment, self).save(*args, **kwargs)
@@ -71,7 +106,7 @@ class Eveniment(models.Model):
                 return retval
 
             #   delete days outside the current span
-            self.zieveniment_set.filter(Q(date__lte = self.start_date) | Q(date__gte = self.end_date)).delete()
+            self.zieveniment_set.filter(Q(date__lt = self.start_date) | Q(date__gt = self.end_date)).delete()
             zi_index = 1
             date = self.start_date
 
@@ -95,6 +130,7 @@ class Eveniment(models.Model):
         return autori
 
     def cover_photo(self):
+        print self, self.custom_cover_photo
         if self.custom_cover_photo:
             return self.custom_cover_photo
 
@@ -146,6 +182,45 @@ STATUS_PARTICIPARE = ((1, u"Cu semnul întrebării"), (2, u"Sigur"), (3, u"Avans
                       (5, u"Participare anulată"))
 
 
+class RaportEveniment(models.Model):
+    parteneri = models.TextField(help_text=u"Câte unul pe linie, dacă există și un link va fi preluat automat de pe aceeași linie", null=True, blank=True)
+    obiective = models.TextField(help_text=u"inclusiv obiective educative", null=True, blank=True)
+    grup_tinta = models.TextField(null=True, blank=True)
+    activitati = models.TextField(null=True, blank=True, help_text=u"Descriere semi-formală a activităților desfășurate")
+    alti_beneficiari = models.TextField(null=True, blank=True)
+    promovare = models.TextField(null=True, blank=True, help_text=u"Cum / dacă s-a promovat proiectul")
+    buget = models.FloatField(null=True, blank=True, help_text=u"Estimativ, în RON")
+    accept_publicare_raport_national = models.BooleanField(default=True, verbose_name="Acord raport ONCR", help_text=u"Dacă se propune această activitate pentru raportul anual al ONCR")
+
+    eveniment = models.ForeignKey(Eveniment)
+    is_locked = models.BooleanField(default=False)
+    is_leaf = models.BooleanField(default=False)
+    editor = models.ForeignKey("structuri.Membru")
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    original_parent = models.ForeignKey("RaportEveniment", null=True, blank=True)
+    parent = models.ForeignKey("RaportEveniment", related_name="children", null=True, blank=True)
+
+    objects = RaportEvenimentManager()
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+    def save_new_version(self, user, *args, **kwargs):
+        self.is_leaf = False
+        self.is_locked = True
+        self.save(*args, **kwargs)
+
+        self.id = None
+        self.parent = self
+        self.user = user
+        if self.original_parent is None:
+            self.original_parent = self.parent
+        self.is_leaf = True
+        self.is_locked = False
+        self.save(*args, **kwargs)
+
+
 class ParticipareEveniment(models.Model):
     membru = models.ForeignKey("structuri.Membru")
     eveniment = models.ForeignKey(Eveniment)
@@ -177,17 +252,24 @@ class ZiEveniment(models.Model):
             return self.titlu
         return u"Ziua %d" % self.index
 
-    def filter_photos(self, autor=None, user=None):
+    def filter_photos(self, autor=None, user=None, **kwargs):
         backward_limit = datetime.datetime.combine(self.date, datetime.time(0, 0, 0)) + datetime.timedelta(hours=3)
+        forward_limit = datetime.datetime.combine(self.date, datetime.time(3, 0, 0)) + datetime.timedelta(days = 1)
         images = Imagine.objects.filter(set_poze__eveniment=self.eveniment, data__gte=backward_limit,
-                                        data__lte=self.date + datetime.timedelta(days=1))
+                                        data__lte=forward_limit)
         if autor is not None:
             images = images.filter(set_poze__autor__icontains=autor)
 
         if user:
             images = images.exclude(published_status__lt=self.eveniment.get_visibility_level(user))
-            images = images.order_by("data")
+
+        if len(kwargs.keys()):
+            images = images.filter(**kwargs)
+        images = images.order_by("data")
         return images
+
+    def filter_public_photos(self, autor = None, user = None):
+        return self.filter_photos(self, autor=autor, user=user, published_status = 4)
 
     def author_distribution(self):
         authors = {}
@@ -216,6 +298,7 @@ class SetPoze(models.Model):
     date_uploaded = models.DateTimeField(auto_now=True)
     offset_secunde = models.IntegerField(default=0,
                                          help_text="Numărul de secunde cu care ceasul camerei voastre a fost decalat față de ceasul corect (poate fi și negativ). Foarte util pentru sincronizarea pozelor de la mai mulți fotografi")
+    offset_changed = models.BooleanField(default = False, verbose_name = u"Offset-ul a fost modificat")
 
     class Meta:
         verbose_name = u"Set poze"
@@ -226,7 +309,9 @@ class SetPoze(models.Model):
         return u"Set %s (%s)" % (self.autor, self.eveniment)
 
     def get_autor(self):
-        return u"%s" % self.autor.strip()
+        if self.autor:
+            return u"%s" % self.autor.strip()
+        return u"%s" % self.autor_user
 
     def process_zip_file(self):
         self.status = 2
@@ -255,7 +340,10 @@ class SetPoze(models.Model):
                     im = Imagine(set_poze=self, titlu=os.path.basename(f.filename),
                                  image=os.path.join(event_path_no_root, f.filename))
                     logger.debug("SetPoze: poza: %s" % im.image)
-                    im.save()
+                    try:
+                        im.save()
+                    except Exception, e:
+                        logger.error("eroare: %s %s" % (e, traceback.format_exc()))
                     current_count += 1
                     current_percent = current_count * 100. / total_count
                     if current_percent - 5 > self.procent_procesat:
@@ -287,11 +375,8 @@ class SetPoze(models.Model):
         os.unlink(self.zip_file)
 
 
-IMAGINE_PUBLISHED_STATUS = ((1, "Secret"), (2, "Centru Local"), (3, "Organizație"), (4, "Public"))
-
-
 class Imagine(ImageModel):
-    set_poze = models.ForeignKey(SetPoze)
+    set_poze = models.ForeignKey(SetPoze, null=True, blank=True)
     data = models.DateTimeField(null=True, blank=True)
     titlu = models.CharField(max_length=1024, null=True, blank=True)
     descriere = models.TextField(null=True, blank=True)
@@ -334,7 +419,13 @@ class Imagine(ImageModel):
         return
 
     def get_day(self):
-        return self.set_poze.eveniment.zieveniment_set.get(date=self.data)
+        #   compensation for (0, 3 AM) interval
+        data = self.data
+        ltime = datetime.time(data.hour, data.minute, data.second)
+        magic_time = datetime.time(3, 0 ,0)
+        if ltime < magic_time:
+            data = self.data - datetime.timedelta(days = 1)
+        return self.set_poze.eveniment.zieveniment_set.get(date=data)
 
     def get_next_photo(self, autor=None, user=None):
         photo = Imagine.objects.filter(published_status__gte=self.set_poze.eveniment.get_visibility_level(user=user),
@@ -379,7 +470,11 @@ class Imagine(ImageModel):
             on_create = True
             if im is None:
                 im = Image.open(self.image)
-            info = im._getexif()
+            try:
+                info = im._getexif()
+            except Exception, e:
+                info = None
+
 
             exif_data = {}
 
@@ -442,7 +537,12 @@ class Imagine(ImageModel):
         self.save()
 
 
+    @classmethod
+    def filter_visibility(cls, qs, user):
+        return qs
+
 # tagging.register(Imagine)
+
 
 class EXIFData(models.Model):
     imagine = models.ForeignKey(Imagine)
@@ -490,4 +590,3 @@ class DetectedFace(models.Model):
     content_type = models.ForeignKey(ContentType, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     content_object = GenericForeignKey()
-    

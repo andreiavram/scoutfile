@@ -1,29 +1,81 @@
 {% extends 'album/poza_base.html' %}
 
 {% block content %}
-{#	<div class = "well">{% if object.is_face_processed %}Face processed {{ object.detectedface_set.all.count }} faces found {% else %}not processed{% endif %}</div>#}
-	{% if object.flagreport_set.all.count %}<div class = "alert alert-warning"><i class = "icon-flag"></i> Această poză a fost marcată de {% if object.flagreport_set.all.count > 1 %}mai mulți utilizatori{% else %}un utilizator{% endif %} ca nepotrivită pentru acest album, și urmează să fie analizată de un lider sau de fotograf.</div>{% endif %}
-	<div class = "image-container" style = "position: relative; text-align: center; float:left; ">
-		<div style = "margin-left: auto; margin-right: auto;width : {{ object.get_large_size.0 }}px; background-color: black; padding: 5px;">
-		<div style = "float: left; height: 0;">
-		{% for face in object.detectedface_set.all %}
-			<div class = "face" style = "display: none; position: absolute; left: {% widthratio face.x object.resolution_x 960 %}px; top: {% widthratio face.y object.resolution_x 960 %}px; width: {% widthratio face.width object.resolution_x 960 %}px; height: {% widthratio face.height object.resolution_x 960 %}px; border: 3px dashed #3c3f41;"></div>
-		{% endfor %}
+    {{ block.super }}
+	<div class = "btn-toolbar">
+		<div class = "btn-group">
+			<a class = "btn" href = "{% url album:poza_flag pk=object.id %}"><i class = "icon-flag"></i></a>
+            {% if media_manager %}<a class = "btn make_cover" href = "javascript:void()" data-image = "{{ object.id }}"><i class = "icon-picture"></i></a>{% endif %}
+		</div>
+		<div class = "btn-group">
+			<a href = "javascript:void()" class = "btn thumbs_up" data-image = "{{ object.id }}"><i class = "icon-thumbs-up"></i></a>
+			<a href = "javascript:void()" class = "btn disabled" id = "score_{{ object.id }}">{{ object.score }}</a>
+			<a href = "javascript:void()" class = "btn thumbs_down" data-image = "{{ object.id }}"><i class = "icon-thumbs-down"></i></a>
+		</div>
+        {% if media_manager %}
+		<div class = "btn-group">
+			<a href = "{% url album:poza_rotate pk=object.id %}?direction=ccw" class = "btn"><i class = "icon-rotate-left"></i></a>
+			<a href = "{% url album:poza_rotate pk=object.id %}?direction=cw" class = "btn"><i class = "icon-rotate-right"></i></a>
+		</div>
+        {% endif %}
+		<div class = "btn-group">
+			<a href = "{{ object.image.url }}" class = "btn"><i class = "icon-picture"></i> Original</a>
+			<a href = "{{ object.get_profile_url }}" class = "btn"><i class = "icon-picture"></i> Profil</a>
 		</div>
 
-		<img src = "{{ object.get_large_url }}?{{ random_value }}" style = "" />
-		{% if next_photo %}
-			<div style = "position: absolute; right: 10px; top: 10px; padding: 3px 6px; background: #000; border: 1px solid #666">
-				<a href = "{% url album:poza_detail pk=next_photo.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-chevron-right icon-white"></i></a>
-			</div>
-		{% endif %}
-		{% if prev_photo %}
-			<div style = "position: absolute; left: 10px; top: 10px; padding: 3px 6px; background: #000; border: 1px solid #666">
-				<a href = "{% url album:poza_detail pk=prev_photo.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-chevron-left icon-white"></i></a>
-			</div>
-		{% endif %}
-		
-		<div style = "bottom: 10px; right: 10px; position: absolute; background: #000; color: #fff; border: 1px solid #666; opacity: 0.7; padding: 5px 10px;">&copy; {{ object.data|date:"Y" }}, {{ object.set_poze.autor }}</div>
-		</div>
+        {% if media_manager or request.user.is_superuser %}
+        <div class = 'btn-group'>
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class = "icon-eye-open"> </i> <span id = "current_visibility">{{ object.get_published_status_display }}</span>
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                {% for state in visibility_states %}
+                    <li><a href = "#" data-value = "{{ state.0 }}" class = "visibility_action">{{ state.1 }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        <div class = "btn-group pull-right">
+            {% if prev_photo %}
+                    <a class = "btn" href="{% url album:poza_detail pk=prev_photo.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i
+                            class="icon-chevron-left icon-white"></i></a>
+            {% endif %}
+                <a href = "{% url album:zi_detail pk=object.get_day.id %}" class = "btn"><i class = "icon-chevron-up"></i></a>
+            {% if next_photo %}
+                    <a class = "btn" href="{% url album:poza_detail pk=next_photo.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i
+                            class="icon-chevron-right icon-white"></i></a>
+            {% endif %}
+
+        </div>
+
 	</div>
+    {#	<div class = "well">{% if object.is_face_processed %}Face processed {{ object.detectedface_set.all.count }} faces found {% else %}not processed{% endif %}</div>#}
+    {% if object.flagreport_set.all.count %}
+        <div class="alert alert-warning">
+            <i class="icon-flag"></i> Această poză a fost marcată de {% if object.flagreport_set.all.count > 1 %}mai
+            mulți
+            utilizatori{% else %}un utilizator{% endif %} ca nepotrivită pentru acest album, și urmează să fie analizată
+            de un lider sau de fotograf.
+        </div>{% endif %}
+    <div class="row-fluid">
+        <div style="position: relative; margin-left: auto; margin-right: auto;width : {{ object.get_large_size.0 }}px; background-color: black; padding: 5px;">
+            {#            <div style="float: left; height: 0;">#}
+            {#        #}
+            {#		{% for face in object.detectedface_set.all %}#}
+            {#			<div class = "face" style = "display: none; position: absolute; left: {% widthratio face.x object.resolution_x 960 %}px; top: {% widthratio face.y object.resolution_x 960 %}px; width: {% widthratio face.width object.resolution_x 960 %}px; height: {% widthratio face.height object.resolution_x 960 %}px; border: 3px dashed #3c3f41;"></div>#}
+            {#		{% endfor %}#}
+            {#            </div>#}
+            <img src="{{ object.get_large_url }}?{{ random_value }}" style=""/>
+            <div style="bottom: 10px; right: 10px; position: absolute; background: #000; color: #fff; border: 1px solid #666; opacity: 0.7; padding: 5px 10px;">&copy; {{ object.data|date:"Y" }}, {{ object.set_poze.autor }}</div>
+            {% if object.published_status == 4 %}
+                <div class="fb-like" style="position: absolute; bottom: 10px; left: 10px;"
+                     data-href="{{ url_root }}{% url album:poza_detail pk=object.id %}" data-action="like"
+                     data-layout="box_count" data-width="150" data-show-faces="false" data-share="true"></div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if not object.titlu|lower|slice:"-4:" == ".jpg" %}<h1>{{ object.titlu }}</h1>{% endif %}
+    {% if object.descriere %}<p>{{ object.descriere|linebreaksbr }}</p>{% endif %}
 {% endblock %}

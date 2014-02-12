@@ -1,5 +1,5 @@
-<script type = "text/javascript" src = "{% url generic:js_delete app_label='structuri',model='AsociereMembruFamilie' %}"></script>
-<script type = "text/javascript" src = "{% url generic:js_delete app_label='structuri',model='PersoanaDeContact' %}?prefix=pdc"></script>
+<script type = "text/javascript" src = "{% url goodies:js_delete app_label='structuri' model='AsociereMembruFamilie' %}"></script>
+<script type = "text/javascript" src = "{% url goodies:js_delete app_label='structuri' model='PersoanaDeContact' %}?prefix=pdc"></script>
 <div class = "btn-group">
 	<a class = "btn btn-primary" href = "{% url structuri:membru_add_familie pk=object.id %}"><i class = "icon-white icon-plus-sign"></i> Adaugă (membri)</a>
 	<a class = "btn btn-primary" href = "{% url structuri:membru_add_pdc pk=object.id %}"><i class = "icon-plus-sign"></i> Adaugă (non-membri)</a>

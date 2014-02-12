@@ -14,7 +14,8 @@ from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 import unidecode
-from documente.models import PlataCotizatieTrimestru
+from documente.models import PlataCotizatieTrimestru, AsociereDocument
+from utils.models import FacebookSession
 
 
 logger = logging.getLogger(__name__)
@@ -22,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 class RamuraDeVarsta(models.Model):
     nume = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, null=True, blank=True)
     varsta_intrare = models.PositiveSmallIntegerField()
     varsta_iesire = models.PositiveSmallIntegerField(null=True, blank=True)
 
@@ -44,13 +46,13 @@ class Structura(models.Model):
 
     def ocupant_functie(self, nume_functie=None):
         search_kwargs = dict(
-            content_type=ContentType.objects.membru.get_for_model(self),
+            content_type=ContentType.objects.get_for_model(self),
             object_id=self.id, tip_asociere__nume=nume_functie,
             moment_incheiere__isnull=True
         )
-        cercetasi = AsociereMembruStructura(**search_kwargs).select_related("membru").values("membru", flat=True)
+        cercetasi = AsociereMembruStructura.objects.filter(**search_kwargs).select_related("membru")
         if cercetasi.count():
-            return cercetasi[0]
+            return cercetasi[0].membru
 
         return None
 
@@ -82,6 +84,8 @@ class CentruLocal(Structura):
                                                 help_text=u"Asigurați-vă că ați adăugat informațiile relevante de contact pentru tipul de corespondență ales.")
 
     moment_initial_cotizatie = models.ForeignKey("documente.Trimestru", null=True, blank=True)
+    logo = models.ImageField(null=True, blank=True, upload_to=lambda instance, filename : "cl/logo-{0}-{1}".format(instance.id, filename))
+    antet = models.ImageField(null=True, blank=True, upload_to=lambda instance, filename : "cl/antet-{0}-{1}".format(instance.id, filename))
 
     def nume_complet(self):
         if self.denumire is not None and self.denumire != "":
@@ -99,13 +103,23 @@ class CentruLocal(Structura):
     def get_absolute_url(self):
         return ("structuri:cl_detail", [], {"pk": self.id})
 
-    def cercetasi(self):
+    def cercetasi(self, qs=False, tip_asociere=u"Membru"):
         asociere = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(self),
                                                           object_id=self.id,
-                                                          tip_asociere__nume=u"Membru",
+                                                          tip_asociere__nume=tip_asociere,
                                                           moment_incheiere__isnull=True)
+        if qs:
+            return asociere
         return [a.membru for a in asociere]
 
+
+    def adeziuni_lipsa(self):
+        cnt_membri = self.cercetasi(qs=True).count()
+        cnt_adeziuni = AsociereDocument.objects.filter(content_type=ContentType.objects.get_for_model(Membru),
+                                                       tip_asociere__nume__iexact="subsemnat",
+                                                       document__tip_document__slug="adeziune",
+                                                       document__registru__centru_local=self).count()
+        return cnt_membri - cnt_adeziuni
 
 class Unitate(Structura):
     class Meta:
@@ -168,6 +182,11 @@ class Utilizator(models.Model):
 
     def link_confirmare(self):
         return reverse("structuri:membru_confirm_registration", kwargs={"hash": self.hash})
+
+    def facebook_connected(self):
+        #   TODO: add expiration check on facebook session manager
+
+        return FacebookSession.objects.filter(user = self.user).exists()
 
 
 class ImagineProfil(ImageModel):
@@ -403,7 +422,6 @@ class Membru(Utilizator):
         return ("structuri:membru_detail", [], {"pk": self.id})
 
     #    Patrocle specific code
-
     def rezerva_credit(self):
         from patrocle.models import Credit
 
@@ -457,7 +475,6 @@ class Membru(Utilizator):
         return data
 
     #    Cotizatie specific code
-
     def get_trimestru_initial_cotizatie(self):
         """ Obtine primul trimestu din care acest membru ar trebui sa plateasca cotizatie.
         Acesta este dependent de data inscrierii (pentru membri inscrisi dupa momentul 0
@@ -476,6 +493,9 @@ class Membru(Utilizator):
         from documente.models import Trimestru
 
         trimestru_membru = Trimestru.trimestru_pentru_data(moment_initial_membru)
+        if moment_initial_membru != trimestru_membru.data_inceput:
+            trimestru_membru = Trimestru.urmatorul_trimestru(trimestru_membru)
+
         trimestru_centru = self.centru_local.moment_initial_cotizatie
 
         return max(trimestru_membru, trimestru_centru, key=lambda x: x.ordine_globala)
@@ -514,6 +534,91 @@ class Membru(Utilizator):
         quotas = {0: 1, 1: 0.5, 2: 0.25}
         quota = quotas.get(platitori_cnt, 0.25)
         return valoare / quota
+
+    def _status_cotizatie(self):
+        """ Cotizatia se poate plati pana pe 15 a primei luni din urmatorul trimestru
+        @todo: implementariile viitoare ar trebui sa accepte un sistem de politici de cotizatie, care sa permita
+        implementarea cotizatiilor pentru adulti sau pentru alte categorii de membri (?)
+        """
+
+        pct = PlataCotizatieTrimestru.objects.filter(membru=self, final=True).order_by("-trimestru__ordine_globala")[0:1]
+        if pct.count():
+            ultimul_trimestru = pct[0].trimestru
+        else:
+            ultimul_trimestru = self.get_trimestru_initial_cotizatie()
+
+        from documente.models import Trimestru
+        today = datetime.date.today()
+        trimestru_curent = Trimestru.trimestru_pentru_data(today)
+
+        print trimestru_curent
+        print ultimul_trimestru
+
+        # -1 vine de la faptul ca cotizatia se plateste in urma, nu in avans, deci trimestrul curent
+        # se plateste dupa ce se termina
+        diferenta_trimestre = trimestru_curent.ordine_globala - ultimul_trimestru.ordine_globala - 1
+
+        # daca suntem in perioada de gratie de doua saptamani de la inceputul trimestrului, nici trimestrul
+        # trecut nu conteaza
+        if not trimestru_curent.data_in_trimestru(today - datetime.timedelta(days = 15)):
+            diferenta_trimestre -= 1
+
+        return diferenta_trimestre, trimestru_curent, ultimul_trimestru
+
+    def status_cotizatie(self, for_diff=None):
+        if for_diff is None:
+            status, curent, ultimul = self._status_cotizatie()
+        else:
+            status = for_diff
+
+        trimestru_string = "trimestre" if abs(status) > 1 else "trimestru"
+        if status > 0:
+            return u"în urmă cu %d %s" % (abs(status), trimestru_string)
+        if status == 0:
+            return u"la zi"
+        if status < 0:
+            return u"avans pentru %d %s" % (abs(status), trimestru_string)
+
+    def get_ultimul_trimestru_cotizatie(self, return_plati_partiale=False):
+        from documente.models import Trimestru
+
+        plati_membru = self.platacotizatietrimestru_set.all().order_by("-trimestru__ordine_globala", "-index")
+        plati_partiale = None
+        if plati_membru.count() == 0:
+            trimestru_initial = self.get_trimestru_initial_cotizatie()
+        elif plati_membru[0].partial and not plati_membru[0].final:
+            trimestru_initial = plati_membru[0].trimestru
+            plati_partiale = self.platacotizatietrimestru_set.filter(trimestru=trimestru_initial)
+        else:
+            trimestru_initial = Trimestru.urmatorul_trimestru(plati_membru[0].trimestru)
+
+        if return_plati_partiale:
+            return trimestru_initial, plati_partiale
+        return trimestru_initial
+
+    def calculeaza_necesar_cotizatie(self):
+        return PlataCotizatieTrimestru.calculeaza_necesar(membru=self)
+
+    def status_cotizatie_numeric(self):
+        status, curent, ultimul = self._status_cotizatie()
+        return int(status)
+
+    def are_adeziune(self):
+        return self.adeziune(qs=True).count() > 0
+
+    def adeziune(self, qs=False):
+        search = {"document__tip_document__slug" : "adeziune",
+                  "tip_asociere__slug" : "subsemnat",
+                  "content_type" : ContentType.objects.get_for_model(self),
+                  "object_id" : self.id}
+
+        asociere = AsociereDocument.objects.filter(**search)
+        if qs:
+            return asociere
+        if asociere.count():
+            return asociere.document
+        return None
+
 
 
 class TipAsociereMembruStructura(models.Model):

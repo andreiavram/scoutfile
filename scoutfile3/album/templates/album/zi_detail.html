@@ -11,15 +11,29 @@
         jQuery(document).ready(function () {
             jQuery(".thumbs_up").click(function (event) {
                 console.log("thumbs_up");
-                Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id": jQuery(this).data("image"), "score": 1});
+                Dajaxice.album.vote_picture(Dajax.process, {"picture_id": jQuery(this).data("image"), "score": 1});
                 event.preventDefault();
                 return false;
             });
 
             jQuery(".thumbs_down").click(function (event) {
-                Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id": jQuery(this).data("image"), "score": -1});
+                Dajaxice.album.vote_picture(Dajax.process, {"picture_id": jQuery(this).data("image"), "score": -1});
                 event.preventDefault();
                 return false;
+            });
+
+            jQuery(".rotate_cw").click(function (event) {
+                var that = this;
+                var d = new Date();
+                jQuery.get($(this).attr('href'), function (data) { $("#poza_" + $(that).data("image")).attr("src", data + "?" + d.getTime())});
+                event.preventDefault();
+            });
+
+            jQuery(".rotate_ccw").click(function (event) {
+                var that = this;
+                var d = new Date();
+                jQuery.get($(this).attr('href'), function (data) { console.log(data, "here"); $("#poza_" + $(that).data("image")).attr("src", data  + "?" + d.getTime())});
+                event.preventDefault();
             });
 
             $(".imagine").popover({"placement" : "bottom", "html" : true, "trigger": "hover", "content": function () { return $($(this).data("contentsource")).html(); }});
@@ -34,6 +48,7 @@
             {% url album:eveniment_detail slug=object.eveniment.slug %}{% if autor %}?autor={{ autor }}{% endif %}"><i
             class="icon-list"></i> {{ object.eveniment }}</a>, <strong>{{ object.filter_photos.count }}</strong>
         fotografii pentru {{ object.date|date:"l, d F Y" }}</div>
+
     {% if autor %}
         <div class="alert alert-success">Arăt doar pozele de la <strong>{{ autor }}</strong></div>{% endif %}
     {% if object.descriere %}{{ object.descriere|linebreaks }}{% endif %}
@@ -48,9 +63,12 @@
         <div class="span3" style="position: relative;">
             <div class="thumbnail">
                 <a href="{% url album:poza_detail pk=image.id %}{% if autor %}?autor={{ autor }}{% endif %}">
-                    <img src="{{ image.get_thumbnail_url }}" class="imagine" data-title = "{{ image.titlu }}" data-contentsource = "#source_{{ image.id }}" />
+                    <img src="{{ image.get_thumbnail_url }}" class="imagine" data-title = "{{ image.titlu }}" id = "poza_{{ image.id }}" data-contentsource = "#source_{{ image.id }}" />
                 </a>
                 <div style = "display:none" id = "source_{{ image.id }}">
+                   Fotografie de <a href = "#"><i class = "icon-camera"></i> {{ image.set_poze.get_autor }}</a><br />
+                   Moment {{ image.data|date:"d F Y H:i:s" }}<br />
+                    {% if image.descriere %}{{ image.descriere }}{% endif %}
                    <div class = "current-tags">
                     {% for tag in image.tags.all|slice:"10" %}
                         <span class = "tag tag-small">{{ tag.name }}</span>
@@ -67,6 +85,15 @@
                                 class="icon-thumbs-down"></i></a>
                     </div>
                     {% if media_manager or request.user.is_superuser %}
+                        <div class="btn-group" style=""
+                             id="picture_{{ image.id }}">
+                            <a href = "{% url album:poza_rotate pk=image.id %}?direction=ccw&size=thumbnail"  class="btn btn-mini rotate_ccw" data-image="{{ image.id }}"><i
+                                    class="icon-rotate-left"></i></a>
+                            <a href = "{% url album:poza_rotate pk=image.id %}?direction=cw&size=thumbnail" class="btn btn-mini rotate_cw" data-image="{{ image.id }}"><i
+                                    class="icon-rotate-right"></i></a>
+                        </div>
+
+
                         <div class="btn-group">
                             <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
                                 <i class="icon-eye-open"> </i> <span
@@ -116,3 +143,4 @@
         });
     </script>
 {% endblock %}
+

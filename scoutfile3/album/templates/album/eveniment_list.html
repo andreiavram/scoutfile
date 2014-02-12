@@ -10,19 +10,18 @@
 {% endblock %}
 
 {% block content %}
-	<ul class = "unstyled span11">
 	{% autopaginate object_list 4 as object_list %}
 	{% for eveniment in object_list %}
-		<li style = "margin-bottom: 20px;">
+		<div class = "row-fluid" style = "margin-bottom: 20px">
 			<div class = "" style = "position:relative;">
 				<div class = "span3">
 					<a href = "{% url album:eveniment_detail slug=eveniment.slug %}">
-						<img class = "thumbnail" src = "{%  if eveniment.cover_photo %}{{ eveniment.cover_photo.get_thumbnail_url }}{% else %}http://placehold.it/320x240{% endif %}" />
+						<img class = "thumbnail" src = "{% if eveniment.cover_photo %}{{ eveniment.cover_photo.get_thumbnail_url }}{% else %}http://placehold.it/320x240{% endif %}" />
 					</a>
 				</div>
 				<div class = "span7" style = "position: relative">
 					<h2><a href = "{% url album:eveniment_detail slug=eveniment.slug %}">{{ eveniment }}</a></h2>
-					{% if eveniment.descriere %}<p>{{ eveniment.descriere|truncatewords:50 }}</p>{% endif %}
+					{% if eveniment.descriere %}<p>{{ eveniment.descriere|safe|truncatewords:50 }}</p>{% endif %}
 					<p><strong>Conține {{ eveniment.total_poze }} fotografii de la {{ eveniment.get_autori|length }} fotografi <i class = "icon-star"></i>
 					A început {{ eveniment.start_date|date:"l, d F Y" }} și a ținut până {{ eveniment.end_date|date:"l, d F Y" }} <i class = "icon-star"></i> {% for autor in eveniment.get_autori %}<a href = "{% url album:eveniment_detail slug=eveniment.slug %}?autor={{ autor }}">{{ autor }}</a> <i class = 'icon-star'></i> {% endfor %}</strong></p>
                     <div class = "btn-toolbar">
@@ -37,8 +36,7 @@
                     </div>
 				</div>
 			</div>
-		</li>
+		</div>
 	{% endfor %}
-	</ul>
 	{% paginate %}
 {% endblock %}

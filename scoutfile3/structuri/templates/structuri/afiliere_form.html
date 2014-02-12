@@ -56,12 +56,12 @@
 					$("#div_id_tip_asociere").hide("fast");
 					$("#id_tip_asociere").val("");
 				} else {
-					Dajaxice.scoutfile3.structuri.update_content_objects(Dajax.process, {"ctype_id" : $(this).val()});
+					Dajaxice.structuri.update_content_objects(Dajax.process, {"ctype_id" : $(this).val()});
 				}
 			});
 			
 			if ($("#id_content_type").val() != "") {
-				Dajaxice.scoutfile3.structuri.update_content_objects(Dajax.process, {"ctype_id" : $("#id_content_type").val()});
+				Dajaxice.structuri.update_content_objects(Dajax.process, {"ctype_id" : $("#id_content_type").val()});
 			}
 		});
 	</script>

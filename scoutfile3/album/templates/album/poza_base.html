@@ -6,20 +6,31 @@
 			console.log(data);
 			jQuery("#score_" + data.picture_id).html(data.current_score);
 		}
+
+        function update_message(data) {
+            jQuery("#message_container").append("<div id=\"msg_cover\" class=\"django-message alert alert-success\">" + data.message + "<a class=\"close\" data-dismiss=\"alert\" href=\"#\">&times;</a></div>");
+            setTimeout(function () { jQuery("#msg_cover").hide("fast"); }, 1000 * 3);
+        }
 	
 		jQuery(document).ready(function () {
 			jQuery(".thumbs_up").click(function (event) {
 				console.log("thumbs_up");
-				Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id" : jQuery(this).data("image"), "score" : 1});
+				Dajaxice.album.vote_picture(Dajax.process, {"picture_id" : jQuery(this).data("image"), "score" : 1});
 				event.preventDefault();
 				return false;
 			});
 			
 			jQuery(".thumbs_down").click(function (event) {
-				Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id" : jQuery(this).data("image"), "score" : -1});
+				Dajaxice.album.vote_picture(Dajax.process, {"picture_id" : jQuery(this).data("image"), "score" : -1});
 				event.preventDefault();
 				return false;
 			});
+
+            jQuery(".make_cover").click(function (event) {
+                Dajaxice.album.make_cover(Dajax.process, {"picture_id" : jQuery(this).data("image")});
+                event.preventDefault();
+                return false;
+            });
 			
 			$(document).keydown(function(e){
                 //  ignore key bindings on form elements - we want to be able to still type ...
@@ -43,13 +54,13 @@
 			    
 			    if (e.keyCode == 76) {
 			    	//	l key was pressed = like
-					Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id" : {{ object.id }}, "score" : 1});
+					Dajaxice.album.vote_picture(Dajax.process, {"picture_id" : {{ object.id }}, "score" : 1});
 			    	return false;
 			    }
 			    
 			    if (e.keyCode == 72) {
 			    	//	h key was pressed = hate
-			    	Dajaxice.scoutfile3.album.vote_picture(Dajax.process, {"picture_id" : {{ object.id }}, "score" : -1});
+			    	Dajaxice.album.vote_picture(Dajax.process, {"picture_id" : {{ object.id }}, "score" : -1});
 			    	return false;
 			    }
 
@@ -65,55 +76,70 @@
 	</script>
 {% endblock %}
 
-{% block page_title %}
-	{% if object.titlu %}{{ object.titlu }}{% else %}Imagine{% endif %}
-	<div class = "pull-right btn-toolbar">
-		<div class = "btn-group">
-			<a class = "btn" href = "{% url album:poza_flag pk=object.id %}"><i class = "icon-flag"></i></a>
-		</div>
-		<div class = "btn-group">
-			<a href = "{% url album:zi_detail pk=object.get_day.id %}?page={{ zi_page }}" class = "btn"><i class = "icon-chevron-up"></i></a>
-		</div>
-		<div class = "btn-group">
-			<a href = "javascript:void()" class = "btn thumbs_up" data-image = "{{ object.id }}"><i class = "icon-thumbs-up"></i></a>
-			<a href = "javascript:void()" class = "btn disabled" id = "score_{{ object.id }}">{{ object.score }}</a>
-			<a href = "javascript:void()" class = "btn thumbs_down" data-image = "{{ object.id }}"><i class = "icon-thumbs-down"></i></a>
-		</div>
-        {% if media_manager %}
-		<div class = "btn-group">
-			<a href = "{% url album:poza_rotate pk=object.id %}?direction=ccw" class = "btn"><i class = "icon-arrow-left"></i></a>
-			<a href = "javascript:void();" class = "btn disabled"><i class = "icon-refresh"></i></a>
-			<a href = "{% url album:poza_rotate pk=object.id %}?direction=cw" class = "btn"><i class = "icon-arrow-right"></i></a>
-		</div>
-        {% endif %}
-		<div class = "btn-group">
-			<a href = "{{ object.image.url }}" class = "btn"><i class = "icon-picture"></i> Original</a>
-			<a href = "{{ object.get_profile_url }}" class = "btn"><i class = "icon-picture"></i> Profil</a>
-		</div>
+{% block fb_root %}
+    <div id="fb-root"></div>
+    <script>
+      window.fbAsyncInit = function() {
+        // init the FB JS SDK
+        FB.init({
+          appId      : 'YOUR_APP_ID',                        // App ID from the app dashboard
+          status     : true,                                 // Check Facebook Login status
+          xfbml      : true                                  // Look for social plugins on the page
+        });
 
-        {% if media_manager or request.user.is_superuser %}
-        <div class = 'btn-group'>
-            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                <i class = "icon-eye-open"> </i> <span id = "current_visibility">{{ object.get_published_status_display }}</span>
-                <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu">
-                {% for state in visibility_states %}
-                    <li><a href = "#" data-value = "{{ state.0 }}" class = "visibility_action">{{ state.1 }}</a></li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-	</div> 
+        // Additional initialization code such as adding Event Listeners goes here
+      };
+
+      // Load the SDK asynchronously
+      (function(){
+         // If we've already installed the SDK, we're done
+         if (document.getElementById('facebook-jssdk')) {return;}
+
+         // Get the first script element, which we'll use to find the parent node
+         var firstScriptElement = document.getElementsByTagName('script')[0];
+
+         // Create a new script element and set its id
+         var facebookJS = document.createElement('script');
+         facebookJS.id = 'facebook-jssdk';
+
+         // Set the new script's source to the source of the Facebook JS SDK
+         facebookJS.src = '//connect.facebook.net/en_US/all.js';
+
+         // Insert the Facebook JS SDK into the DOM
+         firstScriptElement.parentNode.insertBefore(facebookJS, firstScriptElement);
+       }());
+    </script>
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=152554668279442";
+          fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+{% endblock %}
+
+{% block page_title_container %}
+{% endblock %}
+
+{% block meta %}
+    <meta property="og:title" content="{{ object.set_poze.eveniment.nume }}" />
+    <meta property="og:type" content="object" />
+    <meta property="og:image" content="{{ url_root }}{{ object.get_large_url }}" />
+    <meta property="og:url" content="{{ url_root }}{% url album:poza_detail pk=object.id %}" />
+    <meta property="og:description" content="Fotografie de {{ object.set_poze.autor }}" />
 {% endblock %}
 
 {% block context_menu %}
+    <div style = "width: 90%; margin-left: auto; margin-right: auto">
+    <a href = "{% url album:eveniment_detail slug=object.set_poze.eveniment.slug %}"><img class = "thumbnail" src = "{{ object.set_poze.eveniment.cover_photo.get_thumbnail_url }}" /></a>
+    </div>
 	<ul class = "nav nav-list">
 		<li class = "nav-header">Acțiuni</li>
 		<li class = "disabled"><a href = ""><i class = "icon-download"></i> Download toate</a></li>
 		<li class = "disabled"><a href = ""><i class = "icon-download-alt"></i> Torrent</a></li>
-        <li><a href = "{% url album:poza_edit pk=object.id %}"><i class = "icon-pencil"></i> Editează</a></li>
-        <li><a href = "{% url album:poza_delete pk=object.id %}"><i class = "icon-trash"></i> Șterge</a></li>
+        {% if media_manager %}<li><a href = "{% url album:poza_edit pk=object.id %}"><i class = "icon-pencil"></i> Editează</a></li>
+        <li><a href = "{% url album:poza_delete pk=object.id %}"><i class = "icon-trash"></i> Șterge</a></li>{% endif %}
 		<li class = "nav-header">Locații</li>
 		<li><a href = "{% url album:eveniment_detail slug=object.set_poze.eveniment.slug %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ object.set_poze.eveniment }}</a></li>
 		<li><a href = "{% url album:zi_detail pk=object.get_day.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ object.get_day }}</a></li>
@@ -122,8 +148,12 @@
         <li class = "nav-header">Tag-uri</li>
         <li>{% for tag in object.tags.all %}
             <span class = "tag tag-small">{{ tag.name }}</span>
+        {% empty %}
+            <em>Nu sunt</em>
         {% endfor %}
         </li>
+    </ul>
+    <ul class = "nav nav-list">
 
 	    <li class = "nav-header">EXIF</li>
 		{% for exif in object.interesting_exifdata %}
@@ -137,11 +167,15 @@
         {% if media_manager or user.is_superuser %}
         <li><em>E</em> pentru edit</li>
         {% endif %}
+
+
     </ul>
 
 {% endblock %}
 
 {% block content %}
+{#    {% if object.titlu %}{{ object.titlu }}{% else %}Imagine{% endif %}#}
+
 {% endblock %}
 
 {% block extrajs %}

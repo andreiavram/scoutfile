@@ -10,51 +10,14 @@ from crispy_forms.layout import Submit
 from django.forms.widgets import PasswordInput, Textarea
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
+from goodies.forms import CrispyBaseForm
 from settings import REDMINE_API_KEY
 import logging
 from django.utils import simplejson
-import traceback
 import urllib
 import urllib2
 
 logger = logging.getLogger(__name__)
-
-class CrispyBaseForm(forms.Form):
-    button_label = u"Salvează"
-    
-    def __init__(self, *args, **kwargs):
-        super(CrispyBaseForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-        self.helper.form_class = 'form-horizontal'
-        self.helper.add_input(Submit('submit', self.button_label, css_class = "btn btn-primary"))
-
-class CrispyBaseModelForm(forms.ModelForm):
-    button_label = u"Salvează"
-    
-    def __init__(self, *args, **kwargs):
-        super(CrispyBaseModelForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-        self.helper.form_class = 'form-horizontal'
-        
-        self.helper.add_input(Submit('submit', self.button_label, css_class = "btn btn-primary"))
-
-class CrispyBaseDeleteForm(forms.ModelForm):
-    form_id = None
-    has_cancel = False 
-    
-    def __init__(self, *args, **kwargs):
-        self.helper = FormHelper()
-        
-        self.helper.form_id = "id_%s_form" % self.form_id if self.form_id is not None else "id_%s_form" % self.__class__.__name__.lower()
-        self.helper.form_method = "post"
-        self.helper.form_class = "form-horizontal"
-        self.helper.add_input(Submit('submit', 'Șterge', css_class = "btn btn-danger"))
-        if self.has_cancel:
-            self.helper.add_input(Submit('submit', 'Renunță', css_class = "btn", css_id = "id_has_cancel"))
-    
-        super(CrispyBaseDeleteForm, self).__init__(*args, **kwargs)
 
 class LoginForm(forms.Form):
     username = forms.CharField(required = True, label = u"Email")
@@ -76,9 +39,8 @@ class LoginForm(forms.Form):
         self.helper.form_method = "post"
         self.helper.form_class = "form-vertical"
         self.helper.add_input(Submit('submit', u'Autentificare', css_class = "btn btn-primary"))
-        
+
         return super(LoginForm, self).__init__(*args, **kwargs)
-            
 
 
 class IssueCreateForm(CrispyBaseForm):
@@ -100,4 +62,3 @@ class IssueCreateForm(CrispyBaseForm):
         
         json_object['issue_categories'].append({"id" : "", "name" : "---"})
         self.fields['category'].choices = ((a['id'], a['name']) for a in json_object['issue_categories'])
-        
