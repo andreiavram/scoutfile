@@ -6,11 +6,11 @@ Created on Jun 9, 2012
 '''
 from django import forms
 import datetime
-from generic.widgets import BootstrapDateInput
+from goodies.widgets import BootstrapDateInput
 from structuri.models import Membru, CentruLocal, Unitate, Patrula,\
     AsociereMembruStructura, InformatieContact, TipInformatieContact,\
     AsociereMembruFamilie, PersoanaDeContact
-from generic.forms import CrispyBaseModelForm, CrispyBaseForm,\
+from goodies.forms import CrispyBaseModelForm, CrispyBaseForm,\
     CrispyBaseDeleteForm
 from django.forms.widgets import Textarea, PasswordInput
 from crispy_forms.layout import Fieldset, Layout, Submit, Field
@@ -19,6 +19,7 @@ from captcha.fields import ReCaptchaField
 from django.db.models.query_utils import Q
 from ajax_select.fields import AutoCompleteSelectField
 from structuri.fields import BetterROCNPField
+
 
 class UnitateMembruCreateForm(CrispyBaseModelForm):
     class Meta:

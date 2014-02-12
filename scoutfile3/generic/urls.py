@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import patterns
-from generic.views import TagsJson
-from generic.views import GenericDeleteJavaScript,\
+from goodies.views import TagsJson
+from goodies.views import GenericDeleteJavaScript,\
     GenericTabDeleteJavaScript
 
 

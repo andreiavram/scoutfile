@@ -1,76 +1,27 @@
 #coding: utf-8
 from django.views.generic.base import TemplateView, View
-from django.contrib.contenttypes.models import ContentType
-from django.views.generic.list import ListView
 import logging
 from django.views.generic.edit import DeleteView, FormView
 from django.contrib import messages
-from taggit.models import Tag
-from generic.forms import CrispyBaseDeleteForm, LoginForm,\
-    IssueCreateForm
+from generic.forms import LoginForm, IssueCreateForm
+from goodies.forms import CrispyBaseDeleteForm
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth import logout, authenticate, login
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 import urllib
-from settings import REDMINE_API_KEY
 import urllib2
 import datetime
 import traceback
 from django.utils import simplejson
 
+from settings import REDMINE_API_KEY
+from utils.views import FacebookLoginView
+
+
 logger = logging.getLogger(__file__)
 
-class GenericDeleteJavaScript(TemplateView):
-    template_name = "generic/generic_delete.js"
-    
-    def dispatch(self, request, *args, **kwargs):
-        self.ctype_model = kwargs.pop("model")
-        self.ctype_app = kwargs.pop("app_label")
-        self.prefix = "delete"
-        if "prefix" in request.GET and request.GET['prefix']:
-            self.prefix = request.GET['prefix']
-        
-        return super(GenericDeleteJavaScript, self).dispatch(request, *args, **kwargs)
-    
-    def get_context_data(self, *args, **kwargs):
-        current = super(GenericDeleteJavaScript, self).get_context_data(*args, **kwargs)
-        
-        try:
-            ctype = ContentType.objects.get(app_label=self.ctype_app, model=self.ctype_model)
-            current.update({"ctype" : ctype})
-        except Exception, e:
-            logger.debug(e)
-            
-        current.update({"prefix" : self.prefix})
-        return current
-    
-class GenericTabDeleteJavaScript(GenericDeleteJavaScript):
-    def get_context_data(self, *args, **kwargs):
-        current = super(GenericTabDeleteJavaScript, self).get_context_data(*args, **kwargs)
-        current.update({"using_tabs" : True })
-        return current
-    
-class TabbedViewMixin(object):
-    tabs = None
-
-    def have_tab(self, search_tab):
-        for tab in self.tabs:
-            if tab[0] == search_tab:
-                return True
-        return False
-
-    def get_tabs(self, *args, **kwargs):
-        sorted(self.tabs, key = lambda tab: tab[4])
-        tabs = self.tabs
-        
-        active_tab = tabs[0][0]
-        if self.request.GET.has_key("tab") and self.have_tab(self.request.GET.get("tab")):
-            active_tab = self.request.GET.get("tab")
-        
-        #logger.debug("Active tab is %s" % active_tab)
-        return {"tabs" : tabs, "active_tab" : active_tab}    
 
 class GenericDeleteView(DeleteView):
     template_name = "generic/delete_form.html"
@@ -105,6 +56,11 @@ class Login(FormView):
     def get_success_url(self):
         #TODO: fix this membru indirection here
         return self.request.user.get_profile().membru.get_home_link()
+
+    def get_context_data(self, **kwargs):
+        data = super(Login, self).get_context_data(**kwargs)
+        data['facebook_connect_url'] = FacebookLoginView.get_facebook_endpoint(self.request)
+        return data
     
 class Logout(View):
     def get(self, *args, **kwargs):
@@ -317,17 +273,6 @@ class JSONView(View):
         json = {}
         return simplejson.dumps(json)
 
-class TagsJson(ListView):
-    model = Tag
-    template_name = "generic/tags.json"
-
-    def get_queryset(self):
-        q = self.request.GET.get("q", None)
-        qs = self.model.objects.all()
-        if q:
-            qs = qs.filter(name__icontains = q)
-
-        return qs
 
 
 

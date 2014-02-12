@@ -10,12 +10,12 @@
 {% endblock %}
 
 {% block extrahead %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}generic/css/tagmanager.css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}goodies/css/tagmanager.css"/>
 {% endblock %}
 
 {% block extrajs %}
-    <script src="{{ STATIC_URL }}generic/js/typeahead.js"></script>
-    <script src="{{ STATIC_URL }}generic/js/tagmanager.js"></script>
+    <script src="{{ STATIC_URL }}goodies/js/typeahead.js"></script>
+    <script src="{{ STATIC_URL }}goodies/js/tagmanager.js"></script>
     <script src="{% static "js/underscore-min.js" %}"></script>
     {% include "album/imagine_handlers.html" %}
     <script>
@@ -86,7 +86,7 @@
     <form class="form-inline" id="tags-search-form">
         <fieldset>
             <input id="id_tags"
-                   data-field-name="tags" data-ajax-url="{% url generic:tag_list %}" type="text" name="tags_edit"
+                   data-field-name="tags" data-ajax-url="{% url goodies:tag_list %}" type="text" name="tags_edit"
                    placeholder="scrie tag-uri aici" class="tm-input" style="margin-bottom: 0px;"/>
             <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i> Caută</button>
             <br/><br/>
