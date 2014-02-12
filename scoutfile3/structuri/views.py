@@ -15,11 +15,15 @@ from django.utils import simplejson
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, UpdateView, DeleteView, \
-    FormView
+from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.views.generic.list import ListView
-from documente.models import Trimestru
 from goodies.views import TabbedViewMixin, GenericDeleteView
+import datetime
+import hashlib
+import logging
+import traceback
+
+from documente.models import Trimestru
 from settings import SECRET_KEY, SYSTEM_EMAIL, MEDIA_ROOT, DEBUG, \
     USE_EMAIL_CONFIRMATION
 from structuri.decorators import allow_by_afiliere
@@ -36,11 +40,7 @@ from structuri.models import CentruLocal, AsociereMembruStructura, \
     Membru, Unitate, Patrula, TipAsociereMembruStructura, Utilizator, ImagineProfil, \
     InformatieContact, TipInformatieContact, AsociereMembruFamilie, \
     PersoanaDeContact
-import datetime
-import hashlib
-import logging
-import traceback
-from utils.views import FacebookConnectView, FacebookUserConnectView
+from utils.views import FacebookUserConnectView
 
 
 logger = logging.getLogger(__name__)
@@ -97,10 +97,10 @@ class CentruLocalDetail(DetailView, TabbedViewMixin):
     def get_tabs(self, *args, **kwargs):
         self.tabs = (("brief", u"Sumar", reverse("structuri:cl_tab_brief", kwargs={"pk": self.object.id}), "", 2),
                      ("unitati", u"Unități", reverse("structuri:cl_tab_unitati", kwargs={"pk": self.object.id}), "", 3),
-                     ("contact", u"Contact", reverse("structuri:cl_tab_contact", kwargs={"pk": self.object.id}), "icon-envelope", 1),)
+                     ("contact", u"Contact", reverse("structuri:cl_tab_contact", kwargs={"pk": self.object.id}),
+                      "icon-envelope", 1),)
         #("lideri", u"Lideri", reverse("structuri:cl_tab_lideri", kwargs = {"pk" : self.object.id }), "", False),
         #("membri", u"Membri", reverse("structuri:cl_tab_membri", kwargs = {"pk" : self.object.id }), "", False))
-        print self.tabs
         return super(CentruLocalDetail, self).get_tabs(*args, **kwargs)
 
     def get_context_menu(self, *args, **kwargs):
@@ -197,11 +197,11 @@ class CentruLocalLiderCreate(CreateView):
 
         pozitie = self.create_associations(form=form)
         info_kwargs = {
-        "tip_informatie": TipInformatieContact.objects.get(nume=u"Email", relevanta__icontains=u"Membru"),
-        "valoare": self.object.email,
-        "data_start": datetime.datetime.now(),
-        "content_type": ContentType.objects.get_for_model(self.object),
-        "object_id": self.object.id}
+            "tip_informatie": TipInformatieContact.objects.get(nume=u"Email", relevanta__icontains=u"Membru"),
+            "valoare": self.object.email,
+            "data_start": datetime.datetime.now(),
+            "content_type": ContentType.objects.get_for_model(self.object),
+            "object_id": self.object.id}
 
         InformatieContact(**info_kwargs).save()
 
@@ -563,8 +563,9 @@ class UnitateDetail(DetailView, TabbedViewMixin):
     def get_tabs(self, *args, **kwargs):
         self.tabs = (("brief", u"Sumar", reverse("structuri:unitate_tab_brief", kwargs={"pk": self.object.id}), "", 1),
                      (
-                     "patrule", u"Patrule", reverse("structuri:unitate_tab_patrule", kwargs={"pk": self.object.id}), "",
-                     2),
+                         "patrule", u"Patrule", reverse("structuri:unitate_tab_patrule", kwargs={"pk": self.object.id}),
+                         "",
+                         2),
                      ("membri", u"Membri", reverse("structuri:unitate_tab_membri", kwargs={"pk": self.object.id}), "",
                       3),)
 
@@ -765,8 +766,8 @@ class PatrulaDetail(DetailView, TabbedViewMixin):
         return super(PatrulaDetail, self).get_tabs(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
-    #        kwargs.update(self.get_tabs())
-    #        return super(PatrulaDetail, self).get_context_data(**kwargs)
+        #        kwargs.update(self.get_tabs())
+        #        return super(PatrulaDetail, self).get_context_data(**kwargs)
         current = super(PatrulaDetail, self).get_context_data(**kwargs)
         current.update(self.get_tabs())
         return current
@@ -792,7 +793,7 @@ class PatrulaTabMembri(ListView):
 
     def get_queryset(self, *args, **kwargs):
         tip_asociere_membru = TipAsociereMembruStructura.objects.get(nume=u"Membru", content_types__in=(
-        ContentType.objects.get_for_model(Patrula),))
+            ContentType.objects.get_for_model(Patrula),))
         asocieri = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(Patrula),
                                                           object_id=self.patrula.id,
                                                           tip_asociere=tip_asociere_membru)
@@ -907,10 +908,14 @@ class MembruDetail(DetailView, TabbedViewMixin):
 
     def get_tabs(self):
         self.tabs = (("brief", u"Sumar", reverse("structuri:membru_tab_brief", kwargs={"pk": self.object.id}), "", 1),
-                     ("afilieri", u"Afilieri", reverse("structuri:membru_tab_afilieri", kwargs={"pk": self.object.id}), "", 2),
-                     ("contact", u"Contact", reverse("structuri:membru_tab_contact", kwargs={"pk": self.object.id}), "", 3),
-                     ("familie", u"Familie", reverse("structuri:membru_tab_familie", kwargs={"pk": self.object.id}), "", 4),
-                     ('documente', u"Documente", reverse("structuri:membru_tab_documente", kwargs={"pk": self.object.id}), "", 5))
+                     ("afilieri", u"Afilieri", reverse("structuri:membru_tab_afilieri", kwargs={"pk": self.object.id}),
+                      "", 2),
+                     ("contact", u"Contact", reverse("structuri:membru_tab_contact", kwargs={"pk": self.object.id}), "",
+                      3),
+                     ("familie", u"Familie", reverse("structuri:membru_tab_familie", kwargs={"pk": self.object.id}), "",
+                      4),
+                     ('documente', u"Documente",
+                      reverse("structuri:membru_tab_documente", kwargs={"pk": self.object.id}), "", 5))
         return super(MembruDetail, self).get_tabs()
 
     def get_context_data(self, **kwargs):
@@ -1003,6 +1008,7 @@ class MembruTabFamilie(DetailView):
         kwargs.update({"object_list": self.object.asocieremembrufamilie_set.all(),
                        "nonmembru_object_list": self.object.persoanadecontact_set.all(), })
         return super(MembruTabFamilie, self).get_context_data(**kwargs)
+
 
 #   registration views
 
@@ -1739,59 +1745,59 @@ class GetSpeedList(View):
 
 
 class CentruLocalSeriiDocumente(ListView):
-#     model = SerieDocument
-#     template_name = "structuri/cl_serii_documente.html"
-#     
-#     def dispatch(self, request, *args, **kwargs):
-#         self.centru_local = get_object_or_404(CentruLocal, id = kwargs.pop("pk"))
-#         return super(CentruLocalSeriiDocumente, self).dispatch(request, *args, **kwargs)
-#     
-#     def get_queryset(self):
-#         filter_args = {"object_id" : self.centru_local.id,
-#                        "content_type" : ctype_centrulocal }
-#         qs = super(CentruLocalSeriiDocumente, self).get_queryset().filter(**filter_args)
-#         return qs.order_by("-data_inceput")
-#     
-#     def get_context_data(self, **kwargs):
-#         data = super(CentruLocalSeriiDocumente, self).get_context_data(**kwargs)
-#         data.update({"centru_local" : self.centru_local})
-#         return data
+    #     model = SerieDocument
+    #     template_name = "structuri/cl_serii_documente.html"
+    #
+    #     def dispatch(self, request, *args, **kwargs):
+    #         self.centru_local = get_object_or_404(CentruLocal, id = kwargs.pop("pk"))
+    #         return super(CentruLocalSeriiDocumente, self).dispatch(request, *args, **kwargs)
+    #
+    #     def get_queryset(self):
+    #         filter_args = {"object_id" : self.centru_local.id,
+    #                        "content_type" : ctype_centrulocal }
+    #         qs = super(CentruLocalSeriiDocumente, self).get_queryset().filter(**filter_args)
+    #         return qs.order_by("-data_inceput")
+    #
+    #     def get_context_data(self, **kwargs):
+    #         data = super(CentruLocalSeriiDocumente, self).get_context_data(**kwargs)
+    #         data.update({"centru_local" : self.centru_local})
+    #         return data
     pass
 
 
 class CentruLocalAdaugaSerieDocument(CreateView):
-#     model = SerieDocument
-#     template_name = "structuri/cl_serie_form.html"
-#     form_class = SerieCreateForm
-#     
-#     def dispatch(self, request, *args, **kwargs):
-#         self.centru_local = get_object_or_404(CentruLocal, id = kwargs.pop("pk"))
-#         return super(CentruLocalAdaugaSerieDocument, self).dispatch(request, *args, **kwargs)
-#     
-#     def get_success_url(self):
-#         return reverse("structuri:cl_serii_documente", kwargs = {"pk" : self.centru_local.id})
-#     
-#     def form_valid(self, form):
-#         self.object = form.save(commit = False)
-#         self.object.object_id = self.centru_local.id
-#         self.object.content_type = ctype_centrulocal
-#         self.object.save()
-#         return HttpResponseRedirect(self.get_success_url())
-#     
-#     def get_context_data(self, **kwargs):
-#         data = super(CentruLocalAdaugaSerieDocument, self).get_context_data(**kwargs)
-#         data.update({"centru_local" : self.centru_local})
-#         return data
+    #     model = SerieDocument
+    #     template_name = "structuri/cl_serie_form.html"
+    #     form_class = SerieCreateForm
+    #
+    #     def dispatch(self, request, *args, **kwargs):
+    #         self.centru_local = get_object_or_404(CentruLocal, id = kwargs.pop("pk"))
+    #         return super(CentruLocalAdaugaSerieDocument, self).dispatch(request, *args, **kwargs)
+    #
+    #     def get_success_url(self):
+    #         return reverse("structuri:cl_serii_documente", kwargs = {"pk" : self.centru_local.id})
+    #
+    #     def form_valid(self, form):
+    #         self.object = form.save(commit = False)
+    #         self.object.object_id = self.centru_local.id
+    #         self.object.content_type = ctype_centrulocal
+    #         self.object.save()
+    #         return HttpResponseRedirect(self.get_success_url())
+    #
+    #     def get_context_data(self, **kwargs):
+    #         data = super(CentruLocalAdaugaSerieDocument, self).get_context_data(**kwargs)
+    #         data.update({"centru_local" : self.centru_local})
+    #         return data
     pass
 
 
 class CentruLocalModificaSerieDocument(UpdateView):
-#     model = SerieDocument
-#     template_name = "structuri/cl_serie_form.html"
-#     form_class = SerieUpdateForm
-#     
-#     def get_success_url(self):
-#         return reverse("structuri:cl_serii_documente", kwargs = {"pk" : self.centru_local.id})
+    #     model = SerieDocument
+    #     template_name = "structuri/cl_serie_form.html"
+    #     form_class = SerieUpdateForm
+    #
+    #     def get_success_url(self):
+    #         return reverse("structuri:cl_serii_documente", kwargs = {"pk" : self.centru_local.id})
     pass
 
 
@@ -1850,6 +1856,7 @@ class SetariSpecialeCentruLocal(UpdateView):
 
     def get_success_url(self):
         return reverse("structuri:cl_detail", kwargs={"pk": self.object.id})
+
 
 class MembruConfirmaFacebook(TemplateView):
     template_name = "structuri/confirma_facebook.html"

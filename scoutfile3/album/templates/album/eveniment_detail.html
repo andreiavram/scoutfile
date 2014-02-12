@@ -2,7 +2,7 @@
 {% load tab_tags %}
 
 {% block page_title %}
-    {{ object }} | {% if object.tip_eveniment %}<span style="font-weight:normal">{{ object.get_tip_eveniment_display|lower }}</span>{% endif %}
+    {{ object }} {% if object.tip_eveniment %}<span style="font-weight:normal">| {{ object.get_tip_eveniment_display|lower }}</span>{% endif %}
     {% if object.facebook_event_link %}
         <a class="btn pull-right" href="{{ object.facebook_event_link }}">
         <i class="icon-facebook"></i> Evenimentul pe Facebook</a>{% endif %}
