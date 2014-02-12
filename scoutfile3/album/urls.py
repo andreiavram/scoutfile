@@ -2,7 +2,8 @@ from django.conf.urls.defaults import patterns
 from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     RotateImage, EvenimentStats, ZiStats, FlagImage, EvenimentList, \
     SetImaginiUpload, SetImaginiDeleteAjax, SetImaginiToate, \
-    SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate, EvenimentCreate, EvenimentUpdate, EvenimentDetail, EvenimentDelete, PozaUpdate, ZiEdit, PozaDelete, ImagineTagSearch, ImagineSearchJSON, ZiDetailBeta
+    SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate, EvenimentCreate, EvenimentUpdate, EvenimentDetail, EvenimentDelete, PozaUpdate, ZiEdit, PozaDelete, ImagineTagSearch, ImagineSearchJSON, ZiDetailBeta, \
+    RaportEvenimentDetail, RaportEvenimentUpdate, RaportEvenimentHistory
 from album.views import ChangeImagineVisibility
 
 
@@ -22,6 +23,10 @@ urlpatterns = patterns('album.views',
                        (r'eveniment/(?P<slug>\w+)/edit/$', EvenimentUpdate.as_view(), {}, "eveniment_update"),
                        (r'eveniment/(?P<slug>\w+)/delete/$', EvenimentDelete.as_view(), {}, "eveniment_delete"),
                        (r'eveniment/(?P<slug>\w+)/$', EvenimentDetail.as_view(), {}, "eveniment_main_detail"),
+
+                       (r'eveniment/(?P<slug>\w+)/raport/$', RaportEvenimentDetail.as_view(), {}, "eveniment_raport_detail"),
+                       (r'eveniment/(?P<slug>\w+)/raport/edit/$', RaportEvenimentUpdate.as_view(), {}, "eveniment_raport_update"),
+                       (r'eveniment/(?P<slug>\w+)/raport/history/$', RaportEvenimentHistory.as_view(), {}, "eveniment_raport_history"),
 
                        (r'set/(?P<pk>\d+)/$', SetPozeUpdate.as_view(), {}, "set_poze_edit"),
                        (r'set/(?P<pk>\d+)/delete/$', SetImaginiDeleteAjax.as_view(), {}, "set_poze_delete_ajax"),

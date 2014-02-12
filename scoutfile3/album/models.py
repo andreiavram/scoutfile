@@ -11,6 +11,7 @@ import logging
 import traceback
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from album.managers import RaportEvenimentManager
 
 from settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT, MEDIA_ROOT
 from taggit.managers import TaggableManager
@@ -21,10 +22,19 @@ logger = logging.getLogger(__name__)
 
 
 IMAGINE_PUBLISHED_STATUS = ((1, "Secret"), (2, "Centru Local"), (3, "Organizație"), (4, "Public"))
+
+
 class ParticipantiEveniment(models.Model):
     eveniment = models.ForeignKey("Eveniment")
-    ramura_de_varsta = models.ForeignKey("structuri.RamuraDeVarsta")
+    ramura_de_varsta = models.ForeignKey("structuri.RamuraDeVarsta", null=True, blank=True)
+    alta_categorie = models.CharField(max_length=255, null=True, blank=True)
     numar = models.IntegerField()
+
+
+TIPURI_EVENIMENT = (("camp", "Camp"), ("intalnire", u"Întâlnire"), ("hike", "Hike"), ("social", "Proiect social"),
+                    ("comunitate", u"Proiect de implicare în comunitate"), ("citychallange", u"City Challange"),
+                    ("international", u"Proiect internațional"), )
+
 
 class Eveniment(models.Model):
     centru_local = models.ForeignKey("structuri.CentruLocal")
@@ -34,17 +44,18 @@ class Eveniment(models.Model):
     end_date = models.DateTimeField(verbose_name=u"Ține până pe", help_text=u"Folosește selectorul de date pentru a defini o dată de sfârșit")
     slug = models.SlugField(max_length=255, unique=True)
     custom_cover_photo = models.ForeignKey("Imagine", null=True, blank=True)
+
+    tip_eveniment = models.CharField(max_length=255, null=True, blank=True, choices=TIPURI_EVENIMENT)
     facebook_event_link = models.URLField(null=True, blank=True, verbose_name=u"Link eveniment Facebook", help_text=u"Folosește copy/paste pentru a lua link-ul din Facebook")
+    articol_site_link = models.URLField(null=True, blank=True, verbose_name=u"Link articol site", help_text=u"Link-ul de la articolul de pe site-ul Centrului Local")
+
     locatie_text = models.CharField(max_length=1024, null=True, blank=True, verbose_name = u"Locație")
     #   TODO: implementează situatia în care evenimentul are mai mult de o singură locație
     locatie_geo = models.CharField(max_length=1024)
 
-    #TODO: add visibility settings to events
+    #   TODO: add visibility settings to events
     published_status = models.IntegerField(default=2, choices=IMAGINE_PUBLISHED_STATUS, verbose_name=u"Vizibilitate")
 
-    ramuri_de_varsta = models.ManyToManyField("structuri.RamuraDeVarsta", null=True, blank=True, through=ParticipantiEveniment)
-
-    #   settings pentru raportul anual
 
     class Meta:
         verbose_name = u"Eveniment"
@@ -53,6 +64,21 @@ class Eveniment(models.Model):
 
     def __unicode__(self):
         return u"%s" % self.nume
+
+    @property
+    def get_ramuri_de_varsta(self):
+        totals = self.participantieveniment_set.filter()
+        rdvs = {}
+        for c in totals:
+            key = c.ramura_de_varsta.slug if c.ramura_de_varsta is not None else c.alta_categorie
+            rdvs[key] = (c.numar, c)
+        return rdvs
+
+    @property
+    def raport(self):
+        if self.raporteveniment_set.all().count():
+            return self.raporteveniment_set.all()[0]
+        return None
 
     def save(self, *args, **kwargs):
         on_create = False
@@ -154,6 +180,45 @@ class Eveniment(models.Model):
 
 STATUS_PARTICIPARE = ((1, u"Cu semnul întrebării"), (2, u"Sigur"), (3, u"Avans plătit"), (4, u"Participare efectivă"),
                       (5, u"Participare anulată"))
+
+
+class RaportEveniment(models.Model):
+    parteneri = models.TextField(help_text=u"Câte unul pe linie, dacă există și un link va fi preluat automat de pe aceeași linie", null=True, blank=True)
+    obiective = models.TextField(help_text=u"inclusiv obiective educative", null=True, blank=True)
+    grup_tinta = models.TextField(null=True, blank=True)
+    activitati = models.TextField(null=True, blank=True, help_text=u"Descriere semi-formală a activităților desfășurate")
+    alti_beneficiari = models.TextField(null=True, blank=True)
+    promovare = models.TextField(null=True, blank=True, help_text=u"Cum / dacă s-a promovat proiectul")
+    buget = models.FloatField(null=True, blank=True, help_text=u"Estimativ, în RON")
+    accept_publicare_raport_national = models.BooleanField(default=True, verbose_name="Acord raport ONCR", help_text=u"Dacă se propune această activitate pentru raportul anual al ONCR")
+
+    eveniment = models.ForeignKey(Eveniment)
+    is_locked = models.BooleanField(default=False)
+    is_leaf = models.BooleanField(default=False)
+    editor = models.ForeignKey("structuri.Membru")
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    original_parent = models.ForeignKey("RaportEveniment", null=True, blank=True)
+    parent = models.ForeignKey("RaportEveniment", related_name="children", null=True, blank=True)
+
+    objects = RaportEvenimentManager()
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+    def save_new_version(self, user, *args, **kwargs):
+        self.is_leaf = False
+        self.is_locked = True
+        self.save(*args, **kwargs)
+
+        self.id = None
+        self.parent = self
+        self.user = user
+        if self.original_parent is None:
+            self.original_parent = self.parent
+        self.is_leaf = True
+        self.is_locked = False
+        self.save(*args, **kwargs)
 
 
 class ParticipareEveniment(models.Model):
@@ -478,6 +543,7 @@ class Imagine(ImageModel):
 
 # tagging.register(Imagine)
 
+
 class EXIFData(models.Model):
     imagine = models.ForeignKey(Imagine)
     key = models.CharField(max_length=255)
@@ -524,4 +590,3 @@ class DetectedFace(models.Model):
     content_type = models.ForeignKey(ContentType, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     content_object = GenericForeignKey()
-    
