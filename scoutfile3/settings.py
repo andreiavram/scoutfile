@@ -63,6 +63,7 @@ STATICFILES_DIRS = (
     ("css", "%s/css" % STATIC_ROOT),
     ("font", "%s/font" % STATIC_ROOT),
     ("jquery_upload", "%s/jquery_upload" % STATIC_ROOT),
+    ("gallery", os.path.join(STATIC_ROOT, "gallery")),
 )
 
 # List of finder classes that know how to find static files in
@@ -139,9 +140,10 @@ INSTALLED_APPS = (
     
     'structuri', 'generic', 'album',
     'patrocle', 'documente', 'extra',
+    "utils",
     
     'raven.contrib.django.raven_compat',
-    'django_extensions', 'gunicorn'
+    'django_extensions', 'gunicorn', 'goodies',
 )
 
 
@@ -161,10 +163,10 @@ AJAX_SELECT_INLINES = False
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'root' : {
-      'level' : 'WARNING',
-      'handlers' : ['sentry'],
-    },
+    # 'root' : {
+    #   'level' : 'WARNING',
+    #   'handlers' : ['sentry'],
+    # },
     'formatters': {
         'verbose': {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
@@ -269,6 +271,9 @@ REDMINE_API_KEY = "f393aac0746069a9de25eb251b0171b1ff1ed793"
 
 VALOARE_IMPLICITA_COTIZATIE_LOCAL = 0
 VALOARE_IMPLICITA_COTIZATIE_NATIONAL = 50
+VALOARE_IMPLICITA_COTIZATIE_LOCAL_SOCIAL = 0
+VALOARE_IMPLICITA_COTIZATIE_NATIONAL_SOCIAL = 12
+
 
 SCOUTFILE_ALBUM_STORAGE_ROOT = "album"
 
@@ -301,3 +306,13 @@ DATETIME_INPUT_FORMATS = (
 )
 
 GOOGLE_API_KEY = "AIzaSyCIiQgKmmRv2SLBj8KTbx6HB7Kn_6LIU-o"
+
+FACEBOOK_LOGIN_REDIRECT = "login"    #  url reverse-able string
+FACEBOOK_APP_ID = "152554668279442"
+FACEBOOK_APP_SECRET = "388c926e843601ac88f16274923245ea"
+FACEBOOK_PERMISSIONS = ['email', 'publish_stream']
+FACEBOOK_ERROR_URL = "login"
+
+AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',
+                           'utils.auth_backends.FacebookBackend',
+)

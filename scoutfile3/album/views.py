@@ -6,8 +6,8 @@ from django.views.generic.detail import DetailView
 from django.views.generic.base import View, TemplateView
 from django.shortcuts import get_object_or_404
 from django.contrib.contenttypes.models import ContentType
-from django.http import Http404, HttpResponseRedirect, HttpResponse,\
-    HttpResponseForbidden, HttpResponseNotAllowed
+from django.http import Http404, HttpResponseRedirect, HttpResponse, \
+    HttpResponseForbidden, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.core.urlresolvers import reverse
 import datetime
 from django.contrib import messages
@@ -20,13 +20,15 @@ from django.contrib.auth.decorators import login_required
 from taggit.models import Tag
 from taggit.utils import parse_tags
 
-from album.models import Eveniment, ZiEveniment, Imagine, FlagReport
-from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm
+from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment
+from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm
 from album.models import SetPoze
 from album.forms import SetPozeCreateForm, SetPozeUpdateForm
-from generic.views import GenericDeleteView
-from structuri.models import Membru
-from generic.views import JSONView, ScoutFileAjaxException
+from goodies.views import GenericDeleteView
+from settings import MEDIA_ROOT
+from structuri.models import Membru, RamuraDeVarsta
+from goodies.views import JSONView
+from generic.views import ScoutFileAjaxException
 from album.models import IMAGINE_PUBLISHED_STATUS
 from structuri.models import TipAsociereMembruStructura
 from structuri.decorators import allow_by_afiliere
@@ -34,65 +36,71 @@ import settings
 
 logger = logging.getLogger(__name__)
 
+
 class EvenimentList(ListView):
     model = Eveniment
     template_name = "album/eveniment_list.html"
-    
+
     def get_queryset(self, *args, **kwargs):
         return super(EvenimentList, self).get_queryset(*args, **kwargs)
-    
+
 
 class AlbumEvenimentDetail(DetailView):
     model = Eveniment
     template_name = "album/eveniment_detail.html"
-    
+
     def dispatch(self, request, *args, **kwargs):
         self.autor = request.GET['autor'] if "autor" in request.GET else None
         return super(AlbumEvenimentDetail, self).dispatch(request, *args, **kwargs)
-    
+
     def get_context_data(self, *args, **kwargs):
         current = super(AlbumEvenimentDetail, self).get_context_data(*args, **kwargs)
-        
+
         zile = []
         for zi_eveniment in self.object.zieveniment_set.all().order_by("index", "date"):
             zile.append((zi_eveniment, zi_eveniment.filter_photos(autor=self.autor, user=self.request.user)))
 
-        current.update({"zile" : zile, "autor" : self.autor})
-        
+        current.update({"zile": zile, "autor": self.autor})
+
         return current
+
 
 class EvenimentStats(DetailView):
     model = Eveniment
     template_name = "album/eveniment_stats.html"
-    
+
     def get_context_data(self, *args, **kwargs):
         current = super(EvenimentStats, self).get_context_data(*args, **kwargs)
         return current
 
+
 class ZiDetail(DetailView):
     model = ZiEveniment
     template_name = "album/zi_detail.html"
-    
+
     def dispatch(self, request, *args, **kwargs):
         if request.GET.has_key("autor"):
             self.autor = request.GET['autor']
         else:
             self.autor = None
         return super(ZiDetail, self).dispatch(request, *args, **kwargs)
-    
+
     def get_context_data(self, *args, **kwargs):
         current = super(ZiDetail, self).get_context_data(*args, **kwargs)
-        
+
         object_list = self.object.filter_photos(autor=self.autor, user=self.request.user)
-        current.update({"object_list":  object_list, "autor" : self.autor,
+        current.update({"object_list": object_list, "autor": self.autor,
                         "visibility_states": IMAGINE_PUBLISHED_STATUS})
 
         centru_local = self.object.eveniment.centru_local
-        calitate = TipAsociereMembruStructura.objects.get(nume__iexact = u"Păstrător al amintirilor", content_types__in = [ContentType.objects.get_for_model(centru_local)])
-        if self.request.user.get_profile().membru.are_calitate(calitate, centru_local):
+        calitate = TipAsociereMembruStructura.objects.get(nume__iexact=u"Păstrător al amintirilor", content_types__in=[
+            ContentType.objects.get_for_model(centru_local)])
+        if self.request.user.is_authenticated() and (self.request.user.get_profile().membru.are_calitate(calitate,
+                                                                                                         centru_local) or self.request.user.is_superuser):
             current.update({"media_manager": True})
 
         return current
+
 
 class ZiEdit(UpdateView):
     model = ZiEveniment
@@ -103,7 +111,8 @@ class ZiEdit(UpdateView):
         return super(ZiEdit, self).dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse("album:zi_detail", kwargs={"pk" : self.object.id})
+        return reverse("album:zi_detail", kwargs={"pk": self.object.id})
+
 
 class ZiStats(DetailView):
     model = ZiEveniment
@@ -129,26 +138,32 @@ class PozaDetail(DetailView):
         current = super(PozaDetail, self).get_context_data(*args, **kwargs)
 
         import random
-        current.update({"random_value" : random.randrange(1000, 2000)})
-        current.update({"next_photo" : self.object.get_next_photo(autor=self.autor, user=self.request.user),
-                        "prev_photo" : self.object.get_prev_photo(autor=self.autor, user=self.request.user)})
-        current.update({"autor" : self.autor })
-        
-        backward_limit = datetime.datetime.combine(self.object.get_day().date, datetime.time(0, 0, 0)) + datetime.timedelta(hours = 3)
-        photo = Imagine.objects.filter(set_poze__eveniment = self.object.set_poze.eveniment, data__lt = self.object.data, data__gte = backward_limit)
+
+        current.update({"random_value": random.randrange(1000, 2000)})
+        current.update({"next_photo": self.object.get_next_photo(autor=self.autor, user=self.request.user),
+                        "prev_photo": self.object.get_prev_photo(autor=self.autor, user=self.request.user)})
+        current.update({"autor": self.autor})
+
+        backward_limit = datetime.datetime.combine(self.object.get_day().date,
+                                                   datetime.time(0, 0, 0)) + datetime.timedelta(hours=3)
+        photo = Imagine.objects.filter(set_poze__eveniment=self.object.set_poze.eveniment, data__lt=self.object.data,
+                                       data__gte=backward_limit)
         if self.autor is not None:
-            photo = photo.filter(set_poze__autor__icontains = self.autor)
+            photo = photo.filter(set_poze__autor__icontains=self.autor)
 
         zi_page = ((photo.count()) / 30) + 1
-        current.update({"zi_page" : zi_page})
+        current.update({"zi_page": zi_page})
         current.update({"visibility_states": IMAGINE_PUBLISHED_STATUS})
 
         centru_local = self.object.set_poze.eveniment.centru_local
-        calitate = TipAsociereMembruStructura.objects.get(nume__iexact = u"Păstrător al amintirilor", content_types__in = [ContentType.objects.get_for_model(centru_local)])
-        if self.request.user.get_profile().membru.are_calitate(calitate, centru_local):
+        calitate = TipAsociereMembruStructura.objects.get(nume__iexact=u"Păstrător al amintirilor", content_types__in=[
+            ContentType.objects.get_for_model(centru_local)])
+        if self.request.user.is_authenticated() and (self.request.user.get_profile().membru.are_calitate(calitate,
+                                                                                                         centru_local) or self.request.user.is_superuser):
             current.update({"media_manager": True})
 
         return current
+
 
 class PozaUpdate(UpdateView):
     model = Imagine
@@ -165,13 +180,14 @@ class PozaUpdate(UpdateView):
         return super(PozaUpdate, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse("album:poza_detail", kwargs = {"pk": self.object.id})
+        return reverse("album:poza_detail", kwargs={"pk": self.object.id})
 
     def get_context_data(self, **kwargs):
         current = super(PozaUpdate, self).get_context_data(**kwargs)
 
         centru_local = self.object.set_poze.eveniment.centru_local
-        calitate = TipAsociereMembruStructura.objects.get(nume__iexact = u"Păstrător al amintirilor", content_types__in = [ContentType.objects.get_for_model(centru_local)])
+        calitate = TipAsociereMembruStructura.objects.get(nume__iexact=u"Păstrător al amintirilor", content_types__in=[
+            ContentType.objects.get_for_model(centru_local)])
         if self.request.user.get_profile().membru.are_calitate(calitate, centru_local):
             current.update({"media_manager": True})
 
@@ -188,57 +204,64 @@ class PozaDelete(GenericDeleteView):
 
     def get_success_url(self):
         return reverse("album:eveniment_detail", kwargs={"slug": self.object.set_poze.eveniment.slug})
-    
+
+
 class FlagImage(CreateView):
     model = FlagReport
     template_name = "album/poza_flag.html"
     form_class = ReportForm
-    
+
     def dispatch(self, *args, **kwargs):
-        self.poza = get_object_or_404(Imagine, id = kwargs.pop("pk"))
+        self.poza = get_object_or_404(Imagine, id=kwargs.pop("pk"))
         return super(FlagImage, self).dispatch(*args, **kwargs)
-    
+
     def form_valid(self, form):
-        self.object = form.save(commit = False)
+        self.object = form.save(commit=False)
         self.object.imagine = self.poza
         self.object.save()
-        messages.success(self.request, "Poza a fost flag-uită, un lider sau fotograful vor decide ce acțiune se va lua în continuare")
+        messages.success(self.request,
+                         "Poza a fost flag-uită, un lider sau fotograful vor decide ce acțiune se va lua în continuare")
         return HttpResponseRedirect(self.get_success_url())
-    
+
     def get_success_url(self):
-        return reverse("album:poza_detail", kwargs = {"pk" : self.poza.id})
-    
+        return reverse("album:poza_detail", kwargs={"pk": self.poza.id})
+
     def get_context_data(self, *args, **kwargs):
         current = super(FlagImage, self).get_context_data(*args, **kwargs)
-        
-        current.update({"poza" : self.poza})
-        
+
+        current.update({"poza": self.poza})
+
         return current
+
 
 class RotateImage(View):
     @allow_by_afiliere([("Imagine, Centru Local", u"Păstrător al amintirilor")])
     def dispatch(self, request, *args, **kwargs):
-        self.imagine = get_object_or_404(Imagine, id = kwargs.pop("pk"))
-        
-        if not request.GET.has_key("direction"):
-            raise Http404
-        
-        self.direction = request.GET.get("direction")
+        self.imagine = get_object_or_404(Imagine, id=kwargs.pop("pk"))
+
+        if "direction" not in request.GET:
+            raise Http404()
+
+        self.direction = request.GET.get("direction", "cw")
         if self.direction not in ("cw", "ccw"):
-            raise Http404
-        
+            return HttpResponseBadRequest()
+
         return super(RotateImage, self).dispatch(request, *args, **kwargs)
-    
-    def get(self, *args, **kwargs):
+
+    def get(self, request, *args, **kwargs):
         self.imagine.rotate(self.direction)
-        return HttpResponseRedirect(reverse("album:poza_detail", kwargs = {"pk" : self.imagine.id}))
-    
-    
+
+        if "size" in request.GET:
+            data = getattr(self.imagine, "get_%s_url" % request.GET['size'])()
+            return HttpResponse(data)
+        return HttpResponseRedirect(reverse("album:poza_detail", kwargs={"pk": self.imagine.id}))
+
+
 class SetImaginiUpload(CreateView):
     model = SetPoze
     form_class = SetPozeCreateForm
     template_name = "album/create_set_imagini.html"
-    
+
     def response_mimetype(self):
         if "application/json" in self.request.META['HTTP_ACCEPT']:
             return "application/json"
@@ -249,6 +272,7 @@ class SetImaginiUpload(CreateView):
         local_file_name = self.object.zip_file
 
         import io
+
         if not os.path.exists(local_file_name):
             # create empty file with given size
             with io.open(local_file_name, "w+b") as fp:
@@ -262,31 +286,44 @@ class SetImaginiUpload(CreateView):
 
     @allow_by_afiliere([("Eveniment, Centru Local", "Lider")], pkname="slug")
     def dispatch(self, request, *args, **kwargs):
-        self.eveniment = get_object_or_404(Eveniment, slug = kwargs.get("slug"))
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.get("slug"))
         return super(SetImaginiUpload, self).dispatch(request, *args, **kwargs)
-    
+
+    def get(self, request, *args, **kwargs):
+        #   Cleanup residual uploads here
+        for key in request.session.keys():
+            if len(key.split("-")) > 1 and key.split("-")[0] == request.user.id:
+                del request.session[key]
+
+        return super(SetImaginiUpload, self).get(request, *args, **kwargs)
+
     def form_valid(self, form):
         logger.debug("%s - form valid" % self.__class__.__name__)
 
         import re
+
         byte_ranges = re.findall(r"bytes (\d+)-(\d+)/(\d+)", self.request.META['HTTP_CONTENT_RANGE'])
-        logger.debug("%s - byte ranges %s to %s out of %s" % (self.__class__.__name__, byte_ranges[0][0], byte_ranges[0][1], byte_ranges[0][2]))
+        logger.debug("%s - byte ranges %s to %s out of %s" % (
+        self.__class__.__name__, byte_ranges[0][0], byte_ranges[0][1], byte_ranges[0][2]))
         f = self.request.FILES.get('zip_file')
 
         session_key = "{0}-{1}".format(self.request.user.id, f.name.replace("-", "+"))
         if session_key in self.request.session:
-            self.object = get_object_or_404(self.model, id = int(self.request.session[session_key]))
+            self.object = get_object_or_404(self.model, id=int(self.request.session[session_key]))
             logger.debug("%s - retrieving existing set (%d)" % (self.__class__.__name__, self.object.id))
         else:
-            self.object = form.save(commit = False)
+            self.object = form.save(commit=False)
             from structuri.models import Membru
-            self.object.autor_user = Membru.objects.get(id = self.request.user.get_profile().id)
+
+            self.object.autor_user = Membru.objects.get(id=self.request.user.get_profile().id)
 
             if not self.object.autor:
                 self.object.autor = "%s" % self.object.autor_user.nume_complet()
 
             self.object.eveniment = self.eveniment
-            self.object.zip_file = "/" + os.path.join("tmp", "{0}_{1}_{2}".format(self.request.user.id, datetime.datetime.now().strftime("%Y%m%d%H%M%S"), f.name))
+            self.object.zip_file = "/" + os.path.join("tmp", "{0}_{1}_{2}".format(self.request.user.id,
+                                                                                  datetime.datetime.now().strftime(
+                                                                                      "%Y%m%d%H%M%S"), f.name))
             self.object.save()
 
             self.request.session[session_key] = self.object.id
@@ -301,48 +338,53 @@ class SetImaginiUpload(CreateView):
             logger.debug("%s - removing session key from session dict" % self.__class__.__name__)
             del self.request.session[session_key]
 
-        data = {"files" : [{'name': f.name, 
-                 #'url': self.object.zip_file.url,
-                 #'thumbnail_url': STATIC_URL + "album/zip.png",
-                 'size' : int(byte_ranges[0][2]),
-                 'type' :  "application/zip",
-                 #'descriere' : self.object.descriere, 
-                 'delete_url': settings.URL_ROOT + reverse("album:set_poze_delete_ajax", kwargs = {"pk" : self.object.id}),
-                 'delete_type': "DELETE"}]}
-        
-        response = HttpResponse(simplejson.dumps(data), mimetype = self.response_mimetype())
+        data = {"files": [{'name': f.name,
+                           #'url': self.object.zip_file.url,
+                           #'thumbnail_url': STATIC_URL + "album/zip.png",
+                           'size': int(byte_ranges[0][2]),
+                           'type': "application/zip",
+                           #'descriere' : self.object.descriere,
+                           'delete_url': settings.URL_ROOT + reverse("album:set_poze_delete_ajax",
+                                                                     kwargs={"pk": self.object.id}),
+                           'delete_type': "DELETE"}]}
+
+        response = HttpResponse(simplejson.dumps(data), mimetype=self.response_mimetype())
         return response
 
     def form_invalid(self, form):
         logger.debug("%s - form invalid (%s)" % (self.__class__.__name__, form.errors))
         logger.debug("%s - POST data (%s)" % (self.__class__.__name__, self.request.POST))
-#         data = [{"error" : u"Cannot upload", "error_dict" : form.errors}]
-        
+        #         data = [{"error" : u"Cannot upload", "error_dict" : form.errors}]
+
         f = self.request.FILES.get('zip_file')
-        data = {"files" : [{"name" : f.name, "error" : u"Cannot upload"}]}
-        
-        response = HttpResponse(simplejson.dumps(data), mimetype = self.response_mimetype())
+        data = {"files": [{"name": f.name, "error": u"Cannot upload"}]}
+
+        response = HttpResponse(simplejson.dumps(data), mimetype=self.response_mimetype())
         return response
 
     def get_context_data(self, **kwargs):
         current = super(SetImaginiUpload, self).get_context_data(**kwargs)
-        current.update({"eveniment" : self.eveniment})
+        current.update({"eveniment": self.eveniment})
         return current
-        
-        
+
+
 class SetImaginiDeleteAjax(View):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        self.set_poze = get_object_or_404(SetPoze, id = kwargs.pop("pk"))
+        self.set_poze = get_object_or_404(SetPoze, id=kwargs.pop("pk"))
         return super(SetImaginiDeleteAjax, self).dispatch(request, *args, **kwargs)
-    
+
     def delete(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
-    
+
     def post(self, request, *args, **kwargs):
         from structuri.models import Membru
-        logger.debug("%s: user is superuser: %s, user is same membru object %s" % (self.__class__.__name__, request.user.is_superuser, Membru.objects.get(id = request.user.get_profile().id) == self.set_poze.autor_user))
-        if request.user.is_superuser or Membru.objects.get(id = request.user.get_profile().id) == self.set_poze.autor_user:
+
+        logger.debug("%s: user is superuser: %s, user is same membru object %s" % (
+        self.__class__.__name__, request.user.is_superuser,
+        Membru.objects.get(id=request.user.get_profile().id) == self.set_poze.autor_user))
+        if request.user.is_superuser or Membru.objects.get(
+                id=request.user.get_profile().id) == self.set_poze.autor_user:
             try:
                 os.unlink(self.set_poze.zip_file)
             except Exception, e:
@@ -350,120 +392,190 @@ class SetImaginiDeleteAjax(View):
             self.set_poze.delete()
         else:
             return HttpResponseForbidden()
-        
+
         return HttpResponse("")
 
 
 class SetImaginiToate(ListView):
     model = SetPoze
     template_name = "album/set_poze_list.html"
-    
+
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         self.membru = request.user.get_profile().membru
         return super(SetImaginiToate, self).dispatch(request, *args, **kwargs)
-    
+
     def get_queryset(self):
-        return self.model.objects.filter(eveniment__centru_local = self.membru.centru_local)
+        return self.model.objects.filter(eveniment__centru_local=self.membru.centru_local)
 
     def get_context_data(self, **kwargs):
         current = super(SetImaginiToate, self).get_context_data(**kwargs)
-        current.update({"media_manager" : self.membru.are_calitate(u"Păstrător al amintirilor", self.membru.centru_local)})
+        current.update(
+            {"media_manager": self.membru.are_calitate(u"Păstrător al amintirilor", self.membru.centru_local)})
         return current
+
 
 class SetImaginiUser(SetImaginiToate):
     def get_queryset(self):
         qs = super(SetImaginiUser, self).get_queryset()
-        qs = qs.filter(autor_user = Membru.objects.get(id = self.request.user.get_profile().id))
+        qs = qs.filter(autor_user=Membru.objects.get(id=self.request.user.get_profile().id))
         return qs
 
     def get_context_data(self, **kwargs):
         current = super(SetImaginiUser, self).get_context_data(**kwargs)
-        current.update({"user_only" : True})
+        current.update({"user_only": True})
         return current
-    
+
+
 class EvenimentSeturi(SetImaginiToate):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        self.eveniment = get_object_or_404(Eveniment, slug = kwargs.get("slug"))
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.get("slug"))
         return super(EvenimentSeturi, self).dispatch(request, *args, **kwargs)
-    
+
     def get_queryset(self):
         qs = super(EvenimentSeturi, self).get_queryset()
-        qs = qs.filter(eveniment = self.eveniment)
+        qs = qs.filter(eveniment=self.eveniment)
         return qs
-    
+
     def get_context_data(self, **kwargs):
         current = super(EvenimentSeturi, self).get_context_data(**kwargs)
-        current.update({"eveniment" : self.eveniment})
+        current.update({"eveniment": self.eveniment})
         return current
-    
+
+
 class EvenimentSeturiUser(EvenimentSeturi):
     def get_queryset(self):
         qs = super(EvenimentSeturiUser, self).get_queryset()
-        qs = qs.filter(autor_user = Membru.objects.get(id = self.request.user.get_profile().id))
+        qs = qs.filter(autor_user=Membru.objects.get(id=self.request.user.get_profile().id))
         return qs
-    
+
     def get_context_data(self, **kwargs):
         current = super(SetImaginiUser, self).get_context_data(**kwargs)
-        current.update({"user_only" : True})
+        current.update({"user_only": True})
         return current
-    
+
 
 class SetPozeUpdate(UpdateView):
     model = SetPoze
     form_class = SetPozeUpdateForm
     template_name = "album/set_poze_edit.html"
 
-    @method_decorator(login_required)    
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        self.object = get_object_or_404(self.model, id = kwargs.get("pk"))
+        self.object = get_object_or_404(self.model, id=kwargs.get("pk"))
         if self.object.autor_user_id != request.user.get_profile().id:
             return HttpResponseNotAllowed()
         return super(SetPozeUpdate, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        offset_initial = self.object.offset_secunde
+        self.object = form.save(commit=True)
+        if offset_initial != self.object.offset_secunde:
+            self.object.offset_changed = True
+            self.object.save()
+
         messages.success(self.request, "Actualizări salvate!")
-        return super(SetPozeUpdate, self).form_valid(form)
-    
+        return HttpResponseRedirect(self.get_success_url())
+
     def get_success_url(self):
-        return reverse("album:set_poze_edit", kwargs = {"pk" : self.object.id})
+        return reverse("album:set_poze_edit", kwargs={"pk": self.object.id})
 
 
 class ChangeImagineVisibility(JSONView):
-    _params = {"imagine" : {"type" : "required"},
-               "new_status" : {"type" : "required"}}
+    _params = {"imagine": {"type": "required"},
+               "new_status": {"type": "required"}}
 
     def clean_imagine(self, value):
         try:
-            return Imagine.objects.get(id = int(value))
+            return Imagine.objects.get(id=int(value))
         except Exception, e:
-            raise ScoutFileAjaxException(extra_message = "This image does not exist", exception = e)
-    
+            raise ScoutFileAjaxException(extra_message="This image does not exist", exception=e)
+
     def clean_new_status(self, value):
         #TODO: change this from range to actual valid values
-        if int(value) not in range(1,5):
-            raise ScoutFileAjaxException(extra_message = "The status is invalid")
+        if int(value) not in range(1, 5):
+            raise ScoutFileAjaxException(extra_message="The status is invalid")
         return int(value)
-    
+
     def post(self, request, *args, **kwargs):
         self.validate(**self.parse_json_data())
 
         centru_local = self.cleaned_data['imagine'].set_poze.eveniment.centru_local
-        calitate = TipAsociereMembruStructura.objects.get(nume__iexact = u"Păstrător al amintirilor", content_types__in = [ContentType.objects.get_for_model(centru_local)])
-        if not self.request.user.get_profile().membru.are_calitate(calitate, centru_local) and not self.request.user.is_superuser:
+        calitate = TipAsociereMembruStructura.objects.get(nume__iexact=u"Păstrător al amintirilor", content_types__in=[
+            ContentType.objects.get_for_model(centru_local)])
+        if not self.request.user.get_profile().membru.are_calitate(calitate,
+                                                                   centru_local) and not self.request.user.is_superuser:
             return HttpResponseForbidden()
 
         self.cleaned_data['imagine'].published_status = self.cleaned_data['new_status']
         self.cleaned_data['imagine'].save()
-        
-        return HttpResponse(self.construct_json_response(result = True, imagine = self.cleaned_data['imagine']))
-    
+
+        return HttpResponse(self.construct_json_response(result=True, imagine=self.cleaned_data['imagine']))
+
     def construct_json_response(self, **kwargs):
-        json_dict = {"result" : kwargs.get("result", False), "new_status_string" : kwargs.get("imagine").get_published_status_display()}
+        json_dict = {"result": kwargs.get("result", False),
+                     "new_status_string": kwargs.get("imagine").get_published_status_display()}
         return simplejson.dumps(json_dict)
 
-class EvenimentCreate(CreateView):
+
+class EvenimentEditMixin(object):
+    participanti = ["lupisori", "temerari", "seniori", "exploratori", "adulti", "lideri"]
+
+    def update_counts(self, form):
+        counts = ParticipantiEveniment.objects.filter(eveniment=self.object)
+
+        participanti = self.participanti[:]
+        for c in counts:
+            key = None
+            if c.ramura_de_varsta is not None and c.ramura_de_varsta.slug in participanti:
+                key = c.ramura_de_varsta.slug
+            elif c.alta_categorie is not None and c.alta_categorie in participanti:
+                key = c.alta_categorie
+
+            if key and key in form.cleaned_data:
+                c.numar = form.cleaned_data.get(key)
+                c.save()
+                participanti.remove(key)
+
+        for c in participanti:
+            pe_data = dict(eveniment=self.object, numar=form.cleaned_data.get(c, 0))
+            try:
+                rdv = RamuraDeVarsta.objects.get(slug=c)
+                pe_data['ramura_de_varsta'] = rdv
+            except RamuraDeVarsta.DoesNotExist:
+                pe_data['alta_categorie'] = c
+
+            ParticipantiEveniment(**pe_data).save()
+
+    def get_participant_count_initial(self):
+        totals = {t: 0 for t in self.participanti}
+        if not hasattr(self, "object") or self.object is None:
+            return totals
+
+        counts = ParticipantiEveniment.objects.filter(eveniment=self.object)
+        for c in counts:
+            if c.ramura_de_varsta is not None and c.ramura_de_varsta.slug in self.participanti:
+                totals[c.ramura_de_varsta.slug] = c.numar
+            elif c.alta_categorie is not None and c.alta_categorie in self.participanti:
+                totals[c.alta_categorie] = c.numar
+        return totals
+
+    def handle_uploaded_file(self, f):
+        fname = f.name
+        if hasattr(self, 'object') and self.object is not None and self.object.id is not None:
+            fname += str(self.object.id) + "-" + fname
+
+        base_path = os.path.join("album", fname)
+        path = os.path.join(MEDIA_ROOT, base_path)
+        with open(path, 'wb+') as destination:
+            for chunk in f.chunks():
+                destination.write(chunk)
+
+        return base_path
+
+
+class EvenimentCreate(CreateView, EvenimentEditMixin):
     model = Eveniment
     form_class = EvenimentCreateForm
     template_name = "album/eveniment_form.html"
@@ -473,16 +585,31 @@ class EvenimentCreate(CreateView):
         self.centru_local = request.user.utilizator.membru.centru_local
         return super(CreateView, self).dispatch(request, *args, **kwargs)
 
+    def get_initial(self):
+        data = super(EvenimentCreate, self).get_initial()
+        data.update(self.get_participant_count_initial())
+        return data
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.centru_local = self.centru_local
+
+        if "cover_photo" in self.request.FILES:
+            path = self.handle_uploaded_file(self.request.FILES['cover_photo'])
+            cover_photo = Imagine(image=path)
+            cover_photo.save()
+            self.object.custom_cover_photo = cover_photo
+
         self.object.save()
+        self.update_counts(form)
+
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse("album:eveniment_detail", kwargs = {"slug": self.object.slug})
+        return reverse("album:eveniment_detail", kwargs={"slug": self.object.slug})
 
-class EvenimentUpdate(UpdateView):
+
+class EvenimentUpdate(UpdateView, EvenimentEditMixin):
     model = Eveniment
     form_class = EvenimentUpdateForm
     template_name = "album/eveniment_form.html"
@@ -491,12 +618,27 @@ class EvenimentUpdate(UpdateView):
     def dispatch(self, request, *args, **kwargs):
         return super(EvenimentUpdate, self).dispatch(request, *args, **kwargs)
 
+    def get_initial(self):
+        data = super(EvenimentUpdate, self).get_initial()
+        data.update(self.get_participant_count_initial())
+        return data
+
     def form_valid(self, form):
+        self.object = form.save(commit=False)
+        if "cover_photo" in self.request.FILES:
+            path = self.handle_uploaded_file(self.request.FILES['cover_photo'])
+            cover_photo = Imagine(image=path)
+            cover_photo.save()
+            self.object.custom_cover_photo = cover_photo
+        self.object.save()
+        self.update_counts(form)
+
         messages.success(self.request, u"Evenimentul a fost actualizat")
         return super(EvenimentUpdate, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse("album:eveniment_detail", kwargs = {"slug": self.object.slug})
+        return reverse("album:eveniment_detail", kwargs={"slug": self.object.slug})
+
 
 class EvenimentDelete(GenericDeleteView):
     model = Eveniment
@@ -508,9 +650,11 @@ class EvenimentDelete(GenericDeleteView):
     def get_success_url(self):
         return reverse("album:index")
 
+
 class EvenimentDetail(DetailView):
     model = Eveniment
     template_name = "album/eveniment_main_detail.html"
+
 
 class ImagineTagSearch(TemplateView):
     template_name = "album/tags_search.html"
@@ -518,14 +662,18 @@ class ImagineTagSearch(TemplateView):
     def get_context_data(self, **kwargs):
         tags = Tag.objects.all().annotate(num_times=Count("taggit_taggeditem_items")).order_by("-num_times")[:20]
         current = super(ImagineTagSearch, self).get_context_data(**kwargs)
-        current.update({"tags" : tags})
+        current.update({"tags": tags})
         return current
 
-class ImagineTagSearchJSON(JSONView):
-    _params = {"tags" : {"type" : "required"},
-               "limit" : {"type" : "optional"},
-               "offset" : {"type" : "optional"},
-               "authors" : {"type" : "optional"}}
+
+class ImagineSearchJSON(JSONView):
+    _params = {"tags": {"type": "optional"},
+               "limit": {"type": "optional"},
+               "offset": {"type": "optional"},
+               "authors": {"type": "optional"},
+               "eveniment": {"type": "optional"},
+               "zi": {"type": "optional"},
+               "ordering": {"type": "optional"}}
 
     def clean_limit(self, value):
         try:
@@ -534,12 +682,30 @@ class ImagineTagSearchJSON(JSONView):
         except Exception, e:
             raise ScoutFileAjaxException("Bad limit", original_exception=e)
 
+    def clean_ordering(self, value):
+        print "here"
+        print value
+        print "here"
+        return value
+
     def clean_offset(self, value):
         try:
             offset = int(value)
             return offset if offset > 0 else 0
         except Exception, e:
             raise ScoutFileAjaxException("Bad offset", original_exception=e)
+
+    def clean_eveniment(self, value):
+        try:
+            return Eveniment.objects.get(id=int(value))
+        except Exception, e:
+            raise ScoutFileAjaxException(u"Nu există evenimentul", original_exception=e)
+
+    def clean_zi(self, value):
+        try:
+            return ZiEveniment.objects.get(id=int(value))
+        except Exception, e:
+            raise ScoutFileAjaxException(u"Nu există ziua pentru eveniment", original_exception=e)
 
     def clean_tags(self, value):
         return parse_tags(value)
@@ -550,8 +716,25 @@ class ImagineTagSearchJSON(JSONView):
     def post(self, request, *args, **kwargs):
         self.validate(**self.parse_json_data())
 
-        qs = Imagine.objects.filter(tags__name__in=self.cleaned_data['tags'])
-        qs = qs.order_by("-data")
+        qs = Imagine.objects.all()
+        if "tags" in self.cleaned_data:
+            qs = qs.filter(tags__name__in=self.cleaned_data['tags'])
+        if "eveniment" in self.cleaned_data:
+            qs = qs.filter(set_poze__eveniment=self.cleaned_data['eveniment'])
+        if "zi" in self.cleaned_data:
+            qs = qs.filter(id__in=[p.id for p in self.cleaned_data['zi'].filter_photos(user=request.user)])
+        if "authors" in self.cleaned_data:
+            qs = qs.filter(set_poze__autor__icontains=self.cleaned_data['authors'])
+
+        qs = Imagine.filter_visibility(qs, request.user)
+
+        if self.cleaned_data.get("ordering", "desc") == "desc":
+            qs = qs.order_by("-data")
+        elif self.cleaned_data.get("ordering") == "asc":
+            qs = qs.order_by("data")
+
+        #   limit users to access only available photos
+        # qs = qs.filter(published_status__lt=self.eveniment.get_visibility_level(request.user))
 
         limit = self.cleaned_data.get("limit", 10)
         offset = self.cleaned_data.get("offset", 0)
@@ -562,15 +745,132 @@ class ImagineTagSearchJSON(JSONView):
         return HttpResponse(self.construct_json_response(queryset=qs, total_count=total_count))
 
     def imagine_to_json(self, imagine):
-        return {"id" : imagine.id,
-                "url_thumb" : imagine.get_thumbnail_url(),
-                "url_detail" : reverse("album:poza_detail", kwargs = {"pk" : imagine.id}),
-                }
-    
+        return {"id": imagine.id,
+                "url_thumb": imagine.get_thumbnail_url(),
+                "url_detail": reverse("album:poza_detail", kwargs={"pk": imagine.id}),
+                "url_detail_img": imagine.get_large_url(),
+                "titlu": u"%s - %s" % (imagine.set_poze.eveniment.nume, imagine.titlu),
+                "descriere": imagine.descriere or "",
+                "autor": imagine.set_poze.get_autor(),
+                "data": imagine.data.strftime("%d %B %Y %H:%M:%S"),
+                "tags": [t.name for t in imagine.tags.all()[:10]],
+                "rotate_url": reverse("album:poza_rotate", kwargs={"pk": imagine.id}),
+                "published_status_display": imagine.get_published_status_display(),
+                "flag_url": reverse("album:poza_flag", kwargs={"pk": imagine.id}),
+                "score": imagine.score,
+
+        }
+
     def construct_json_response(self, queryset, total_count, **kwargs):
-        response_json = {"data" : [self.imagine_to_json(im) for im in queryset],
-                         "offset" : self.cleaned_data['offset'],
-                         "limit" : self.cleaned_data['limit'],
-                         "count" : queryset.count(),
-                         "total_count" : total_count}
-        return dumps(response_json)    
+        response_json = {"data": [self.imagine_to_json(im) for im in queryset],
+                         "offset": self.cleaned_data['offset'],
+                         "limit": self.cleaned_data['limit'],
+                         "count": queryset.count(),
+                         "total_count": total_count,
+        }
+        return dumps(response_json)
+
+
+class ZiDetailBeta(DetailView):
+    model = ZiEveniment
+    template_name = "album/zi_detail_infinite.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.GET.has_key("autor"):
+            self.autor = request.GET['autor']
+        else:
+            self.autor = None
+        return super(ZiDetailBeta, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, *args, **kwargs):
+        current = super(ZiDetailBeta, self).get_context_data(*args, **kwargs)
+
+        current.update({"autor": self.autor,
+                        "visibility_states": IMAGINE_PUBLISHED_STATUS})
+
+        centru_local = self.object.eveniment.centru_local
+        calitate = TipAsociereMembruStructura.objects.get(nume__iexact=u"Păstrător al amintirilor", content_types__in=[
+            ContentType.objects.get_for_model(centru_local)])
+        if self.request.user.is_authenticated() and (self.request.user.get_profile().membru.are_calitate(calitate,
+                                                                                                         centru_local) or self.request.user.is_superuser):
+            current.update({"media_manager": True})
+
+        return current
+
+
+class RaportEvenimentUpdate(UpdateView):
+    form_class = RaportEvenimentForm
+    template_name = "album/eveniment_raport_form.html"
+    model = RaportEveniment
+
+    def dispatch(self, request, *args, **kwargs):
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+
+        #TODO: trateaza cazul cu mai multe leaf-uri
+        self.raport_nou = False
+        if self.eveniment.raporteveniment_set.exists():
+            kwargs['pk'] = self.eveniment.raporteveniment_set.all()[0].id
+        else:
+            self.object = self.create_raport(request)
+            self.raport_nou = True
+            kwargs['pk'] = self.object.id
+        return super(RaportEvenimentUpdate, self).dispatch(request, *args, **kwargs)
+
+    def create_raport(self, request):
+        raport_data = {"eveniment": self.eveniment,
+                       "editor": request.user.get_profile().membru,
+                       "is_leaf": True,
+                       "is_locked": False}
+        raport = RaportEveniment(**raport_data)
+        raport.save()
+        return raport
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.editor = self.request.user.get_profile().membru
+        if self.raport_nou is True:
+            self.object.save()
+        else:
+            self.object.save_new_version(user=self.request.user)
+        messages.success(self.request, u"Raportul a fost salvat!")
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("album:eveniment_detail", kwargs={"slug": self.eveniment.slug})
+
+    def get_context_data(self, **kwargs):
+        data = super(RaportEvenimentUpdate, self).get_context_data(**kwargs)
+        data['eveniment'] = self.eveniment
+        return data
+
+
+class RaportEvenimentDetail(DetailView):
+    model = Eveniment
+    template_name = "album/eveniment_raport_detail.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        #self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+        return super(RaportEvenimentDetail, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        data = super(RaportEvenimentDetail, self).get_context_data(**kwargs)
+        if self.object.raporteveniment_set.exists():
+            data['raport'] = self.object.raporteveniment_set.all()[0]
+        return data
+
+
+class RaportEvenimentHistory(ListView):
+    model = RaportEveniment
+    template_name = "album/eveniment_raport_history.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+        return super(RaportEvenimentHistory, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return RaportEveniment.objects.version_history(eveniment=self.eveniment)
+
+    def get_context_data(self, **kwargs):
+        data = super(RaportEvenimentHistory, self).get_context_data(**kwargs)
+        data['eveniment'] = self.eveniment
+        return data

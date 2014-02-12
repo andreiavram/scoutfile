@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load tab_tags %}
+
+{% block page_title %}
+    {{ object }} - adaugă document
+{% endblock %}
+
+{% block context_menu %}
+    <ul class="nav nav-list">
+        <li class="nav-header">Locații</li>
+        <li><a href="{% url structuri:membru_detail pk=object.id %}#documente"><i class="icon-chevron-left"></i> Înapoi
+            la documente</a></li>
+    </ul>
+{% endblock %}
+
+{% block content %}
+        <div class = "document-list">
+        <a href="{% url structuri:membru_cotizatiesociala_adauga pk=object.id %}"><strong><i class="icon-file"></i>
+            Declarație cotizație socială</strong></a>
+            <br />
+            Conform procedurii ONCR, pentru cazurile în care Consiliul Centrului
+            Local a aprobat măsura cotizației sociale (folosit în calculul cotizației).
+            <br /><span class = "label label-warning"><i class = "icon-bell icon-white"></i> Atenție! </span> tipul acesta de document influențează comportarea aplicației pentru acest membru!
+       </div>
+
+{% endblock %}

@@ -1,0 +1,26 @@
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Acțiuni</li>
+		<li><a href = "{% url structuri:cl_edit pk=object.id %}"><i class = "icon-pencil"></i> Modifică</a>
+        <li><a href = "{% url structuri:cl_edit_special pk=object.id %}"><i class = "icon-pencil"></i> Modifică (special)</a></li>
+		<li><a href=  "{% url structuri:cl_delete pk=object.id %}"><i class = "icon-trash"></i> Șterge</a>
+		
+		
+		<li class = "nav-header">Locații</li>
+		<li><a href = "{% url structuri:cl_membri pk=object.id %}"><i class = "icon-user"></i> Membri</a></li>
+		
+		<li class = "nav-header">Membri</li>
+		<li><a href = "{% url structuri:cl_membru_add pk=object.id %}"><i class = "icon-user"></i> Adaugă membru</a></li>
+		<li><a href = "{% url structuri:cl_lider_add pk=object.id %}"><i class = "icon-user"></i> Adaugă lider</a></li>
+		
+
+		<li class = "nav-header">Documente</li>
+        <li><a href = "{% url documente:registre pk=object.id %}"><i class = "icon-book"></i> Registre</a></li>
+        <li><a href = "{% url documente:selectie_document pk=object.id %}"><i class = "icon-file"></i> Adaugă document</a></li>
+        <li><a href = "{% url documente:cotizatii_centru_local pk=object.id %}"><i class = "icon-money"></i> Cotizații</a></li>
+		{% comment %}
+		<li><a href = "{% url structuri:cl_cotizatii pk=object.id %}"><i class = "icon-file"></i> Cotizații</a></li>
+		<li><a href = "{% url structuri:cl_numere pk=object.id %}"><i class = "icon-file"> Registre</i></a></li>
+		<li><a href = "{% url structuri:cl_altele pk=object.id %}"><i class = "icon-file"> Altele</i></a></li>
+		{% endcomment %}
+			
+	</ul>

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load pagination_tags %}
-
+{% load staticfiles %}
 {% block page_title %}
     Căutare după tag-uri
 {% endblock %}
@@ -10,12 +10,14 @@
 {% endblock %}
 
 {% block extrahead %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}generic/css/tagmanager.css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}goodies/css/tagmanager.css"/>
 {% endblock %}
 
 {% block extrajs %}
-    <script src="{{ STATIC_URL }}generic/js/typeahead.js"></script>
-    <script src="{{ STATIC_URL }}generic/js/tagmanager.js"></script>
+    <script src="{{ STATIC_URL }}goodies/js/typeahead.js"></script>
+    <script src="{{ STATIC_URL }}goodies/js/tagmanager.js"></script>
+    <script src="{% static "js/underscore-min.js" %}"></script>
+    {% include "album/imagine_handlers.html" %}
     <script>
         $(document).ready(function () {
             $(".tm-input").each(function (index) {
@@ -62,31 +64,19 @@
         var offset = 0;
         var limit = 9;
         var stop_flag = true;
+        var crt_cnt = 0;
 
-        function get_photos() {
-            stop_flag = true;
-            $.post("{% url album:tag_search_json %}",
-                    {"offset": offset, "limit": limit, "tags": $("[name='tags']").val(), "csrfmiddlewaretoken": "{{ csrf_token }}"},
-                    function (data) {
-                        $("#msg").html("<i class = 'icon-search'></i> Am găsit " + data.total_count + " imagini tag-uite cu <strong>" + $("[name='tags']").val() + "</strong>, cele mai recente mai sus");
+        function on_data_return(data) {
+            $("#msg").html("<i class = 'icon-search'></i> Am găsit " + data.total_count + " imagini tag-uite cu <strong>" + $("[name='tags']").val() + "</strong>, cele mai recente mai sus");
+        }
 
-                        $.each(data.data, function (index, element) {
-                            $("#rezultate-list").append(' \
-                                <li class="span3" style="position: relative;"> \
-                                    <a href="' + element.url_detail + '" class="thumbnail"> \
-                                        <img src="' + element.url_thumb + '"> \
-                                    </a> \
-                                </li>');
 
-                        });
-                        offset += data.count;
-                        if (offset < data.total_count) {
-                            stop_flag = false;
-                        } else {
-                            stop_flag = true;
-                        }
-                    }, "json");
-
+        function get_request_data() {
+            return {"offset": offset,
+                "limit": limit,
+                "tags": $("[name='tags']").val(),
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                "ordering": "desc"};
         }
     </script>
 {% endblock %}
@@ -96,7 +86,7 @@
     <form class="form-inline" id="tags-search-form">
         <fieldset>
             <input id="id_tags"
-                   data-field-name="tags" data-ajax-url="{% url generic:tag_list %}" type="text" name="tags_edit"
+                   data-field-name="tags" data-ajax-url="{% url goodies:tag_list %}" type="text" name="tags_edit"
                    placeholder="scrie tag-uri aici" class="tm-input" style="margin-bottom: 0px;"/>
             <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i> Caută</button>
             <br/><br/>

@@ -4,6 +4,7 @@
 		<tr>
 			<th>#</th>
 			<th>&nbsp;</th>
+            <th>&nbsp;</th>
 			<th>&nbsp;</th>
 			<th>Nume</th>
 			<th>Membru de la</th>
@@ -15,6 +16,16 @@
 		{% for object in object_list %}
 		<tr id = "row_{{ object.id }}">
 			<td>{{ forloop.counter }}</td>
+            <td>{% with object.membru.status_cotizatie_numeric as status %}
+                {% if status <= 0 %}
+                    <i class = "icon-ok" style = "color:green"></i>
+                {% else %}
+                    {% if status > 1 %}
+                        <i class = "icon-remove" style = "color:red"></i>
+                     {% else %}
+                        <i class = "icon-warning-sign" style="color:#ffaf24"></i>
+                    {% endif %}
+            {% endif %}{% endwith %}</td>
 			<td><ul class = "unstyled">{% for badge in object.membru.get_badges_rdv %}
 				<li><img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" /></li>
 				
@@ -31,6 +42,9 @@
 						 {{ afiliere.tip_asociere }} {% if afiliere.content_type.name != "Centru Local" %}({{ afiliere.content_object }}){% endif %}</li>
 					{% endif %}
 				{% endfor %}
+                {% if not object.membru.are_adeziune %}
+                    <a style="color: red" href = "{% url documente:adeziune_add pk=object.membru.id %}"><i class = "icon-warning-sign"></i> Nu are adeziune</a>
+                {% endif %}
 				</ul>
 			</td>
 			<td>    

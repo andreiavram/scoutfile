@@ -1,5 +1,6 @@
 #coding: utf8
 from django.conf.urls.defaults import patterns
+from documente.views import DeclaratieCotizatieSocialaAdauga, DeclaratieCotizatieSocialaModifica, MembruAlteDocumente
 from structuri.views import CentruLocalCreate, CentruLocalUpdate,\
     CentruLocalDetail, CentruLocalList, CentruLocalMembruCreate,\
     CentruLocalMembruAsociaza, CentruLocalTabBrief, CentruLocalTabUnitati,\
@@ -21,11 +22,12 @@ from structuri.views import CentruLocalCreate, CentruLocalUpdate,\
     MembruAddFamilie, MembruEditFamilie, MembruTabFamilie,\
     MembruPersoanaDeContactCreate, MembruPersoanaDeContactUpdate,\
     MembriForPatrocle, MembruDestinatarRepr, PersoanaContactDestinatarRepr,\
-    MembriFaraAfilieri, GetSpeedList, MembruTabDocumente
+    MembriFaraAfilieri, GetSpeedList, MembruTabDocumente, SetariSpecialeCentruLocal, MembruConfirmaFacebook
 
 urlpatterns = patterns('structuri.views',
     (r'centrulocal/adauga/$', CentruLocalCreate.as_view(), {}, "cl_add"),
     (r'centrulocal/(?P<pk>\d+)/schimba/$', CentruLocalUpdate.as_view(), {}, "cl_edit"),
+    (r'centrulocal/(?P<pk>\d+)/schimba/special/$', SetariSpecialeCentruLocal.as_view(), {}, "cl_edit_special"),
     (r'centrulocal/(?P<pk>\d+)/$', CentruLocalDetail.as_view(), {}, "cl_detail"),
     (r'centrulocal/list/$', CentruLocalList.as_view(), {}, "cl_list"),
     (r'centrulocal/(?P<pk>\d+)/sterge/$', CentruLocalDelete.as_view(), {}, "cl_delete"),
@@ -87,7 +89,7 @@ urlpatterns = patterns('structuri.views',
     (r'membru/(?P<pk>\d+)/tab/istoric/$', MembruTabIstoric.as_view(), {}, "membru_tab_istoric"),
     (r'membru/(?P<pk>\d+)/tab/contact/$', MembruTabContact.as_view(), {}, "membru_tab_contact"),
     (r'membru/(?P<pk>\d+)/tab/familie/$', MembruTabFamilie.as_view(), {}, "membru_tab_familie"),
-    (r'membru/(?P<pk>\d+)/tab/documene/$', MembruTabDocumente.as_view(), {}, "membru_tab_documente"),
+    (r'membru/(?P<pk>\d+)/tab/documente/$', MembruTabDocumente.as_view(), {}, "membru_tab_documente"),
     
     (r'membru/(?P<pk>\d+)/contact/add/$', MembruContactCreate.as_view(), {}, "membru_contact_add"),
     (r'membru/contact/(?P<pk>\d+)/edit/$', MembruContactUpdate.as_view(), {}, "membru_contact_edit"),
@@ -113,6 +115,12 @@ urlpatterns = patterns('structuri.views',
     (r'membru/(?P<mpk>\d+)/(?P<pk>\d+)/familie/edit/$', MembruEditFamilie.as_view(), {}, "membru_edit_familie"),
     (r'membru/(?P<pk>\d+)/pdc/adauga/$', MembruPersoanaDeContactCreate.as_view(), {}, "membru_add_pdc"),
     (r'membru/(?P<mpk>\d+)/pdc/(?P<pk>\d+)/edit/$', MembruPersoanaDeContactUpdate.as_view(), {}, "membru_edit_pdc"),
+
+    (r'membru/(?P<pk>\d+)/alte_documente/$', MembruAlteDocumente.as_view(), {}, "membru_alte_documente"),
+    (r'membru/(?P<pk>\d+)/cotizatie-sociala/adauga/$', DeclaratieCotizatieSocialaAdauga.as_view(), {}, "membru_cotizatiesociala_adauga"),
+    (r'membru/cotizatie-sociala/(?P<pk>\d+)/modifica/$', DeclaratieCotizatieSocialaModifica.as_view(), {}, "membru_cotizatiesociala_modifica"),
+
+    (r'membru/fb/confirm/$', MembruConfirmaFacebook.as_view(), {}, "membru_confirma_facebook"),
 
 
     (r'ajax/membri/list/$', MembriForPatrocle.as_view(), {}, "ajax_patrocle_membri"),   

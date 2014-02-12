@@ -23,7 +23,7 @@ function generic_delete_{{ prefix }}(event) {
 	
 	if (confirm("Sunteți sigur că vreți să ștergeți această înregistrare?")) {
 		console.log(id_html);
-		Dajaxice.scoutfile3.generic.delete_action(Dajax.process, {"obj_id" : id_html[1], "obj_ctype_id" : ctype_id, "prefix" : "{{ prefix }}"});
+		Dajaxice.generic.delete_action(Dajax.process, {"obj_id" : id_html[1], "obj_ctype_id" : ctype_id, "prefix" : "{{ prefix }}"});
 	};
 	
 	event.preventDefault();
