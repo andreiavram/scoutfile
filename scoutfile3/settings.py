@@ -317,3 +317,4 @@ AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',
                            'utils.auth_backends.FacebookBackend',
 )
 
+CRISPY_TEMPLATE_PACK="bootstrap"
