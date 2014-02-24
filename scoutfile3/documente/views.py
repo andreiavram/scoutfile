@@ -17,11 +17,14 @@ import logging
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.views.generic.base import TemplateView
-from goodies.views import JSONView
+from goodies.views import JSONView, ContextMenuMixin
 from django.contrib import messages
 
-from documente.forms import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm, DecizieCuantumCotizatieForm, TransferIncasariForm, AdeziuneUpdateForm, AdeziuneCreateForm
-from documente.models import DocumentCotizatieSociala, AsociereDocument, Registru, REGISTRU_TIPURI, DecizieCotizatie, PlataCotizatieTrimestru, ChitantaCotizatie, Adeziune, Chitanta
+from documente.forms import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm, DecizieCuantumCotizatieForm, TransferIncasariForm, AdeziuneUpdateForm, AdeziuneCreateForm, \
+    DecizieGeneralaForm, DecizieGeneralaUpdateForm
+from documente.menus import DecizieContextMenu
+from documente.models import DocumentCotizatieSociala, AsociereDocument, Registru, REGISTRU_TIPURI, DecizieCotizatie, PlataCotizatieTrimestru, ChitantaCotizatie, Adeziune, Chitanta, \
+    Decizie
 from documente.models import Document
 from documente.forms import DocumentCreateForm, FolderCreateForm, \
     CotizatieMembruForm
@@ -357,6 +360,7 @@ class RegistruUpdate(UpdateView):
     def get_success_url(self):
         return reverse("documente:registru_detail", kwargs={"pk" : self.object.id})
 
+
 class RegistruDetail(DetailView):
     template_name = "documente/registru_detail.html"
     model = Registru
@@ -364,6 +368,7 @@ class RegistruDetail(DetailView):
     # TODO: add permissions check for this
     def dispatch(self, request, *args, **kwargs):
         return super(RegistruDetail, self).dispatch(request, *args, **kwargs)
+
 
 class SelectieAdaugareDocument(TemplateView):
     template_name = "documente/centru_local_adauga_documente.html"
@@ -379,12 +384,70 @@ class SelectieAdaugareDocument(TemplateView):
         data.update({"centru_local" : self.centru_local})
         return data
 
+
+class DecizieGeneralaAdauga(CreateView, ContextMenuMixin):
+    model = Decizie
+    form_class = DecizieGeneralaForm
+    template_name = "documente/decizie_generala_form.html"
+    context_menu = DecizieContextMenu
+
+    #   TODO: add permission checks for this (only secretarul CCL?)
+    def dispatch(self, request, *args, **kwargs):
+        from structuri.models import CentruLocal
+        self.centru_local = get_object_or_404(CentruLocal, id=kwargs.pop("pk"))
+        return super(DecizieGeneralaAdauga, self).dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self, **kwargs):
+        data = super(DecizieGeneralaAdauga, self).get_form_kwargs()
+        data["centru_local"] = self.centru_local
+        return data
+
+    def get_context_menu_data(self, **kwargs):
+        data = super(DecizieGeneralaAdauga, self).get_context_menu_data(**kwargs)
+        data['centru_local'] = self.centru_local
+        return data
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.centru_local = self.centru_local
+        self.object.uploader = self.request.user
+        self.object.titlu = form.cleaned_data['titlu'] if 'titlu' in form.cleaned_data else "Decizie"
+        self.object.data_inregistrare = datetime.date.today()
+        self.object.save()
+
+    def get_success_url(self):
+        return reverse("documente:registru_detail", kwargs={"pk": self.object.registru.id})
+
+    def get_context_data(self, **kwargs):
+        data = super(DecizieGeneralaAdauga, self).get_context_data(**kwargs)
+        data['centru_local'] = self.centru_local
+        return data
+
+
+class DecizieGeneralaModifica(UpdateView):
+    model = Decizie
+    form_class = DecizieGeneralaUpdateForm
+    template_name = "documente/decizie_generala_form.html"
+
+    #   TODO: add permissions checks for this
+    def dispatch(self, request, *args, **kwargs):
+        return super(DecizieGeneralaModifica, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=True)
+        messages.success(self.request, u"Decizie salvată")
+        return super(DecizieGeneralaModifica, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse("documente:registru_detail", kwargs={"pk": self.object.registru.id})
+
+
 class DecizieCuantumAdauga(CreateView):
     model = DecizieCotizatie
     form_class = DecizieCuantumCotizatieForm
     template_name = "documente/decizie_cuantum_cotizatie_form.html"
 
-    # TODO: add permission checks for this
+    # TODO: add permission checks for this (only membrii CCL)
     def dispatch(self, request, *args, **kwargs):
         from structuri.models import CentruLocal
         self.centru_local = get_object_or_404(CentruLocal, id=kwargs.pop("pk"))
@@ -392,7 +455,7 @@ class DecizieCuantumAdauga(CreateView):
 
     def get_form_kwargs(self, **kwargs):
         data = super(DecizieCuantumAdauga, self).get_form_kwargs(**kwargs)
-        data.update({"centru_local" : self.centru_local})
+        data.update({"centru_local": self.centru_local})
         return data
 
     def form_valid(self, form):
@@ -421,7 +484,7 @@ class DecizieCuantumAdauga(CreateView):
 
     def get_context_data(self, **kwargs):
         data = super(DecizieCuantumAdauga, self).get_context_data(**kwargs)
-        data.update({"centru_local" : self.centru_local})
+        data.update({"centru_local": self.centru_local})
         return data
 
 #class DecizieCuantumEdit(UpdateView):

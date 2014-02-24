@@ -1,6 +1,7 @@
 #coding: utf8
 from django.conf.urls.defaults import patterns
-from documente.views import DeclaratieCotizatieSocialaAdauga, CentruLocalRegistre, RegistruCreate, RegistruUpdate, RegistruDetail, SelectieAdaugareDocument, DecizieCuantumAdauga, DecizieCuantumDetail, CalculeazaAcoperireCotizatie, CotizatiiCentruLocal, CotizatiiLider, PreiaIncasariCasier, AdeziuneMembruModifica, AdeziuneMembruAdauga, ChitantaPrintare
+from documente.views import DeclaratieCotizatieSocialaAdauga, CentruLocalRegistre, RegistruCreate, RegistruUpdate, RegistruDetail, SelectieAdaugareDocument, DecizieCuantumAdauga, DecizieCuantumDetail, CalculeazaAcoperireCotizatie, CotizatiiCentruLocal, CotizatiiLider, PreiaIncasariCasier, AdeziuneMembruModifica, AdeziuneMembruAdauga, ChitantaPrintare, \
+    DecizieGeneralaAdauga, DecizieGeneralaModifica
 from documente.views import CotizatieMembruAdauga
 
 urlpatterns = patterns('structuri.views',
@@ -26,4 +27,7 @@ urlpatterns = patterns('structuri.views',
        (r'cotizatii/preia/(?P<pk>\d+)/$', PreiaIncasariCasier.as_view(), {}, "transfer_cotizatii"),
 
        (r'chitanta/(?P<pk>\d+)/print/$', ChitantaPrintare.as_view(), {}, "chitanta_print"),
+
+       (r'(?P<pk>\d+)/decizie/adauga/$', DecizieGeneralaAdauga.as_view(), {}, "centru_local_decizie_adauga"),
+       (r'decizie/(?P<pk>\d+)/modifica/$', DecizieGeneralaModifica.as_view(), {}, "centru_local_decizie_modifica"),
 )
