@@ -316,3 +316,4 @@ FACEBOOK_ERROR_URL = "login"
 AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',
                            'utils.auth_backends.FacebookBackend',
 )
+
