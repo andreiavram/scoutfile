@@ -287,6 +287,14 @@ class Membru(Utilizator):
         return super(Membru, self).save(*args, **kwargs)
 
     @property
+    def adresa_postala(self):
+        try:
+            return InformatieContact.objects.filter(content_type=ContentType.objects.get(self), object_id=self.id,
+                                                 tip_informatie__nume__iexact=u"adresă corespondență").valoare
+        except Exception, e:
+            return self.adresa
+
+    @property
     def centru_local(self):
         return self.get_centru_local()
 
@@ -750,4 +758,3 @@ class InformatieContact(models.Model):
 
     def __unicode__(self):
         return "%s: %s" % (self.tip_informatie.nume, self.valoare)
-    
