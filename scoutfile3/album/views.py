@@ -614,7 +614,7 @@ class EvenimentUpdate(UpdateView, EvenimentEditMixin):
     form_class = EvenimentUpdateForm
     template_name = "album/eveniment_form.html"
 
-    @allow_by_afiliere([("Centru Local", "Lider")])
+    @allow_by_afiliere([("Eveniment, Centru Local", "Lider")])
     def dispatch(self, request, *args, **kwargs):
         return super(EvenimentUpdate, self).dispatch(request, *args, **kwargs)
 
