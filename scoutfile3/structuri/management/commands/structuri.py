@@ -30,7 +30,7 @@ class Command(BaseCommand):
                 continue
 
             ic = InformatieContact(content_type=ContentType.objects.get_for_model(membru), object_id=membru.id,
-                                   tip_infomatie=TipInformatieContact.objects.get(nume__iexact=u"Adresă corespondență", relevanta="Membru"),
+                                   tip_informatie=TipInformatieContact.objects.get(nume__iexact=u"Adresă corespondență", relevanta="Membru"),
                                    valoare=membru.adresa, data_start=datetime.datetime.now())
             ic.save()
             total += 1
