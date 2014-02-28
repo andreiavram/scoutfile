@@ -29,7 +29,7 @@ class Command(BaseCommand):
             if adrese.count():
                 continue
 
-            ic = InformatieContact(content_type=ContentType.objects.get(membru), object_id=membru.id,
+            ic = InformatieContact(content_type=ContentType.objects.get_for_model(membru), object_id=membru.id,
                                    tip_infomatie=TipInformatieContact.objects.get(nume__iexact=u"adresă coresponență"),
                                    valoare=membru.adresa, data_start=datetime.datetime.now())
             ic.save()
