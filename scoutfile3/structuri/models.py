@@ -289,8 +289,9 @@ class Membru(Utilizator):
     @property
     def adresa_postala(self):
         try:
-            return InformatieContact.objects.filter(content_type=ContentType.objects.get(self), object_id=self.id,
-                                                 tip_informatie__nume__iexact=u"adresă corespondență").valoare
+            return InformatieContact.objects.filter(content_type=ContentType.objects.get_for_model(self),
+                                                    object_id=self.id,
+                                                    tip_informatie__nume__iexact=u"Adresă corespondență").valoare
         except Exception, e:
             return self.adresa
 
