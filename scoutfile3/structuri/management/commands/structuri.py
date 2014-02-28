@@ -24,7 +24,7 @@ class Command(BaseCommand):
     def update_adrese(self, *args, **options):
         total = 0
         for membru in Membru.objects.all():
-            adrese = InformatieContact.objects.filter(content_type=ContentType.objects.get(membru), object_id=membru.id,
+            adrese = InformatieContact.objects.filter(content_type=ContentType.objects.get_for_model(membru), object_id=membru.id,
                                                  tip_informatie__nume__iexact=u"adresă corespondență")
             if adrese.count():
                 continue
