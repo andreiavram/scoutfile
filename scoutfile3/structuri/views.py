@@ -1327,10 +1327,10 @@ class UtilizatorEditProfile(UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
-        if self.object.email != self.user.username:
-            self.user.username = self.object.email
-            self.user.email = self.object.email
-            self.user.save()
+        if self.object.email != self.object.user.username:
+            self.object.user.username = self.object.email
+            self.object.user.email = self.object.email
+            self.object.user.save()
 
             if not DEBUG:
                 send_mail(u"Schimbare cont ScoutFile",

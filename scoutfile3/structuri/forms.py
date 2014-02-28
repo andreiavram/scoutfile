@@ -301,13 +301,14 @@ class ChangePasswordForm(CrispyBaseForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request')
         return super(ChangePasswordForm, self).__init__(*args, **kwargs)
-    
+
+
 class UtilizatorProfileForm(CrispyBaseModelForm):
     class Meta:
         model = Membru
         fields = ("email", "nume", "prenume", "cnp")
         
-    adresa = forms.CharField(widget = Textarea, required = True, label = u"Adresa poștală")
+    # adresa = forms.CharField(widget = Textarea, required = True, label = u"Adresa poștală")
     cnp = BetterROCNPField(label = u"CNP", required = True)
     
     def __init__(self, *args, **kwargs):
