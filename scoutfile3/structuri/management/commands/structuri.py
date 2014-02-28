@@ -33,3 +33,5 @@ class Command(BaseCommand):
                                    valoare=membru.adresa, data_start=datetime.datetime.now())
             ic.save()
             total += 1
+
+        self.stdout.write("total updates %d" % total)
