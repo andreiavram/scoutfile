@@ -1325,7 +1325,22 @@ class UtilizatorEditProfile(UpdateView):
         return self.request.user.get_profile().membru
 
     def form_valid(self, form):
-        self.object = form.save(commit=True)
+        self.object = form.save(commit=False)
+
+        if self.object.email != self.user.username:
+            self.user.username = self.object.email
+            self.user.email = self.object.email
+            self.user.save()
+
+            if not DEBUG:
+                send_mail(u"Schimbare cont ScoutFile",
+                          u"Utilizatorul tau pentru ScoutFile a fost schimbat pe această adresa.\n\nNumai bine,\nyeti",
+                          SERVER_EMAIL,
+                          [self.object.email, ])
+
+            messages.success(self.request, u"Numele tău de utilizator a fost schimbat")
+
+        self.object.save()
         messages.success(self.request, u"Datele tale de profil au fost salvate")
         return HttpResponseRedirect(self.get_success_url())
 
