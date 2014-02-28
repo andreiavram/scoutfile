@@ -1,15 +1,15 @@
 #coding: utf-8
 from django.contrib.contenttypes.models import ContentType
-from structuri.models import Membru, InformatieContact, TipInformatieContact
 
-__author__ = 'andrei'
+from scoutfile3.structuri.models import Membru, InformatieContact, TipInformatieContact
 
 import logging
 import datetime
+from django.core.management.base import BaseCommand
 
 logger = logging.getLogger(__name__)
 
-from django.core.management.base import BaseCommand
+
 
 
 class Command(BaseCommand):
