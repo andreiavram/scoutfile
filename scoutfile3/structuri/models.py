@@ -297,6 +297,18 @@ class Membru(Utilizator):
             return self.adresa
 
     @property
+    def mobil(self):
+        mobil_filters = dict(content_type=ContentType.objects.get_for_model(self),
+                             object_id=self.id,
+                             tip_informatie__nume__iexact=u"Adresă corespondență",
+                             tip_informatie__relevanta="Membru")
+
+        try:
+            return InformatieContact.objects.filter(**mobil_filters)[0].valoare
+        except Exception, e:
+            return self.telefon
+
+    @property
     def centru_local(self):
         return self.get_centru_local()
 
