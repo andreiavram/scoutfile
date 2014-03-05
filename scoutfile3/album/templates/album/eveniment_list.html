@@ -25,8 +25,8 @@
 					<p><strong>Conține {{ eveniment.total_poze }} fotografii de la {{ eveniment.get_autori|length }} fotografi <i class = "icon-star"></i>
 
 {#                        A început {{ eveniment.start_date|date:"l, d F Y" }} și a ținut până {{ eveniment.end_date|date:"l, d F Y" }}#}
-                    {% if object.is_one_day %}A avut loc pe {{ object.start_date|date:"l, d F Y" }}, între {{ object.start_date|date:"H:i" }} și {{ object.end_date|date:"H:i"}}
-                {% else %}A început {{ object.start_date|date:"l, d F Y" }} și a ținut până {{ object.end_date|date:"l, d F Y" }}{% endif %}
+                    {% if eveniment.is_one_day %}A avut loc pe {{ eveniment.start_date|date:"l, d F Y" }}, între {{ eveniment.start_date|date:"H:i" }} și {{ eveniment.end_date|date:"H:i"}}
+                {% else %}A început {{ eveniment.start_date|date:"l, d F Y" }} și a ținut până {{ eveniment.end_date|date:"l, d F Y" }}{% endif %}
 
 
                         <i class = "icon-star"></i> {% for autor in eveniment.get_autori %}<a href = "{% url album:eveniment_detail slug=eveniment.slug %}?autor={{ autor }}">{{ autor }}</a> <i class = 'icon-star'></i> {% endfor %}</strong></p>
