@@ -47,7 +47,7 @@ class EvenimentList(ListView):
 
 class AlbumEvenimentDetail(DetailView):
     model = Eveniment
-    template_name = "album/eveniment_detail.html"
+    template_name = "album/eveniment_album.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.autor = request.GET['autor'] if "autor" in request.GET else None
@@ -653,7 +653,7 @@ class EvenimentDelete(GenericDeleteView):
 
 class EvenimentDetail(DetailView):
     model = Eveniment
-    template_name = "album/eveniment_main_detail.html"
+    template_name = "album/eveniment_detail.html"
 
 
 class ImagineTagSearch(TemplateView):
@@ -717,21 +717,26 @@ class ImagineSearchJSON(JSONView):
         self.validate(**self.parse_json_data())
 
         qs = Imagine.objects.all()
+        ordering_strings = []
         if "tags" in self.cleaned_data:
             qs = qs.filter(tags__name__in=self.cleaned_data['tags'])
         if "eveniment" in self.cleaned_data:
+            ordering_strings.append("-score")
             qs = qs.filter(set_poze__eveniment=self.cleaned_data['eveniment'])
         if "zi" in self.cleaned_data:
             qs = qs.filter(id__in=[p.id for p in self.cleaned_data['zi'].filter_photos(user=request.user)])
         if "authors" in self.cleaned_data:
             qs = qs.filter(set_poze__autor__icontains=self.cleaned_data['authors'])
 
-        qs = Imagine.filter_visibility(qs, request.user)
 
+        qs = Imagine.filter_visibility(qs, request.user)
         if self.cleaned_data.get("ordering", "desc") == "desc":
-            qs = qs.order_by("-data")
+            ordering_strings.append("-data")
         elif self.cleaned_data.get("ordering") == "asc":
-            qs = qs.order_by("data")
+            ordering_strings.append("data")
+
+        if len(ordering_strings):
+            qs = qs.order_by(*ordering_strings)
 
         #   limit users to access only available photos
         # qs = qs.filter(published_status__lt=self.eveniment.get_visibility_level(request.user))
