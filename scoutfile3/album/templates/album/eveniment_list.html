@@ -25,7 +25,7 @@
 					<p><strong>Conține {{ eveniment.total_poze }} fotografii de la {{ eveniment.get_autori|length }} fotografi <i class = "icon-star"></i>
 
 {#                        A început {{ eveniment.start_date|date:"l, d F Y" }} și a ținut până {{ eveniment.end_date|date:"l, d F Y" }}#}
-                    {% if eveniment.is_one_day %}A avut loc pe {{ eveniment.start_date|date:"l, d F Y" }}, între {{ eveniment.start_date|date:"H:i" }} și {{ eveniment.end_date|date:"H:i"}}
+                    {% if eveniment.is_one_day %}A avut loc {{ eveniment.start_date|date:"l, d F Y" }}, între {{ eveniment.start_date|date:"H:i" }} și {{ eveniment.end_date|date:"H:i"}}
                 {% else %}A început {{ eveniment.start_date|date:"l, d F Y" }} și a ținut până {{ eveniment.end_date|date:"l, d F Y" }}{% endif %}
 
 
