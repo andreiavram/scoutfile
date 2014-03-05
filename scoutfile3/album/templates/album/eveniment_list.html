@@ -22,7 +22,7 @@
 				<div class = "span7" style = "position: relative">
 					<h2><a href = "{% url album:eveniment_detail slug=eveniment.slug %}">{{ eveniment }}</a></h2>
 					{% if eveniment.descriere %}<p>{{ eveniment.descriere|safe|truncatewords:50 }}</p>{% endif %}
-					<p><strong>Conține {{ eveniment.total_poze }} fotografii de la {{ eveniment.get_autori|length }} fotografi <i class = "icon-star"></i>
+					<p>{% if eveniment.total_poze != 0 %}<strong>Conține {{ eveniment.total_poze }} fotografii de la {{ eveniment.get_autori|length }} fotografi <i class = "icon-star"></i>{% endif %}
 
 {#                        A început {{ eveniment.start_date|date:"l, d F Y" }} și a ținut până {{ eveniment.end_date|date:"l, d F Y" }}#}
                     {% if eveniment.is_one_day %}A avut loc {{ eveniment.start_date|date:"l, d F Y" }}, între {{ eveniment.start_date|date:"H:i" }} și {{ eveniment.end_date|date:"H:i"}}
