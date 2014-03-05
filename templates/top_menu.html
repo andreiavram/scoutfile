@@ -4,11 +4,11 @@
 				<li><a href = "{% url structuri:cl_detail pk=request.user.get_profile.membru.centru_local.id %}"><i class = "icon-th"></i> Centru Local</a></li>
 			{% endif %}
 		{% endif %}
-		<li><a href = "{% url album:index %}"><i class = "icon-picture"></i> Album</a></li>
+		<li><a href = "{% url album:index %}"><i class = "icon-picture"></i> Evenimente</a></li>
 		{% if request.user.is_staff %}
-		<li><a href = ""><i class = "icon-book"></i> Cântece</a></li>
+		<li class = "disabled"><a href = ""><i class = "icon-book"></i> Cântece</a></li>
 		{% endif %}
-		<li><a href = "{% url patrocle:home %}"><i class = "icon-phone"></i> Patrocle</a></li>
+		<li class = "disabled"><a href = "{% url patrocle:home %}"><i class = "icon-phone"></i> Patrocle</a></li>
 	</ul>
 	
 	<ul class = 'nav pull-right'>
