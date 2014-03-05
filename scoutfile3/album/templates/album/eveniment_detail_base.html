@@ -116,8 +116,8 @@
         </div>
         <div class="span4" style="text-align: justify">
             {% if object.descriere %}{{ object.descriere|safe|linebreaks }}<br/>{% endif %}
-            <p><strong>Conține {{ object.total_poze }} fotografii de la {{ object.get_autori|length }} fotografi <i
-                    class="icon-star"></i>
+            <p>{% if object.total_poze != 0 %}<strong>Conține {{ object.total_poze }} fotografii de la {{ object.get_autori|length }} fotografi <i
+                    class="icon-star"></i>{% endif %}
                 {% if object.is_one_day %}A avut loc pe {{ object.start_date|date:"l, d F Y" }}, între {{ object.start_date|date:"H:i" }} și {{ object.end_date|date:"H:i"}}
                 {% else %}A început {{ object.start_date|date:"l, d F Y" }} și a ținut până {{ object.end_date|date:"l, d F Y" }}{% endif %}
                 <i
