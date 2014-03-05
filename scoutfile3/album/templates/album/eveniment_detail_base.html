@@ -148,36 +148,10 @@
 
     </div>
     <br/>
-{#    <div class="row-fluid">#}
-{#        {% if autor %}#}
-{#            <div class="alert alert-success">Arăt doar pozele de la <strong>{{ autor }}</strong></div>{% endif %}#}
-{##}
-{#    </div>#}
 
         {% block eveniment_content %}
         {% endblock %}
 
 
-{#    {% for zi, zi_photos in zile %}#}
-{#        <h2><a href="{% url album:zi_detail pk=zi.id %}{% if autor %}?autor={{ autor }}{% endif %}">Ziua#}
-{#            {{ zi.index }}{% if zi.titlu %} - {{ zi.titlu }}{% endif %} <i class="icon-chevron-right"#}
-{#                                                                           style="margin-top: 10px"></i></a>#}
-{#        </h2>#}
-{##}
-{#        {% if zi.descriere %}{{ zi.descriere|linebreaks|truncatewords:50 }}{% endif %}#}
-{#        <p style="font-weight: bold"><i#}
-{#                class="icon-star-empty"></i> {{ zi.date|date:"l, d F Y" }}, {{ zi.filter_photos.count }} fotografii, din care {{ zi.filter_public_photos.count }} publice.</p>#}
-{##}
-{#        <ul class="thumbnails">#}
-{#            {% for image in zi_photos|slice:":4" %}#}
-{#                <li class="span3">#}
-{#                    <a href="{% url album:poza_detail pk=image.id %}{% if autor %}?autor={{ autor }}{% endif %}"#}
-{#                       class="thumbnail">#}
-{#                        <img src="{{ image.get_thumbnail_url }}"/>#}
-{#                    </a>#}
-{#                </li>#}
-{#            {% endfor %}#}
-{#        </ul>#}
-{#    {% endfor %}#}
 
 {% endblock %}
