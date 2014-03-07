@@ -8,7 +8,8 @@ from django.core.exceptions import ValidationError
 from django.db.models.aggregates import Max
 #from django.db.models.fields import CharField
 from django.db.models.query_utils import Q
-from documente.models import DocumentCotizatieSociala, Registru, DecizieCotizatie, PlataCotizatieTrimestru, Adeziune
+from documente.models import DocumentCotizatieSociala, Registru, DecizieCotizatie, PlataCotizatieTrimestru, Adeziune, \
+    Decizie
 from goodies.widgets import BootstrapDateInput
 from goodies.forms import CrispyBaseModelForm, CrispyBaseForm
 from documente.models import Document, ChitantaCotizatie
@@ -177,15 +178,14 @@ class DecizieCuantumCotizatieForm(CrispyBaseModelForm):
     def clean(self):
         registru = self.cleaned_data['registru']
 
-        decizie_filter = {"centru_local" : self.centru_local,
-                          "categorie" : self.cleaned_data['categorie']}
+        decizie_filter = {"centru_local": self.centru_local,
+                          "categorie": self.cleaned_data['categorie']}
 
         if "data_inceput" in self.cleaned_data:
             decizii_existente = DecizieCotizatie.objects.filter(**decizie_filter).filter(
                 Q(data_sfarsit__isnull = True, data_inceput__gte = self.cleaned_data['data_inceput']) | Q(data_sfarsit__isnull = False, data_sfarsit__gte = self.cleaned_data['data_inceput']))
             if decizii_existente.count():
                 raise ValidationError(u"Decizia contravine unei decizii anterioare ({0})")
-
 
             if registru.mod_functionare == "auto":
                 if "numar_inregistrare" in self.cleaned_data:
@@ -198,6 +198,42 @@ class DecizieCuantumCotizatieForm(CrispyBaseModelForm):
                     raise ValidationError(u"Există deja un document cu acest număr de înregistrare în registrul selectat!")
 
         return self.cleaned_data
+
+
+class DecizieGeneralaForm(CrispyBaseModelForm):
+    class Meta:
+        model = Decizie
+        fields = ["titlu", "registru", "numar_inregistrare", "continut"]
+
+    titlu = CharField(required=False, label=u"Titlu")
+
+    def __init__(self, *args, **kwargs):
+        self.centru_local = kwargs.pop("centru_local", None)
+        super(DecizieGeneralaForm, self).__init__(*args, **kwargs)
+        registru_filter = {"valabil": True,
+                           "centru_local": self.centru_local,
+                           "tip_registru__in": Decizie.registre_compatibile}
+        self.fields["registru"].queryset = Registru.objects.filter(**registru_filter).order_by("-data_inceput")
+        self.fields["registru"].required = True
+
+    def clean(self):
+        registru = self.cleaned_data['registru']
+        if registru.mod_functionare == "auto":
+            if "numar_inregistrare" in self.cleaned_data:
+                try:
+                    self.cleaned_data['numar_inregistrare'] = registru.get_numar_inregistrare()
+                except ValueError, e:
+                    raise ValidationError(u"Nu s-a putut obține număr de înregistrare pentru decizie ({0})".format(e))
+        else:
+            if registru.get_document(self.cleaned_data['numar_inregistrare']):
+                raise ValidationError(u"Există deja un document cu acest număr de înregistrare în registrul selectat!")
+
+
+class DecizieGeneralaUpdateForm(CrispyBaseModelForm):
+    class Meta:
+        model = Decizie
+        fields = ["titlu", "continut"]
+
 
 class TransferIncasariForm(CrispyBaseForm):
     plati = CharField(widget=HiddenInput)

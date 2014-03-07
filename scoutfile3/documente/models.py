@@ -12,6 +12,7 @@ from settings import VALOARE_IMPLICITA_COTIZATIE_NATIONAL, VALOARE_IMPLICITA_COT
 
 # Create your models here.
 
+
 class Document(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
@@ -533,12 +534,16 @@ def delete_documentcotizatie(sender, instance, **kwargs):
 
 #   Implementare decizii
 class Decizie(Document):
+    registre_compatibile = ["intern", ]
+
+
     continut = models.TextField(null=True, blank=True)
     centru_local = models.ForeignKey("structuri.CentruLocal")
 
     def save(self, **kwargs):
         self.tip_document, created = TipDocument.objects.get_or_create(slug="decizie", nume="Decizie")
-        if created: self.tip_document.save()
+        if created:
+            self.tip_document.save()
         return super(Decizie, self).save(**kwargs)
 
 

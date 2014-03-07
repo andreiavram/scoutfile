@@ -1,4 +1,5 @@
 #coding: utf-8
+from django.conf.global_settings import SERVER_EMAIL
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth.models import User
@@ -855,6 +856,22 @@ class MembruUpdate(UpdateView):
     def dispatch(self, request, *args, **kwargs):
         return super(MembruUpdate, self).dispatch(request, *args, **kwargs)
 
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        if self.object.email != self.object.user.username:
+            self.object.user.email = self.object.email
+            self.object.user.username = self.object.email
+            self.object.user.save()
+
+            if not DEBUG:
+                send_mail(u"Schimbare cont ScoutFile",
+                          u"Utilizatorul tau pentru ScoutFile a fost schimbat pe această adresa.\n\nNumai bine,\nyeti",
+                          SERVER_EMAIL,
+                          [self.object.email, ])
+
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
     def get_success_url(self):
         return reverse("structuri:membru_detail", kwargs={"pk": self.object.id})
 
@@ -1308,7 +1325,22 @@ class UtilizatorEditProfile(UpdateView):
         return self.request.user.get_profile().membru
 
     def form_valid(self, form):
-        self.object = form.save(commit=True)
+        self.object = form.save(commit=False)
+
+        if self.object.email != self.object.user.username:
+            self.object.user.username = self.object.email
+            self.object.user.email = self.object.email
+            self.object.user.save()
+
+            if not DEBUG:
+                send_mail(u"Schimbare cont ScoutFile",
+                          u"Utilizatorul tau pentru ScoutFile a fost schimbat pe această adresa.\n\nNumai bine,\nyeti",
+                          SERVER_EMAIL,
+                          [self.object.email, ])
+
+            messages.success(self.request, u"Numele tău de utilizator a fost schimbat")
+
+        self.object.save()
         messages.success(self.request, u"Datele tale de profil au fost salvate")
         return HttpResponseRedirect(self.get_success_url())
 

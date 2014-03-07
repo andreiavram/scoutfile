@@ -4,3 +4,5 @@ media/*
 .project
 .pydevproject
 logs/*”
+components/*
+!components/components.index
