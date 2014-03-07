@@ -1,7 +1,7 @@
 	<ul class = "nav nav-list">
 		<li class = "nav-header">Evenimente</li>
 		<li><a href = "{% url album:index %}"><i class = "icon-picture"></i> <strong>Toate evenimentele</strong></a></li>
-        {% for eveniment in object_list %}
+        {% for eveniment in object_list|slice:":5" %}
             {% if eveniment.slug %}
             <li><a href = "{% url album:eveniment_detail slug=eveniment.slug %}"><i class = "icon-picture"></i> {{ eveniment }}</a></li>
             {% endif %}

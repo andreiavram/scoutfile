@@ -55,7 +55,7 @@ def allow_by_afiliere(asocieri, pkname = "pk", combine = False):
              "Afiliere, Membru, *, Patrula" : lambda : get_object_or_404(AsociereMembruStructura, id = kwargs.get(pkname)).get_structura(ContentType.objects.get_for_model(Patrula)),
              "InformatieContact, Centru Local" : lambda : get_object_or_404(InformatieContact, id = kwargs.get(pkname)).content_object,
              "InformatieContact, Membru, Centru Local" : lambda : get_object_or_404(InformatieContact, id = kwargs.get(pkname)).content_object.centru_local,
-             "Eveniment, Centru Local" : lambda: get_object_or_404(Eveniment, slug = kwargs.get(pkname)).centru_local,
+             "Eveniment, Centru Local" : lambda: get_object_or_404(Eveniment, slug=kwargs.get(pkname)).centru_local,
              "Utilizator, Centru Local" : lambda: args[0].user.utilizator.membru.centru_local,
              "Imagine, Centru Local" : lambda: get_object_or_404(Imagine, pk = kwargs.get(pkname)).set_poze.eveniment.centru_local,
              }
