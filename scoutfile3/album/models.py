@@ -33,7 +33,10 @@ class ParticipantiEveniment(models.Model):
 
 TIPURI_EVENIMENT = (("camp", "Camp"), ("intalnire", u"Întâlnire"), ("hike", "Hike"), ("social", "Proiect social"),
                     ("comunitate", u"Proiect de implicare în comunitate"), ("citychallange", u"City Challange"),
-                    ("international", u"Proiect internațional"), )
+                    ("international", u"Proiect internațional"), ("intalnire", u"Întâlnire"))
+
+
+STATUS_EVENIMENT = (("propus", u"Propus"), ("confirmat", u"Confirmat"), ("derulare", u"În derulare"), ("terminat", u"Încheiat"))
 
 
 class Eveniment(models.Model):
@@ -45,16 +48,18 @@ class Eveniment(models.Model):
     slug = models.SlugField(max_length=255, unique=True)
     custom_cover_photo = models.ForeignKey("Imagine", null=True, blank=True)
 
-    tip_eveniment = models.CharField(max_length=255, null=True, blank=True, choices=TIPURI_EVENIMENT)
+    tip_eveniment = models.CharField(default="propus", max_length=255, null=True, blank=True, choices=TIPURI_EVENIMENT)
     facebook_event_link = models.URLField(null=True, blank=True, verbose_name=u"Link eveniment Facebook", help_text=u"Folosește copy/paste pentru a lua link-ul din Facebook")
     articol_site_link = models.URLField(null=True, blank=True, verbose_name=u"Link articol site", help_text=u"Link-ul de la articolul de pe site-ul Centrului Local")
+
+    status = models.CharField(max_length=255, null=True, blank=True, choices=STATUS_EVENIMENT)
 
     locatie_text = models.CharField(max_length=1024, null=True, blank=True, verbose_name = u"Locație")
     #   TODO: implementează situatia în care evenimentul are mai mult de o singură locație
     locatie_geo = models.CharField(max_length=1024)
 
     #   TODO: add visibility settings to events
-    published_status = models.IntegerField(default=2, choices=IMAGINE_PUBLISHED_STATUS, verbose_name=u"Vizibilitate")
+    published_status = models.IntegerField(default      =2, choices=IMAGINE_PUBLISHED_STATUS, verbose_name=u"Vizibilitate")
 
 
     class Meta:
@@ -79,6 +84,10 @@ class Eveniment(models.Model):
         if self.raporteveniment_set.all().count():
             return self.raporteveniment_set.all()[0]
         return None
+
+    @property
+    def is_one_day(self):
+        return self.start_date.date() == self.end_date.date()
 
     def save(self, *args, **kwargs):
         on_create = False

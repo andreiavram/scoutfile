@@ -98,7 +98,9 @@ class LiderCreateForm(UnitateLiderCreateForm):
 class MembruUpdateForm(CrispyBaseModelForm):
     class Meta:
         model = Membru
-        fields = ["nume", "prenume", "cnp"]
+        fields = ["nume", "prenume", "cnp", "email"]
+
+    email = forms.EmailField(label=u"Email", help_text=u"Schimbarea email-ului aici implicâ schimbarea utilizatorului!")
         
         
 class CentruLocalCreateForm(CrispyBaseModelForm):
@@ -299,18 +301,19 @@ class ChangePasswordForm(CrispyBaseForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request')
         return super(ChangePasswordForm, self).__init__(*args, **kwargs)
-    
+
+
 class UtilizatorProfileForm(CrispyBaseModelForm):
     class Meta:
         model = Membru
-        fields = ("email", "nume", "prenume", "cnp", "telefon", "adresa")
+        fields = ("email", "nume", "prenume", "cnp")
         
-    adresa = forms.CharField(widget = Textarea, required = True, label = u"Adresa poștală")
+    # adresa = forms.CharField(widget = Textarea, required = True, label = u"Adresa poștală")
     cnp = BetterROCNPField(label = u"CNP", required = True)
     
     def __init__(self, *args, **kwargs):
         super(UtilizatorProfileForm, self).__init__(*args, **kwargs)
-        self.fields['email'].widget.attrs['readonly'] = True
+        # self.fields['email'].widget.attrs['readonly'] = True
         self.fields['cnp'].widget.attrs['readonly'] = True
         
 class UtilizatorProfilePictureForm(CrispyBaseModelForm):

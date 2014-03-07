@@ -71,7 +71,8 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'dajaxice.finders.DajaxiceFinder'
+    'dajaxice.finders.DajaxiceFinder',
+    'djangobower.finders.BowerFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -144,6 +145,7 @@ INSTALLED_APPS = (
     
     'raven.contrib.django.raven_compat',
     'django_extensions', 'gunicorn', 'goodies',
+    'djangobower',
 )
 
 
@@ -317,4 +319,10 @@ AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',
                            'utils.auth_backends.FacebookBackend',
 )
 
-CRISPY_TEMPLATE_PACK="bootstrap"
+CRISPY_TEMPLATE_PACK = "bootstrap"
+BOWER_COMPONENTS_ROOT = os.path.join(FILE_ROOT, "components")
+
+BOWER_INSTALLED_APPS = (
+    'jquery#1.9',
+    'underscore',
+)
