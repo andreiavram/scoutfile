@@ -50,7 +50,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = '%s/static/' % FILE_ROOT
+STATIC_ROOT = os.path.join(FILE_ROOT, "static")
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -64,6 +64,7 @@ STATICFILES_DIRS = (
     ("font", "%s/font" % STATIC_ROOT),
     ("jquery_upload", "%s/jquery_upload" % STATIC_ROOT),
     ("gallery", os.path.join(STATIC_ROOT, "gallery")),
+    ("bootstrap-calendar", os.path.join(STATIC_ROOT, "bootstrap-calendar")),
 )
 
 # List of finder classes that know how to find static files in
@@ -325,4 +326,5 @@ BOWER_COMPONENTS_ROOT = os.path.join(FILE_ROOT, "components")
 BOWER_INSTALLED_APPS = (
     'jquery#1.9',
     'underscore',
+    'bootstrap-calendar',
 )

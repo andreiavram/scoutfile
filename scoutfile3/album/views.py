@@ -1,5 +1,6 @@
 # coding: utf-8
 from django.db.models.aggregates import Count
+from django.db.models.query_utils import Q
 from django.utils.simplejson import dumps
 from django.views.generic.edit import UpdateView, CreateView
 from django.views.generic.detail import DetailView
@@ -24,9 +25,9 @@ from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEven
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm
 from album.models import SetPoze
 from album.forms import SetPozeCreateForm, SetPozeUpdateForm
-from goodies.views import GenericDeleteView
+from goodies.views import GenericDeleteView, CalendarViewMixin
 from settings import MEDIA_ROOT
-from structuri.models import Membru, RamuraDeVarsta
+from structuri.models import Membru, RamuraDeVarsta, CentruLocal
 from goodies.views import JSONView
 from generic.views import ScoutFileAjaxException
 from album.models import IMAGINE_PUBLISHED_STATUS
@@ -879,3 +880,36 @@ class RaportEvenimentHistory(ListView):
         data = super(RaportEvenimentHistory, self).get_context_data(**kwargs)
         data['eveniment'] = self.eveniment
         return data
+
+
+class CalendarCentruLocal(CalendarViewMixin, DetailView):
+    template_name = "album/calendar.html"
+    model = CentruLocal
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(CalendarCentruLocal, self).dispatch(request, *args, **kwargs)
+
+    def get_events_url(self):
+        return reverse("album:events_centru_local", kwargs={"pk": self.object.id})
+
+
+class CalendarEvents(ListView):
+    model = Eveniment
+    template_name = "album/json/events.json"
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        self.cl = get_object_or_404(CentruLocal, id=kwargs.pop("pk"))
+        if "from" not in request.GET or "to" not in request.GET:
+            return HttpResponseBadRequest("Need to have 'to' and 'from' data set!")
+        self.from_date = datetime.datetime.fromtimestamp(float(request.GET['from']) / 1000)
+        self.to_date = datetime.datetime.fromtimestamp(float(request.GET['to']) / 1000)
+        return super(CalendarEvents, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        qs = self.model.objects.filter(centru_local=self.cl)
+        qs = qs.filter(Q(start_date__range=[self.from_date, self.to_date])
+                       | Q(end_date__range=[self.from_date, self.to_date])
+                       | Q(start_date__lte=self.from_date, end_date__gte=self.to_date))
+        return qs

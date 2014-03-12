@@ -1,0 +1,4 @@
+<a href="<%= event.url ? event.url : 'javascript:void(0)' %>" data-event-id="<%= event.id %>"
+   data-event-class="<%= event['class'] %>" class="event-item">
+    <%= event.title %></a>
+<span style="font-size: 11px; color: #999;"><i class="icon-time"></i> Începe pe <%= event.date_start.getDate() %> <%= calendar.locale["m" + event.date_start.getMonth()] %> <%= event.date_start.getFullYear() %> la ora <%= event.date_start.getHours() %>:<% if (event.date_start.getMinutes() < 10) { %>0<% } %><%= event.date_start.getMinutes() %></span>
