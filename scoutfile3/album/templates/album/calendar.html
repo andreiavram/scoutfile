@@ -14,7 +14,7 @@
                 events_source: "{{ events_url }}",
 {#                events_source: function () { return [ { "id": "1", "title": "test", "url": "http://192.168.33.10:8000/continut/eveniment/1/", "class": 'event-important', "start": "1389608400000", "end": "1389624000000" } ]},#}
 
-                modal: "#events-modal",
+{#                modal: "#events-modal",#}
                 tmpl_path: "{{ STATIC_URL }}bootstrap-calendar/tmpls/",
                 language: 'ro-RO',
 
@@ -23,19 +23,19 @@
                     if (!events) {
                         return;
                     }
-{#                    var list = $('#eventlist');#}
-{#                    list.html('');#}
-{##}
-{#                    this._loadTemplate("sidebar-eventlist");#}
-{#                    var calendar = this;#}
-{#                    $.each(events, function (key, val) {#}
-{#                        val.date_start = new Date(parseInt(val.start));#}
-{#                        val.date_end = new Date(parseInt(val.end));#}
-{#                        $(document.createElement('li'))#}
-{#                                .html(calendar.options.templates["sidebar-eventlist"]({"event" : val, "calendar" : calendar}))#}
-{#                                .html("tmp")#}
-{#                                .appendTo(list);#}
-{#                    });#}
+                    var list = $('#eventlist');
+                    list.html('');
+
+                    this._loadTemplate("sidebar-eventlist");
+                    var calendar = this;
+                    $.each(events, function (key, val) {
+                        val.date_start = new Date(parseInt(val.start));
+                        val.date_end = new Date(parseInt(val.end));
+                        $(document.createElement('li'))
+                                .html(calendar.options.templates["sidebar-eventlist"]({"event" : val, "calendar" : calendar}))
+                                .html("tmp")
+                                .appendTo(list);
+                    });
                 },
                 onAfterViewLoad: function (view) {
                     $('.page-header h3').text(this.getTitle());
