@@ -2,7 +2,10 @@
 {% load pagination_tags %}
 
 {% block page_title %}
-	Evenimente
+	Evenimente <div class = "pull-right btn-group">
+        <a class = "btn" href = "{% url album:calendar_centru_local pk=request.user.get_profile.membru.centru_local.id %}"><i class = "icon-calendar"></i> Calendar</a>
+        <a class = "btn disabled" href = "{% url album:index%}"><i class = "icon-list"></i> Listă</a>
+    </div>
 {% endblock %}
 
 {% block context_menu %}
