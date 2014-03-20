@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block page_title %}
-    Raport <span style="font-weight: normal">| {{ an }}</span><span class = "pull-right label label-{% if scor_anual < 0 %}important{% else %}{% if scor_anual == 0 %}warning{% else %}success{% endif %}{% endif %}">{{ scor_anual }}</span>
+    Raport <span style="font-weight: normal">| {{ an }}</span><span class = "pull-right label label-{% if scor_anual < 0 %}important{% else %}{% if scor_anual == 0 %}warning{% else %}success{% endif %}{% endif %}">Scor total raport: {{ scor_anual }}</span>
 {% endblock %}
 
 {% block context_menu %}
