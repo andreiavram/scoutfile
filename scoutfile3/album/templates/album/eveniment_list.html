@@ -32,7 +32,8 @@
                 {% else %}A început {{ eveniment.start_date|date:"l, d F Y" }} și a ținut până {{ eveniment.end_date|date:"l, d F Y" }}{% endif %}
 
 
-                        <i class = "icon-star"></i> {% for autor in eveniment.get_autori %}<a href = "{% url album:eveniment_detail slug=eveniment.slug %}?autor={{ autor }}">{{ autor }}</a> <i class = 'icon-star'></i> {% endfor %}</strong></p>
+                        <i class = "icon-star"></i> {% for autor in eveniment.get_autori %}<a href = "{% url album:eveniment_detail slug=eveniment.slug %}?autor={{ autor }}">{{ autor }}</a> <i class = 'icon-star'></i> {% endfor %}</strong>
+                    <span class = "label label-{% if eveniment.scor_calitate < 0 %}important{% else %}{% if eveniment.scor_calitate == 0 %}warning{% else %}success{% endif %}{% endif %}">Scor: {{ eveniment.scor_calitate }}</span></p>
                     <div class = "btn-toolbar">
 					<div class = "btn-group">
 						<a href = "{% url album:eveniment_detail slug=eveniment.slug %}" class = "btn btn-primary"><i class = "icon-white icon-picture"></i> Deschide</a>

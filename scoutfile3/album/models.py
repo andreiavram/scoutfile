@@ -1,6 +1,7 @@
 #coding: utf-8
 from django.core.mail import send_mail
 from django.db import models
+from django.db.models.aggregates import Sum
 from django.db.models.query_utils import Q
 from photologue.models import ImageModel
 from PIL import Image
@@ -59,8 +60,7 @@ class Eveniment(models.Model):
     locatie_geo = models.CharField(max_length=1024)
 
     #   TODO: add visibility settings to events
-    published_status = models.IntegerField(default      =2, choices=IMAGINE_PUBLISHED_STATUS, verbose_name=u"Vizibilitate")
-
+    published_status = models.IntegerField(default=2, choices=IMAGINE_PUBLISHED_STATUS, verbose_name=u"Vizibilitate")
 
     class Meta:
         verbose_name = u"Eveniment"
@@ -127,8 +127,58 @@ class Eveniment(models.Model):
                 zi_index += 1
                 zi_eveniment.save()
 
-
         return retval
+
+    def scor_raportare(self):
+        elemente_de_verificat = ["parteneri", "obiective", "grup_tinta", "activitati", "alti_beneficiari", "promovare"]
+        rapoarte = self.raporteveniment_set.all()
+        if rapoarte.count():
+            raport = rapoarte[0]
+        else:
+            return len(elemente_de_verificat) * -1
+
+        scor = 0
+        for field in elemente_de_verificat:
+            if getattr(raport, field) is None or len(getattr(raport, field).strip()) == 0:
+                scor -= 1
+
+        if self.participantieveniment_set.all().aggregate(Sum('numar')) == 0:
+            scor -= 1
+
+        if self.tip_eveniment is None:
+            scor -= 1
+
+        if self.locatie_text is None or len(self.locatie_text.strip()) == 0:
+            scor -= 1
+
+        if self.descriere is None or len(self.descriere.strip()) == 0:
+            scor -= 1
+
+        if raport.buget is None:
+            scor -= 1
+
+        return scor
+
+    def scor_calitate(self):
+        scor = self.scor_raportare()
+        if scor < 0:
+            return scor
+
+        if self.articol_site_link:
+            scor += 1
+
+        if self.facebook_event_link:
+            scor += 1
+
+        if self.locatie_geo:
+            scor += 1
+
+        if self.total_poze > 0:
+            scor += 1
+            if self.total_poze > 100:
+                scor += 1
+
+        return scor
 
     def get_autori(self):
         autori = []

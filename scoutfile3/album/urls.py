@@ -3,12 +3,14 @@ from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     RotateImage, EvenimentStats, ZiStats, FlagImage, EvenimentList, \
     SetImaginiUpload, SetImaginiDeleteAjax, SetImaginiToate, \
     SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate, EvenimentCreate, EvenimentUpdate, EvenimentDetail, EvenimentDelete, PozaUpdate, ZiEdit, PozaDelete, ImagineTagSearch, ImagineSearchJSON, ZiDetailBeta, \
-    RaportEvenimentDetail, RaportEvenimentUpdate, RaportEvenimentHistory, CalendarCentruLocal, CalendarEvents
+    RaportEvenimentDetail, RaportEvenimentUpdate, RaportEvenimentHistory, CalendarCentruLocal, CalendarEvents, \
+    RaportStatus
 from album.views import ChangeImagineVisibility
 
 
 urlpatterns = patterns('album.views',
                        (r'eveniment/list/$', EvenimentList.as_view(), {}, "index"),
+                       (r'eveniment/raport/status/$', RaportStatus.as_view(), {}, "raport_status"),
                        (r'eveniment/(?P<slug>\w+)/album/$', AlbumEvenimentDetail.as_view(), {}, "eveniment_detail"),
                        (r'eveniment/(?P<pk>\d+)/stats/$', EvenimentStats.as_view(), {}, "eveniment_stats"),
                        (r'eveniment/zi/(?P<pk>\d+)/$', ZiDetail.as_view(), {}, "zi_detail_old"),
