@@ -63,6 +63,9 @@ class Eveniment(models.Model):
     #   TODO: add visibility settings to events
     published_status = models.IntegerField(default=2, choices=IMAGINE_PUBLISHED_STATUS, verbose_name=u"Vizibilitate")
 
+    responsabil_raport = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="evenimente_raport")
+    responsabil_articol = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="evenimente_articol")
+
     class Meta:
         verbose_name = u"Eveniment"
         verbose_name_plural = u"Evenimente"
