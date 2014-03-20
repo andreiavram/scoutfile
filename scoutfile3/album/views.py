@@ -913,3 +913,23 @@ class CalendarEvents(ListView):
                        | Q(end_date__range=[self.from_date, self.to_date])
                        | Q(start_date__lte=self.from_date, end_date__gte=self.to_date))
         return qs
+
+
+class RaportStatus(ListView):
+    model = Eveniment
+    template_name = "album/eveniment_raport_status.html"
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        self.cl = request.user.get_profile().membru.get_centru_local()
+        return super(RaportStatus, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        self.an = datetime.datetime.now().year - 1
+        return self.model.objects.filter(start_date__year=self.an, centru_local=self.cl).order_by("start_date")
+
+    def get_context_data(self, **kwargs):
+        data = super(RaportStatus, self).get_context_data(**kwargs)
+        data['scor_anual'] = sum(e.scor_calitate() for e in self.object_list)
+        data['an'] = self.an
+        return data
