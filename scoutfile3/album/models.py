@@ -34,7 +34,8 @@ class ParticipantiEveniment(models.Model):
 
 TIPURI_EVENIMENT = (("camp", "Camp"), ("intalnire", u"Întâlnire"), ("hike", "Hike"), ("social", "Proiect social"),
                     ("comunitate", u"Proiect de implicare în comunitate"), ("citychallange", u"City Challange"),
-                    ("international", u"Proiect internațional"), ("intalnire", u"Întâlnire"))
+                    ("international", u"Proiect internațional"), ("intalnire", u"Întâlnire"), ("festival", u"Festival"),
+                    ("ecologic", u"Proiect ecologic"), ("alta", u"Alt tip de eveniment"))
 
 
 STATUS_EVENIMENT = (("propus", u"Propus"), ("confirmat", u"Confirmat"), ("derulare", u"În derulare"), ("terminat", u"Încheiat"))
