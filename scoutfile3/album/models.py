@@ -130,7 +130,7 @@ class Eveniment(models.Model):
         return retval
 
     def scor_raportare(self):
-        elemente_de_verificat = ["parteneri", "obiective", "grup_tinta", "activitati", "alti_beneficiari", "promovare"]
+        elemente_de_verificat = ["parteneri", "obiective", "grup_tinta", "activitati", "promovare"]
         rapoarte = self.raporteveniment_set.all()
         if rapoarte.count():
             raport = rapoarte[0]
