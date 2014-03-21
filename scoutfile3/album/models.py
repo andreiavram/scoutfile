@@ -146,7 +146,7 @@ class Eveniment(models.Model):
             if getattr(raport, field) is None or len(getattr(raport, field).strip()) == 0:
                 scor -= 1
 
-        if self.participantieveniment_set.all().aggregate(Sum('numar')) == 0:
+        if self.participantieveniment_set.all().count() == 0 or self.participantieveniment_set.all().aggregate(Sum('numar')) == 0:
             scor -= 1
 
         if self.tip_eveniment is None:
