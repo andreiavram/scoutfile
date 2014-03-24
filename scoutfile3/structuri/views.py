@@ -1870,9 +1870,8 @@ class SetariSpecialeCentruLocal(UpdateView):
     def get(self, request, *args, **kwargs):
         self.object = get_object_or_404(self.model, id=kwargs.get("pk"))
         if self.object.moment_initial_cotizatie:
-            messages.warning(request,
-                             u"Nu poate fi modificată data de începere a înregistrărilor de cotizații. Dacă considerați că există un motiv legitim pentru a face asta, contactați un administrator")
-            return HttpResponseRedirect()
+            messages.warning(request, u"Nu poate fi modificată data de începere a înregistrărilor de cotizații. Dacă considerați că există un motiv legitim pentru a face asta, contactați un administrator")
+            return HttpResponseRedirect(self.get_success_url())
 
         return super(SetariSpecialeCentruLocal, self).get(request, *args, **kwargs)
 

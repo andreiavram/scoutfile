@@ -564,21 +564,25 @@ class Membru(Utilizator):
         """
 
         pct = PlataCotizatieTrimestru.objects.filter(membru=self, final=True).order_by("-trimestru__ordine_globala")[0:1]
+        nothing = False
         if pct.count():
             ultimul_trimestru = pct[0].trimestru
         else:
             ultimul_trimestru = self.get_trimestru_initial_cotizatie()
+            nothing = True
 
         from documente.models import Trimestru
         today = datetime.date.today()
         trimestru_curent = Trimestru.trimestru_pentru_data(today)
 
-        print trimestru_curent
-        print ultimul_trimestru
+        # print trimestru_curent
+        # print ultimul_trimestru
 
         # -1 vine de la faptul ca cotizatia se plateste in urma, nu in avans, deci trimestrul curent
         # se plateste dupa ce se termina
         diferenta_trimestre = trimestru_curent.ordine_globala - ultimul_trimestru.ordine_globala - 1
+        if nothing:
+            diferenta_trimestre += 1
 
         # daca suntem in perioada de gratie de doua saptamani de la inceputul trimestrului, nici trimestrul
         # trecut nu conteaza
