@@ -3,10 +3,13 @@ from django.core.mail import send_mail
 from django.db import models
 from django.db.models.aggregates import Sum
 from django.db.models.query_utils import Q
+from django.db.models.signals import post_init
+from django.dispatch.dispatcher import receiver
 from photologue.models import ImageModel
 from PIL import Image
 import datetime
 import os
+from unidecode import unidecode
 from zipfile import ZipFile
 import logging
 import traceback
@@ -43,7 +46,7 @@ STATUS_EVENIMENT = (("propus", u"Propus"), ("confirmat", u"Confirmat"), ("derula
 
 class Eveniment(models.Model):
     centru_local = models.ForeignKey("structuri.CentruLocal")
-    nume = models.CharField(max_length=255, verbose_name=u"Titlu")
+    nume = models.CharField(max_length=1024 , verbose_name=u"Titlu")
     descriere = models.TextField(null=True, blank=True)
     start_date = models.DateTimeField(verbose_name=u"Începe pe", help_text=u"Folosește selectorul de date pentru a defini o dată de început")
     end_date = models.DateTimeField(verbose_name=u"Ține până pe", help_text=u"Folosește selectorul de date pentru a defini o dată de sfârșit")
@@ -284,6 +287,9 @@ class RaportEveniment(models.Model):
         self.save(*args, **kwargs)
 
 
+ROL_PARTICIPARE = (("participant", u"Participant"), ("coordonator", u"Coordonator"), ("staff", u"Membru staff"))
+
+
 class ParticipareEveniment(models.Model):
     membru = models.ForeignKey("structuri.Membru")
     eveniment = models.ForeignKey(Eveniment)
@@ -292,10 +298,48 @@ class ParticipareEveniment(models.Model):
 
     status_participare = models.IntegerField(default=1, choices=STATUS_PARTICIPARE)
     detalii = models.TextField(null=True, blank=True)
+    rol = models.CharField(max_length=255, default="participant", choices=ROL_PARTICIPARE)
 
     @property
     def is_partiala(self):
         return self.data_sosire.date() != self.eveniment.start_date.date() or self.data_plecare.date() != self.eveniment.end_date.date()
+
+
+TIPURI_CAMP_PARTICIPARE = (("text", u"Text"), ("number", u"Număr"), ("bool", u"Bifă"), ("date", u"Dată"))
+
+
+class CampArbitrarParticipareEveniment(models.Model):
+    eveniment = models.ForeignKey(Eveniment)
+    tip_camp = models.CharField(max_length=255, choices=TIPURI_CAMP_PARTICIPARE)
+
+    
+class InstantaCampArbitrarParticipareEveniment(models.Model):
+    camp = models.ForeignKey(CampArbitrarParticipareEveniment)
+    participare = models.ForeignKey(ParticipareEveniment)
+    valoare_text = models.CharField(max_length=255, null=True, blank=True)
+    
+    def process_bool(self):
+        return True if self.valoare_text.lower() == "true" else False
+        
+    def process_number(self):
+        try:
+            return int(self.valoare_text)
+        except Exception, e:
+            return float(self.valoare_text)
+        except Exception, e:
+            return 0
+
+    def process_text(self):
+        return self.valoare_text
+
+    def process_date(self):
+        return datetime.datetime.strptime(self.valoare_text, "%d.%M.%Y")
+
+    
+@receiver(post_init, sender=InstantaCampArbitrarParticipareEveniment)
+def update_value(sender, instance, **kwargs):
+    instance.valoare = None
+    instance.valoare = getattr(instance, "process_{0}".format(instance.camp.tip_camp))
 
 
 class ZiEveniment(models.Model):
@@ -382,7 +426,7 @@ class SetPoze(models.Model):
 
         try:
             event_path_no_root = os.path.join(SCOUTFILE_ALBUM_STORAGE_ROOT, unicode(self.eveniment.centru_local.id),
-                                              unicode(self.eveniment.id), self.autor.replace(" ", "_"))
+                                              unicode(self.eveniment.id), unidecode(self.autor.replace(" ", "_")))
             event_path = os.path.join(MEDIA_ROOT, event_path_no_root)
             if not os.path.exists(os.path.join(MEDIA_ROOT, event_path)):
                 os.makedirs(os.path.join(MEDIA_ROOT, event_path))
@@ -393,10 +437,8 @@ class SetPoze(models.Model):
                 for f in zf.infolist():
                     logger.debug("SetPoze: fisier extras %s" % f)
                     f.external_attr = 0777 << 16L
-                    if f.filename.endswith("/") or os.path.splitext(f.filename)[1].lower() not in (
-                    ".jpg", ".jpeg", ".png"):
-                        logger.debug(
-                            "SetPoze skipping %s %s %s" % (f, f.filename, os.path.splitext(f.filename)[1].lower()))
+                    if f.filename.endswith("/") or os.path.splitext(f.filename)[1].lower() not in (".jpg", ".jpeg", ".png"):
+                        logger.debug("SetPoze skipping %s %s %s" % (f, f.filename, os.path.splitext(f.filename)[1].lower()))
                         continue
                     logger.debug("SetPoze: extracting file %s to %s" % (f.filename, event_path))
                     zf.extract(f, event_path)
