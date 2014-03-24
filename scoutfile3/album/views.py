@@ -44,7 +44,10 @@ class EvenimentList(ListView):
     template_name = "album/eveniment_list.html"
 
     def get_queryset(self, *args, **kwargs):
-        return super(EvenimentList, self).get_queryset(*args, **kwargs)
+        qs = super(EvenimentList, self).get_queryset(*args, **kwargs)
+        if self.request.user.is_authenticated():
+            qs = qs.filter(centru_local = self.request.user.get_profile().membru.centru_local)
+        return qs
 
 
 class AlbumEvenimentDetail(DetailView):

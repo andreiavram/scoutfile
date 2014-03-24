@@ -766,7 +766,7 @@ class ChitantaPrintare(DetailView):
 
         paragraph = Paragraph(text_chitanta, style)
         w, h  = paragraph.wrap(15. * cm, 5. * cm)
-        print w, h
+        # print w, h
 
         paragraph.drawOn(pdf, 3. * cm, 5.5 * cm)
         paragraph.drawOn(pdf, 3. * cm, 19.2 * cm)

@@ -291,12 +291,12 @@ class PlataCotizatieTrimestru(models.Model):
         t_current = trimestru_initial
         t_target = Trimestru.trimestru_pentru_data(data=datetime.date.today() - datetime.timedelta(days=15))
 
-        print t_current
-        print t_target
+        # print t_current
+        # print t_target
 
         suma_necesara = 0
         while t_current.ordine_globala < t_target.ordine_globala:
-            print t_current, t_target
+            # print t_current, t_target
             cotizatie_trimestru_nominal = t_current.identifica_cotizatie(membru)
             cotizatie_trimestru = membru.aplica_reducere_familie(cotizatie_trimestru_nominal, t_current)
             if plati_partiale:
