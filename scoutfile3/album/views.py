@@ -21,7 +21,8 @@ from django.contrib.auth.decorators import login_required
 from taggit.models import Tag
 from taggit.utils import parse_tags
 
-from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment
+from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment, \
+    ParticipareEveniment
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm
 from album.models import SetPoze
 from album.forms import SetPozeCreateForm, SetPozeUpdateForm
@@ -933,3 +934,43 @@ class RaportStatus(ListView):
         data['scor_anual'] = sum(e.scor_calitate() for e in self.object_list)
         data['an'] = self.an
         return data
+
+
+class EvenimentParticipantList(ListView):
+    model = ParticipareEveniment
+    template_name = "album/eveniment_participant_list.html"
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(EvenimentParticipantList, self).dispatch(request, *args, **kwargs)
+
+
+class AdaugaParticipantEveniment(CreateView):
+    model = ParticipareEveniment
+    template_name = "album/eveniment_participant_form.html"
+    # form_class = ParticipantEvenimentForm
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+        return super(AdaugaParticipantEveniment, self).dispatch(request, *args, **kwargs)
+
+
+class ModificaParticipantEveniment(UpdateView):
+    model = ParticipareEveniment
+    template_name = "album/eveniment_participant_form.html"
+    # form_class = ParticipantEvenimentForm
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(ModificaParticipantEveniment, self).dispatch(request, *args, **kwargs)
+
+
+class InscriereEveniment(CreateView):
+    model = ParticipareEveniment
+    template_name = "album/eveniment_participant_form.html"
+    # form_class = InscriereEvenimentForm
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(InscriereEveniment, self).dispatch(request, *args)
