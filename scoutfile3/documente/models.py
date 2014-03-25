@@ -402,7 +402,7 @@ class PlataCotizatieTrimestru(models.Model):
         return u"Plată pentru %s, pe %s, în valoare de %.2f RON" % (self.membru, self.trimestru, self.suma)
 
 class ChitantaCotizatie(Chitanta):
-    registre_compatibile = ["chitantier", ]
+    registre_compatibile = ["chitantier", "intern"]
     predat = models.BooleanField(default=False)
 
     def save(self, **kwargs):
