@@ -300,7 +300,7 @@ class Membru(Utilizator):
     def mobil(self):
         mobil_filters = dict(content_type=ContentType.objects.get_for_model(self),
                              object_id=self.id,
-                             tip_informatie__nume__iexact=u"Adresă corespondență",
+                             tip_informatie__nume__iexact=u"Mobil",
                              tip_informatie__relevanta="Membru")
 
         try:
