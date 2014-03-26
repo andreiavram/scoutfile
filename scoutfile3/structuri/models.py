@@ -231,7 +231,7 @@ class AsociereMembruFamilie(models.Model):
     persoana_destinatie = models.ForeignKey("Membru", related_name="membru_destinatie")
 
     @classmethod
-    def rude_cercetasi(cls, membru):
+    def rude_cercetasi(cls, membru, exclude_self=False):
         """ Intoarce toate persoanele din familie, inclusiv persoana sursa
         
         Se poate folosi pentru calculul diferentiat al cotizatiilor, si a altor taxe
@@ -243,6 +243,9 @@ class AsociereMembruFamilie(models.Model):
                     people.append(con.persoana_sursa)
                 if con.persoana_destinatie not in people:
                     people.append(con.persoana_destinatie)
+
+        if exclude_self:
+            people = [p for p in people if p != membru]
         return people
 
 
@@ -541,21 +544,19 @@ class Membru(Utilizator):
         if self.are_cotizatie_sociala():
             return valoare
 
-        familie = AsociereMembruFamilie.rude_cercetasi(self)
-        filter_kwargs = dict(
-            trimestru=trimestru,
-            membru__in=familie,
-            tip_inregistrare="normal")
+        familie = AsociereMembruFamilie.rude_cercetasi(self, exclude_self=True)
+
+        filter_kwargs = dict(trimestru=trimestru, membru__in=familie, tip_inregistrare="normal")
 
         try:
-            platitori_cnt = PlataCotizatieTrimestru.objects.filter(**filter_kwargs).select_related("membru").values(
-                "membru", flat=True).distinct().count()
+            platitori_cnt = PlataCotizatieTrimestru.objects.filter(**filter_kwargs).select_related("membru").values_list("membru", flat=True).distinct().count()
         except Exception, e:
             logger.error("{0}: problemă la obținerea de platitori de cotizatie: {1}".format(self.__class__.__name__, e))
             platitori_cnt = 0
+
         quotas = {0: 1, 1: 0.5, 2: 0.25}
         quota = quotas.get(platitori_cnt, 0.25)
-        return valoare / quota
+        return valoare * quota
 
     def _status_cotizatie(self):
         """ Cotizatia se poate plati pana pe 15 a primei luni din urmatorul trimestru

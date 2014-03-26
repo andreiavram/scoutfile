@@ -19,6 +19,7 @@ from django.core.urlresolvers import reverse
 from django.views.generic.base import TemplateView
 from goodies.views import JSONView, ContextMenuMixin
 from django.contrib import messages
+import traceback
 
 from documente.forms import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm, DecizieCuantumCotizatieForm, TransferIncasariForm, AdeziuneUpdateForm, AdeziuneCreateForm, \
     DecizieGeneralaForm, DecizieGeneralaUpdateForm
@@ -238,6 +239,7 @@ class DeclaratieCotizatieSocialaAdauga(CreateView):
         data = super(DeclaratieCotizatieSocialaAdauga, self).get_context_data(**kwargs)
         data.update({"membru" : self.target})
         return data
+
 
 class DeclaratieCotizatieSocialaModifica(UpdateView):
     template_name = "documente/declaratie_cotizatie_sociala.html"
@@ -526,13 +528,17 @@ class CalculeazaAcoperireCotizatie(JSONView):
     def get(self, request, *args, **kwargs):
         self.validate(**self.parse_json_data())
 
-        plati, rest, status_text, diff  = PlataCotizatieTrimestru.calculeaza_acoperire(membru=self.cleaned_data['membru'],
-                                                     suma=self.cleaned_data['suma'])
+        try:
+            pct_args = dict(membru=self.cleaned_data['membru'], suma=self.cleaned_data['suma'])
+            plati, rest, status_text, diff = PlataCotizatieTrimestru.calculeaza_acoperire(**pct_args)
+            print u"plati %s" % plati
+            print u"rest %s" % rest
+            print u"status %s" % status_text
+            print u"diff %s" % diff
+        except Exception, e:
+            print e, traceback.format_exc()
 
-        return HttpResponse(self.construct_json_response(plati=plati,
-                                                         suma=rest,
-                                                         status_text=status_text,
-                                                         diff=diff))
+        return HttpResponse(self.construct_json_response(plati=plati, suma=rest, status_text=status_text, diff=diff))
 
     def post(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)

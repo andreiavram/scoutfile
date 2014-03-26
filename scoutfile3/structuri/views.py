@@ -734,14 +734,6 @@ class PatrulaUpdate(UpdateView):
 
     @allow_by_afiliere([("Unitate", "Lider"), ("Unitate, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object(self.get_queryset())
-
-        membru = request.user.get_profile().membru
-        if not membru.are_calitate(u"Membru Consiliu Centru Local",
-                                   self.object.unitate.centru_local) and not membru.are_calitate(u"Lider",
-                                                                                                 self.object.unitate):
-            return HttpResponseRedirect(reverse("login") + "?unauthorized")
-
         return super(PatrulaUpdate, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
