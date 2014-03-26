@@ -4,7 +4,7 @@ from django.db.models.aggregates import Sum
 from django.utils.simplejson import dumps
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
-from django.views.generic.edit import CreateView, UpdateView, FormView
+from django.views.generic.edit import CreateView, UpdateView, FormView, DeleteView, FormMixin
 from django.shortcuts import get_object_or_404
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.pagesizes import A4
@@ -785,3 +785,7 @@ class ChitantaPrintare(DetailView):
 
 class ChitantaPrintMultiple(ListView):
     model = Chitanta
+
+#
+# class StergeChitantaCotizatie(DeleteView, FormMixin):
+#     template_name = "documente/delet"
