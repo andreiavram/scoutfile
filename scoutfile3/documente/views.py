@@ -528,15 +528,8 @@ class CalculeazaAcoperireCotizatie(JSONView):
     def get(self, request, *args, **kwargs):
         self.validate(**self.parse_json_data())
 
-        try:
-            pct_args = dict(membru=self.cleaned_data['membru'], suma=self.cleaned_data['suma'])
-            plati, rest, status_text, diff = PlataCotizatieTrimestru.calculeaza_acoperire(**pct_args)
-            print u"plati %s" % plati
-            print u"rest %s" % rest
-            print u"status %s" % status_text
-            print u"diff %s" % diff
-        except Exception, e:
-            print e, traceback.format_exc()
+        pct_args = dict(membru=self.cleaned_data['membru'], suma=self.cleaned_data['suma'])
+        plati, rest, status_text, diff = PlataCotizatieTrimestru.calculeaza_acoperire(**pct_args)
 
         return HttpResponse(self.construct_json_response(plati=plati, suma=rest, status_text=status_text, diff=diff))
 
