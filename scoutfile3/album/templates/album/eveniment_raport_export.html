@@ -4,15 +4,32 @@
     Raport (export) <span style="font-weight: normal">| {{ an }}</span>
 {% endblock %}
 
+{% block extrahead %}
+    <script>
+        (function ($) {
+            $(document).ready(function () {
+                $(".toggler").click(function (e) {
+                    $("a.edit").toggle();
+                        }
+                )
+
+            })
+        })(jQuery)
+    </script>
+{% endblock %}
+
 {% block context_menu %}
     {% include "album/main_context_menu.html" %}
 {% endblock %}
 
 {% block content %}
+    <a href = "#" class = "btn btn-mini btn-primary toggler">Arată / ascunde butoane edit</a>
     {% for object in object_list %}
+        <h2>{{ object }}</h2>
         {% include "album/eveniment_raport_part.html" %}
-
+    <a class = "btn btn-mini edit" href = "{% url album:eveniment_update slug=object.slug %}"><i class = "icon-pencil"></i> Modifică <strong>{{ object }}</strong></a>
     {% endfor %}
+
 {% endblock %}
 
 
