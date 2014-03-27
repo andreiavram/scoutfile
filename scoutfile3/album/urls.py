@@ -4,13 +4,14 @@ from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     SetImaginiUpload, SetImaginiDeleteAjax, SetImaginiToate, \
     SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate, EvenimentCreate, EvenimentUpdate, EvenimentDetail, EvenimentDelete, PozaUpdate, ZiEdit, PozaDelete, ImagineTagSearch, ImagineSearchJSON, ZiDetailBeta, \
     RaportEvenimentDetail, RaportEvenimentUpdate, RaportEvenimentHistory, CalendarCentruLocal, CalendarEvents, \
-    RaportStatus
+    RaportStatus, RaportActivitate, RaportCompletPentruExport
 from album.views import ChangeImagineVisibility
 
 
 urlpatterns = patterns('album.views',
                        (r'eveniment/list/$', EvenimentList.as_view(), {}, "index"),
                        (r'eveniment/raport/status/$', RaportStatus.as_view(), {}, "raport_status"),
+                       (r'eveniment/raport/export/$', RaportCompletPentruExport.as_view(), {}, "raport_export"),
                        (r'eveniment/(?P<slug>\w+)/album/$', AlbumEvenimentDetail.as_view(), {}, "eveniment_detail"),
                        (r'eveniment/(?P<pk>\d+)/stats/$', EvenimentStats.as_view(), {}, "eveniment_stats"),
                        (r'eveniment/zi/(?P<pk>\d+)/$', ZiDetail.as_view(), {}, "zi_detail_old"),
@@ -32,6 +33,7 @@ urlpatterns = patterns('album.views',
                        (r'eveniment/(?P<slug>\w+)/raport/$', RaportEvenimentDetail.as_view(), {}, "eveniment_raport_detail"),
                        (r'eveniment/(?P<slug>\w+)/raport/edit/$', RaportEvenimentUpdate.as_view(), {}, "eveniment_raport_update"),
                        (r'eveniment/(?P<slug>\w+)/raport/history/$', RaportEvenimentHistory.as_view(), {}, "eveniment_raport_history"),
+                       (r'eveniment/(?P<slug>\w+)/raport/final/$', RaportActivitate.as_view(), {}, "eveniment_raport_complet"),
 
                        (r'set/(?P<pk>\d+)/$', SetPozeUpdate.as_view(), {}, "set_poze_edit"),
                        (r'set/(?P<pk>\d+)/delete/$', SetImaginiDeleteAjax.as_view(), {}, "set_poze_delete_ajax"),

@@ -272,6 +272,24 @@ class RaportEveniment(models.Model):
     class Meta:
         ordering = ["-timestamp"]
 
+    def parteneri_list(self):
+        if self.parteneri is None:
+            return None
+        return self.parteneri.split("\n")
+
+    def obiective_list(self):
+        if self.obiective is None:
+            return None
+        return self.obiective.split("\n")
+
+    def activitati_list(self):
+        return self.attr_list(self.activitati)
+
+    def attr_list(self, field):
+        if field is None:
+            return None
+        return field.split("\n")
+
     def save_new_version(self, user, *args, **kwargs):
         self.is_leaf = False
         self.is_locked = True
