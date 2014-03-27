@@ -24,6 +24,33 @@
 
 {% block content %}
     <a href = "#" class = "btn btn-mini btn-primary toggler">Arată / ascunde butoane edit</a>
+    <br /><br />
+    <table class = "table table-striped">
+        <tr>
+            <th>Nr. crt.</th>
+            <th>Denumire</th>
+            <th>Perioada</th>
+            <th>Ramura de vârstă</th>
+            <th>Participanți</th>
+        </tr>
+        {% for object in object_list %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ object }}</td>
+                <td>{% if object.is_one_day %} {{ object.start_date|date:"l, d F Y" }}, între {{ object.start_date|date:"H:i" }} - {{ object.end_date|date:"H:i"}}
+                {% else %}{{ object.start_date|date:"l, d F Y" }} - {{ object.end_date|date:"l, d F Y" }}{% endif %}</td>
+                <td>
+                    {% for rdv, total in object.get_ramuri_de_varsta.items %}
+                        {% if rdv != "lideri" and total.0 != 0 %}
+                            {{ rdv }}<br />
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                <td>{{ object.total_participanti }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
     {% for object in object_list %}
         <h2>{{ object }}</h2>
         {% include "album/eveniment_raport_part.html" %}
