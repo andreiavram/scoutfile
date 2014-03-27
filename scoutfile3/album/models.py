@@ -213,6 +213,10 @@ class Eveniment(models.Model):
     def total_poze(self):
         return Imagine.objects.filter(set_poze__eveniment=self).count()
 
+    @property
+    def total_participanti(self):
+        return self.participantieveniment_set.aggregate(Sum("numar"))['numar__sum']
+
     def get_visibility_level(self, user=None):
         from structuri.models import TipAsociereMembruStructura
         visibility_level = 4
