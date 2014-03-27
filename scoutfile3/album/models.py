@@ -239,6 +239,7 @@ class Eveniment(models.Model):
         if not self.locatie_geo:
             return 0
         return self.locatie_geo.split(";")[0]
+
     def locatie_geo_long(self):
         if not self.locatie_geo:
             return 0
@@ -273,22 +274,21 @@ class RaportEveniment(models.Model):
         ordering = ["-timestamp"]
 
     def parteneri_list(self):
-        if self.parteneri is None:
-            return None
-        return self.parteneri.split("\n")
+        return self.attr_list(self.parteneri)
 
     def obiective_list(self):
-        if self.obiective is None:
-            return None
-        return self.obiective.split("\n")
+        return self.attr_list(self.obiective)
 
     def activitati_list(self):
         return self.attr_list(self.activitati)
 
+    def promovare_list(self):
+        return self.attr_list(self.promovare)
+
     def attr_list(self, field):
         if field is None:
             return None
-        return field.split("\n")
+        return [a for a in field.split("\n") if a.strip() != ""]
 
     def save_new_version(self, user, *args, **kwargs):
         self.is_leaf = False

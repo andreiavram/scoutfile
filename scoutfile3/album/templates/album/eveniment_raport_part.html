@@ -1,5 +1,4 @@
 
-
     <ol>
         <li><strong>Denumire proiect/activitate:</strong> {{ object }}</li>
         <li><strong>Tipul activității / proiectului:</strong> {{ object.get_tip_eveniment_display }}</li>
@@ -16,6 +15,19 @@
         </li>
         <li><strong>Numărul cercetașilor implicați în proiect <em>(pe ramuri de vârstă)</em></strong>: <ul>{% for part in object.participantieveniment_set.all %}{% if part.numar %}<li>{{ part.numar }} {% if part.ramura_de_varsta %}{{ part.ramura_de_varsta }}{% else %}{{ part.alta_categorie|capfirst }}{% endif %}</li>{% endif %}{% endfor %}</ul></li></ul></li>
         <li><strong>Alți beneficiari</strong>: {% if object.raport.alti_beneficiari %}{{ object.report.alti_beneficiari }}{% else %}-{% endif %}</li>
-        <li><strong>Promovare</strong>: {% if object.raport.promovare %}{{ object.raport.promovare }}{% else %}-{% endif %}</li>
+        <li><strong>Promovare</strong>: {% if object.raport.promovare or object.articol_site_link %}
+            <ul>
+                {% for p in object.raport.promovare_list %}
+                    <li>{{ p|urlize }}</li>
+                {% endfor %}
+                {% if object.articol_site_link %}
+                    <li>Articol pe site-ul Centrului Local: <a href = "{{ object.articol_site_link }}">{{ object.articol_site_link }}</a></li>
+                {% endif %}
+            </ul>
+            {% else %}-{% endif %}
+        </li>
         <li><strong>Buget</strong>: {{ object.raport.buget }} RON</li>
+        {% if object.total_poze %}<li><strong>Fotografii disponibile (pentru raport)</strong>: {{ object.total_poze }}</li>{% endif %}
+        <li><strong>Acord pentru publicare RAA ONCR</strong>: {% if object.raport.accept_publicare_raport_national %}<i class = "icon-ok"></i> DA{% else %}<i class = "icon-remove"></i> NU{% endif %}</li>
+
     </ol>
