@@ -10,8 +10,13 @@
             $(document).ready(function () {
                 $(".toggler").click(function (e) {
                     $("a.edit").toggle();
-                        }
-                )
+                    e.preventDefault();
+                })
+
+                $("a.toggledata").click(function (e) {
+                    $($(this).attr("href")).toggle();
+                    e.preventDefault();
+                })
 
             })
         })(jQuery)
@@ -23,8 +28,8 @@
 {% endblock %}
 
 {% block content %}
-    <a href = "#" class = "btn btn-mini btn-primary toggler">Arată / ascunde butoane edit</a>
-    <br /><br />
+    <h2>Tabel activități <a class = "toggledata btn btn-mini" href="#tabel-activitati"><i class = "icon-eye-open"></i></a></h2>
+    <div id = "tabel-activitati">
     <table class = "table table-striped">
         <tr>
             <th>Nr. crt.</th>
@@ -50,12 +55,16 @@
             </tr>
         {% endfor %}
     </table>
+    </div>
 
+    <h2>Descriere activități <a class = "toggledata btn btn-mini" href="#tabel-descrieri"> <i class = "icon-eye-open"></i></a> <a href = "#" class = "btn btn-mini btn-primary toggler">Arată / ascunde butoane edit</a></h2>
+    <div id = "tabel-descrieri">
     {% for object in object_list %}
-        <h2>{{ object }}</h2>
+        <h3>{{ object }}</h3>
         {% include "album/eveniment_raport_part.html" %}
     <a class = "btn btn-mini edit" href = "{% url album:eveniment_update slug=object.slug %}"><i class = "icon-pencil"></i> Modifică <strong>{{ object }}</strong></a>
     {% endfor %}
+    </div>
 
 {% endblock %}
 
