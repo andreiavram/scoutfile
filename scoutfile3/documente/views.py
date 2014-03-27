@@ -695,6 +695,7 @@ class AdeziuneMembruModifica(UpdateView):
     def get_success_url(self):
         return reverse("structuri:membru_detail", kwargs = {"pk" : self.membru.id}) + "#documente"
 
+
 class ChitantaPrintare(DetailView):
     model = Chitanta
 
@@ -782,6 +783,7 @@ class ChitantaPrintare(DetailView):
         pdf.save()
 
         return response
+
 
 class ChitantaPrintMultiple(ListView):
     model = Chitanta

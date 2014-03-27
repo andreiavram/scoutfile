@@ -1,0 +1,21 @@
+
+
+    <ol>
+        <li><strong>Denumire proiect/activitate:</strong> {{ object }}</li>
+        <li><strong>Tipul activității / proiectului:</strong> {{ object.get_tip_eveniment_display }}</li>
+        <li><strong>Parteneri în cadrul proiectului</strong>: {% if object.raport.parteneri %}<ul>{% for p in object.raport.parteneri_list %}<li>{{ p|capfirst }}</li>{% endfor %}</ul>{% else %}-{% endif %}</li>
+        <li><strong>Perioada și locul de desfășurare</strong>: {% if object.is_one_day %} {{ object.start_date|date:"l, d F Y" }}, între {{ object.start_date|date:"H:i" }} - {{ object.end_date|date:"H:i"}}
+                {% else %}{{ object.start_date|date:"l, d F Y" }} - {{ object.end_date|date:"l, d F Y" }}{% endif %} / {{ object.locatie_text }}</li>
+        <li>
+            <strong>Scurtă descriere a proiectului</strong>: {{ object.descriere|linebreaksbr }}
+            <ol>
+                <li><strong>Obiective (inclusiv obiective educative)</strong>: {% if object.raport.obiective %}<ul>{% for o in object.raport.obiective_list %}<li>{{ o|capfirst }}</li>{% endfor %}</ul>{% else %}-{% endif %}</li>
+                <li><strong>Grup țintă</strong>: {{ object.raport.grup_tinta }}</li>
+                <li><strong>Activități desfășurate</strong>: {% if object.raport.activitati %}<ul>{% for a in object.raport.activitati_list %}<li>{{ a|capfirst }}</li>{% endfor %}</ul>{% else %}-{% endif %}</li>
+            </ol>
+        </li>
+        <li><strong>Numărul cercetașilor implicați în proiect <em>(pe ramuri de vârstă)</em></strong>: <ul>{% for part in object.participantieveniment_set.all %}{% if part.numar %}<li>{{ part.numar }} {% if part.ramura_de_varsta %}{{ part.ramura_de_varsta }}{% else %}{{ part.alta_categorie|capfirst }}{% endif %}</li>{% endif %}{% endfor %}</ul></li></ul></li>
+        <li><strong>Alți beneficiari</strong>: {% if object.raport.alti_beneficiari %}{{ object.report.alti_beneficiari }}{% else %}-{% endif %}</li>
+        <li><strong>Promovare</strong>: {% if object.raport.promovare %}{{ object.raport.promovare }}{% else %}-{% endif %}</li>
+        <li><strong>Buget</strong>: {{ object.raport.buget }} RON</li>
+    </ol>

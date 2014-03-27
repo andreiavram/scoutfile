@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block page_title %}
+    Raport (export) <span style="font-weight: normal">| {{ an }}</span>
+{% endblock %}
+
+{% block context_menu %}
+    {% include "album/main_context_menu.html" %}
+{% endblock %}
+
+{% block content %}
+    {% for object in object_list %}
+        {% include "album/eveniment_raport_part.html" %}
+
+    {% endfor %}
+{% endblock %}
+
+

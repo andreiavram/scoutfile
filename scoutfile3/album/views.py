@@ -977,3 +977,34 @@ class InscriereEveniment(CreateView):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super(InscriereEveniment, self).dispatch(request, *args)
+
+
+class RaportCompletPentruExport(ListView):
+    model = Eveniment
+    template_name = "album/eveniment_raport_export.html"
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(RaportCompletPentruExport, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        self.an = datetime.datetime.now().year - 1
+        qs = super(RaportCompletPentruExport, self).get_queryset()
+        qs = qs.filter(centru_local=self.request.user.get_profile().membru.centru_local)
+        qs = qs.filter(end_date__year=self.an)
+        qs = qs.order_by("end_date")
+        return qs
+
+    def get_context_data(self, **kwargs):
+        data = super(RaportCompletPentruExport, self).get_context_data(**kwargs)
+        data['an'] = self.an
+        return data
+
+class RaportActivitate(DetailView):
+    model = Eveniment
+    template_name = "album/eveniment_raport_complet.html"
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(RaportActivitate, self).dispatch(request, *args, **kwargs)
+
