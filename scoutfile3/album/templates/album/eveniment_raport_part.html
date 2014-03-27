@@ -14,7 +14,7 @@
             </ol>
         </li>
         <li><strong>Numărul cercetașilor implicați în proiect <em>(pe ramuri de vârstă)</em></strong>: <ul>{% for part in object.participantieveniment_set.all %}{% if part.numar %}<li>{{ part.numar }} {% if part.ramura_de_varsta %}{{ part.ramura_de_varsta }}{% else %}{{ part.alta_categorie|capfirst }}{% endif %}</li>{% endif %}{% endfor %}</ul></li></ul></li>
-        <li><strong>Alți beneficiari</strong>: {% if object.raport.alti_beneficiari %}{{ object.report.alti_beneficiari }}{% else %}-{% endif %}</li>
+        <li><strong>Alți beneficiari</strong>: {% if object.raport.alti_beneficiari %}{{ object.raport.alti_beneficiari }}{% else %}-{% endif %}</li>
         <li><strong>Promovare</strong>: {% if object.raport.promovare or object.articol_site_link %}
             <ul>
                 {% for p in object.raport.promovare_list %}
