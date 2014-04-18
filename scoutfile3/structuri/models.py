@@ -647,7 +647,6 @@ class Membru(Utilizator):
         return None
 
 
-
 class TipAsociereMembruStructura(models.Model):
     """
     Tipuri asociere membru la structura. Spre exemplu, un cercetas intr-un centru local este membru,
@@ -666,7 +665,7 @@ class AsocierePublicManager(models.Manager):
 
 
 ordine_structuri = {u"Patrulă": u"Unitate", u"Unitate": u"Centru Local"}
-campuri_structuri = {u"Patrulă": "unitate", u"Unitate": u"centru_local"}
+campuri_structuri = {u"Patrulă": u"Unitate", u"Unitate": u"centru_local"}
 
 
 class AsociereMembruStructura(models.Model):
@@ -692,21 +691,20 @@ class AsociereMembruStructura(models.Model):
         return u"%s - %s - %s" % (self.membru, self.tip_asociere, self.content_object)
 
     def get_structura(self, ctype):
-        lookups = {"centru_local": {"centru_local": lambda: self.content_object},
-                   "unitate": {"centru_local": lambda: self.content_object.centru_local,
+        lookups = {"centrulocal": {"centrulocal": lambda: self.content_object},
+                   "unitate": {"centrulocal": lambda: self.content_object.centru_local,
                                "unitate": lambda: self.content_object},
-                   "patrula": {"centru_local": lambda: self.content_object.unitate.centru_local,
+                   "patrula": {"centrulocal": lambda: self.content_object.unitate.centru_local,
                                "unitate": lambda: self.content_object.unitate,
                                "patrula": lambda: self.content_object}}
 
-        if self.content_type.name not in lookups.keys():
+        if self.content_type.model not in lookups.keys():
             return None
 
-        if not lookups.get(self.content_type.name).has_key(ctype.name):
+        if ctype.model not in lookups.get(self.content_type.model):
             return None
 
-        return lookups.get(self.content_type.name).get(ctype.name)()
-
+        return lookups.get(self.content_type.model).get(ctype.model)()
 
     def confirma(self, user):
         self.confirmata = True
