@@ -73,7 +73,6 @@ def allow_by_afiliere(asocieri, pkname = "pk", combine = False):
                 print structura_ref
                 print lookups[structura_ref]
                 print kwargs
-                print get_object_or_404(AsociereMembruStructura, id = kwargs.get(pkname)).get_structura(ContentType.objects.get_for_model(CentruLocal))
                 if not structura or not args[0].user.utilizator.membru.are_calitate(calitate, structura):
                     if combine:
                         login_ok = False
