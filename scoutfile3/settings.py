@@ -146,7 +146,7 @@ INSTALLED_APPS = (
     
     'raven.contrib.django.raven_compat',
     'django_extensions', 'gunicorn', 'goodies',
-    'djangobower',
+    'djangobower', 'longerusername',
 )
 
 
