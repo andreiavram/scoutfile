@@ -43,21 +43,21 @@ def allow_by_afiliere(asocieri, pkname = "pk", combine = False):
             
             lookups = {"Centru Local" : lambda : get_object_or_404(CentruLocal, id = kwargs.get(pkname)),
              "Unitate" :  lambda : get_object_or_404(Unitate, id = kwargs.get(pkname)),
-             "Patrula" : lambda : get_object_or_404(Patrula, id = kwargs.get(pkname)).unitate.centru_local,
-             "Unitate, Centru Local" :  lambda : get_object_or_404(Unitate, id = kwargs.get(pkname)).centru_local,
-             "Patrula, Unitate, Centru Local" : lambda : get_object_or_404(Patrula, id = kwargs.get(pkname)).unitate.centru_local,
-             "Patrula, Unitate" : lambda : get_object_or_404(Patrula, id = kwargs.get(pkname)).unitate,
-             "Membru, Centru Local" : lambda : get_object_or_404(Membru, id = kwargs.get(pkname)).get_centru_local(),
-             "Membru, Unitate" : lambda : get_object_or_404(Membru, id = kwargs.get(pkname)).get_unitate(),
-             "Membru, Patrula" : lambda : get_object_or_404(Membru, id = kwargs.get(pkname)).get_patrula(),
-             "Afiliere, Membru, *, Centru Local" : lambda : get_object_or_404(AsociereMembruStructura, id = kwargs.get(pkname)).get_structura(ContentType.objects.get_for_model(CentruLocal)),
-             "Afiliere, Membru, *, Unitate" : lambda : get_object_or_404(AsociereMembruStructura, id = kwargs.get(pkname)).get_structura(ContentType.objects.get_for_model(Unitate)),
-             "Afiliere, Membru, *, Patrula" : lambda : get_object_or_404(AsociereMembruStructura, id = kwargs.get(pkname)).get_structura(ContentType.objects.get_for_model(Patrula)),
-             "InformatieContact, Centru Local" : lambda : get_object_or_404(InformatieContact, id = kwargs.get(pkname)).content_object,
-             "InformatieContact, Membru, Centru Local" : lambda : get_object_or_404(InformatieContact, id = kwargs.get(pkname)).content_object.centru_local,
-             "Eveniment, Centru Local" : lambda: get_object_or_404(Eveniment, slug=kwargs.get(pkname)).centru_local,
-             "Utilizator, Centru Local" : lambda: args[0].user.utilizator.membru.centru_local,
-             "Imagine, Centru Local" : lambda: get_object_or_404(Imagine, pk = kwargs.get(pkname)).set_poze.eveniment.centru_local,
+             "Patrula": lambda : get_object_or_404(Patrula, id = kwargs.get(pkname)).unitate.centru_local,
+             "Unitate, Centru Local": lambda : get_object_or_404(Unitate, id = kwargs.get(pkname)).centru_local,
+             "Patrula, Unitate, Centru Local": lambda : get_object_or_404(Patrula, id = kwargs.get(pkname)).unitate.centru_local,
+             "Patrula, Unitate": lambda : get_object_or_404(Patrula, id = kwargs.get(pkname)).unitate,
+             "Membru, Centru Local": lambda: get_object_or_404(Membru, id=kwargs.get(pkname)).get_centru_local(),
+             "Membru, Unitate": lambda : get_object_or_404(Membru, id = kwargs.get(pkname)).get_unitate(),
+             "Membru, Patrula": lambda : get_object_or_404(Membru, id = kwargs.get(pkname)).get_patrula(),
+             "Afiliere, Membru, *, Centru Local": lambda : get_object_or_404(AsociereMembruStructura, id = kwargs.get(pkname)).get_structura(ContentType.objects.get_for_model(CentruLocal)),
+             "Afiliere, Membru, *, Unitate": lambda : get_object_or_404(AsociereMembruStructura, id = kwargs.get(pkname)).get_structura(ContentType.objects.get_for_model(Unitate)),
+             "Afiliere, Membru, *, Patrula": lambda : get_object_or_404(AsociereMembruStructura, id = kwargs.get(pkname)).get_structura(ContentType.objects.get_for_model(Patrula)),
+             "InformatieContact, Centru Local": lambda : get_object_or_404(InformatieContact, id = kwargs.get(pkname)).content_object,
+             "InformatieContact, Membru, Centru Local": lambda : get_object_or_404(InformatieContact, id = kwargs.get(pkname)).content_object.centru_local,
+             "Eveniment, Centru Local": lambda: get_object_or_404(Eveniment, slug=kwargs.get(pkname)).centru_local,
+             "Utilizator, Centru Local": lambda: args[0].user.utilizator.membru.centru_local,
+             "Imagine, Centru Local": lambda: get_object_or_404(Imagine, pk=kwargs.get(pkname)).set_poze.eveniment.centru_local,
              }
 
             
@@ -70,6 +70,10 @@ def allow_by_afiliere(asocieri, pkname = "pk", combine = False):
                     continue
                             
                 structura = lookups[structura_ref]()
+                print structura_ref
+                print lookups[structura_ref]
+                print kwargs
+                print get_object_or_404(AsociereMembruStructura, id = kwargs.get(pkname)).get_structura(ContentType.objects.get_for_model(CentruLocal))
                 if not structura or not args[0].user.utilizator.membru.are_calitate(calitate, structura):
                     if combine:
                         login_ok = False

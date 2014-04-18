@@ -299,7 +299,6 @@ class CentruLocalMembruCreate(CentruLocalLiderCreate):
 class CentruLocalMembruAsociaza(CreateView):
     model = AsociereMembruStructura
 
-
 class CentruLocalMembriPending(ListView):
     model = Membru
     template_name = "structuri/centrulocal_membri_pending.html"
