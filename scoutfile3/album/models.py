@@ -215,7 +215,7 @@ class Eveniment(models.Model):
 
     @property
     def poze_out_of_bounds(self):
-        return Imagine.objects.filter(Q(data__lt=self.start_date) | Q(data__gt=self.end_date)).filter(set_poze__eveniment = self).count()
+        return Imagine.objects.filter(Q(data__lt=self.start_date) | Q(data__gt=self.end_date) | Q(data__isnull = True)).filter(set_poze__eveniment=self).count()
 
     @property
     def has_poze_out_of_bounds(self):
