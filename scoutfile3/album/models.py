@@ -214,6 +214,14 @@ class Eveniment(models.Model):
         return Imagine.objects.filter(set_poze__eveniment=self).count()
 
     @property
+    def poze_out_of_bounds(self):
+        return Imagine.objects.filter(Q(data__lt=self.start_date) | Q(data__gt=self.end_date)).count()
+
+    @property
+    def has_poze_out_of_bounds(self):
+        return self.poze_out_of_bounds > 0
+
+    @property
     def total_participanti(self):
         return self.participantieveniment_set.aggregate(Sum("numar"))['numar__sum']
 
