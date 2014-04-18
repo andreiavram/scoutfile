@@ -731,7 +731,7 @@ class PatrulaUpdate(UpdateView):
     model = Patrula
     form_class = PatrulaUpdateForm
 
-    @allow_by_afiliere([("Unitate", "Lider"), ("Unitate, Centru Local", "Membru Consiliul Centrului Local")])
+    @allow_by_afiliere([("Patrula, Unitate", "Lider"), ("Patrula, Unitate, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(PatrulaUpdate, self).dispatch(request, *args, **kwargs)
 
