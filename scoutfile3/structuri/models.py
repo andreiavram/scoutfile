@@ -340,8 +340,10 @@ class Membru(Utilizator):
 
     def get_patrula(self, qs=False):
         kwargs = {"content_type": ContentType.objects.get_for_model(Patrula),
-                  "moment_incheiere__isnull": False,
-                  "tip_asociere__nume": u"Membru"}
+                  "moment_incheiere__isnull": True,
+                  "tip_asociere__nume": u"Membru",
+                  "tip_asociere__content_types__in": [ContentType.objects.get_for_model(Patrula)],
+                  "membru": self}
         asociere = AsociereMembruStructura.objects.filter(**kwargs).order_by("-moment_inceput")
         if asociere.count():
             if qs:

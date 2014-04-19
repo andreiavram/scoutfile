@@ -563,12 +563,9 @@ class UnitateDetail(DetailView, TabbedViewMixin):
 
     def get_tabs(self, *args, **kwargs):
         self.tabs = (("brief", u"Sumar", reverse("structuri:unitate_tab_brief", kwargs={"pk": self.object.id}), "", 1),
-                     (
-                         "patrule", u"Patrule", reverse("structuri:unitate_tab_patrule", kwargs={"pk": self.object.id}),
-                         "",
-                         2),
-                     ("membri", u"Membri", reverse("structuri:unitate_tab_membri", kwargs={"pk": self.object.id}), "",
-                      3),)
+                     ("patrule", u"Patrule", reverse("structuri:unitate_tab_patrule", kwargs={"pk": self.object.id}), "", 2),
+                     ("membri", u"Membri", reverse("structuri:unitate_tab_membri", kwargs={"pk": self.object.id}), "", 3),
+                     ("membri_fp", u"Membri fără patrulă", reverse("structuri:unitate_tab_membri_fara_patrula", kwargs={"pk": self.object.id}), "", 3))
 
         return super(UnitateDetail, self).get_tabs(*args, **kwargs)
 
@@ -679,7 +676,7 @@ class UnitateTabPatrule(ListView):
 
 
 class UnitateTabMembri(ListView):
-    model = Membru
+    model = AsociereMembruStructura
     template_name = "structuri/unitate_tab_membri.html"
 
     @allow_by_afiliere([("Unitate, Centru Local", "Lider")])
@@ -688,16 +685,23 @@ class UnitateTabMembri(ListView):
         return super(UnitateTabMembri, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
-        tip_asociere_membru = TipAsociereMembruStructura.objects.get(nume=u"Membru")
+        tip_asociere_membru = TipAsociereMembruStructura.objects.get(nume=u"Membru", content_types__in=[ContentType.objects.get_for_model(self.unitate)])
         asocieri = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(Unitate),
                                                           object_id=self.unitate.id,
-                                                          tip_asociere=tip_asociere_membru)
+                                                          tip_asociere=tip_asociere_membru,
+                                                          moment_incheiere__isnull=True)
 
         return asocieri
 
     def get_context_data(self, **kwargs):
         kwargs.update({"unitate": self.unitate})
         return super(UnitateTabMembri, self).get_context_data(**kwargs)
+
+
+class UnitateTabMembriFaraPatrula(UnitateTabMembri):
+    def get_queryset(self, **kwargs):
+        qs = super(UnitateTabMembriFaraPatrula, self).get_queryset(**kwargs)
+        return [a for a in qs if a.membru.get_patrula() is None]
 
 
 class UnitateMembruAsociaza(CreateView):
@@ -753,8 +757,7 @@ class PatrulaDetail(DetailView, TabbedViewMixin):
 
     def get_tabs(self, *args, **kwargs):
         self.tabs = (("brief", "Sumar", reverse("structuri:patrula_tab_brief", kwargs={"pk": self.object.id}), "", 1),
-                     ("membri", u"Membri", reverse("structuri:patrula_tab_membri", kwargs={"pk": self.object.id}), "",
-                      2))
+                     ("membri", u"Membri", reverse("structuri:patrula_tab_membri", kwargs={"pk": self.object.id}), "", 2))
 
         return super(PatrulaDetail, self).get_tabs(*args, **kwargs)
 

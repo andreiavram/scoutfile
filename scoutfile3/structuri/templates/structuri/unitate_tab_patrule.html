@@ -4,6 +4,7 @@
 		<tr>
 			<th>#</th>
 			<th>Nume</th>
+            <td>Cercetași</td>
 			<th>&nbsp;</th>
 		</tr>
 	</thead>
@@ -12,6 +13,15 @@
 		<tr id = "row_{{ object.id }}">
 			<td>{{ forloop.counter }}</td>
 			<td><a href = "{% url structuri:patrula_detail pk=object.id %}">{{ object }}</a></td>
+            <td>
+                <ul class="unstyled">
+                    {% for cercetas in object.cercetasi %}
+                        <li>{% for badge in cercetas.get_badges_rdv %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
+                            {% for badge in cercetas.get_extra_badges %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
+                            <a href = "{% url structuri:membru_detail pk=cercetas.id %}">{{ cercetas }}</a></li>
+                    {% endfor %}
+                </ul>
+            </td>
 			<td>    
 				<div class="btn-group pull-right">
 				    <a class = "btn btn-mini" href = "{% url structuri:patrula_edit pk=object.id %}"><i class = "icon-pencil"></i></a>
@@ -22,9 +32,7 @@
 		{% empty %}
 		<tr>
 			<td>&nbsp;</td>
-			<td><em>Unitatea nu are patrule. Adăugați una noua de <a href = "{% url structuri:unitate_patrula_add pk=unitate.id %}"><i class = "icon-plus-sign"></i> aici</a>.</em></td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
+			<td colspan="4"><em>Unitatea nu are patrule. Adăugați una noua de <a href = "{% url structuri:unitate_patrula_add pk=unitate.id %}"><i class = "icon-plus-sign"></i> aici</a>.</em></td>
 		</tr>
 		{% endfor %}
 	</tbody>
