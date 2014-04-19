@@ -13,7 +13,7 @@ django-dajax==0.9.2
 django-dajaxice==0.5.5
 django-debug-toolbar==0.9.4
 django-extensions==1.1.0
--e git+https://github.com/andreiavram/django_goodies.git@20f29999ae3c479e8ba40d91398e2702649ed58b#egg=django_goodies-master
+-e git+https://github.com/andreiavram/django_goodies.git@5530625215f7c1229d9cfde623bac2717fa8f9de#egg=django_goodies-master
 django-less==0.7
 django-pagination==1.0.7
 django-photologue==2.6.1
@@ -22,6 +22,7 @@ django-taggit==0.10
 djangorestframework==0.3.3
 gdata==2.0.17
 gunicorn==0.17.2
+longerusername==0.4
 numpy==1.7.1
 oauthlib==0.6.1
 pygraphviz==1.2

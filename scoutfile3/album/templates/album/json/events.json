@@ -1,0 +1,21 @@
+{% load newlines from string_filters %}
+{
+    "success": 1,
+    "result": [
+        {% for event in object_list %}
+        {
+            "id": "{{ event.id }}",
+            "title": "{{ event.nume }}",
+            "url": "http://{{ request.get_host }}{% url album:eveniment_detail slug=event.slug %}",
+            "class" : "event-info",
+            "description" : "{{ event.descriere|newlines }}",
+            "start": "{{ event.start_date|date:"U" }}000",
+            "end": "{{ event.end_date|date:"U" }}000",
+            "location" : "{{ event.locatie_text }}",
+            "location_geo_lat" : "{{ event.locatie_geo_lat }}",
+            "location_geo_long" : "{{ event.locatie_geo_long }}"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+
+    ]
+}

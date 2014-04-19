@@ -16,8 +16,8 @@ class MembriLookup(LookupChannel):
     search_field = "nume"
     
     def get_query(self, q, request):
-        qs = Membru.objects.filter(Q(nume__icontains = q) | Q(prenume__icontains = q))
-        qs = Membru.objects.filter(id__in = [m.id for m in qs if m.centru_local == request.user.utilizator.membru.centru_local])
+        qs = Membru.objects.filter(Q(nume__icontains=q) | Q(prenume__icontains = q))
+        qs = Membru.objects.filter(id__in=[m.id for m in qs if m.centru_local == request.user.utilizator.membru.centru_local])
         return qs
 
     def check_auth(self, request):
