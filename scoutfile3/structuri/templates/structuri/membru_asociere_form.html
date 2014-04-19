@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+	Adaugă asociere {% if target_object %}<span style="font-weight: normal">| {{ target_object }}</span>{%  endif %}
+{% endblock %}
+
+{% block extrahead %}
+    {{ form.media }}
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Locații</li>
+		<li><a href = "{{ target_object.get_absolute_url }}"><i class = "icon-home"></i> {{ target_object }}</a></li>
+
+	</ul>
+{% endblock %}
+
+
+{% block content %}
+	{% crispy form form.helper %}
+{% endblock %}

@@ -1,11 +1,15 @@
 #coding: utf-8
 from django.core.mail import send_mail
 from django.db import models
+from django.db.models.aggregates import Sum
 from django.db.models.query_utils import Q
+from django.db.models.signals import post_init
+from django.dispatch.dispatcher import receiver
 from photologue.models import ImageModel
 from PIL import Image
 import datetime
 import os
+from unidecode import unidecode
 from zipfile import ZipFile
 import logging
 import traceback
@@ -33,7 +37,8 @@ class ParticipantiEveniment(models.Model):
 
 TIPURI_EVENIMENT = (("camp", "Camp"), ("intalnire", u"Întâlnire"), ("hike", "Hike"), ("social", "Proiect social"),
                     ("comunitate", u"Proiect de implicare în comunitate"), ("citychallange", u"City Challange"),
-                    ("international", u"Proiect internațional"), ("intalnire", u"Întâlnire"))
+                    ("international", u"Proiect internațional"), ("intalnire", u"Întâlnire"), ("festival", u"Festival"),
+                    ("ecologic", u"Proiect ecologic"), ("alta", u"Alt tip de eveniment"), ("training", u"Stagiu / training"))
 
 
 STATUS_EVENIMENT = (("propus", u"Propus"), ("confirmat", u"Confirmat"), ("derulare", u"În derulare"), ("terminat", u"Încheiat"))
@@ -41,7 +46,7 @@ STATUS_EVENIMENT = (("propus", u"Propus"), ("confirmat", u"Confirmat"), ("derula
 
 class Eveniment(models.Model):
     centru_local = models.ForeignKey("structuri.CentruLocal")
-    nume = models.CharField(max_length=255, verbose_name=u"Titlu")
+    nume = models.CharField(max_length=1024 , verbose_name=u"Titlu")
     descriere = models.TextField(null=True, blank=True)
     start_date = models.DateTimeField(verbose_name=u"Începe pe", help_text=u"Folosește selectorul de date pentru a defini o dată de început")
     end_date = models.DateTimeField(verbose_name=u"Ține până pe", help_text=u"Folosește selectorul de date pentru a defini o dată de sfârșit")
@@ -59,8 +64,10 @@ class Eveniment(models.Model):
     locatie_geo = models.CharField(max_length=1024)
 
     #   TODO: add visibility settings to events
-    published_status = models.IntegerField(default      =2, choices=IMAGINE_PUBLISHED_STATUS, verbose_name=u"Vizibilitate")
+    published_status = models.IntegerField(default=2, choices=IMAGINE_PUBLISHED_STATUS, verbose_name=u"Vizibilitate")
 
+    responsabil_raport = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="evenimente_raport")
+    responsabil_articol = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="evenimente_articol")
 
     class Meta:
         verbose_name = u"Eveniment"
@@ -127,8 +134,58 @@ class Eveniment(models.Model):
                 zi_index += 1
                 zi_eveniment.save()
 
-
         return retval
+
+    def scor_raportare(self):
+        elemente_de_verificat = ["obiective", "grup_tinta", "activitati"]
+        rapoarte = self.raporteveniment_set.all()
+        if rapoarte.count():
+            raport = rapoarte[0]
+        else:
+            return len(elemente_de_verificat) * -1
+
+        scor = 0
+        for field in elemente_de_verificat:
+            if getattr(raport, field) is None or len(getattr(raport, field).strip()) == 0:
+                scor -= 1
+
+        if self.participantieveniment_set.all().count() == 0 or self.participantieveniment_set.all().aggregate(Sum('numar')) == 0:
+            scor -= 1
+
+        if self.tip_eveniment is None:
+            scor -= 1
+
+        if self.locatie_text is None or len(self.locatie_text.strip()) == 0:
+            scor -= 1
+
+        if self.descriere is None or len(self.descriere.strip()) == 0:
+            scor -= 1
+
+        if raport.buget is None:
+            scor -= 1
+
+        return scor
+
+    def scor_calitate(self):
+        scor = self.scor_raportare()
+        if scor < 0:
+            return scor
+
+        if self.articol_site_link:
+            scor += 1
+
+        if self.facebook_event_link:
+            scor += 1
+
+        if self.locatie_geo:
+            scor += 1
+
+        if self.total_poze > 0:
+            scor += 1
+            if self.total_poze > 100:
+                scor += 1
+
+        return scor
 
     def get_autori(self):
         autori = []
@@ -156,6 +213,18 @@ class Eveniment(models.Model):
     def total_poze(self):
         return Imagine.objects.filter(set_poze__eveniment=self).count()
 
+    @property
+    def poze_out_of_bounds(self):
+        return Imagine.objects.filter(Q(data__lt=self.start_date) | Q(data__gt=self.end_date) | Q(data__isnull = True)).filter(set_poze__eveniment=self).count()
+
+    @property
+    def has_poze_out_of_bounds(self):
+        return self.poze_out_of_bounds > 0
+
+    @property
+    def total_participanti(self):
+        return self.participantieveniment_set.aggregate(Sum("numar"))['numar__sum']
+
     def get_visibility_level(self, user=None):
         from structuri.models import TipAsociereMembruStructura
         visibility_level = 4
@@ -182,6 +251,7 @@ class Eveniment(models.Model):
         if not self.locatie_geo:
             return 0
         return self.locatie_geo.split(";")[0]
+
     def locatie_geo_long(self):
         if not self.locatie_geo:
             return 0
@@ -215,6 +285,23 @@ class RaportEveniment(models.Model):
     class Meta:
         ordering = ["-timestamp"]
 
+    def parteneri_list(self):
+        return self.attr_list(self.parteneri)
+
+    def obiective_list(self):
+        return self.attr_list(self.obiective)
+
+    def activitati_list(self):
+        return self.attr_list(self.activitati)
+
+    def promovare_list(self):
+        return self.attr_list(self.promovare)
+
+    def attr_list(self, field):
+        if field is None:
+            return None
+        return [a for a in field.split("\n") if a.strip() != ""]
+
     def save_new_version(self, user, *args, **kwargs):
         self.is_leaf = False
         self.is_locked = True
@@ -230,6 +317,9 @@ class RaportEveniment(models.Model):
         self.save(*args, **kwargs)
 
 
+ROL_PARTICIPARE = (("participant", u"Participant"), ("coordonator", u"Coordonator"), ("staff", u"Membru staff"))
+
+
 class ParticipareEveniment(models.Model):
     membru = models.ForeignKey("structuri.Membru")
     eveniment = models.ForeignKey(Eveniment)
@@ -238,10 +328,48 @@ class ParticipareEveniment(models.Model):
 
     status_participare = models.IntegerField(default=1, choices=STATUS_PARTICIPARE)
     detalii = models.TextField(null=True, blank=True)
+    rol = models.CharField(max_length=255, default="participant", choices=ROL_PARTICIPARE)
 
     @property
     def is_partiala(self):
         return self.data_sosire.date() != self.eveniment.start_date.date() or self.data_plecare.date() != self.eveniment.end_date.date()
+
+
+TIPURI_CAMP_PARTICIPARE = (("text", u"Text"), ("number", u"Număr"), ("bool", u"Bifă"), ("date", u"Dată"))
+
+
+class CampArbitrarParticipareEveniment(models.Model):
+    eveniment = models.ForeignKey(Eveniment)
+    tip_camp = models.CharField(max_length=255, choices=TIPURI_CAMP_PARTICIPARE)
+
+    
+class InstantaCampArbitrarParticipareEveniment(models.Model):
+    camp = models.ForeignKey(CampArbitrarParticipareEveniment)
+    participare = models.ForeignKey(ParticipareEveniment)
+    valoare_text = models.CharField(max_length=255, null=True, blank=True)
+    
+    def process_bool(self):
+        return True if self.valoare_text.lower() == "true" else False
+        
+    def process_number(self):
+        try:
+            return int(self.valoare_text)
+        except Exception, e:
+            return float(self.valoare_text)
+        except Exception, e:
+            return 0
+
+    def process_text(self):
+        return self.valoare_text
+
+    def process_date(self):
+        return datetime.datetime.strptime(self.valoare_text, "%d.%M.%Y")
+
+    
+@receiver(post_init, sender=InstantaCampArbitrarParticipareEveniment)
+def update_value(sender, instance, **kwargs):
+    instance.valoare = None
+    instance.valoare = getattr(instance, "process_{0}".format(instance.camp.tip_camp))
 
 
 class ZiEveniment(models.Model):
@@ -328,7 +456,7 @@ class SetPoze(models.Model):
 
         try:
             event_path_no_root = os.path.join(SCOUTFILE_ALBUM_STORAGE_ROOT, unicode(self.eveniment.centru_local.id),
-                                              unicode(self.eveniment.id), self.autor.replace(" ", "_"))
+                                              unicode(self.eveniment.id), unidecode(self.autor.replace(" ", "_")))
             event_path = os.path.join(MEDIA_ROOT, event_path_no_root)
             if not os.path.exists(os.path.join(MEDIA_ROOT, event_path)):
                 os.makedirs(os.path.join(MEDIA_ROOT, event_path))
@@ -339,10 +467,8 @@ class SetPoze(models.Model):
                 for f in zf.infolist():
                     logger.debug("SetPoze: fisier extras %s" % f)
                     f.external_attr = 0777 << 16L
-                    if f.filename.endswith("/") or os.path.splitext(f.filename)[1].lower() not in (
-                    ".jpg", ".jpeg", ".png"):
-                        logger.debug(
-                            "SetPoze skipping %s %s %s" % (f, f.filename, os.path.splitext(f.filename)[1].lower()))
+                    if f.filename.endswith("/") or os.path.splitext(f.filename)[1].lower() not in (".jpg", ".jpeg", ".png"):
+                        logger.debug("SetPoze skipping %s %s %s" % (f, f.filename, os.path.splitext(f.filename)[1].lower()))
                         continue
                     logger.debug("SetPoze: extracting file %s to %s" % (f.filename, event_path))
                     zf.extract(f, event_path)

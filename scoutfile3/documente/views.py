@@ -4,7 +4,7 @@ from django.db.models.aggregates import Sum
 from django.utils.simplejson import dumps
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
-from django.views.generic.edit import CreateView, UpdateView, FormView
+from django.views.generic.edit import CreateView, UpdateView, FormView, DeleteView, FormMixin
 from django.shortcuts import get_object_or_404
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.pagesizes import A4
@@ -19,6 +19,7 @@ from django.core.urlresolvers import reverse
 from django.views.generic.base import TemplateView
 from goodies.views import JSONView, ContextMenuMixin
 from django.contrib import messages
+import traceback
 
 from documente.forms import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm, DecizieCuantumCotizatieForm, TransferIncasariForm, AdeziuneUpdateForm, AdeziuneCreateForm, \
     DecizieGeneralaForm, DecizieGeneralaUpdateForm
@@ -238,6 +239,7 @@ class DeclaratieCotizatieSocialaAdauga(CreateView):
         data = super(DeclaratieCotizatieSocialaAdauga, self).get_context_data(**kwargs)
         data.update({"membru" : self.target})
         return data
+
 
 class DeclaratieCotizatieSocialaModifica(UpdateView):
     template_name = "documente/declaratie_cotizatie_sociala.html"
@@ -526,13 +528,10 @@ class CalculeazaAcoperireCotizatie(JSONView):
     def get(self, request, *args, **kwargs):
         self.validate(**self.parse_json_data())
 
-        plati, rest, status_text, diff  = PlataCotizatieTrimestru.calculeaza_acoperire(membru=self.cleaned_data['membru'],
-                                                     suma=self.cleaned_data['suma'])
+        pct_args = dict(membru=self.cleaned_data['membru'], suma=self.cleaned_data['suma'])
+        plati, rest, status_text, diff = PlataCotizatieTrimestru.calculeaza_acoperire(**pct_args)
 
-        return HttpResponse(self.construct_json_response(plati=plati,
-                                                         suma=rest,
-                                                         status_text=status_text,
-                                                         diff=diff))
+        return HttpResponse(self.construct_json_response(plati=plati, suma=rest, status_text=status_text, diff=diff))
 
     def post(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
@@ -696,6 +695,7 @@ class AdeziuneMembruModifica(UpdateView):
     def get_success_url(self):
         return reverse("structuri:membru_detail", kwargs = {"pk" : self.membru.id}) + "#documente"
 
+
 class ChitantaPrintare(DetailView):
     model = Chitanta
 
@@ -766,7 +766,7 @@ class ChitantaPrintare(DetailView):
 
         paragraph = Paragraph(text_chitanta, style)
         w, h  = paragraph.wrap(15. * cm, 5. * cm)
-        print w, h
+        # print w, h
 
         paragraph.drawOn(pdf, 3. * cm, 5.5 * cm)
         paragraph.drawOn(pdf, 3. * cm, 19.2 * cm)
@@ -784,5 +784,10 @@ class ChitantaPrintare(DetailView):
 
         return response
 
+
 class ChitantaPrintMultiple(ListView):
     model = Chitanta
+
+#
+# class StergeChitantaCotizatie(DeleteView, FormMixin):
+#     template_name = "documente/delet"
