@@ -56,6 +56,21 @@ class Structura(models.Model):
 
         return None
 
+    def cercetasi(self, qs=False, tip_asociere=u"Membru"):
+        asociere = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(self),
+                                                          object_id=self.id,
+                                                          moment_incheiere__isnull=True)
+
+        if isinstance(tip_asociere, type([])):
+            print tip_asociere
+            asociere = asociere.filter(tip_asociere__nume__in=tip_asociere)
+        else:
+            asociere = asociere.filter(tip_asociere__nume__iexact=tip_asociere)
+
+        if qs:
+            return asociere
+        return [a.membru for a in asociere]
+
 SPECIFIC_CENTRU_LOCAL = (("catolic", "Catolic"), ("marinaresc", u"Marinăresc"))
 STATUT_JURIDIC_CENTRU_LOCAL = (("pj", u"Filală"), ("nopj", u"Sucursală"), ("gi", u"Grup de inițiativă"))
 STATUT_DREPTURI_CENTRU_LOCAL = (
@@ -103,16 +118,6 @@ class CentruLocal(Structura):
     def get_absolute_url(self):
         return ("structuri:cl_detail", [], {"pk": self.id})
 
-    def cercetasi(self, qs=False, tip_asociere=u"Membru"):
-        asociere = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(self),
-                                                          object_id=self.id,
-                                                          tip_asociere__nume=tip_asociere,
-                                                          moment_incheiere__isnull=True)
-        if qs:
-            return asociere
-        return [a.membru for a in asociere]
-
-
     def adeziuni_lipsa(self):
         cnt_membri = self.cercetasi(qs=True).count()
         cnt_adeziuni = AsociereDocument.objects.filter(content_type=ContentType.objects.get_for_model(Membru),
@@ -120,6 +125,7 @@ class CentruLocal(Structura):
                                                        document__tip_document__slug="adeziune",
                                                        document__registru__centru_local=self).count()
         return cnt_membri - cnt_adeziuni
+
 
 class Unitate(Structura):
     class Meta:
@@ -159,6 +165,13 @@ class Patrula(Structura):
 
     def __unicode__(self):
         return u"%s" % self.nume
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ("structuri:patrula_detail", [], {"pk": self.id})
+
+    def lideri(self, qs=False):
+        return self.cercetasi(qs=qs, tip_asociere=["Lider", "Lider asistent"])
 
 
 class Utilizator(models.Model):
@@ -231,7 +244,7 @@ class AsociereMembruFamilie(models.Model):
     persoana_destinatie = models.ForeignKey("Membru", related_name="membru_destinatie")
 
     @classmethod
-    def rude_cercetasi(cls, membru):
+    def rude_cercetasi(cls, membru, exclude_self=False):
         """ Intoarce toate persoanele din familie, inclusiv persoana sursa
         
         Se poate folosi pentru calculul diferentiat al cotizatiilor, si a altor taxe
@@ -243,6 +256,9 @@ class AsociereMembruFamilie(models.Model):
                     people.append(con.persoana_sursa)
                 if con.persoana_destinatie not in people:
                     people.append(con.persoana_destinatie)
+
+        if exclude_self:
+            people = [p for p in people if p != membru]
         return people
 
 
@@ -300,7 +316,7 @@ class Membru(Utilizator):
     def mobil(self):
         mobil_filters = dict(content_type=ContentType.objects.get_for_model(self),
                              object_id=self.id,
-                             tip_informatie__nume__iexact=u"Adresă corespondență",
+                             tip_informatie__nume__iexact=u"Mobil",
                              tip_informatie__relevanta="Membru")
 
         try:
@@ -331,12 +347,16 @@ class Membru(Utilizator):
             return asociere[0].content_object
         return None
 
-    def get_patrula(self):
+    def get_patrula(self, qs=False):
         kwargs = {"content_type": ContentType.objects.get_for_model(Patrula),
-                  "moment_incheiere__isnull": False,
-                  "tip_asociere__nume": u"Membru"}
+                  "moment_incheiere__isnull": True,
+                  "tip_asociere__nume": u"Membru",
+                  "tip_asociere__content_types__in": [ContentType.objects.get_for_model(Patrula)],
+                  "membru": self}
         asociere = AsociereMembruStructura.objects.filter(**kwargs).order_by("-moment_inceput")
         if asociere.count():
+            if qs:
+                return asociere[0]
             return asociere[0].content_object
         return None
 
@@ -400,10 +420,11 @@ class Membru(Utilizator):
             return self.get_unitate().ramura_de_varsta.nume
         return None
 
-    def asociaza(self, rol, structura, data_start=None, data_end=None):
-        tip_asociere, created = TipAsociereMembruStructura.objects.get_or_create(nume__iexact=rol)
+    def asociaza(self, rol, structura, data_start=None, data_end=None, confirmata=False, user=None):
+        tip_asociere, created = TipAsociereMembruStructura.objects.get_or_create(nume__iexact=rol, content_types__in=[ContentType.objects.get_for_model(structura)])
         if created:
             tip_asociere.save()
+            tip_asociere.content_types.add(ContentType.objects.get_for_model(structura))
 
         asociere = AsociereMembruStructura(membru=self,
                                            content_type=ContentType.objects.get_for_model(structura),
@@ -412,6 +433,8 @@ class Membru(Utilizator):
                                            moment_inceput=data_start,
                                            moment_incheiere=data_end)
         asociere.save()
+        if confirmata:
+            asociere.confirma(user)
         return asociere
 
     def get_badges_rdv(self):
@@ -541,21 +564,19 @@ class Membru(Utilizator):
         if self.are_cotizatie_sociala():
             return valoare
 
-        familie = AsociereMembruFamilie.rude_cercetasi(self)
-        filter_kwargs = dict(
-            trimestru=trimestru,
-            membru__in=familie,
-            tip_inregistrare="normal")
+        familie = AsociereMembruFamilie.rude_cercetasi(self, exclude_self=True)
+
+        filter_kwargs = dict(trimestru=trimestru, membru__in=familie, tip_inregistrare="normal")
 
         try:
-            platitori_cnt = PlataCotizatieTrimestru.objects.filter(**filter_kwargs).select_related("membru").values(
-                "membru", flat=True).distinct().count()
+            platitori_cnt = PlataCotizatieTrimestru.objects.filter(**filter_kwargs).select_related("membru").values_list("membru", flat=True).distinct().count()
         except Exception, e:
             logger.error("{0}: problemă la obținerea de platitori de cotizatie: {1}".format(self.__class__.__name__, e))
             platitori_cnt = 0
+
         quotas = {0: 1, 1: 0.5, 2: 0.25}
         quota = quotas.get(platitori_cnt, 0.25)
-        return valoare / quota
+        return valoare * quota
 
     def _status_cotizatie(self):
         """ Cotizatia se poate plati pana pe 15 a primei luni din urmatorul trimestru
@@ -564,21 +585,25 @@ class Membru(Utilizator):
         """
 
         pct = PlataCotizatieTrimestru.objects.filter(membru=self, final=True).order_by("-trimestru__ordine_globala")[0:1]
+        nothing = False
         if pct.count():
             ultimul_trimestru = pct[0].trimestru
         else:
             ultimul_trimestru = self.get_trimestru_initial_cotizatie()
+            nothing = True
 
         from documente.models import Trimestru
         today = datetime.date.today()
         trimestru_curent = Trimestru.trimestru_pentru_data(today)
 
-        print trimestru_curent
-        print ultimul_trimestru
+        # print trimestru_curent
+        # print ultimul_trimestru
 
         # -1 vine de la faptul ca cotizatia se plateste in urma, nu in avans, deci trimestrul curent
         # se plateste dupa ce se termina
         diferenta_trimestre = trimestru_curent.ordine_globala - ultimul_trimestru.ordine_globala - 1
+        if nothing:
+            diferenta_trimestre += 1
 
         # daca suntem in perioada de gratie de doua saptamani de la inceputul trimestrului, nici trimestrul
         # trecut nu conteaza
@@ -642,7 +667,6 @@ class Membru(Utilizator):
         return None
 
 
-
 class TipAsociereMembruStructura(models.Model):
     """
     Tipuri asociere membru la structura. Spre exemplu, un cercetas intr-un centru local este membru,
@@ -661,7 +685,7 @@ class AsocierePublicManager(models.Manager):
 
 
 ordine_structuri = {u"Patrulă": u"Unitate", u"Unitate": u"Centru Local"}
-campuri_structuri = {u"Patrulă": "unitate", u"Unitate": u"centru_local"}
+campuri_structuri = {u"Patrulă": u"Unitate", u"Unitate": u"centru_local"}
 
 
 class AsociereMembruStructura(models.Model):
@@ -687,21 +711,20 @@ class AsociereMembruStructura(models.Model):
         return u"%s - %s - %s" % (self.membru, self.tip_asociere, self.content_object)
 
     def get_structura(self, ctype):
-        lookups = {"centru_local": {"centru_local": lambda: self.content_object},
-                   "unitate": {"centru_local": lambda: self.content_object.centru_local,
+        lookups = {"centrulocal": {"centrulocal": lambda: self.content_object},
+                   "unitate": {"centrulocal": lambda: self.content_object.centru_local,
                                "unitate": lambda: self.content_object},
-                   "patrula": {"centru_local": lambda: self.content_object.unitate.centru_local,
+                   "patrula": {"centrulocal": lambda: self.content_object.unitate.centru_local,
                                "unitate": lambda: self.content_object.unitate,
                                "patrula": lambda: self.content_object}}
 
-        if self.content_type.name not in lookups.keys():
+        if self.content_type.model not in lookups.keys():
             return None
 
-        if not lookups.get(self.content_type.name).has_key(ctype.name):
+        if ctype.model not in lookups.get(self.content_type.model):
             return None
 
-        return lookups.get(self.content_type.name).get(ctype.name)()
-
+        return lookups.get(self.content_type.model).get(ctype.model)()
 
     def confirma(self, user):
         self.confirmata = True

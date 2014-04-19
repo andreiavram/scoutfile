@@ -3,12 +3,15 @@ from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     RotateImage, EvenimentStats, ZiStats, FlagImage, EvenimentList, \
     SetImaginiUpload, SetImaginiDeleteAjax, SetImaginiToate, \
     SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate, EvenimentCreate, EvenimentUpdate, EvenimentDetail, EvenimentDelete, PozaUpdate, ZiEdit, PozaDelete, ImagineTagSearch, ImagineSearchJSON, ZiDetailBeta, \
-    RaportEvenimentDetail, RaportEvenimentUpdate, RaportEvenimentHistory
+    RaportEvenimentDetail, RaportEvenimentUpdate, RaportEvenimentHistory, CalendarCentruLocal, CalendarEvents, \
+    RaportStatus, RaportActivitate, RaportCompletPentruExport
 from album.views import ChangeImagineVisibility
 
 
 urlpatterns = patterns('album.views',
                        (r'eveniment/list/$', EvenimentList.as_view(), {}, "index"),
+                       (r'eveniment/raport/status/$', RaportStatus.as_view(), {}, "raport_status"),
+                       (r'eveniment/raport/export/$', RaportCompletPentruExport.as_view(), {}, "raport_export"),
                        (r'eveniment/(?P<slug>\w+)/album/$', AlbumEvenimentDetail.as_view(), {}, "eveniment_detail"),
                        (r'eveniment/(?P<pk>\d+)/stats/$', EvenimentStats.as_view(), {}, "eveniment_stats"),
                        (r'eveniment/zi/(?P<pk>\d+)/$', ZiDetail.as_view(), {}, "zi_detail_old"),
@@ -19,6 +22,9 @@ urlpatterns = patterns('album.views',
                        (r'eveniment/(?P<slug>\w+)/seturi/$', EvenimentSeturi.as_view(), {}, "eveniment_seturi_toate"),
                        (r'eveniment/(?P<slug>\w+)/mine/$', EvenimentSeturiUser.as_view(), {}, "eveniment_seturi_user"),
 
+                       (r'eveniment/(?P<pk>\d+)/calendar/$', CalendarCentruLocal.as_view(), {}, "calendar_centru_local"),
+                       (r'eveniment/(?P<pk>\d+)/calendar/events/$', CalendarEvents.as_view(), {}, "events_centru_local"),
+
                        (r'eveniment/create/$', EvenimentCreate.as_view(), {}, "eveniment_create"),
                        (r'eveniment/(?P<slug>\w+)/edit/$', EvenimentUpdate.as_view(), {}, "eveniment_update"),
                        (r'eveniment/(?P<slug>\w+)/delete/$', EvenimentDelete.as_view(), {}, "eveniment_delete"),
@@ -27,6 +33,7 @@ urlpatterns = patterns('album.views',
                        (r'eveniment/(?P<slug>\w+)/raport/$', RaportEvenimentDetail.as_view(), {}, "eveniment_raport_detail"),
                        (r'eveniment/(?P<slug>\w+)/raport/edit/$', RaportEvenimentUpdate.as_view(), {}, "eveniment_raport_update"),
                        (r'eveniment/(?P<slug>\w+)/raport/history/$', RaportEvenimentHistory.as_view(), {}, "eveniment_raport_history"),
+                       (r'eveniment/(?P<slug>\w+)/raport/final/$', RaportActivitate.as_view(), {}, "eveniment_raport_complet"),
 
                        (r'set/(?P<pk>\d+)/$', SetPozeUpdate.as_view(), {}, "set_poze_edit"),
                        (r'set/(?P<pk>\d+)/delete/$', SetImaginiDeleteAjax.as_view(), {}, "set_poze_delete_ajax"),

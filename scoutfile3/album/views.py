@@ -1,5 +1,6 @@
 # coding: utf-8
 from django.db.models.aggregates import Count
+from django.db.models.query_utils import Q
 from django.utils.simplejson import dumps
 from django.views.generic.edit import UpdateView, CreateView
 from django.views.generic.detail import DetailView
@@ -20,13 +21,14 @@ from django.contrib.auth.decorators import login_required
 from taggit.models import Tag
 from taggit.utils import parse_tags
 
-from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment
+from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment, \
+    ParticipareEveniment
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm
 from album.models import SetPoze
 from album.forms import SetPozeCreateForm, SetPozeUpdateForm
-from goodies.views import GenericDeleteView
+from goodies.views import GenericDeleteView, CalendarViewMixin
 from settings import MEDIA_ROOT
-from structuri.models import Membru, RamuraDeVarsta
+from structuri.models import Membru, RamuraDeVarsta, CentruLocal
 from goodies.views import JSONView
 from generic.views import ScoutFileAjaxException
 from album.models import IMAGINE_PUBLISHED_STATUS
@@ -42,7 +44,10 @@ class EvenimentList(ListView):
     template_name = "album/eveniment_list.html"
 
     def get_queryset(self, *args, **kwargs):
-        return super(EvenimentList, self).get_queryset(*args, **kwargs)
+        qs = super(EvenimentList, self).get_queryset(*args, **kwargs)
+        if self.request.user.is_authenticated():
+            qs = qs.filter(centru_local = self.request.user.get_profile().membru.centru_local)
+        return qs
 
 
 class AlbumEvenimentDetail(DetailView):
@@ -879,3 +884,127 @@ class RaportEvenimentHistory(ListView):
         data = super(RaportEvenimentHistory, self).get_context_data(**kwargs)
         data['eveniment'] = self.eveniment
         return data
+
+
+class CalendarCentruLocal(CalendarViewMixin, DetailView):
+    template_name = "album/calendar.html"
+    model = CentruLocal
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(CalendarCentruLocal, self).dispatch(request, *args, **kwargs)
+
+    def get_events_url(self):
+        return reverse("album:events_centru_local", kwargs={"pk": self.object.id})
+
+
+class CalendarEvents(ListView):
+    model = Eveniment
+    template_name = "album/json/events.json"
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        self.cl = get_object_or_404(CentruLocal, id=kwargs.pop("pk"))
+        if "from" not in request.GET or "to" not in request.GET:
+            return HttpResponseBadRequest("Need to have 'to' and 'from' data set!")
+        self.from_date = datetime.datetime.fromtimestamp(float(request.GET['from']) / 1000)
+        self.to_date = datetime.datetime.fromtimestamp(float(request.GET['to']) / 1000)
+        return super(CalendarEvents, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        qs = self.model.objects.filter(centru_local=self.cl)
+        qs = qs.filter(Q(start_date__range=[self.from_date, self.to_date])
+                       | Q(end_date__range=[self.from_date, self.to_date])
+                       | Q(start_date__lte=self.from_date, end_date__gte=self.to_date))
+        return qs
+
+
+class RaportStatus(ListView):
+    model = Eveniment
+    template_name = "album/eveniment_raport_status.html"
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        self.cl = request.user.get_profile().membru.get_centru_local()
+        return super(RaportStatus, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        self.an = datetime.datetime.now().year - 1
+        return self.model.objects.filter(start_date__year=self.an, centru_local=self.cl).order_by("start_date")
+
+    def get_context_data(self, **kwargs):
+        data = super(RaportStatus, self).get_context_data(**kwargs)
+        data['scor_anual'] = sum(e.scor_calitate() for e in self.object_list)
+        data['an'] = self.an
+        return data
+
+
+class EvenimentParticipantList(ListView):
+    model = ParticipareEveniment
+    template_name = "album/eveniment_participant_list.html"
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(EvenimentParticipantList, self).dispatch(request, *args, **kwargs)
+
+
+class AdaugaParticipantEveniment(CreateView):
+    model = ParticipareEveniment
+    template_name = "album/eveniment_participant_form.html"
+    # form_class = ParticipantEvenimentForm
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+        return super(AdaugaParticipantEveniment, self).dispatch(request, *args, **kwargs)
+
+
+class ModificaParticipantEveniment(UpdateView):
+    model = ParticipareEveniment
+    template_name = "album/eveniment_participant_form.html"
+    # form_class = ParticipantEvenimentForm
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(ModificaParticipantEveniment, self).dispatch(request, *args, **kwargs)
+
+
+class InscriereEveniment(CreateView):
+    model = ParticipareEveniment
+    template_name = "album/eveniment_participant_form.html"
+    # form_class = InscriereEvenimentForm
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(InscriereEveniment, self).dispatch(request, *args)
+
+
+class RaportCompletPentruExport(ListView):
+    model = Eveniment
+    template_name = "album/eveniment_raport_export.html"
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(RaportCompletPentruExport, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        self.an = datetime.datetime.now().year - 1
+        qs = super(RaportCompletPentruExport, self).get_queryset()
+        qs = qs.filter(centru_local=self.request.user.get_profile().membru.centru_local)
+        qs = qs.filter(end_date__year=self.an)
+        qs = qs.order_by("end_date")
+        return qs
+
+    def get_context_data(self, **kwargs):
+        data = super(RaportCompletPentruExport, self).get_context_data(**kwargs)
+        data['an'] = self.an
+        return data
+
+class RaportActivitate(DetailView):
+    model = Eveniment
+    template_name = "album/eveniment_raport_complet.html"
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(RaportActivitate, self).dispatch(request, *args, **kwargs)
+

@@ -8,6 +8,7 @@ import datetime
 from django.db.models.aggregates import Sum
 from django.db.models.signals import pre_delete
 from django.dispatch.dispatcher import receiver
+import traceback
 from settings import VALOARE_IMPLICITA_COTIZATIE_NATIONAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL_SOCIAL, VALOARE_IMPLICITA_COTIZATIE_NATIONAL_SOCIAL
 
 # Create your models here.
@@ -254,9 +255,8 @@ class Trimestru(models.Model):
         @see: DecizieCotizatie
         """
 
-        pachet_cotizatii = DecizieCotizatie.get_package_for_centru_local(centru_local=membru.centru_local,
-                                                                         trimestru=self,
-                                                                         social=membru.are_cotizatie_sociala())
+        filtru_cotizatii = dict(centru_local=membru.centru_local, trimestru=self, social=membru.are_cotizatie_sociala())
+        pachet_cotizatii = DecizieCotizatie.get_package_for_centru_local(**filtru_cotizatii)
         valoare_trimestriala = (pachet_cotizatii['national'] + pachet_cotizatii['local']) / 4.
         return valoare_trimestriala
 
@@ -279,11 +279,11 @@ class PlataCotizatieTrimestru(models.Model):
     tip_inregistrare = models.CharField(max_length=255, choices=MOTIVE_INREGISTRARE_PLATA_COTIZATIE, default="normal")
 
     def __json__(self):
-        return {"trimestru" : self.trimestru.__json__(),
-                "partial" : self.partial,
-                "final" : self.final,
-                "suma" : self.suma,
-                "membru" : u"%s" % self.membru}
+        return {"trimestru": self.trimestru.__json__(),
+                "partial": self.partial,
+                "final": self.final,
+                "suma": self.suma,
+                "membru": u"%s" % self.membru}
 
     @classmethod
     def calculeaza_necesar(cls, membru):
@@ -291,12 +291,12 @@ class PlataCotizatieTrimestru(models.Model):
         t_current = trimestru_initial
         t_target = Trimestru.trimestru_pentru_data(data=datetime.date.today() - datetime.timedelta(days=15))
 
-        print t_current
-        print t_target
+        # print t_current
+        # print t_target
 
         suma_necesara = 0
         while t_current.ordine_globala < t_target.ordine_globala:
-            print t_current, t_target
+            # print t_current, t_target
             cotizatie_trimestru_nominal = t_current.identifica_cotizatie(membru)
             cotizatie_trimestru = membru.aplica_reducere_familie(cotizatie_trimestru_nominal, t_current)
             if plati_partiale:
@@ -353,7 +353,7 @@ class PlataCotizatieTrimestru(models.Model):
                             "final": not (suma - cotizatie_trimestru < 0)}
 
             if plati_partiale:
-                suma_colectata = plati_partiale.annotate(Sum("suma")).suma__sum
+                suma_colectata = plati_partiale.aggregate(Sum("suma"))['suma__sum']
                 if suma >= cotizatie_trimestru - suma_colectata:
                     plata_kwargs['suma'] = cotizatie_trimestru - suma_colectata
                     plata_kwargs['final'] = True
@@ -385,24 +385,24 @@ class PlataCotizatieTrimestru(models.Model):
 
         #   daca avem DOAR o plata partiala, inseamna ca nu s-a schimbat de fapt nimic, nu exista
         #   avansare in calculul statusului, deci trebuie compensat
-        if trimestru_initial == trimestru_plata_completa and not plata.final:
+        if trimestru_initial == trimestru_plata_completa and plata and not plata.final:
             diff += 1
 
         #   implementare pentru perioada de gratie de 15 zile la sfarsitul fiecarui trimestru
-        if not trimestru_azi.data_in_trimestru(today - datetime.timedelta(days = 15)):
+        if not trimestru_azi.data_in_trimestru(today - datetime.timedelta(days=15)):
             diff -= 1
 
         if commit:
             for plata in plati:
                 plata.save()
 
-        return plati, suma, membru.status_cotizatie(for_diff = diff), diff
+        return plati, suma, membru.status_cotizatie(for_diff=diff), diff
 
     def __unicode__(self):
         return u"Plată pentru %s, pe %s, în valoare de %.2f RON" % (self.membru, self.trimestru, self.suma)
 
 class ChitantaCotizatie(Chitanta):
-    registre_compatibile = ["chitantier", ]
+    registre_compatibile = ["chitantier", "intern"]
     predat = models.BooleanField(default=False)
 
     def save(self, **kwargs):

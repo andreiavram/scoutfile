@@ -36,7 +36,8 @@ from structuri.forms import MembruCreateForm, MembruUpdateForm, \
     UnitateLiderCreateForm, AsociereCreateForm, AsociereUpdateForm, \
     CentruLocalAdminCreateForm, CentruLocalAdminUpdateForm, \
     InformatieContactCreateForm, InformatieContactUpdateForm, \
-    InformatieContactDeleteForm, AsociereMembruFamilieForm, PersoanaDeContactForm, SetariSpecialeCentruLocalForm
+    InformatieContactDeleteForm, AsociereMembruFamilieForm, PersoanaDeContactForm, SetariSpecialeCentruLocalForm, \
+    PatrulaMembruAsociazaForm
 from structuri.models import CentruLocal, AsociereMembruStructura, \
     Membru, Unitate, Patrula, TipAsociereMembruStructura, Utilizator, ImagineProfil, \
     InformatieContact, TipInformatieContact, AsociereMembruFamilie, \
@@ -298,7 +299,6 @@ class CentruLocalMembruCreate(CentruLocalLiderCreate):
 
 class CentruLocalMembruAsociaza(CreateView):
     model = AsociereMembruStructura
-
 
 class CentruLocalMembriPending(ListView):
     model = Membru
@@ -563,12 +563,9 @@ class UnitateDetail(DetailView, TabbedViewMixin):
 
     def get_tabs(self, *args, **kwargs):
         self.tabs = (("brief", u"Sumar", reverse("structuri:unitate_tab_brief", kwargs={"pk": self.object.id}), "", 1),
-                     (
-                         "patrule", u"Patrule", reverse("structuri:unitate_tab_patrule", kwargs={"pk": self.object.id}),
-                         "",
-                         2),
-                     ("membri", u"Membri", reverse("structuri:unitate_tab_membri", kwargs={"pk": self.object.id}), "",
-                      3),)
+                     ("patrule", u"Patrule", reverse("structuri:unitate_tab_patrule", kwargs={"pk": self.object.id}), "", 2),
+                     ("membri", u"Membri", reverse("structuri:unitate_tab_membri", kwargs={"pk": self.object.id}), "", 3),
+                     ("membri_fp", u"Membri fără patrulă", reverse("structuri:unitate_tab_membri_fara_patrula", kwargs={"pk": self.object.id}), "", 3))
 
         return super(UnitateDetail, self).get_tabs(*args, **kwargs)
 
@@ -679,7 +676,7 @@ class UnitateTabPatrule(ListView):
 
 
 class UnitateTabMembri(ListView):
-    model = Membru
+    model = AsociereMembruStructura
     template_name = "structuri/unitate_tab_membri.html"
 
     @allow_by_afiliere([("Unitate, Centru Local", "Lider")])
@@ -688,16 +685,23 @@ class UnitateTabMembri(ListView):
         return super(UnitateTabMembri, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
-        tip_asociere_membru = TipAsociereMembruStructura.objects.get(nume=u"Membru")
+        tip_asociere_membru = TipAsociereMembruStructura.objects.get(nume=u"Membru", content_types__in=[ContentType.objects.get_for_model(self.unitate)])
         asocieri = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(Unitate),
                                                           object_id=self.unitate.id,
-                                                          tip_asociere=tip_asociere_membru)
+                                                          tip_asociere=tip_asociere_membru,
+                                                          moment_incheiere__isnull=True)
 
         return asocieri
 
     def get_context_data(self, **kwargs):
         kwargs.update({"unitate": self.unitate})
         return super(UnitateTabMembri, self).get_context_data(**kwargs)
+
+
+class UnitateTabMembriFaraPatrula(UnitateTabMembri):
+    def get_queryset(self, **kwargs):
+        qs = super(UnitateTabMembriFaraPatrula, self).get_queryset(**kwargs)
+        return [a for a in qs if a.membru.get_patrula() is None]
 
 
 class UnitateMembruAsociaza(CreateView):
@@ -732,16 +736,8 @@ class PatrulaUpdate(UpdateView):
     model = Patrula
     form_class = PatrulaUpdateForm
 
-    @allow_by_afiliere([("Unitate", "Lider"), ("Unitate, Centru Local", "Membru Consiliul Centrului Local")])
+    @allow_by_afiliere([("Patrula, Unitate", "Lider"), ("Patrula, Unitate, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object(self.get_queryset())
-
-        membru = request.user.get_profile().membru
-        if not membru.are_calitate(u"Membru Consiliu Centru Local",
-                                   self.object.unitate.centru_local) and not membru.are_calitate(u"Lider",
-                                                                                                 self.object.unitate):
-            return HttpResponseRedirect(reverse("login") + "?unauthorized")
-
         return super(PatrulaUpdate, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -761,8 +757,7 @@ class PatrulaDetail(DetailView, TabbedViewMixin):
 
     def get_tabs(self, *args, **kwargs):
         self.tabs = (("brief", "Sumar", reverse("structuri:patrula_tab_brief", kwargs={"pk": self.object.id}), "", 1),
-                     ("membri", u"Membri", reverse("structuri:patrula_tab_membri", kwargs={"pk": self.object.id}), "",
-                      2))
+                     ("membri", u"Membri", reverse("structuri:patrula_tab_membri", kwargs={"pk": self.object.id}), "", 2))
 
         return super(PatrulaDetail, self).get_tabs(*args, **kwargs)
 
@@ -787,7 +782,8 @@ class PatrulaTabMembri(ListView):
     model = Membru
     template_name = "structuri/patrula_tab_membri.html"
 
-    @allow_by_afiliere([("Unitate, Centru Local", "Lider")])
+
+    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider")])
     def dispatch(self, request, *args, **kwargs):
         self.patrula = get_object_or_404(Patrula, id=kwargs.pop("pk"))
         return super(PatrulaTabMembri, self).dispatch(request, *args, **kwargs)
@@ -797,10 +793,16 @@ class PatrulaTabMembri(ListView):
             ContentType.objects.get_for_model(Patrula),))
         asocieri = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(Patrula),
                                                           object_id=self.patrula.id,
-                                                          tip_asociere=tip_asociere_membru)
+                                                          tip_asociere=tip_asociere_membru,
+                                                          moment_incheiere__isnull=True)
 
         return asocieri
 
+    def get_context_data(self, **kwargs):
+        data = super(PatrulaTabMembri, self).get_context_data(**kwargs)
+        data['object'] = self.patrula
+        # data['form'] = self.form_class()
+        return data
 
 class PatrulaDelete(GenericDeleteView):
     model = Patrula
@@ -845,7 +847,44 @@ class PatrulaMembruCreate(CreateView):
 
 class PatrulaMembruAsociaza(CreateView):
     model = AsociereMembruStructura
+    form_class = PatrulaMembruAsociazaForm
+    template_name = "structuri/membru_asociere_form.html"
 
+    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider")])
+    def dispatch(self, request, *args, **kwargs):
+        self.patrula = get_object_or_404(Patrula, id=kwargs.pop("pk"))
+        return super(PatrulaMembruAsociaza, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.content_type = ContentType.objects.get_for_model(Patrula)
+        self.object.object_id = self.patrula.id
+
+        #   verifica daca membrul are o alta asociere la o patrula.
+        #   daca are, o inceteaza din data in care este mutat la patrula curenta
+        asociere_patrula = self.object.membru.get_patrula(qs=True)
+        if asociere_patrula:
+            asociere_patrula.moment_incheiere = form.cleaned_data['asociere_inceput']
+            asociere_patrula.save()
+
+        asociere = self.object.membru.asociaza("membru", self.patrula,
+                                               data_start=form.cleaned_data['asociere_inceput'],
+                                               confirmata=True,
+                                               user=self.request.user.get_profile())
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_form_kwargs(self):
+        data = super(PatrulaMembruAsociaza, self).get_form_kwargs()
+        data['patrula'] = self.patrula
+        return data
+
+    def get_success_url(self):
+        return reverse("structuri:patrula_detail", kwargs={"pk": self.patrula.id}) + "#membri"
+
+    def get_context_data(self, **kwargs):
+        data = super(PatrulaMembruAsociaza, self).get_context_data(**kwargs)
+        data['target_object'] = self.patrula
+        return data
 
 class MembruUpdate(UpdateView):
     model = Membru
@@ -1870,9 +1909,8 @@ class SetariSpecialeCentruLocal(UpdateView):
     def get(self, request, *args, **kwargs):
         self.object = get_object_or_404(self.model, id=kwargs.get("pk"))
         if self.object.moment_initial_cotizatie:
-            messages.warning(request,
-                             u"Nu poate fi modificată data de începere a înregistrărilor de cotizații. Dacă considerați că există un motiv legitim pentru a face asta, contactați un administrator")
-            return HttpResponseRedirect()
+            messages.warning(request, u"Nu poate fi modificată data de începere a înregistrărilor de cotizații. Dacă considerați că există un motiv legitim pentru a face asta, contactați un administrator")
+            return HttpResponseRedirect(self.get_success_url())
 
         return super(SetariSpecialeCentruLocal, self).get(request, *args, **kwargs)
 
