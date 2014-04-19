@@ -36,7 +36,8 @@ from structuri.forms import MembruCreateForm, MembruUpdateForm, \
     UnitateLiderCreateForm, AsociereCreateForm, AsociereUpdateForm, \
     CentruLocalAdminCreateForm, CentruLocalAdminUpdateForm, \
     InformatieContactCreateForm, InformatieContactUpdateForm, \
-    InformatieContactDeleteForm, AsociereMembruFamilieForm, PersoanaDeContactForm, SetariSpecialeCentruLocalForm
+    InformatieContactDeleteForm, AsociereMembruFamilieForm, PersoanaDeContactForm, SetariSpecialeCentruLocalForm, \
+    PatrulaMembruAsociazaForm
 from structuri.models import CentruLocal, AsociereMembruStructura, \
     Membru, Unitate, Patrula, TipAsociereMembruStructura, Utilizator, ImagineProfil, \
     InformatieContact, TipInformatieContact, AsociereMembruFamilie, \
@@ -778,7 +779,8 @@ class PatrulaTabMembri(ListView):
     model = Membru
     template_name = "structuri/patrula_tab_membri.html"
 
-    @allow_by_afiliere([("Unitate, Centru Local", "Lider")])
+
+    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider")])
     def dispatch(self, request, *args, **kwargs):
         self.patrula = get_object_or_404(Patrula, id=kwargs.pop("pk"))
         return super(PatrulaTabMembri, self).dispatch(request, *args, **kwargs)
@@ -788,10 +790,16 @@ class PatrulaTabMembri(ListView):
             ContentType.objects.get_for_model(Patrula),))
         asocieri = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(Patrula),
                                                           object_id=self.patrula.id,
-                                                          tip_asociere=tip_asociere_membru)
+                                                          tip_asociere=tip_asociere_membru,
+                                                          moment_incheiere__isnull=True)
 
         return asocieri
 
+    def get_context_data(self, **kwargs):
+        data = super(PatrulaTabMembri, self).get_context_data(**kwargs)
+        data['object'] = self.patrula
+        # data['form'] = self.form_class()
+        return data
 
 class PatrulaDelete(GenericDeleteView):
     model = Patrula
@@ -836,7 +844,44 @@ class PatrulaMembruCreate(CreateView):
 
 class PatrulaMembruAsociaza(CreateView):
     model = AsociereMembruStructura
+    form_class = PatrulaMembruAsociazaForm
+    template_name = "structuri/membru_asociere_form.html"
 
+    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider")])
+    def dispatch(self, request, *args, **kwargs):
+        self.patrula = get_object_or_404(Patrula, id=kwargs.pop("pk"))
+        return super(PatrulaMembruAsociaza, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.content_type = ContentType.objects.get_for_model(Patrula)
+        self.object.object_id = self.patrula.id
+
+        #   verifica daca membrul are o alta asociere la o patrula.
+        #   daca are, o inceteaza din data in care este mutat la patrula curenta
+        asociere_patrula = self.object.membru.get_patrula(qs=True)
+        if asociere_patrula:
+            asociere_patrula.moment_incheiere = form.cleaned_data['asociere_inceput']
+            asociere_patrula.save()
+
+        asociere = self.object.membru.asociaza("membru", self.patrula,
+                                               data_start=form.cleaned_data['asociere_inceput'],
+                                               confirmata=True,
+                                               user=self.request.user.get_profile())
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_form_kwargs(self):
+        data = super(PatrulaMembruAsociaza, self).get_form_kwargs()
+        data['patrula'] = self.patrula
+        return data
+
+    def get_success_url(self):
+        return reverse("structuri:patrula_detail", kwargs={"pk": self.patrula.id}) + "#membri"
+
+    def get_context_data(self, **kwargs):
+        data = super(PatrulaMembruAsociaza, self).get_context_data(**kwargs)
+        data['target_object'] = self.patrula
+        return data
 
 class MembruUpdate(UpdateView):
     model = Membru

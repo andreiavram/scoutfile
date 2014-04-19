@@ -70,9 +70,7 @@ def allow_by_afiliere(asocieri, pkname = "pk", combine = False):
                     continue
                             
                 structura = lookups[structura_ref]()
-                print structura_ref
-                print lookups[structura_ref]
-                print kwargs
+
                 if not structura or not args[0].user.utilizator.membru.are_calitate(calitate, structura):
                     if combine:
                         login_ok = False
