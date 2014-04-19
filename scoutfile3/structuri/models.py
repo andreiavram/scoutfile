@@ -56,6 +56,15 @@ class Structura(models.Model):
 
         return None
 
+    def cercetasi(self, qs=False, tip_asociere=u"Membru"):
+        asociere = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(self),
+                                                          object_id=self.id,
+                                                          tip_asociere__nume=tip_asociere,
+                                                          moment_incheiere__isnull=True)
+        if qs:
+            return asociere
+        return [a.membru for a in asociere]
+
 SPECIFIC_CENTRU_LOCAL = (("catolic", "Catolic"), ("marinaresc", u"Marinăresc"))
 STATUT_JURIDIC_CENTRU_LOCAL = (("pj", u"Filală"), ("nopj", u"Sucursală"), ("gi", u"Grup de inițiativă"))
 STATUT_DREPTURI_CENTRU_LOCAL = (
@@ -103,16 +112,6 @@ class CentruLocal(Structura):
     def get_absolute_url(self):
         return ("structuri:cl_detail", [], {"pk": self.id})
 
-    def cercetasi(self, qs=False, tip_asociere=u"Membru"):
-        asociere = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(self),
-                                                          object_id=self.id,
-                                                          tip_asociere__nume=tip_asociere,
-                                                          moment_incheiere__isnull=True)
-        if qs:
-            return asociere
-        return [a.membru for a in asociere]
-
-
     def adeziuni_lipsa(self):
         cnt_membri = self.cercetasi(qs=True).count()
         cnt_adeziuni = AsociereDocument.objects.filter(content_type=ContentType.objects.get_for_model(Membru),
@@ -120,6 +119,7 @@ class CentruLocal(Structura):
                                                        document__tip_document__slug="adeziune",
                                                        document__registru__centru_local=self).count()
         return cnt_membri - cnt_adeziuni
+
 
 class Unitate(Structura):
     class Meta:
@@ -159,6 +159,10 @@ class Patrula(Structura):
 
     def __unicode__(self):
         return u"%s" % self.nume
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ("structuri:patrula_detail", [], {"pk": self.id})
 
 
 class Utilizator(models.Model):
@@ -334,12 +338,14 @@ class Membru(Utilizator):
             return asociere[0].content_object
         return None
 
-    def get_patrula(self):
+    def get_patrula(self, qs=False):
         kwargs = {"content_type": ContentType.objects.get_for_model(Patrula),
                   "moment_incheiere__isnull": False,
                   "tip_asociere__nume": u"Membru"}
         asociere = AsociereMembruStructura.objects.filter(**kwargs).order_by("-moment_inceput")
         if asociere.count():
+            if qs:
+                return asociere[0]
             return asociere[0].content_object
         return None
 
@@ -403,10 +409,11 @@ class Membru(Utilizator):
             return self.get_unitate().ramura_de_varsta.nume
         return None
 
-    def asociaza(self, rol, structura, data_start=None, data_end=None):
-        tip_asociere, created = TipAsociereMembruStructura.objects.get_or_create(nume__iexact=rol)
+    def asociaza(self, rol, structura, data_start=None, data_end=None, confirmata=False, user=None):
+        tip_asociere, created = TipAsociereMembruStructura.objects.get_or_create(nume__iexact=rol, content_types__in=[ContentType.objects.get_for_model(structura)])
         if created:
             tip_asociere.save()
+            tip_asociere.content_types.add(ContentType.objects.get_for_model(structura))
 
         asociere = AsociereMembruStructura(membru=self,
                                            content_type=ContentType.objects.get_for_model(structura),
@@ -415,6 +422,8 @@ class Membru(Utilizator):
                                            moment_inceput=data_start,
                                            moment_incheiere=data_end)
         asociere.save()
+        if confirmata:
+            asociere.confirma(user)
         return asociere
 
     def get_badges_rdv(self):

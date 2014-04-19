@@ -152,7 +152,7 @@ INSTALLED_APPS = (
 
 AJAX_LOOKUP_CHANNELS = {
     #   pass a dict with the model and the field to search against
-    'membri'     : ('structuri.lookups', 'MembriLookup')
+    'membri': ('structuri.lookups', 'MembriLookup')
 }
 
 AJAX_SELECT_BOOTSTRAP = False

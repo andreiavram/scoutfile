@@ -1,10 +1,11 @@
+    <a href = "{% url structuri:patrula_membru_asociaza pk=object.id %}" class = "btn btn-primary"><i class = "icon-plus"></i> Adaugă cercetaș</a>
 	<table class="table table-striped">
 	<thead>
 		<tr>
 			<th>#</th>
 			<th>Nume</th>
 			<th>Membru de la</th>
-			<th>Categorii</th>
+{#			<th>Categorii</th>#}
 			<th>&nbsp;</th>
 		</tr>
 	</thead>
@@ -14,19 +15,19 @@
 			<td>{{ forloop.counter }}</td>
 			<td>{{ object.membru }}</td>
 			<td>{{ object.moment_inceput|date:"j F Y" }} ({{ object.moment_inceput|timesince }})</td>
-			<td>
-				<ul class = "unstyled">
-				{% for afiliere in object.membru.afilieri_curente %}
-					{% if afiliere.tip_asociere.nume != "Membru" %}
-						<li>{{ afiliere.tip_asociere }} ({{ afiliere.content_type.name }})</li>
-					{% endif %}
-				{% endfor %}
-				</ul>
-			</td>
+{#			<td>#}
+{#				<ul class = "unstyled">#}
+{#				{% for afiliere in object.membru.afilieri_curente %}#}
+{#					{% if afiliere.tip_asociere.nume != "Membru" %}#}
+{#						<li>{{ afiliere.tip_asociere }} ({{ afiliere.content_type.name }})</li>#}
+{#					{% endif %}#}
+{#				{% endfor %}#}
+{#				</ul>#}
+{#			</td>#}
 			<td>    
 				<div class="btn-group">
-					<a href = "" class = "btn btn-mini"><i class = "icon-user"></i></a>
-					<a href = "" class = "btn btn-mini"><i class = "icon-pencil"></i></a>
+					<a href = "{% url structuri:membru_detail pk=object.membru.id %}" class = "btn btn-mini"><i class = "icon-user"></i></a>
+					<a href = "{% url structuri:membru_afiliere_edit pk=object.id %}" class = "btn btn-mini"><i class = "icon-pencil"></i></a>
 			    </div>
 			</td>
 		</tr>
