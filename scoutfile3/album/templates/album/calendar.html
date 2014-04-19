@@ -33,7 +33,6 @@
                         val.date_end = new Date(parseInt(val.end));
                         $(document.createElement('li'))
                                 .html(calendar.options.templates["sidebar-eventlist"]({"event" : val, "calendar" : calendar}))
-                                .html("tmp")
                                 .appendTo(list);
                     });
                 },
@@ -84,6 +83,10 @@
         <a class = "btn" href = "{% url album:index%}"><i class = "icon-list"></i> Listă</a>
     </div>
 
+{% endblock %}
+
+{% block context_menu %}
+	{% include "album/main_context_menu.html" %}
 {% endblock %}
 
 
