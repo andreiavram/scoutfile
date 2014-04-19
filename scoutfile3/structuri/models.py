@@ -59,8 +59,14 @@ class Structura(models.Model):
     def cercetasi(self, qs=False, tip_asociere=u"Membru"):
         asociere = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(self),
                                                           object_id=self.id,
-                                                          tip_asociere__nume=tip_asociere,
                                                           moment_incheiere__isnull=True)
+
+        if isinstance(tip_asociere, type([])):
+            print tip_asociere
+            asociere = asociere.filter(tip_asociere__nume__in=tip_asociere)
+        else:
+            asociere = asociere.filter(tip_asociere__nume__iexact=tip_asociere)
+
         if qs:
             return asociere
         return [a.membru for a in asociere]
@@ -163,6 +169,9 @@ class Patrula(Structura):
     @models.permalink
     def get_absolute_url(self):
         return ("structuri:patrula_detail", [], {"pk": self.id})
+
+    def lideri(self, qs=False):
+        return self.cercetasi(qs=qs, tip_asociere=["Lider", "Lider asistent"])
 
 
 class Utilizator(models.Model):
