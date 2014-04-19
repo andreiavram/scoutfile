@@ -413,3 +413,18 @@ class SetariSpecialeCentruLocalForm(CrispyBaseModelForm):
     def __init__(self, *args, **kwargs):
         super(SetariSpecialeCentruLocalForm, self).__init__(*args, **kwargs)
         self.helper.layout = Layout(Fieldset(u"Trimestru inițial pentru cotizație în sistem", "trimestru", "an"),)
+
+
+class PatrulaMembruAsociazaForm(CrispyBaseModelForm):
+    class Meta:
+        model = AsociereMembruStructura
+        fields = ['membru']
+
+    membru = AutoCompleteSelectField("membri", label=u"Cercetaș")
+    asociere_inceput = forms.DateField(widget=BootstrapDateInput, label=u"Moment început")
+
+    def __init__(self, *args, **kwargs):
+        self.patrula = kwargs.pop("patrula")
+        super(PatrulaMembruAsociazaForm, self).__init__(*args, **kwargs)
+
+        # self.fields['membru'].queryset = Membru.objects.filter(id__in = [m.id for m in self.patrula.unitate.cercetasi()])
