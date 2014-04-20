@@ -194,6 +194,12 @@
 
         function handle_events(data) {
             $(".loading").fadeOut("fast");
+            request_handled = true;
+
+            if ((offset == 0) && (data.evenimente.length == 0)) {
+                $(current_view.target).append(current_view.no_results);
+            }
+
             $.each(data.evenimente, function (index, element) {
                 evenimente.push(element);
                 element.position = _.indexOf(evenimente, element);
@@ -216,7 +222,12 @@
             $(".template-switcher").removeClass("disabled");
             $("*[data-view='" + current_view.name + "'").addClass("disabled");
 
+
             $("#eveniment_container").html(current_view.initial);
+
+            if ((evenimente.length == 0) && (request_handled == true)) {
+                $(current_view.target).append(current_view.no_results);
+            }
 
             $.each(evenimente, function (index, element) {
                 $(current_view.target).append(_.template(current_view.template, {"eveniment" : element}));
@@ -230,6 +241,7 @@
         var per_page = 5;
         var stop_flag = true;
         var crt_cnt = 0;
+        var request_handled = false;
 
         var views = {
             list_detail : {
@@ -239,6 +251,7 @@
                 initial: "",
                 template: $("#eveniment_list_detail").html(),
                 per_page: 4,
+                no_results: "<p><em>Nu există activități care să corespundă criteriilor de căutare</em></p>",
                 post_render: function () {
 
                 }
@@ -247,9 +260,10 @@
                 name: "list",
                 template_id : "#eveniment_list",
                 target: "#eveniment_table tbody",
-                initial: "<table id = 'eveniment_table' class = 'table table-striped'><tr><th>Activitate</th><th>&nbsp;</th><th>&nbsp;</th><th>Poze</th><th>Locație</th><th>&nbsp;</th></tr><tbody></tbody></table>",
+                initial: "<table id = 'eveniment_table' class = 'table table-striped'><tr><th>Activitate</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th><th>Poze</th><th>Locație</th><th>&nbsp;</th></tr><tbody></tbody></table>",
                 template: $("#eveniment_list").html(),
                 per_page: 20,
+                no_results: "<tr><td>&nbsp;</td><td colspan='5'><em>Nu există activități care să corespundă criteriilor de căutare</em></td></tr>",
                 post_render: function () {
 
                 }
@@ -261,10 +275,10 @@
                 initial: "<div class = 'row-fluid' id = 'row1'></div>",
                 template: $("#eveniment_grid").html(),
                 per_page: 12,
+                no_results: "<p><em>Nu există activități care să corespundă criteriilor de căutare</em></p>",
                 post_render: function (element) {
                     if (element.position % 4 == 3) {
                         id = "row" + (parseInt(/row(\d+)/.exec(current_view.target)[1]) + 1);
-                        console.log(id);
                         $("#eveniment_container").append("<div class = 'row-fluid' id = '"+ id + "'></div>");
                         current_view.target = "#" + id;
                     }
@@ -278,6 +292,16 @@
 {% endblock %}
 
 {% block content %}
+    {% if request.user.is_authenticated %}
+    <div class = "btn-group pull-right" style = "margin-bottom: 20px">
+        <a href = "#" class = "disabled btn">Unități: </a>
+        <a href = "{% url album:index %}?unitate=0" class = "btn {% if 'unitate' not in request.session or request.session.unitate == '0' %}disabled{% endif %}">Toate</a>
+        {% for unitate in unitati %}
+            <a href = "{% url album:index %}?unitate={{ unitate.id }}" class = "btn {% if request.session.unitate and request.session.unitate == unitate.id %}disabled{% endif %}" data-id = "{{ unitate.id }}"><img style="height: 18px" src = "{{ STATIC_URL }}images/icon-{{ unitate.ramura_de_varsta|slugify }}.png" /> {{ unitate.nume }}</a>
+        {% endfor %}
+    </div>
+    <div style="clear:both"></div>
+    {% endif %}
     <div id = "eveniment_container">
 
     </div>
