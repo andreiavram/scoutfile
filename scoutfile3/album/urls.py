@@ -1,10 +1,11 @@
 from django.conf.urls.defaults import patterns
+from album.models import AsociereEvenimentStructura
 from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     RotateImage, EvenimentStats, ZiStats, FlagImage, EvenimentList, \
     SetImaginiUpload, SetImaginiDeleteAjax, SetImaginiToate, \
     SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate, EvenimentCreate, EvenimentUpdate, EvenimentDetail, EvenimentDelete, PozaUpdate, ZiEdit, PozaDelete, ImagineTagSearch, ImagineSearchJSON, ZiDetailBeta, \
     RaportEvenimentDetail, RaportEvenimentUpdate, RaportEvenimentHistory, CalendarCentruLocal, CalendarEvents, \
-    RaportStatus, RaportActivitate, RaportCompletPentruExport
+    RaportStatus, RaportActivitate, RaportCompletPentruExport, AsociereEvenimentStructuraCreate
 from album.views import ChangeImagineVisibility
 
 
@@ -21,6 +22,7 @@ urlpatterns = patterns('album.views',
                        (r'eveniment/(?P<slug>\w+)/upload/$', SetImaginiUpload.as_view(), {}, "eveniment_upload"),
                        (r'eveniment/(?P<slug>\w+)/seturi/$', EvenimentSeturi.as_view(), {}, "eveniment_seturi_toate"),
                        (r'eveniment/(?P<slug>\w+)/mine/$', EvenimentSeturiUser.as_view(), {}, "eveniment_seturi_user"),
+                       (r'eveniment/(?P<slug>\w+)/asocieri/$', AsociereEvenimentStructuraCreate.as_view(), {}, "eveniment_asociere_structura_create"),
 
                        (r'eveniment/(?P<pk>\d+)/calendar/$', CalendarCentruLocal.as_view(), {}, "calendar_centru_local"),
                        (r'eveniment/(?P<pk>\d+)/calendar/events/$', CalendarEvents.as_view(), {}, "events_centru_local"),

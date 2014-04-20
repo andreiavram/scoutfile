@@ -22,12 +22,13 @@ from taggit.models import Tag
 from taggit.utils import parse_tags
 
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment, \
-    ParticipareEveniment
+    ParticipareEveniment, AsociereEvenimentStructura
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm
 from album.models import SetPoze
 from album.forms import SetPozeCreateForm, SetPozeUpdateForm
 from goodies.views import GenericDeleteView, CalendarViewMixin
 from settings import MEDIA_ROOT
+from structuri.forms import AsociereEvenimentStructuraForm
 from structuri.models import Membru, RamuraDeVarsta, CentruLocal
 from goodies.views import JSONView
 from generic.views import ScoutFileAjaxException
@@ -43,11 +44,41 @@ class EvenimentList(ListView):
     model = Eveniment
     template_name = "album/eveniment_list.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        if request.is_ajax():
+            self.per_page = int(request.POST.get("per_page", 5))
+            self.offset = int(request.POST.get("offset", 0))
+        return super(EvenimentList, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.get(self, request, *args, **kwargs)
+
     def get_queryset(self, *args, **kwargs):
         qs = super(EvenimentList, self).get_queryset(*args, **kwargs)
         if self.request.user.is_authenticated():
-            qs = qs.filter(centru_local = self.request.user.get_profile().membru.centru_local)
+            qs = qs.filter(centru_local=self.request.user.get_profile().membru.centru_local)
+
+        if self.request.is_ajax():
+            self.total_count = qs.count()
+            qs = qs[self.offset:self.offset + self.per_page]
+            self.current_count = qs.count()
+
         return qs
+
+    def get_template_names(self):
+        if self.request.is_ajax():
+            return "album/json/eveniment_list.json"
+        return self.template_name
+
+    def get_context_data(self, **kwargs):
+        data = super(EvenimentList, self).get_context_data(**kwargs)
+
+        if self.request.is_ajax():
+            data['total_count'] = self.total_count
+            data['current_count'] = self.current_count
+            data['requested_count'] = self.per_page
+            data['current_offset'] = self.offset
+        return data
 
 
 class AlbumEvenimentDetail(DetailView):
@@ -1008,3 +1039,28 @@ class RaportActivitate(DetailView):
     def dispatch(self, request, *args, **kwargs):
         return super(RaportActivitate, self).dispatch(request, *args, **kwargs)
 
+
+class AsociereEvenimentStructuraCreate(CreateView):
+    model = AsociereEvenimentStructura
+    form_class = AsociereEvenimentStructuraForm
+    template_name = "album/asociere_eveniment_structura_form.html"
+
+    @allow_by_afiliere([("Eveniment, Centru Local", "Lider")], pkname="slug")
+    def dispatch(self, request, *args, **kwargs):
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+        return super(AsociereEvenimentStructuraCreate, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.eveniment = self.eveniment
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("album:eveniment_detail", kwargs={"slug": self.eveniment.slug})
+
+    def get_context_data(self, **kwargs):
+        data = super(AsociereEvenimentStructuraCreate, self).get_context_data(**kwargs)
+        # data['object'] = self.eveniment
+        data['eveniment'] = self.eveniment
+        return data

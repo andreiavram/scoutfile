@@ -37,6 +37,7 @@ class Structura(models.Model):
 
     nume = models.CharField(max_length=255)
     data_infiintare = models.DateField(null=True, blank=True)
+    activa = models.BooleanField(default=True)
 
     def delete(self, using=None):
         AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(self),
@@ -146,7 +147,9 @@ class Unitate(Structura):
                                                       tip_asociere__nume__icontains=u"Membru",
                                                       moment_inceput__isnull=False,
                                                       moment_incheiere__isnull=True).count()
-
+    @models.permalink
+    def get_absolute_url(self):
+        return ("structuri:unitate_detail", [], {"pk": self.id})
 
 class Patrula(Structura):
     class Meta:
