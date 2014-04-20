@@ -5,7 +5,7 @@
                 <li><a href = "{% url structuri:cl_membri pk=request.user.get_profile.membru.centru_local.id %}"><i class = "icon-user"></i> Membri</a></li>
 			{% endif %}
 		{% endif %}
-		<li><a href = "{% url album:index %}"><i class = "icon-picture"></i> Evenimente</a></li>
+		<li><a href = "{% url album:index %}"><i class = "icon-picture"></i> Activități</a></li>
 		{% if request.user.is_staff %}
 		<li class = "disabled"><a href = ""><i class = "icon-book"></i> Cântece</a></li>
 		{% endif %}
