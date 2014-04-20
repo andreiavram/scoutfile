@@ -37,6 +37,7 @@ class Structura(models.Model):
 
     nume = models.CharField(max_length=255)
     data_infiintare = models.DateField(null=True, blank=True)
+    activa = models.BooleanField(default=True)
 
     def delete(self, using=None):
         AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(self),

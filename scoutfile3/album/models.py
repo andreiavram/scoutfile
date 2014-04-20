@@ -260,6 +260,13 @@ class Eveniment(models.Model):
 STATUS_PARTICIPARE = ((1, u"Cu semnul întrebării"), (2, u"Sigur"), (3, u"Avans plătit"), (4, u"Participare efectivă"),
                       (5, u"Participare anulată"))
 
+class AsociereEvenimentStructura(models.Model):
+    content_type = models.ForeignKey(ContentType, verbose_name=u"Tip structură")
+    object_id = models.PositiveIntegerField(verbose_name=u"Structură")
+    content_object = GenericForeignKey()
+
+    eveniment = models.ForeignKey(Eveniment)
+
 
 class RaportEveniment(models.Model):
     parteneri = models.TextField(help_text=u"Câte unul pe linie, dacă există și un link va fi preluat automat de pe aceeași linie", null=True, blank=True)
@@ -316,7 +323,6 @@ class RaportEveniment(models.Model):
         self.is_locked = False
         self.save(*args, **kwargs)
 
-
 ROL_PARTICIPARE = (("participant", u"Participant"), ("coordonator", u"Coordonator"), ("staff", u"Membru staff"))
 
 
@@ -368,8 +374,10 @@ class InstantaCampArbitrarParticipareEveniment(models.Model):
     
 @receiver(post_init, sender=InstantaCampArbitrarParticipareEveniment)
 def update_value(sender, instance, **kwargs):
-    instance.valoare = None
-    instance.valoare = getattr(instance, "process_{0}".format(instance.camp.tip_camp))
+    try:
+        instance.valoare = getattr(instance, "process_{0}".format(instance.camp.tip_camp))
+    except Exception, e:
+        instance.valoare = None
 
 
 class ZiEveniment(models.Model):

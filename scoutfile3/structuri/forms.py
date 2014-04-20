@@ -7,6 +7,7 @@ Created on Jun 9, 2012
 from django import forms
 import datetime
 from goodies.widgets import BootstrapDateInput
+from album.models import AsociereEvenimentStructura
 from structuri.models import Membru, CentruLocal, Unitate, Patrula,\
     AsociereMembruStructura, InformatieContact, TipInformatieContact,\
     AsociereMembruFamilie, PersoanaDeContact
@@ -346,8 +347,24 @@ class AsociereCreateForm(CrispyBaseModelForm):
                                     Field("tip_asociere"), Field("moment_inceput", css_class = "datepicker", template = "fields/datepicker.html"),
                                     Field("moment_incheiere", css_class = "datepicker", template = "fields/datepicker.html"))
         
+
 class AsociereUpdateForm(AsociereCreateForm):
-    pass        
+    pass
+
+
+class AsociereEvenimentStructuraForm(CrispyBaseModelForm):
+    class Meta:
+        model = AsociereEvenimentStructura
+        fields = ("content_type", "object_id")
+
+    object_id = forms.IntegerField(widget = forms.Select(choices = ()), label = u"Structură")
+
+    def __init__(self, *args, **kwargs):
+        super(AsociereEvenimentStructuraForm, self).__init__(*args, **kwargs)
+
+        from django.contrib.contenttypes.models import ContentType
+        self.fields['content_type'].queryset = ContentType.objects.filter(name__in=(u"Centru Local", u"Unitate", u"Patrulă"))
+
         
 class InformatieContactCreateForm(CrispyBaseModelForm):
     class Meta:

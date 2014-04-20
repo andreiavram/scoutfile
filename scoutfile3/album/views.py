@@ -22,12 +22,13 @@ from taggit.models import Tag
 from taggit.utils import parse_tags
 
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment, \
-    ParticipareEveniment
+    ParticipareEveniment, AsociereEvenimentStructura
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm
 from album.models import SetPoze
 from album.forms import SetPozeCreateForm, SetPozeUpdateForm
 from goodies.views import GenericDeleteView, CalendarViewMixin
 from settings import MEDIA_ROOT
+from structuri.forms import AsociereEvenimentStructuraForm
 from structuri.models import Membru, RamuraDeVarsta, CentruLocal
 from goodies.views import JSONView
 from generic.views import ScoutFileAjaxException
@@ -1008,3 +1009,28 @@ class RaportActivitate(DetailView):
     def dispatch(self, request, *args, **kwargs):
         return super(RaportActivitate, self).dispatch(request, *args, **kwargs)
 
+
+class AsociereEvenimentStructuraCreate(CreateView):
+    model = AsociereEvenimentStructura
+    form_class = AsociereEvenimentStructuraForm
+    template_name = "album/asociere_eveniment_structura_form.html"
+
+    @allow_by_afiliere([("Eveniment, Centru Local", "Lider")], pkname="slug")
+    def dispatch(self, request, *args, **kwargs):
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+        return super(AsociereEvenimentStructuraCreate, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.eveniment = self.eveniment
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("album:eveniment_detail", kwargs={"slug": self.eveniment.slug})
+
+    def get_context_data(self, **kwargs):
+        data = super(AsociereEvenimentStructuraCreate, self).get_context_data(**kwargs)
+        # data['object'] = self.eveniment
+        data['eveniment'] = self.eveniment
+        return data
