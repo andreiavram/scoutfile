@@ -6,7 +6,7 @@ Created on Aug 28, 2012
 '''
 from django.contrib import admin
 from album.models import Eveniment, ZiEveniment, Imagine, SetPoze,\
-    EXIFData, DetectedFace
+    EXIFData, DetectedFace, TipEveniment
 
 admin.site.register(Eveniment)
 admin.site.register(ZiEveniment)
@@ -14,3 +14,4 @@ admin.site.register(Imagine)
 admin.site.register(SetPoze)
 admin.site.register(EXIFData)
 admin.site.register(DetectedFace)
+admin.site.register(TipEveniment)

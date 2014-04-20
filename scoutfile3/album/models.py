@@ -37,11 +37,19 @@ class ParticipantiEveniment(models.Model):
 
 TIPURI_EVENIMENT = (("camp", "Camp"), ("intalnire", u"Întâlnire"), ("hike", "Hike"), ("social", "Proiect social"),
                     ("comunitate", u"Proiect de implicare în comunitate"), ("citychallange", u"City Challange"),
-                    ("international", u"Proiect internațional"), ("intalnire", u"Întâlnire"), ("festival", u"Festival"),
+                    ("international", u"Proiect internațional"), ("festival", u"Festival"),
                     ("ecologic", u"Proiect ecologic"), ("alta", u"Alt tip de eveniment"), ("training", u"Stagiu / training"))
 
 
 STATUS_EVENIMENT = (("propus", u"Propus"), ("confirmat", u"Confirmat"), ("derulare", u"În derulare"), ("terminat", u"Încheiat"))
+
+
+class TipEveniment(models.Model):
+    nume = models.CharField(max_length=255)
+    slug = models.SlugField()
+
+    def __unicode__(self):
+        return u"%s" % self.nume
 
 
 class Eveniment(models.Model):
@@ -53,7 +61,8 @@ class Eveniment(models.Model):
     slug = models.SlugField(max_length=255, unique=True)
     custom_cover_photo = models.ForeignKey("Imagine", null=True, blank=True)
 
-    tip_eveniment = models.CharField(default="propus", max_length=255, null=True, blank=True, choices=TIPURI_EVENIMENT)
+    tip_eveniment_text = models.CharField(default="alta", max_length=255, null=True, blank=True, choices=TIPURI_EVENIMENT)
+    tip_eveniment = models.ForeignKey(TipEveniment)
     facebook_event_link = models.URLField(null=True, blank=True, verbose_name=u"Link eveniment Facebook", help_text=u"Folosește copy/paste pentru a lua link-ul din Facebook")
     articol_site_link = models.URLField(null=True, blank=True, verbose_name=u"Link articol site", help_text=u"Link-ul de la articolul de pe site-ul Centrului Local")
 
