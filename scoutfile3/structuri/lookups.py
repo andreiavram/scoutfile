@@ -5,7 +5,7 @@ Created on Sep 23, 2012
 @author: yeti
 '''
 from ajax_select import LookupChannel
-from structuri.models import Membru
+from structuri.models import Membru, Structura
 from django.db.models.query_utils import Q
 from django.template.loader import render_to_string
 from settings import STATIC_URL
