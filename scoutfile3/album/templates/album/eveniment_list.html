@@ -31,6 +31,11 @@
                 </span>
             </td>
             <td>
+                <% if (eveniment.tip_eveniment.nume) { %>
+                    <%= eveniment.tip_eveniment.nume %>
+                 <% } %>
+            </td>
+            <td>
                 <% if (eveniment.structuri.length) { %>
                     <% for (j = 0; j < eveniment.structuri.length; j++) { %>
                         <strong>
@@ -84,6 +89,9 @@
                 </p>
                 <% if (eveniment.descriere) { %><p><%= eveniment.descriere_truncated %></p><% } %>
                 <p><strong>
+                <% if (eveniment.tip_eveniment.nume) { %>
+                    <span class = "label label-info"><%= eveniment.tip_eveniment.nume %></span> <i class = "icon-star"></i>
+                 <% } %>
                     <% if (eveniment.total_poze != 0) { %>
                         Conține <%= eveniment.total_poze %> fotografii de la <%= eveniment.autori.length %> fotografi <i class = "icon-star"></i>
                     <% } %>
@@ -126,8 +134,7 @@
                         <%= eveniment.dates.start.date_string %>, <%= eveniment.dates.start.hour_string %> - <%= eveniment.dates.end.hour_string %>
                     <% } else { %>
                         <%= eveniment.dates.start.date_string %> - <%= eveniment.dates.end.date_string %>
-                    <% } %>
-                <% if (eveniment.locatie_text) { %>, {{ eveniment.locatie_text }}<% } %>
+                    <% } %><% if (eveniment.locatie_text) { %>, <%= eveniment.locatie_text %><% } %>
             </p>
             <p style = "text-align: center"><% if (eveniment.structuri.length) { %>
                     Pentru <% for (j = 0; j < eveniment.structuri.length; j++) { %>
@@ -148,6 +155,9 @@
                         Scor: <%= eveniment.scor_calitate %>
                     </span>
                     <% if (eveniment.total_poze > 0) { %><span class = "label label-info">Poze: <%= eveniment.total_poze %></span><% } %>
+                    <% if (eveniment.tip_eveniment.nume) { %>
+                    <span class = "label label-info"><%= eveniment.tip_eveniment.nume %></span>
+                 <% } %>
                     </p>
         </div>
     </script>
