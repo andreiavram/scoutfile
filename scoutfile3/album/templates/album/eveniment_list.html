@@ -24,6 +24,15 @@
 				</div>
 				<div class = "span7" style = "position: relative">
 					<h2><a href = "{% url album:eveniment_detail slug=eveniment.slug %}">{{ eveniment }}</a></h2>
+                <p>
+                {% if eveniment.asociereevenimentstructura_set.all.count %}
+                    Eveniment pentru {% for a in eveniment.asociereevenimentstructura_set.all %}
+                        <strong>{% if a.content_object.ramura_de_varsta %}
+                            <img src = "{{ STATIC_URL }}images/icon-{{ a.content_object.ramura_de_varsta|lower|slugify }}.png" />{% endif %}
+                            <a href = "{{ a.content_object.get_absolute_url }}">{{ a.content_object.nume }}</a>
+                        </strong>{% if not forloop.last %}, {% endif %}{% endfor %}.
+                {% endif %}
+                </p>
 					{% if eveniment.descriere %}<p>{{ eveniment.descriere|safe|truncatewords:50 }}</p>{% endif %}
 					<p>{% if eveniment.total_poze != 0 %}<strong>Conține {{ eveniment.total_poze }} fotografii de la {{ eveniment.get_autori|length }} fotografi <i class = "icon-star"></i>{% endif %}
 
