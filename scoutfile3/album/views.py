@@ -29,7 +29,7 @@ from album.forms import SetPozeCreateForm, SetPozeUpdateForm
 from goodies.views import GenericDeleteView, CalendarViewMixin
 from settings import MEDIA_ROOT
 from structuri.forms import AsociereEvenimentStructuraForm
-from structuri.models import Membru, RamuraDeVarsta, CentruLocal
+from structuri.models import Membru, RamuraDeVarsta, CentruLocal, Unitate
 from goodies.views import JSONView
 from generic.views import ScoutFileAjaxException
 from album.models import IMAGINE_PUBLISHED_STATUS
@@ -48,6 +48,18 @@ class EvenimentList(ListView):
         if request.is_ajax():
             self.per_page = int(request.POST.get("per_page", 5))
             self.offset = int(request.POST.get("offset", 0))
+
+        if "unitate" in request.GET:
+            if request.GET.get("unitate") == "0" and "unitate" in request.session:
+                del request.session['unitate']
+            else:
+                request.session['unitate'] = int(request.GET.get("unitate"))
+
+        self.unitate = None
+        if "unitate" in request.session and request.session['unitate'] != 0:
+            print request.session['unitate']
+            self.unitate = Unitate.objects.get(id=request.session['unitate'])
+
         return super(EvenimentList, self).dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -58,10 +70,14 @@ class EvenimentList(ListView):
         if self.request.user.is_authenticated():
             qs = qs.filter(centru_local=self.request.user.get_profile().membru.centru_local)
 
+        if self.unitate:
+            qs = qs.filter(id__in = [e.id for e in qs if e.are_asociere(self.unitate)])
+
         if self.request.is_ajax():
             self.total_count = qs.count()
             qs = qs[self.offset:self.offset + self.per_page]
             self.current_count = qs.count()
+
 
         return qs
 
@@ -78,6 +94,10 @@ class EvenimentList(ListView):
             data['current_count'] = self.current_count
             data['requested_count'] = self.per_page
             data['current_offset'] = self.offset
+        else:
+            if self.request.user.is_authenticated():
+                centru_local = self.request.user.get_profile().membru.centru_local
+                data['unitati'] = centru_local.unitate_set.all()
         return data
 
 

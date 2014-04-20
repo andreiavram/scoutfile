@@ -266,6 +266,10 @@ class Eveniment(models.Model):
             return 0
         return self.locatie_geo.split(";")[1]
 
+    def are_asociere(self, structura):
+        filter_args = dict(content_type=ContentType.objects.get_for_model(structura), object_id=structura.id)
+        return self.asociereevenimentstructura_set.filter(**filter_args).count() > 0
+
 STATUS_PARTICIPARE = ((1, u"Cu semnul întrebării"), (2, u"Sigur"), (3, u"Avans plătit"), (4, u"Participare efectivă"),
                       (5, u"Participare anulată"))
 
