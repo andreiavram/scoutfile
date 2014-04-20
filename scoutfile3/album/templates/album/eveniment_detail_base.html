@@ -109,11 +109,11 @@
                  data-href="{{ url_root }}{% url album:eveniment_detail slug=object.slug %}" data-action="like"
                  data-layout="box_count" data-width="150" data-show-faces="false" data-share="true"></div>
             <ul class = "unstyled" style="margin-top: 60px; font-size:14px; text-align: right">
-            {% for rdv, data in eveniment.get_ramuri_de_varsta.items %}
-                {% if data.0 != 0 %}
-                <li><strong>{{ data.0 }}</strong> <img src = "{{ STATIC_URL }}images/icon-{{ rdv }}.png"> </li>
-                {% endif %}
-            {% endfor %}
+                {% for rdv, data in eveniment.get_ramuri_de_varsta.items %}
+                    {% if data.0 != 0 %}
+                    <li><strong>{{ data.0 }}</strong> <img src = "{{ STATIC_URL }}images/icon-{{ rdv }}.png"> </li>
+                    {% endif %}
+                {% endfor %}
             </ul>
         </div>
         <div class="span4" style="text-align: justify">

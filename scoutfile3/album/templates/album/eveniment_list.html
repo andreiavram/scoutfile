@@ -2,9 +2,15 @@
 {% load pagination_tags %}
 
 {% block page_title %}
-	Activități <div class = "pull-right btn-group">
+	Activități <div class = "btn-toolbar pull-right"><div class = "btn-group">
         <a class = "btn" href = "{% url album:calendar_centru_local pk=request.user.get_profile.membru.centru_local.id %}"><i class = "icon-calendar"></i> Calendar</a>
         <a class = "btn disabled" href = "{% url album:index%}"><i class = "icon-list"></i> Listă</a>
+    </div>
+    <div class = "btn-group">
+        <a class = "btn template-switcher" data-view = "grid" href = "#"><i class = "icon-th"></i></a>
+        <a class = "btn template-switcher" data-view = "list" href = "#"><i class = "icon-list"></i></a>
+        <a class = "btn template-switcher" data-view = "list_detail" href = "#"><i class = "icon-list-alt"></i></a>
+    </div>
     </div>
 {% endblock %}
 
@@ -12,50 +18,258 @@
 	{% include "album/main_context_menu.html" %}
 {% endblock %}
 
-{% block content %}
-	{% autopaginate object_list 4 as object_list %}
-	{% for eveniment in object_list %}
+{% block extrahead %}
+    <script id = "eveniment_list" type = "text/template">
+        <tr>
+            <td>
+                <a href = "<%= eveniment.urls.detail %>"><%= eveniment.nume %></a><br />
+                <span style = "font-size: 10px;"><% if (eveniment.is_one_day) { %>
+                        <%= eveniment.dates.start.date_string %>, <%= eveniment.dates.start.hour_string %> - <%= eveniment.dates.end.hour_string %>
+                    <% } else { %>
+                        <%= eveniment.dates.start.date_string %> - <%= eveniment.dates.end.date_string %>
+                    <% } %>
+                </span>
+            </td>
+            <td>
+                <% if (eveniment.structuri.length) { %>
+                    <% for (j = 0; j < eveniment.structuri.length; j++) { %>
+                        <strong>
+                            <% if (eveniment.structuri[j].ramura_de_varsta) { %>
+                                <img src = "{{ STATIC_URL }}images/icon-<%= eveniment.structuri[j].ramura_de_varsta_slugified %>.png" />
+                            <% } %>
+                            <a href = "<%= eveniment.structuri[j].urls.detail %>"><%= eveniment.structuri[j].nume %></a>
+                        </strong>
+                        <% if (j < eveniment.structuri.length - 1) { %><br /><% } %>
+                    <% } %>
+                <% } %>
+             </td>
+             <td>
+
+
+                    <% _.each(eveniment.ramuri_de_varsta, function (e, i) { %>
+                        <% if (e.count != 0) { %>
+                           <strong><%= e.count %></strong> <img src = "{{ STATIC_URL }}images/icon-<%= e.ramura_de_varsta %>.png">
+                        <% } %>
+                    <% }); %>
+
+            </td>
+            <td><%= eveniment.total_poze %> poze</td>
+            <td><% if (eveniment.locatie_text) { %><%= eveniment.locatie_text %><% } %></td>
+            <td><div class = 'btn-group'><a href = '<%= eveniment.urls.detail %>' class = 'btn btn-primary btn-mini'><i class = "icon-home"></i></a></div></td>
+        </tr>
+    </script>
+
+    <script id = "eveniment_list_detail" type = "text/template">
 		<div class = "row-fluid" style = "margin-bottom: 20px">
 			<div class = "" style = "position:relative;">
 				<div class = "span3">
-					<a href = "{% url album:eveniment_detail slug=eveniment.slug %}">
-						<img class = "thumbnail" src = "{% if eveniment.cover_photo %}{{ eveniment.cover_photo.get_thumbnail_url }}{% else %}http://placehold.it/320x240{% endif %}" />
+					<a href = "<%= eveniment.urls.detail %>">
+						<img class = "thumbnail" src = "<% if (eveniment.cover_photo.thumbnail_url) { %><%= eveniment.cover_photo.thumbnail_url %><% } else { %>http://placehold.it/320x240<% } %>" />
 					</a>
 				</div>
 				<div class = "span7" style = "position: relative">
-					<h2><a href = "{% url album:eveniment_detail slug=eveniment.slug %}">{{ eveniment }}</a></h2>
+					<h2><a href = "<%= eveniment.urls.detail %>"><%= eveniment.nume %></a></h2>
                 <p>
-                {% if eveniment.asociereevenimentstructura_set.all.count %}
-                    Eveniment pentru {% for a in eveniment.asociereevenimentstructura_set.all %}
-                        <strong>{% if a.content_object.ramura_de_varsta %}
-                            <img src = "{{ STATIC_URL }}images/icon-{{ a.content_object.ramura_de_varsta|lower|slugify }}.png" />{% endif %}
-                            <a href = "{{ a.content_object.get_absolute_url }}">{{ a.content_object.nume }}</a>
-                        </strong>{% if not forloop.last %}, {% endif %}{% endfor %}.
-                {% endif %}
+                    <% if (eveniment.structuri.length) { %>
+                        Eveniment pentru <% for (j = 0; j < eveniment.structuri.length; j++) { %>
+                            <strong>
+                                <% if (eveniment.structuri[j].ramura_de_varsta) { %>
+                                    <img src = "{{ STATIC_URL }}images/icon-<%= eveniment.structuri[j].ramura_de_varsta_slugified %>.png" />
+                                <% } %>
+                                <a href = "<%= eveniment.structuri[j].urls.detail %>"><%= eveniment.structuri[j].nume %></a>
+                            </strong>
+                            <% if (j < eveniment.structuri.length - 1) { %>,<% } %>
+                        <% } %>.
+                    <% } %>
                 </p>
-					{% if eveniment.descriere %}<p>{{ eveniment.descriere|safe|truncatewords:50 }}</p>{% endif %}
-					<p>{% if eveniment.total_poze != 0 %}<strong>Conține {{ eveniment.total_poze }} fotografii de la {{ eveniment.get_autori|length }} fotografi <i class = "icon-star"></i>{% endif %}
+                <% if (eveniment.descriere) { %><p><%= eveniment.descriere_truncated %></p><% } %>
+                <p><strong>
+                    <% if (eveniment.total_poze != 0) { %>
+                        Conține <%= eveniment.total_poze %> fotografii de la <%= eveniment.autori.length %> fotografi <i class = "icon-star"></i>
+                    <% } %>
+                    <% if (eveniment.is_one_day) { %>
+                        A avut loc <%= eveniment.dates.start.date_string %>, între <%= eveniment.dates.start.hour_string %> și <%= eveniment.dates.end.hour_string %>
+                    <% } else { %>
+                        A început <%= eveniment.dates.start.date_string %> și a ținut până <%= eveniment.dates.end.date_string %>
+                    <% } %>
 
-{#                        A început {{ eveniment.start_date|date:"l, d F Y" }} și a ținut până {{ eveniment.end_date|date:"l, d F Y" }}#}
-                    {% if eveniment.is_one_day %}A avut loc {{ eveniment.start_date|date:"l, d F Y" }}, între {{ eveniment.start_date|date:"H:i" }} și {{ eveniment.end_date|date:"H:i"}}
-                {% else %}A început {{ eveniment.start_date|date:"l, d F Y" }} și a ținut până {{ eveniment.end_date|date:"l, d F Y" }}{% endif %}
-
-
-                        <i class = "icon-star"></i> {% for autor in eveniment.get_autori %}<a href = "{% url album:eveniment_detail slug=eveniment.slug %}?autor={{ autor }}">{{ autor }}</a> <i class = 'icon-star'></i> {% endfor %}</strong>
-                    <span class = "label label-{% if eveniment.scor_calitate < 0 %}important{% else %}{% if eveniment.scor_calitate == 0 %}warning{% else %}success{% endif %}{% endif %}">Scor: {{ eveniment.scor_calitate }}</span></p>
-                    <div class = "btn-toolbar">
+                    <i class = "icon-star"></i>
+                    <% for (k = 0; k < eveniment.autori.length; k++) { %>
+                        <a href = "<%= eveniment.urls.detail %>?autor=<%= eveniment.autori[k].nume %>"><%= eveniment.autori[k].nume %></a> <i class = 'icon-star'></i>
+                    <% } %>
+                    </strong>
+                    <span class = "label label-<% if (eveniment.scor_calitate < 0) { %>important<% } else { %><% if (eveniment.scor_calitate == 0) { %>warning<% } else { %>success<% }} %>">
+                        Scor: <%= eveniment.scor_calitate %>
+                    </span>
+                </p>
+                <div class = "btn-toolbar">
 					<div class = "btn-group">
-						<a href = "{% url album:eveniment_detail slug=eveniment.slug %}" class = "btn btn-primary"><i class = "icon-white icon-picture"></i> Deschide</a>
-						<a href = "{% url album:eveniment_stats pk=eveniment.id %}" class = "btn"><i class = "icon-th"></i> Statistici</a>
+						<a href = "<%= eveniment.urls.detail %>" class = "btn btn-primary"><i class = "icon-white icon-picture"></i> Deschide</a>
+						<a href = "<%= eveniment.urls.stats %>" class = "btn"><i class = "icon-th"></i> Statistici</a>
 					</div>
                     <div class = "btn-group pull-right">
-                        {% if eveniment.locatie_text %}<a href ="{%  url album:eveniment_detail slug=eveniment.slug %}" class = "btn disabled"><i class = "icon-map-marker"></i> {{ eveniment.locatie_text }}</a>{% endif %}
-                        {% if eveniment.facebook_event_link %}<a href ="{{ eveniment.facebook_event_link }}" class = "btn"><i class = "icon-facebook"></i> Eveniment Facebook</a>{% endif %}
+                        <% if (eveniment.locatie_text) { %><a href ="<%= eveniment.urls.detail %>" class = "btn disabled"><i class = "icon-map-marker"></i> <%= eveniment.locatie_text %></a><% } %>
+                        <% if (eveniment.facebook_event_link) { %><a href ="<%= eveniment.facebook_event_link %>" class = "btn"><i class = "icon-facebook"></i> Eveniment Facebook</a><% } %>
                     </div>
                     </div>
 				</div>
 			</div>
 		</div>
-	{% endfor %}
-	{% paginate %}
+    </script>
+    <script id = "eveniment_grid" type = "text/template">
+        <div class = "span3 thumbnail" style = "min-height: 300px; margin-bottom: 10px;">
+            <img src = "<% if (eveniment.cover_photo.thumbnail_url) { %><%= eveniment.cover_photo.thumbnail_url %><% } else { %>http://placehold.it/320x240<% } %>" />
+            <h2 style = "text-align: center; font-size: 14px;"><a href = "<%= eveniment.urls.detail %>"><%= eveniment.nume %></a></h2>
+            <% if (eveniment.descriere) { %><p style = "text-align: center; font-size: 10px;"><%= eveniment.descriere_truncated %></p><% } %>
+            <p style = "text-align: center; font-weight: bold;">
+                <% if (eveniment.is_one_day) { %>
+                        <%= eveniment.dates.start.date_string %>, <%= eveniment.dates.start.hour_string %> - <%= eveniment.dates.end.hour_string %>
+                    <% } else { %>
+                        <%= eveniment.dates.start.date_string %> - <%= eveniment.dates.end.date_string %>
+                    <% } %>
+                <% if (eveniment.locatie_text) { %>, {{ eveniment.locatie_text }}<% } %>
+            </p>
+            <p style = "text-align: center"><% if (eveniment.structuri.length) { %>
+                    Pentru <% for (j = 0; j < eveniment.structuri.length; j++) { %>
+                        <strong>
+                            <% if (eveniment.structuri[j].ramura_de_varsta) { %>
+                                <img src = "{{ STATIC_URL }}images/icon-<%= eveniment.structuri[j].ramura_de_varsta_slugified %>.png" />
+                            <% } %>
+                            <a href = "<%= eveniment.structuri[j].urls.detail %>"><%= eveniment.structuri[j].nume %></a>
+                        </strong>
+                    <% } %>,
+                <% } %>participanți
+                    <% _.each(eveniment.ramuri_de_varsta, function (e, i) { %>
+                        <% if (e.count != 0) { %>
+                           <strong><%= e.count %></strong> <img src = "{{ STATIC_URL }}images/icon-<%= e.ramura_de_varsta %>.png">
+                        <% } %>
+                    <% }); %></p>
+            <p style = "text-align: center"><span class = "label label-<% if (eveniment.scor_calitate < 0) { %>important<% } else { %><% if (eveniment.scor_calitate == 0) { %>warning<% } else { %>success<% }} %>">
+                        Scor: <%= eveniment.scor_calitate %>
+                    </span>
+                    <% if (eveniment.total_poze > 0) { %><span class = "label label-info">Poze: <%= eveniment.total_poze %></span><% } %>
+                    </p>
+        </div>
+    </script>
+    <script>
+        $(document).ready(function () {
+            $(window).scroll(function () {
+                if (($(window).scrollTop() >= $(document).height() - $(window).height() * 1.5) && !(stop_flag)) {
+                    get_events();
+                }
+            });
+
+            update_view("list_detail");
+            get_events();
+
+            $(".template-switcher").click(function (event) {
+                update_view([$(this).data("view")]);
+                event.preventDefault();
+            });
+        });
+
+        function get_events() {
+            stop_flag = true;
+            $(".loading").fadeIn("fast");
+            $.post("{% url album:index %}", get_request_data(), handle_events, "json");
+        }
+
+        function get_request_data() {
+            return {"offset": offset,
+                "per_page": current_view.per_page,
+                "csrfmiddlewaretoken": "{{ csrf_token }}"
+{#                {% if "autor" in request.GET %},"authors": "{{ request.GET.autor }}"{% endif %}#}
+            }
+        }
+
+        function handle_events(data) {
+            $(".loading").fadeOut("fast");
+            $.each(data.evenimente, function (index, element) {
+                evenimente.push(element);
+                element.position = _.indexOf(evenimente, element);
+                $(current_view.target).append(_.template(current_view.template, {"eveniment": element}));
+                current_view.post_render(element);
+
+            });
+
+            offset += data.current_count;
+            if (offset < data.total_count) {
+                stop_flag = false;
+            } else {
+                stop_flag = true;
+            }
+        }
+
+        function update_view(new_view) {
+            console.log("here", new_view);
+            current_view = views[new_view];
+            $(".template-switcher").removeClass("disabled");
+            $("*[data-view='" + current_view.name + "'").addClass("disabled");
+
+            $("#eveniment_container").html(current_view.initial);
+
+            $.each(evenimente, function (index, element) {
+                $(current_view.target).append(_.template(current_view.template, {"eveniment" : element}));
+                current_view.post_render(element);
+            });
+
+        }
+
+        var evenimente = [];
+        var offset = 0;
+        var per_page = 5;
+        var stop_flag = true;
+        var crt_cnt = 0;
+
+        var views = {
+            list_detail : {
+                name: "list_detail",
+                template_id : "#eveniment_list_detail",
+                target: "#eveniment_container",
+                initial: "",
+                template: $("#eveniment_list_detail").html(),
+                per_page: 4,
+                post_render: function () {
+
+                }
+            },
+            list: {
+                name: "list",
+                template_id : "#eveniment_list",
+                target: "#eveniment_table tbody",
+                initial: "<table id = 'eveniment_table' class = 'table table-striped'><tr><th>Activitate</th><th>&nbsp;</th><th>&nbsp;</th><th>Poze</th><th>Locație</th><th>&nbsp;</th></tr><tbody></tbody></table>",
+                template: $("#eveniment_list").html(),
+                per_page: 20,
+                post_render: function () {
+
+                }
+            },
+            grid : {
+                name: "grid",
+                template_id : "#eveniment_grid",
+                target: "#row1",
+                initial: "<div class = 'row-fluid' id = 'row1'></div>",
+                template: $("#eveniment_grid").html(),
+                per_page: 12,
+                post_render: function (element) {
+                    if (element.position % 4 == 3) {
+                        id = "row" + (parseInt(/row(\d+)/.exec(current_view.target)[1]) + 1);
+                        console.log(id);
+                        $("#eveniment_container").append("<div class = 'row-fluid' id = '"+ id + "'></div>");
+                        current_view.target = "#" + id;
+                    }
+                }
+            }
+        }
+
+        var current_view = views["list_detail"];
+
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div id = "eveniment_container">
+
+    </div>
+    <div class="loading"></div>
 {% endblock %}
