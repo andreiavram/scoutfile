@@ -60,8 +60,14 @@
                     }
                     {% if not forloop.last %},{% endif %}
                 {% endfor %}
-            ]
-
+            ],
+            "tip_eveniment": {
+                {% if event.tip_eveniment %}
+                    "nume": "{{ event.tip_eveniment }}",
+                    "id": "{{ event.tip_eveniment.id }}",
+                    "slug": "{{ event.tip_eveniment.slug }}"
+                {% endif %}
+            }
 
         }{% if not forloop.last %},{% endif %}
         {% endfor %}
