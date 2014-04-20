@@ -4,6 +4,7 @@
 		<li class = "disabled"><a href = ""><i class = "icon-download-alt"></i> Torrent</a>
         {% if user.is_authenticated %}
 		<li><a href = "{% url album:eveniment_upload slug=eveniment.slug %}"><i class = "icon-upload"></i> Upload set poze</a></li>
+        <li><a href = "{% url album:eveniment_asociere_structura_create slug=eveniment.slug %}"><i class = "icon-plus"></i> Structuri</a></li>
         {% endif %}
         <li class = "nav-header">Locații</li>
         <li><a href = "{% url album:eveniment_main_detail slug=eveniment.slug %}"><i class = "icon-home"> Prezentare</i></a></li>

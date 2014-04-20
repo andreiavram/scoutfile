@@ -117,7 +117,17 @@
             </ul>
         </div>
         <div class="span4" style="text-align: justify">
+                <p>
+                {% if object.asociereevenimentstructura_set.all.count %}
+                    Eveniment pentru {% for a in object.asociereevenimentstructura_set.all %}
+                        <strong>{% if a.content_object.ramura_de_varsta %}
+                            <img src = "{{ STATIC_URL }}images/icon-{{ a.content_object.ramura_de_varsta|lower|slugify }}.png" />{% endif %}
+                            <a href = "{{ a.content_object.get_absolute_url }}">{{ a.content_object.nume }}</a>
+                        </strong>{% if not forloop.last %}, {% endif %}{% endfor %}.
+                {% endif %}
+                </p>
             {% if object.descriere %}{{ object.descriere|safe|linebreaks }}<br/>{% endif %}
+
             <p>{% if object.total_poze != 0 %}<strong>Conține {{ object.total_poze }} fotografii de la {{ object.get_autori|length }} fotografi <i
                     class="icon-star"></i>{% endif %}
                 {% if object.is_one_day %}A avut loc pe {{ object.start_date|date:"l, d F Y" }}, între {{ object.start_date|date:"H:i" }} și {{ object.end_date|date:"H:i"}}
@@ -126,6 +136,8 @@
                         class="icon-star"></i> {% for autor in object.get_autori %}
                     <a href="{% url album:eveniment_detail slug=object.slug %}?autor={{ autor }}">{{ autor }}</a>
                     <i class='icon-star'></i> {% endfor %}</strong>
+
+              </p>
         </div>
         <div class="span3">
             <div class="map-canvas thumbnail" id="map_canvas"

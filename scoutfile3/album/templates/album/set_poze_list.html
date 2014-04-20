@@ -67,7 +67,6 @@
     <script>
         $("document").ready(function () {
             $("a.delete").click(function (e) {
-                console.log("treating delete action");
                 if (confirm("Vrei să ștergi setul ăsta de poze și toate datele asociate lui?")) {
                     var that = this;
                     $.post($(this).attr("href"), {"csrfmiddlewaretoken": "{{ csrf_token }}"}, function (data) {
