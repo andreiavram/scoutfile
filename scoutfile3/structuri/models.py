@@ -147,7 +147,9 @@ class Unitate(Structura):
                                                       tip_asociere__nume__icontains=u"Membru",
                                                       moment_inceput__isnull=False,
                                                       moment_incheiere__isnull=True).count()
-
+    @models.permalink
+    def get_absolute_url(self):
+        return ("structuri:unitate_detail", [], {"pk": self.id})
 
 class Patrula(Structura):
     class Meta:
