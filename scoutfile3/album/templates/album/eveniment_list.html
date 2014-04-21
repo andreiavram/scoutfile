@@ -63,7 +63,6 @@
             <td><div class = 'btn-group'><a href = '<%= eveniment.urls.detail %>' class = 'btn btn-primary btn-mini'><i class = "icon-home"></i></a></div></td>
         </tr>
     </script>
-
     <script id = "eveniment_list_detail" type = "text/template">
 		<div class = "row-fluid" style = "margin-bottom: 20px">
 			<div class = "" style = "position:relative;">
@@ -169,7 +168,7 @@
                 }
             });
 
-            update_view("list_detail");
+            update_view("{{ request.session.view }}");
             get_events();
 
             $(".template-switcher").click(function (event) {
@@ -222,6 +221,9 @@
             $(".template-switcher").removeClass("disabled");
             $("*[data-view='" + current_view.name + "'").addClass("disabled");
 
+            if (request_handled) {
+                $.get("{% url album:index %}?view=" + new_view);
+            }
 
             $("#eveniment_container").html(current_view.initial);
 
@@ -286,7 +288,7 @@
             }
         }
 
-        var current_view = views["list_detail"];
+        var current_view = null;
 
     </script>
 {% endblock %}

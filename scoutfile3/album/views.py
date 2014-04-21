@@ -23,7 +23,8 @@ from taggit.utils import parse_tags
 
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment, \
     ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT
-from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm
+from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm, \
+    EvenimentParticipareForm
 from album.models import SetPoze
 from album.forms import SetPozeCreateForm, SetPozeUpdateForm
 from goodies.views import GenericDeleteView, CalendarViewMixin
@@ -64,6 +65,10 @@ class EvenimentList(ListView):
         if "unitate" in request.session and request.session['unitate'] != 0:
             self.unitate = Unitate.objects.get(id=request.session['unitate'])
 
+        if "view" not in request.session:
+            request.session["view"] = "list_detail"
+        if "view" in request.GET:
+            request.session["view"] = request.GET.get("view")
 
         if "tip" in request.GET:
             if request.GET.get("tip") == "0" and "tip" in request.session:
@@ -791,9 +796,6 @@ class ImagineSearchJSON(JSONView):
             raise ScoutFileAjaxException("Bad limit", original_exception=e)
 
     def clean_ordering(self, value):
-        print "here"
-        print value
-        print "here"
         return value
 
     def clean_offset(self, value):
@@ -1042,13 +1044,13 @@ class RaportStatus(ListView):
         return data
 
 
-class EvenimentParticipantList(ListView):
-    model = ParticipareEveniment
-    template_name = "album/eveniment_participant_list.html"
-
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super(EvenimentParticipantList, self).dispatch(request, *args, **kwargs)
+# class EvenimentParticipantList(ListView):
+#     model = ParticipareEveniment
+#     template_name = "album/eveniment_participant_list.html"
+#
+#     @method_decorator(login_required)
+#     def dispatch(self, request, *args, **kwargs):
+#         return super(EvenimentParticipantList, self).dispatch(request, *args, **kwargs)
 
 
 class AdaugaParticipantEveniment(CreateView):
@@ -1136,3 +1138,68 @@ class AsociereEvenimentStructuraCreate(CreateView):
         # data['object'] = self.eveniment
         data['eveniment'] = self.eveniment
         return data
+
+
+class EvenimentParticipanti(ListView):
+    model = ParticipareEveniment
+    template_name = "album/eveniment_participanti_list.html"
+
+    @allow_by_afiliere([("Eveniment, Centru Local", "Lider")], pkname="slug")
+    def dispatch(self, request, *args, **kwargs):
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+        return super(EvenimentParticipanti, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        data = super(EvenimentParticipanti, self).get_context_data(**kwargs)
+        data['eveniment'] = self.eveniment
+        return data
+
+class EvenimentParticipantiCreate(CreateView):
+    model = ParticipareEveniment
+    template_name = "album/eveniment_participanti_form.html"
+    form_class = EvenimentParticipareForm
+
+    @allow_by_afiliere([("Eveniment, Centru Local", "lider")], pkname="slug")
+    def dispatch(self, request, *args, **kwargs):
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+        return super(EvenimentParticipantiCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_initial(self):
+        data = super(EvenimentParticipantiCreate, self).get_initial()
+        data['data_sosire'] = self.eveniment.start_date
+        data['data_plecare'] = self.eveniment.end_date
+        return data
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.eveniment = self.eveniment
+        self.object.user_modificare = self.request.user.get_profile().membru
+        self.object.save()
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("album:eveniment_participanti_list", kwargs={"slug": self.eveniment.slug})
+
+    def get_context_data(self, **kwargs):
+        data = super(EvenimentParticipantiCreate, self).get_context_data(**kwargs)
+        data['eveniment'] = self.eveniment
+        return data
+
+
+class EvenimentParticipantiUpdate(UpdateView):
+    model = ParticipareEveniment
+    template_name = "album/eveniment_participanti_form.html"
+    form_class = EvenimentParticipareForm
+
+    @allow_by_afiliere([("Participare, Eveniment, Centru Local", "Lider")])
+    def dispatch(self, request, *args, **kwargs):
+        return super(EvenimentParticipantiUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        data = super(EvenimentParticipantiUpdate, self).get_context_data(**kwargs)
+        data['eveniment'] = self.object.eveniment
+        return data
+
+    def get_success_url(self):
+        return reverse("album:eveniment_participanti_list", kwargs={"slug": self.object.eveniment.slug})

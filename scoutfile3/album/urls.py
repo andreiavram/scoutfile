@@ -5,7 +5,8 @@ from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     SetImaginiUpload, SetImaginiDeleteAjax, SetImaginiToate, \
     SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate, EvenimentCreate, EvenimentUpdate, EvenimentDetail, EvenimentDelete, PozaUpdate, ZiEdit, PozaDelete, ImagineTagSearch, ImagineSearchJSON, ZiDetailBeta, \
     RaportEvenimentDetail, RaportEvenimentUpdate, RaportEvenimentHistory, CalendarCentruLocal, CalendarEvents, \
-    RaportStatus, RaportActivitate, RaportCompletPentruExport, AsociereEvenimentStructuraCreate
+    RaportStatus, RaportActivitate, RaportCompletPentruExport, AsociereEvenimentStructuraCreate, EvenimentParticipanti, \
+    EvenimentParticipantiCreate, EvenimentParticipantiUpdate
 from album.views import ChangeImagineVisibility
 
 
@@ -31,6 +32,10 @@ urlpatterns = patterns('album.views',
                        (r'eveniment/(?P<slug>\w+)/edit/$', EvenimentUpdate.as_view(), {}, "eveniment_update"),
                        (r'eveniment/(?P<slug>\w+)/delete/$', EvenimentDelete.as_view(), {}, "eveniment_delete"),
                        (r'eveniment/(?P<slug>\w+)/$', EvenimentDetail.as_view(), {}, "eveniment_main_detail"),
+
+                       (r'eveniment/(?P<slug>\w+)/participanti/list/$', EvenimentParticipanti.as_view(), {}, "eveniment_participanti_list"),
+                       (r'eveniment/(?P<slug>\w+)/participanti/adauga/$', EvenimentParticipantiCreate.as_view(), {}, "eveniment_participanti_adauga"),
+                       (r'eveniment/participanti/(?P<pk>\d+)/modifica/$', EvenimentParticipantiUpdate.as_view(), {}, "eveniment_participanti_modifica"),
 
                        (r'eveniment/(?P<slug>\w+)/raport/$', RaportEvenimentDetail.as_view(), {}, "eveniment_raport_detail"),
                        (r'eveniment/(?P<slug>\w+)/raport/edit/$', RaportEvenimentUpdate.as_view(), {}, "eveniment_raport_update"),
