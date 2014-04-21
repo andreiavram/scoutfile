@@ -1,12 +1,21 @@
 	<ul class = "nav nav-list">
-		<li class = "nav-header">Evenimente</li>
-		<li><a href = "{% url album:index %}"><i class = "icon-picture"></i> <strong>Toate evenimentele</strong></a></li>
-        {% for eveniment in object_list|slice:":5" %}
-            {% if eveniment.slug %}
-            <li><a href = "{% url album:eveniment_detail slug=eveniment.slug %}"><i class = "icon-picture"></i> {{ eveniment }}</a></li>
-            {% endif %}
-        {% endfor %}
-        {% if user.is_authenticated %}<li><a href = "{% url album:eveniment_create %}"><i class = "icon-plus-sign"></i> Adaugă eveniment</a></li>{% endif %}
+		<li class = "nav-header">Activități</li>
+		<li><a href = "{% url album:index %}"><i class = "icon-picture"></i> <strong>Listă activități</strong></a></li>
+{#        {% for eveniment in object_list|slice:":5" %}#}
+{#            {% if eveniment.slug %}#}
+{#            <li><a href = "{% url album:eveniment_detail slug=eveniment.slug %}"><i class = "icon-picture"></i> {{ eveniment }}</a></li>#}
+{#            {% endif %}#}
+{#        {% endfor %}#}
+        {% if user.is_authenticated %}<li><a href = "{% url album:eveniment_create %}"><i class = "icon-plus-sign"></i> Adaugă activitate</a></li>{% endif %}
+
+        {% if ani_activitati %}
+            <li class = "nav-header">Pe ani</li>
+            <li><a href = "{% url album:index %}?an=0"><i class="icon-list-alt"></i> {% if request.session.an == 0 %}<strong>Toate</strong> <i class = "icon-ok"></i>{% else %}Toate{% endif %}</a></li>
+            {% for an in ani_activitati %}
+                <li><a href = "{% url album:index %}?an={{ an }}"><i class="icon-list-alt"></i>{% if request.session.an == an %}<strong>Activități {{ an }}</strong> <i class = "icon-ok"></i>{% else %}Activități {{ an }}{% endif %}</a></li>
+            {% endfor %}
+        {% endif %}
+
         {% if user.is_authenticated %}<li class = "nav-header">Seturi fotografii</li>
 		<li><a href = "{% url album:set_poze_user %}"><i class = "icon-list"></i> Seturile mele</a></li>
 		<li><a href = "{% url album:set_poze_all %}"><i class = "icon-list"></i> Toate seturile</a></li>

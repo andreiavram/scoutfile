@@ -22,7 +22,7 @@ from taggit.models import Tag
 from taggit.utils import parse_tags
 
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment, \
-    ParticipareEveniment, AsociereEvenimentStructura
+    ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm
 from album.models import SetPoze
 from album.forms import SetPozeCreateForm, SetPozeUpdateForm
@@ -49,6 +49,11 @@ class EvenimentList(ListView):
             self.per_page = int(request.POST.get("per_page", 5))
             self.offset = int(request.POST.get("offset", 0))
 
+        if "status" not in request.session:
+            request.session["status"] = "incheiat"
+        if "status" in request.GET:
+            request.session["status"] = request.GET.get("status")
+
         if "unitate" in request.GET:
             if request.GET.get("unitate") == "0" and "unitate" in request.session:
                 del request.session['unitate']
@@ -57,8 +62,28 @@ class EvenimentList(ListView):
 
         self.unitate = None
         if "unitate" in request.session and request.session['unitate'] != 0:
-            print request.session['unitate']
             self.unitate = Unitate.objects.get(id=request.session['unitate'])
+
+
+        if "tip" in request.GET:
+            if request.GET.get("tip") == "0" and "tip" in request.session:
+                del request.session["tip"]
+            else:
+                request.session["tip"] = int(request.GET.get("tip"))
+
+        self.tip_activitate = None
+        if "tip" in request.session and request.session["tip"] != 0:
+            self.tip_activitate = TipEveniment.objects.get(id=request.session["tip"])
+
+        if "album" not in request.session:
+            request.session["album"] = False
+        if "album" in request.GET:
+            request.session["album"] = int(request.GET.get("album")) > 0
+
+        if "an" not in request.session:
+            request.session["an"] = 0
+        if "an" in request.GET:
+            request.session["an"] = int(request.GET.get("an"))
 
         return super(EvenimentList, self).dispatch(request, *args, **kwargs)
 
@@ -71,13 +96,24 @@ class EvenimentList(ListView):
             qs = qs.filter(centru_local=self.request.user.get_profile().membru.centru_local)
 
         if self.unitate:
-            qs = qs.filter(id__in = [e.id for e in qs if e.are_asociere(self.unitate)])
+            qs = qs.filter(id__in=[e.id for e in qs if e.are_asociere(self.unitate)])
+
+        if self.request.session["status"] != "toate":
+            qs = qs.filter(status=self.request.session["status"])
+
+        if self.tip_activitate:
+            qs = qs.filter(tip_eveniment=self.tip_activitate)
+
+        if self.request.session["album"]:
+            qs = qs.filter(id__in=[e.id for e in qs if e.total_poze > 0])
+
+        if self.request.session["an"] > 0:
+            qs = qs.filter(start_date__year=self.request.session["an"])
 
         if self.request.is_ajax():
             self.total_count = qs.count()
             qs = qs[self.offset:self.offset + self.per_page]
             self.current_count = qs.count()
-
 
         return qs
 
@@ -88,7 +124,7 @@ class EvenimentList(ListView):
 
     def get_context_data(self, **kwargs):
         data = super(EvenimentList, self).get_context_data(**kwargs)
-
+        data['album'] = self.request.session["album"]
         if self.request.is_ajax():
             data['total_count'] = self.total_count
             data['current_count'] = self.current_count
@@ -98,6 +134,22 @@ class EvenimentList(ListView):
             if self.request.user.is_authenticated():
                 centru_local = self.request.user.get_profile().membru.centru_local
                 data['unitati'] = centru_local.unitate_set.all()
+                data['tipuri_activitate'] = [t for t in TipEveniment.objects.all() if t.eveniment_set.count() > 0]
+                data['status_activitate'] = STATUS_EVENIMENT
+                data['tip_activitate'] = self.tip_activitate
+                data['unitate'] = self.unitate
+                status = "Toate"
+                for s in STATUS_EVENIMENT:
+                    if s[0] == self.request.session["status"]:
+                        status = s[1]
+                        break
+
+                data['status'] = status
+
+        an_curent = datetime.datetime.now().year
+        data['ani_activitati'] = range(an_curent - 2, an_curent + 1)
+        data['ani_activitati'].reverse()
+
         return data
 
 
