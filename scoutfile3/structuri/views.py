@@ -752,7 +752,7 @@ class PatrulaUpdate(UpdateView):
 class PatrulaDetail(DetailView, TabbedViewMixin):
     model = Patrula
 
-    @allow_by_afiliere([("Unitate, Centru Local", "Lider")])
+    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider")])
     def dispatch(self, request, *args, **kwargs):
         return super(PatrulaDetail, self).dispatch(request, *args, **kwargs)
 
