@@ -205,7 +205,6 @@ class Eveniment(models.Model):
         return autori
 
     def cover_photo(self):
-        print self, self.custom_cover_photo
         if self.custom_cover_photo:
             return self.custom_cover_photo
 
@@ -270,8 +269,6 @@ class Eveniment(models.Model):
         filter_args = dict(content_type=ContentType.objects.get_for_model(structura), object_id=structura.id)
         return self.asociereevenimentstructura_set.filter(**filter_args).count() > 0
 
-STATUS_PARTICIPARE = ((1, u"Cu semnul întrebării"), (2, u"Sigur"), (3, u"Avans plătit"), (4, u"Participare efectivă"),
-                      (5, u"Participare anulată"))
 
 class AsociereEvenimentStructura(models.Model):
     content_type = models.ForeignKey(ContentType, verbose_name=u"Tip structură")
@@ -339,6 +336,10 @@ class RaportEveniment(models.Model):
 ROL_PARTICIPARE = (("participant", u"Participant"), ("coordonator", u"Coordonator"), ("staff", u"Membru staff"))
 
 
+STATUS_PARTICIPARE = ((1, u"Cu semnul întrebării"), (2, u"Confirmat"), (3, u"Avans plătit"), (4, u"Participare efectivă"),
+                      (5, u"Participare anulată"))
+
+
 class ParticipareEveniment(models.Model):
     membru = models.ForeignKey("structuri.Membru")
     eveniment = models.ForeignKey(Eveniment)
@@ -349,9 +350,16 @@ class ParticipareEveniment(models.Model):
     detalii = models.TextField(null=True, blank=True)
     rol = models.CharField(max_length=255, default="participant", choices=ROL_PARTICIPARE)
 
+    ultima_modificare = models.DateTimeField(auto_now=True)
+    user_modificare = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="participari_responsabil")
+
+    class Meta:
+        ordering = ["-data_sosire"]
+
     @property
     def is_partiala(self):
-        return self.data_sosire.date() != self.eveniment.start_date.date() or self.data_plecare.date() != self.eveniment.end_date.date()
+        return self.data_sosire > self.eveniment.start_date or self.data_plecare < self.eveniment.end_date
+
 
 
 TIPURI_CAMP_PARTICIPARE = (("text", u"Text"), ("number", u"Număr"), ("bool", u"Bifă"), ("date", u"Dată"))

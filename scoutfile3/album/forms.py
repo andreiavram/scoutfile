@@ -4,6 +4,7 @@ Created on Aug 31, 2012
 
 @author: yeti
 '''
+from ajax_select.fields import AutoCompleteSelectField
 from crispy_forms.layout import Fieldset, Layout, Field
 from django.core.urlresolvers import reverse
 from taggit.forms import TagField
@@ -13,8 +14,9 @@ from django.forms.widgets import RadioSelect, Textarea
 from django.core.exceptions import ValidationError
 
 from goodies.widgets import BootstrapDateTimeInput, GeoCoordinatesInput, FacebookLinkWidget, TaggitTagsInput
-from album.models import FlagReport, FLAG_MOTIVES, RaportEveniment
+from album.models import FlagReport, FLAG_MOTIVES, RaportEveniment, ParticipareEveniment
 from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
+from generic.widgets import BootstrapDateTimeInput
 
 
 class ReportForm(CrispyBaseModelForm):
@@ -109,3 +111,11 @@ class RaportEvenimentForm(CrispyBaseModelForm):
                   "promovare", "buget", "accept_publicare_raport_national"]
 
 
+class EvenimentParticipareForm(CrispyBaseModelForm):
+    class Meta:
+        model = ParticipareEveniment
+        exclude = ["eveniment", "user_modificare"]
+
+    membru = AutoCompleteSelectField("membri", label=u"Cercetaș")
+    data_sosire = forms.DateTimeField(widget=BootstrapDateTimeInput, label=u"Sosire")
+    data_plecare = forms.DateTimeField(widget=BootstrapDateTimeInput, label=u"Plecare")

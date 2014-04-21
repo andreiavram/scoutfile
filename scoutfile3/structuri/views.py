@@ -23,6 +23,7 @@ import datetime
 import hashlib
 import logging
 import traceback
+from album.models import ParticipareEveniment
 
 from documente.models import Trimestru
 from settings import SECRET_KEY, SYSTEM_EMAIL, MEDIA_ROOT, DEBUG, \
@@ -964,14 +965,12 @@ class MembruDetail(DetailView, TabbedViewMixin):
 
     def get_tabs(self):
         self.tabs = (("brief", u"Sumar", reverse("structuri:membru_tab_brief", kwargs={"pk": self.object.id}), "", 1),
-                     ("afilieri", u"Afilieri", reverse("structuri:membru_tab_afilieri", kwargs={"pk": self.object.id}),
-                      "", 2),
-                     ("contact", u"Contact", reverse("structuri:membru_tab_contact", kwargs={"pk": self.object.id}), "",
-                      3),
-                     ("familie", u"Familie", reverse("structuri:membru_tab_familie", kwargs={"pk": self.object.id}), "",
-                      4),
-                     ('documente', u"Documente",
-                      reverse("structuri:membru_tab_documente", kwargs={"pk": self.object.id}), "", 5))
+                     ("afilieri", u"Afilieri", reverse("structuri:membru_tab_afilieri", kwargs={"pk": self.object.id}),"", 2),
+                     ("contact", u"Contact", reverse("structuri:membru_tab_contact", kwargs={"pk": self.object.id}), "", 3),
+                     ("familie", u"Familie", reverse("structuri:membru_tab_familie", kwargs={"pk": self.object.id}), "", 4),
+                     ('documente', u"Documente", reverse("structuri:membru_tab_documente", kwargs={"pk": self.object.id}), "", 5),
+                     ('activitati', u"Activități", reverse("structuri:membru_tab_activitati", kwargs={"pk": self.object.id}), "icon-calendar", 6),
+        )
         return super(MembruDetail, self).get_tabs()
 
     def get_context_data(self, **kwargs):
@@ -1055,8 +1054,7 @@ class MembruTabFamilie(DetailView):
     template_name = "structuri/membru_tab_familie.html"
     model = Membru
 
-    @allow_by_afiliere(
-        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruTabFamilie, self).dispatch(request, *args, **kwargs)
 
@@ -1064,6 +1062,16 @@ class MembruTabFamilie(DetailView):
         kwargs.update({"object_list": self.object.asocieremembrufamilie_set.all(),
                        "nonmembru_object_list": self.object.persoanadecontact_set.all(), })
         return super(MembruTabFamilie, self).get_context_data(**kwargs)
+
+
+class MembruTabActivitati(ListView):
+    model = ParticipareEveniment
+    template_name = "structuri/membru_tab_activitati.html"
+
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+    def dispatch(self, request, *args, **kwargs):
+        self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
+        return super(MembruTabActivitati, self).dispatch(request, *args, **kwargs)
 
 
 #   registration views

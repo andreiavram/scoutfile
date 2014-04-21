@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block extrahead %}
+    {{ form.media }}
+{% endblock %}
+
+{% block page_title %}
+    {{ eveniment.nume }} <span style = "font-weight: normal">| {% if object %}Modifică{% else %}Adaugă{% endif %} participare</span>
+{% endblock %}
+
+{% block context_menu %}
+    {% include "album/eveniment_context_menu.html" %}
+{% endblock %}
+
+{% block content %}
+    {% crispy form form.helper %}
+{% endblock %}
