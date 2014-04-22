@@ -1,7 +1,7 @@
 	<ul class = "nav nav-list">
         <li><a href = "{% url album:index %}"><i class = "icon-chevron-left"></i> Lista activități</a></li>
         <li class = "nav-header">Activitate</li>
-        <li><a href = "{% url album:eveniment_main_detail slug=eveniment.slug %}"><i class = "icon-home"> Prezentare</i></a></li>
+        <li><a href = "{% url album:eveniment_main_detail slug=eveniment.slug %}"><i class = "icon-home"></i> Prezentare</a></li>
 		<li><a href = "{% url album:eveniment_detail slug=eveniment.slug %}"><i class = "icon-picture"></i> Album</a></li>
 		<li><a href = "{% url album:eveniment_stats pk=eveniment.id %}"><i class = "icon-list-alt"></i> Statistici</a></li>
 		<li><a href = "{% url album:eveniment_seturi_toate slug=eveniment.slug %}"><i class = "icon-list"></i> Seturi de poze</a></li>
