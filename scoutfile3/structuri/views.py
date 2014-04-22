@@ -774,7 +774,7 @@ class PatrulaTabBrief(DetailView):
     model = Patrula
     template_name = "structuri/patrula_tab_brief.html"
 
-    @allow_by_afiliere([("Unitate, Centru Local", "Lider")])
+    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider")])
     def dispatch(self, request, *args, **kwargs):
         return super(PatrulaTabBrief, self).dispatch(request, *args, **kwargs)
 

@@ -74,13 +74,41 @@
             width: 65px;
             left: -66px;
         }
+
+        .event-month {
+            display: block;
+            background-color: #d1e8ff;
+            width: 100%;
+            height: 20px;
+            margin-left:-5px;
+            line-height: 20px;
+            padding: 0 6px;
+            box-shadow: none;
+            border-radius: 0;
+
+
+        }
     </style>
 {% endblock %}
 
 {% block page_title %}Calendar
-<div class = "pull-right btn-group">
-        <a class = "btn disabled" href = "{% url album:calendar_centru_local pk=request.user.get_profile.membru.centru_local.id %}"><i class = "icon-calendar"></i> Calendar</a>
-        <a class = "btn" href = "{% url album:index%}"><i class = "icon-list"></i> Listă</a>
+    <div class = "pull-right btn-toolbar">
+        <div class="btn-group">
+            <button class="btn btn-primary" data-calendar-nav="prev"><i class = "icon-chevron-left"></i></button>
+            <button class="btn" data-calendar-nav="today">Azi</button>
+            <button class="btn btn-primary" data-calendar-nav="next"><i class = "icon-chevron-right"></i></button>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-warning" data-calendar-view="year">An</button>
+            <button class="btn btn-warning active" data-calendar-view="month">Lună</button>
+            <button class="btn btn-warning" data-calendar-view="week">Săptămână</button>
+            <button class="btn btn-warning" data-calendar-view="day">Zi</button>
+        </div>
+
+        <div class = "pull-right btn-group">
+            <a class = "btn disabled" href = "{% url album:calendar_centru_local pk=request.user.get_profile.membru.centru_local.id %}"><i class = "icon-calendar"></i> Calendar</a>
+            <a class = "btn" href = "{% url album:index%}"><i class = "icon-list"></i> Listă</a>
+        </div>
     </div>
 
 {% endblock %}
@@ -93,18 +121,42 @@
 {% block content %}
     <div class="page-header">
 
-        <div class="pull-right form-inline">
-            <div class="btn-group">
-                <button class="btn btn-primary" data-calendar-nav="prev"><i class = "icon-chevron-left"></i></button>
-                <button class="btn" data-calendar-nav="today">Azi</button>
-                <button class="btn btn-primary" data-calendar-nav="next"><i class = "icon-chevron-right"></i></button>
+        <div class="pull-right form-inline btn-toolbar">
+            <div class = "btn-group">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class = "icon-th-large"></i> Categorie {% if tip_activitate %}({{ tip_activitate }}){% endif %} <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    {% for tip in tipuri_activitate %}
+                        <li><a tabindex="-1" href = "{% url album:index %}?tip={{ tip.id }}">{{ tip }} {% if request.session.tip == tip.id %}<i class = "icon-ok"></i>{% endif %}</a></li>
+                    {% endfor %}
+                    <li class="divider"></li>
+                    <li><a tabindex="-1" href = "{% url album:index %}?tip=0">Toate {% if 'tip' not in request.session or request.session.tip == 0 %}<i class = "icon-ok"></i>{% endif %}</a></li>
+                </ul>
             </div>
-            <div class="btn-group">
-                <button class="btn btn-warning" data-calendar-view="year">An</button>
-                <button class="btn btn-warning active" data-calendar-view="month">Lună</button>
-                <button class="btn btn-warning" data-calendar-view="week">Săptămână</button>
-                <button class="btn btn-warning" data-calendar-view="day">Zi</button>
+
+            <div class = "btn-group">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class = "icon-time"></i> Status ({{ status }}) <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    {% for status in status_activitate %}
+                        <li><a tabindex="-1" href = "{% url album:index %}?status={{ status.0 }}">{{ status.1 }} {% if request.session.status == status.0 %}<i class = "icon-ok"></i>{% endif %}</a></li>
+                    {% endfor %}
+                    <li class="divider"></li>
+                    <li><a tabindex="-1" href = "{% url album:index %}?status=toate">Toate {% if request.session.status == "toate" %}<i class = "icon-ok"></i>{% endif %}</a></li>
+                </ul>
             </div>
+
+            <div class = "btn-group">
+                <a href = "#" class = "disabled btn">Unități: </a>
+                <a href = "{% url album:index %}?unitate=0" class = "btn {% if 'unitate' not in request.session or request.session.unitate == '0' %}disabled{% endif %}">Toate</a>
+                {% for unitate in unitati %}
+                    <a href = "{% url album:index %}?unitate={{ unitate.id }}" class = "btn {% if request.session.unitate and request.session.unitate == unitate.id %}disabled{% endif %}" data-id = "{{ unitate.id }}"><img style="height: 18px" src = "{{ STATIC_URL }}images/icon-{{ unitate.ramura_de_varsta|slugify }}.png" /> {{ unitate.nume }}</a>
+                {% endfor %}
+            </div>
+
+            <div class = "btn-group">
+                <a class = "btn {% if request.session.album %}btn-success{% else %}btn-danger{% endif %}" href = "{% url album:index %}?album={% if request.session.album %}0{% else %}1{% endif %}"><i class = "icon-picture"></i></a>
+            </div>
+
+
         </div>
 
         <h3></h3>

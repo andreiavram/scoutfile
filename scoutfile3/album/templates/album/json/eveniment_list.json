@@ -67,7 +67,13 @@
                     "id": "{{ event.tip_eveniment.id }}",
                     "slug": "{{ event.tip_eveniment.slug }}"
                 {% endif %}
+            },
+            "international": {% if event.international %}true{% else %}false{% endif %},
+            "organizator": {
+                "extern": {% if event.organizator_cercetas %}false{% else %}true{% endif %},
+                "nume": "{% if event.organizator %}{{ event.organizator }}{% endif %}"
             }
+
 
         }{% if not forloop.last %},{% endif %}
         {% endfor %}

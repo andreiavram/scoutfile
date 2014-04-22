@@ -41,15 +41,8 @@ import settings
 logger = logging.getLogger(__name__)
 
 
-class EvenimentList(ListView):
-    model = Eveniment
-    template_name = "album/eveniment_list.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.is_ajax():
-            self.per_page = int(request.POST.get("per_page", 5))
-            self.offset = int(request.POST.get("offset", 0))
-
+class EvenimentFiltruMixin(object):
+    def process_request_filters(self, request):
         if "status" not in request.session:
             request.session["status"] = "incheiat"
         if "status" in request.GET:
@@ -90,16 +83,26 @@ class EvenimentList(ListView):
         if "an" in request.GET:
             request.session["an"] = int(request.GET.get("an"))
 
-        return super(EvenimentList, self).dispatch(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self.get(self, request, *args, **kwargs)
-
-    def get_queryset(self, *args, **kwargs):
-        qs = super(EvenimentList, self).get_queryset(*args, **kwargs)
+    def filters_context_data(self):
+        data = {}
         if self.request.user.is_authenticated():
-            qs = qs.filter(centru_local=self.request.user.get_profile().membru.centru_local)
+            centru_local = self.request.user.get_profile().membru.centru_local
+            data['unitati'] = centru_local.unitate_set.all()
+        data['tipuri_activitate'] = [t for t in TipEveniment.objects.all() if t.eveniment_set.count() > 0]
+        data['status_activitate'] = STATUS_EVENIMENT
+        data['tip_activitate'] = self.tip_activitate
+        data['unitate'] = self.unitate
+        status = "Toate"
+        for s in STATUS_EVENIMENT:
+            if s[0] == self.request.session["status"]:
+                status = s[1]
+                break
 
+        data['status'] = status
+
+        return data
+
+    def apply_filters(self, qs):
         if self.unitate:
             qs = qs.filter(id__in=[e.id for e in qs if e.are_asociere(self.unitate)])
 
@@ -115,6 +118,31 @@ class EvenimentList(ListView):
         if self.request.session["an"] > 0:
             qs = qs.filter(start_date__year=self.request.session["an"])
 
+        return qs
+
+
+class EvenimentList(EvenimentFiltruMixin, ListView):
+    model = Eveniment
+    template_name = "album/eveniment_list.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.is_ajax():
+            self.per_page = int(request.POST.get("per_page", 5))
+            self.offset = int(request.POST.get("offset", 0))
+
+        self.process_request_filters(request)
+        return super(EvenimentList, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.get(self, request, *args, **kwargs)
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super(EvenimentList, self).get_queryset(*args, **kwargs)
+        if self.request.user.is_authenticated():
+            qs = qs.filter(centru_local=self.request.user.get_profile().membru.centru_local)
+
+        qs = self.apply_filters(qs)
+
         if self.request.is_ajax():
             self.total_count = qs.count()
             qs = qs[self.offset:self.offset + self.per_page]
@@ -129,31 +157,17 @@ class EvenimentList(ListView):
 
     def get_context_data(self, **kwargs):
         data = super(EvenimentList, self).get_context_data(**kwargs)
-        data['album'] = self.request.session["album"]
+
         if self.request.is_ajax():
             data['total_count'] = self.total_count
             data['current_count'] = self.current_count
             data['requested_count'] = self.per_page
             data['current_offset'] = self.offset
-        else:
-            if self.request.user.is_authenticated():
-                centru_local = self.request.user.get_profile().membru.centru_local
-                data['unitati'] = centru_local.unitate_set.all()
-                data['tipuri_activitate'] = [t for t in TipEveniment.objects.all() if t.eveniment_set.count() > 0]
-                data['status_activitate'] = STATUS_EVENIMENT
-                data['tip_activitate'] = self.tip_activitate
-                data['unitate'] = self.unitate
-                status = "Toate"
-                for s in STATUS_EVENIMENT:
-                    if s[0] == self.request.session["status"]:
-                        status = s[1]
-                        break
-
-                data['status'] = status
 
         an_curent = datetime.datetime.now().year
         data['ani_activitati'] = range(an_curent - 2, an_curent + 1)
         data['ani_activitati'].reverse()
+        data.update(self.filters_context_data())
 
         return data
 
@@ -991,19 +1005,25 @@ class RaportEvenimentHistory(ListView):
         return data
 
 
-class CalendarCentruLocal(CalendarViewMixin, DetailView):
+class CalendarCentruLocal(EvenimentFiltruMixin, CalendarViewMixin, DetailView):
     template_name = "album/calendar.html"
     model = CentruLocal
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
+        self.process_request_filters(request)
         return super(CalendarCentruLocal, self).dispatch(request, *args, **kwargs)
 
     def get_events_url(self):
         return reverse("album:events_centru_local", kwargs={"pk": self.object.id})
 
+    def get_context_data(self, **kwargs):
+        data = super(CalendarCentruLocal, self).get_context_data(**kwargs)
+        data.update(self.filters_context_data())
+        return data
 
-class CalendarEvents(ListView):
+
+class CalendarEvents(EvenimentFiltruMixin, ListView):
     model = Eveniment
     template_name = "album/json/events.json"
 
@@ -1014,6 +1034,7 @@ class CalendarEvents(ListView):
             return HttpResponseBadRequest("Need to have 'to' and 'from' data set!")
         self.from_date = datetime.datetime.fromtimestamp(float(request.GET['from']) / 1000)
         self.to_date = datetime.datetime.fromtimestamp(float(request.GET['to']) / 1000)
+        self.process_request_filters(request)
         return super(CalendarEvents, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -1021,7 +1042,13 @@ class CalendarEvents(ListView):
         qs = qs.filter(Q(start_date__range=[self.from_date, self.to_date])
                        | Q(end_date__range=[self.from_date, self.to_date])
                        | Q(start_date__lte=self.from_date, end_date__gte=self.to_date))
+        qs = self.apply_filters(qs)
         return qs
+
+    def get_context_data(self, **kwargs):
+        data = super(CalendarEvents, self).get_context_data(**kwargs)
+        data.update(self.filters_context_data())
+        return data
 
 
 class RaportStatus(ListView):
