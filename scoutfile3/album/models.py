@@ -715,10 +715,11 @@ class Imagine(ImageModel):
 
     @classmethod
     def filter_visibility(cls, qs, eveniment=None, user=None):
-        if user is None:
-            visibility_level = 4
+        visibility_level = 4
+        if user is not None:
+            visibility_level = eveniment.get_visibility_level(user)
 
-        qs = qs.exclude(published_status__lt = self.set_poze.eveniment.get_visibility_level(user))
+        qs = qs.exclude(published_status__lt=visibility_level)
         return qs
 
 # tagging.register(Imagine)
