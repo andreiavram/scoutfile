@@ -165,7 +165,7 @@
         </div>
         <div class="span4" style="text-align: right">
             <img class="thumbnail" src="
-                    {% if eveniment.cover_photo %}{{ eveniment.cover_photo.get_thumbnail_url }}{% else %}http://placehold.it/320x240{% endif %}"/>
+                    {% if eveniment.cover_photo %}{{ eveniment.cover_photo.get_thumbnail_url }}{% else %}{% static 'images/event_placeholder.jpg' %}{% endif %}"/>
         </div>
 
 
