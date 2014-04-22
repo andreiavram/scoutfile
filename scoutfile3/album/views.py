@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)
 class EvenimentFiltruMixin(object):
     def process_request_filters(self, request):
         if "status" not in request.session:
-            request.session["status"] = "incheiat"
+            request.session["status"] = "terminat"
         if "status" in request.GET:
             request.session["status"] = request.GET.get("status")
 
