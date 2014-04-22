@@ -43,6 +43,13 @@ logger = logging.getLogger(__name__)
 
 class EvenimentFiltruMixin(object):
     def process_request_filters(self, request):
+        if not request.is_ajax():
+            if "qnume" in request.GET:
+                request.session['qnume'] = request.GET['qnume']
+            elif "qnume" in request.session:
+                del request.session['qnume']
+
+
         if "status" not in request.session:
             request.session["status"] = "terminat"
         if "status" in request.GET:
@@ -140,6 +147,9 @@ class EvenimentList(EvenimentFiltruMixin, ListView):
         qs = super(EvenimentList, self).get_queryset(*args, **kwargs)
         if self.request.user.is_authenticated():
             qs = qs.filter(centru_local=self.request.user.get_profile().membru.centru_local)
+
+        if "qnume" in self.request.session:
+            qs = qs.filter(nume__icontains=self.request.session['qnume'])
 
         qs = self.apply_filters(qs)
 
