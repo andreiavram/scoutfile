@@ -1074,7 +1074,7 @@ class MembruTabActivitati(ListView):
         return super(MembruTabActivitati, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.model.filter(membru=self.membru)
+        return self.model.objects.filter(membru=self.membru)
 
 
 #   registration views
