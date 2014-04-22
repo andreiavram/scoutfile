@@ -78,6 +78,10 @@ class Eveniment(models.Model):
     responsabil_raport = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="evenimente_raport")
     responsabil_articol = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="evenimente_articol")
 
+    international = models.BooleanField(default=False, help_text=u"Dacă activitatea implică participanți din alte țări sau are loc în străinătate")
+    organizator = models.CharField(max_length=255, null=True, blank=True, help_text=u"Dacă organizatorul este altul decât Centrul Local, notați-l aici")
+    organizator_cercetas = models.BooleanField(default=True, help_text=u"Dacă organizatorul este un centru local sau ONCR, bifează aici")
+
     class Meta:
         verbose_name = u"Eveniment"
         verbose_name_plural = u"Evenimente"
@@ -268,6 +272,14 @@ class Eveniment(models.Model):
     def are_asociere(self, structura):
         filter_args = dict(content_type=ContentType.objects.get_for_model(structura), object_id=structura.id)
         return self.asociereevenimentstructura_set.filter(**filter_args).count() > 0
+
+    def ramura_de_varsta(self):
+        from structuri.models import Unitate
+        filter_args = dict(content_type=ContentType.objects.get_for_model(Unitate))
+        qs = self.asociereevenimentstructura_set.filter(**filter_args)
+        if qs.count() == 1:
+            return qs[0].content_object.ramura_de_varsta
+        return None
 
 
 class AsociereEvenimentStructura(models.Model):

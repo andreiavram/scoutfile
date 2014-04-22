@@ -2,15 +2,17 @@
 {% load pagination_tags %}
 
 {% block page_title %}
-	{% if album %}Album foto{% else %}Activități{% endif %} <div class = "btn-toolbar pull-right"><div class = "btn-group">
-        <a class = "btn" href = "{% url album:calendar_centru_local pk=request.user.get_profile.membru.centru_local.id %}"><i class = "icon-calendar"></i> Calendar</a>
-        <a class = "btn disabled" href = "{% url album:index%}"><i class = "icon-list"></i> Listă</a>
-    </div>
-    <div class = "btn-group">
-        <a class = "btn template-switcher" data-view = "grid" href = "#"><i class = "icon-th"></i></a>
-        <a class = "btn template-switcher" data-view = "list" href = "#"><i class = "icon-list"></i></a>
-        <a class = "btn template-switcher" data-view = "list_detail" href = "#"><i class = "icon-list-alt"></i></a>
-    </div>
+	{% if album %}Album foto{% else %}Activități{% endif %} <div class = "btn-toolbar pull-right">
+        <div class = "btn-group">
+            <a class = "btn template-switcher" data-view = "grid" href = "#"><i class = "icon-th"></i></a>
+            <a class = "btn template-switcher" data-view = "list" href = "#"><i class = "icon-list"></i></a>
+            <a class = "btn template-switcher" data-view = "list_detail" href = "#"><i class = "icon-list-alt"></i></a>
+        </div>
+
+        <div class = "btn-group">
+            <a class = "btn" href = "{% url album:calendar_centru_local pk=request.user.get_profile.membru.centru_local.id %}"><i class = "icon-calendar"></i> Calendar</a>
+            <a class = "btn disabled" href = "{% url album:index%}"><i class = "icon-list"></i> Listă</a>
+        </div>
     </div>
 {% endblock %}
 
@@ -32,8 +34,13 @@
             </td>
             <td>
                 <% if (eveniment.tip_eveniment.nume) { %>
-                    <%= eveniment.tip_eveniment.nume %>
+                    <%= eveniment.tip_eveniment.nume %><br />
                  <% } %>
+                 <% if (eveniment.international) { %>
+                    <span class = "label label-info">Internațional</span><% } %>
+                <% if ((eveniment.organizator.nume.length > 0) && (eveniment.organizator.extern)) { %>
+                    <span class = "label label-info">Extern</span>
+                <% } %>
             </td>
             <td>
                 <% if (eveniment.structuri.length) { %>
@@ -91,6 +98,12 @@
                 <% if (eveniment.tip_eveniment.nume) { %>
                     <span class = "label label-info"><%= eveniment.tip_eveniment.nume %></span> <i class = "icon-star"></i>
                  <% } %>
+                  <% if (eveniment.international) { %>
+                    <span class = "label label-info">Internațional</span> <i class = "icon-star"></i>
+                <% } %>
+                <% if ((eveniment.organizator.nume.length > 0) && (eveniment.organizator.extern)) { %>
+                    <span class = "label label-info">Extern</span> <i class = "icon-star"></i>
+                <% } %>
                     <% if (eveniment.total_poze != 0) { %>
                         Conține <%= eveniment.total_poze %> fotografii de la <%= eveniment.autori.length %> fotografi <i class = "icon-star"></i>
                     <% } %>
@@ -157,6 +170,12 @@
                     <% if (eveniment.tip_eveniment.nume) { %>
                     <span class = "label label-info"><%= eveniment.tip_eveniment.nume %></span>
                  <% } %>
+                              <% if (eveniment.international) { %>
+                    <span class = "label label-info">Internațional</span>
+                <% } %>
+                <% if ((eveniment.organizator.nume.length > 0) && (eveniment.organizator.extern)) { %>
+                    <span class = "label label-info">Extern</span>
+                <% } %>
                     </p>
         </div>
     </script>

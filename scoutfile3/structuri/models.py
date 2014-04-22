@@ -26,6 +26,7 @@ class RamuraDeVarsta(models.Model):
     slug = models.SlugField(max_length=255, null=True, blank=True)
     varsta_intrare = models.PositiveSmallIntegerField()
     varsta_iesire = models.PositiveSmallIntegerField(null=True, blank=True)
+    culoare = models.CharField(max_length=255, null=True, blank=True)
 
     def __unicode__(self):
         return u"%s" % self.nume

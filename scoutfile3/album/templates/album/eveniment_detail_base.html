@@ -135,9 +135,18 @@
                 <i
                         class="icon-star"></i> {% for autor in object.get_autori %}
                     <a href="{% url album:eveniment_detail slug=object.slug %}?autor={{ autor }}">{{ autor }}</a>
-                    <i class='icon-star'></i> {% endfor %}</strong>
-
+                    <i class='icon-star'></i> {% endfor %}
+            {% if object.organizator %}Organizat de <strong>{{ object.organizator }} {% if object.organizator_cercetas %}(cercetași){% endif %}</strong> <i class = "icon-star"></i> {% endif %}</strong>
               </p>
+
+            <p>{% if object.responsabil_raport %}<strong>Responsabil raport: </strong>{% with object.responsabil_raport as cercetas %}{% for badge in cercetas.get_badges_rdv %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
+                            {% for badge in cercetas.get_extra_badges %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
+                            <a href = "{% url structuri:membru_detail pk=cercetas.id %}">{{ cercetas }}</a></li>{% endwith %}{% endif %}</p>
+            <p>{% if object.responsabil_articol %}<strong>Responsabil articol site: </strong>{% with object.responsabil_articol as cercetas %}{% for badge in cercetas.get_badges_rdv %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
+                            {% for badge in cercetas.get_extra_badges %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
+                            <a href = "{% url structuri:membru_detail pk=cercetas.id %}">{{ cercetas }}</a></li>{% endwith %}{% endif %}</p>
+
+            <p>{% if object.international %}<span class = "label label-info">Internațional</span> {% endif %}</p>
         </div>
         <div class="span3">
             <div class="map-canvas thumbnail" id="map_canvas"

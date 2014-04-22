@@ -28,3 +28,10 @@ class MembriLookup(LookupChannel):
     
     def format_item_display(self, obj):
         return render_to_string("structuri/membru_for_ajax.html", {"obj" : obj, "STATIC_URL" : STATIC_URL})
+
+class LideriLookup(MembriLookup):
+    def get_query(self, q, request):
+        qs = Membru.objects.filter(Q(nume__icontains=q) | Q(prenume__icontains = q))
+        centru_local = request.user.utilizator.membru.centru_local
+        qs = Membru.objects.filter(id__in=[m.id for m in qs if m.are_calitate("Lider", centru_local)])
+        return qs
