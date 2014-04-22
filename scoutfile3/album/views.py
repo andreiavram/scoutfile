@@ -854,16 +854,20 @@ class ImagineSearchJSON(JSONView):
         ordering_strings = []
         if "tags" in self.cleaned_data:
             qs = qs.filter(tags__name__in=self.cleaned_data['tags'])
+
+        eveniment = None
         if "eveniment" in self.cleaned_data:
+            eveniment =self.cleaned_data['eveniment']
             ordering_strings.append("-score")
             qs = qs.filter(set_poze__eveniment=self.cleaned_data['eveniment'])
+
         if "zi" in self.cleaned_data:
             qs = qs.filter(id__in=[p.id for p in self.cleaned_data['zi'].filter_photos(user=request.user)])
         if "authors" in self.cleaned_data:
             qs = qs.filter(set_poze__autor__icontains=self.cleaned_data['authors'])
 
 
-        qs = Imagine.filter_visibility(qs, request.user)
+        qs = Imagine.filter_visibility(qs, eveniment=eveniment, user=request.user)
         if self.cleaned_data.get("ordering", "desc") == "desc":
             ordering_strings.append("-data")
         elif self.cleaned_data.get("ordering") == "asc":
