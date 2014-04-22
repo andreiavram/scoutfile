@@ -21,7 +21,7 @@
             <td>{% if participare.data_sosire.date == participare.data_plecare.date %}
                     {{ participare.data_sosire|date:"l, d F Y" }}, între {{ participare.data_sosire|date:"H:i" }} - {{ participare.data_plecare|date:"H:i" }}
                 {% else %}
-                    {{ participare.data_sosire|date:"l, d F Y ora H:i" }} - {{ participare.data_plecare|date:"l, d F Y ora H:i" }}
+                    {{ participare.data_sosire|date:"l, d F Y H:i" }} - {{ participare.data_plecare|date:"l, d F Y H:i" }}
                 {% endif %}</td>
         </tr>
     {% empty %}
