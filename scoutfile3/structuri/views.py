@@ -1073,6 +1073,9 @@ class MembruTabActivitati(ListView):
         self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
         return super(MembruTabActivitati, self).dispatch(request, *args, **kwargs)
 
+    def get_queryset(self):
+        return self.model.filter(membru=self.membru)
+
 
 #   registration views
 
