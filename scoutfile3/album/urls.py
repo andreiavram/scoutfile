@@ -6,7 +6,8 @@ from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate, EvenimentCreate, EvenimentUpdate, EvenimentDetail, EvenimentDelete, PozaUpdate, ZiEdit, PozaDelete, ImagineTagSearch, ImagineSearchJSON, ZiDetailBeta, \
     RaportEvenimentDetail, RaportEvenimentUpdate, RaportEvenimentHistory, CalendarCentruLocal, CalendarEvents, \
     RaportStatus, RaportActivitate, RaportCompletPentruExport, AsociereEvenimentStructuraCreate, EvenimentParticipanti, \
-    EvenimentParticipantiCreate, EvenimentParticipantiUpdate, UnitateEvenimentCreate, PatrulaEvenimentCreate
+    EvenimentParticipantiCreate, EvenimentParticipantiUpdate, UnitateEvenimentCreate, PatrulaEvenimentCreate, \
+    EvenimentCampuriArbitrare, EvenimentCampuriArbitrareCreate, EvenimentCampuriArbitrareUpdate
 from album.views import ChangeImagineVisibility
 
 
@@ -38,6 +39,10 @@ urlpatterns = patterns('album.views',
                        (r'eveniment/(?P<slug>\w+)/participanti/list/$', EvenimentParticipanti.as_view(), {}, "eveniment_participanti_list"),
                        (r'eveniment/(?P<slug>\w+)/participanti/adauga/$', EvenimentParticipantiCreate.as_view(), {}, "eveniment_participanti_adauga"),
                        (r'eveniment/participanti/(?P<pk>\d+)/modifica/$', EvenimentParticipantiUpdate.as_view(), {}, "eveniment_participanti_modifica"),
+
+                       (r'eveniment/(?P<slug>\w+)/campuri/$', EvenimentCampuriArbitrare.as_view(), {}, "eveniment_campuri_list"),
+                       (r'eveniment/(?P<slug>\w+)/campuri/adauga/$', EvenimentCampuriArbitrareCreate.as_view(), {}, "eveniment_campuri_create"),
+                       (r'eveniment/campuri/(?P<pk>\d+)/modifica/$', EvenimentCampuriArbitrareUpdate.as_view(), {}, "eveniment_campuri_update"),
 
                        (r'eveniment/(?P<slug>\w+)/raport/$', RaportEvenimentDetail.as_view(), {}, "eveniment_raport_detail"),
                        (r'eveniment/(?P<slug>\w+)/raport/edit/$', RaportEvenimentUpdate.as_view(), {}, "eveniment_raport_update"),

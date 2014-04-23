@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load pagination_tags %}
+{% load customfield_tags %}
 
 {% block page_title %}
     {{ eveniment }} <span style="font-weight: normal">| participanți</span>
@@ -27,6 +28,9 @@
             <th>Status</th>
             <th>Parțial</th>
             <th>Detalii</th>
+            {% for camp in eveniment.camparbitrarparticipareeveniment_set.all %}
+                <th>{{ camp.nume }}</th>
+            {% endfor %}
             <th>&nbsp;</th>
         </tr>
         </thead>
@@ -43,6 +47,9 @@
                 <td>{{ participare.get_status_participare_display }}</td>
                 <td>{% if participare.is_partiala %}<i class = "icon-ok"></i>{% endif %}</td>
                 <td>{% if participare.detalii %}{{ participare.detalii|linebreaksbr }}{% endif %}</td>
+                {% for camp in eveniment.camparbitrarparticipareeveniment_set.all %}
+                    <td>{% valoare_camp camp participare %}</td>
+                {% endfor %}
                 <td>
                     <div class = "btn-group pull-right">
                         <a href = "{% url album:eveniment_participanti_modifica pk=participare.id %}" class = "btn btn-mini"><i class = "icon-pencil"></i></a>
@@ -56,6 +63,9 @@
                 <td colspan="7">
                     <em>Nu există participanți</em>
                 </td>
+                {% for camp in eveniment.camparbitrarparticipareeveniment_set.all %}
+                    <td>&nbsp;</td>
+                {% endfor %}
             </tr>
         {% endfor %}
         </tbody>
