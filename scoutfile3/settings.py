@@ -329,3 +329,5 @@ BOWER_INSTALLED_APPS = (
     'underscore',
     'bootstrap-calendar',
 )
+
+CENTRU_LOCAL_IMPLICIT = 1
