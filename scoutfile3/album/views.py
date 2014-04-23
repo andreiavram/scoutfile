@@ -20,23 +20,20 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from taggit.models import Tag
 from taggit.utils import parse_tags
+from goodies.views import GenericDeleteView, CalendarViewMixin
+from goodies.views import JSONView
 
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment, \
-    ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT
+    ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT, SetPoze, IMAGINE_PUBLISHED_STATUS
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm, \
-    EvenimentParticipareForm
-from album.models import SetPoze
-from album.forms import SetPozeCreateForm, SetPozeUpdateForm
-from goodies.views import GenericDeleteView, CalendarViewMixin
+    EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm
 from settings import MEDIA_ROOT
 from structuri.forms import AsociereEvenimentStructuraForm
-from structuri.models import Membru, RamuraDeVarsta, CentruLocal, Unitate
-from goodies.views import JSONView
+from structuri.models import Membru, RamuraDeVarsta, CentruLocal, Unitate, Patrula, TipAsociereMembruStructura
 from generic.views import ScoutFileAjaxException
-from album.models import IMAGINE_PUBLISHED_STATUS
-from structuri.models import TipAsociereMembruStructura
 from structuri.decorators import allow_by_afiliere
 import settings
+
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +135,7 @@ class EvenimentList(EvenimentFiltruMixin, ListView):
             self.offset = int(request.POST.get("offset", 0))
 
         if request.user.is_authenticated():
-            self.centru_local = self.request.user.get_profile().membru.centru_local
+            self.centru_local = request.user.get_profile().membru.centru_local
         else:
             self.centru_local = CentruLocal.objects.get(id=settings.CENTRU_LOCAL_IMPLICIT)
 
@@ -721,10 +718,16 @@ class EvenimentCreate(CreateView, EvenimentEditMixin):
     model = Eveniment
     form_class = EvenimentCreateForm
     template_name = "album/eveniment_form.html"
+    target_model = CentruLocal
 
     @allow_by_afiliere([("Utilizator, Centru Local", "Lider")])
     def dispatch(self, request, *args, **kwargs):
         self.centru_local = request.user.utilizator.membru.centru_local
+
+        self.target_obj = None
+        if "pk" in kwargs:
+            self.target_obj = get_object_or_404(self.target_model, id=kwargs.pop("pk"))
+
         return super(CreateView, self).dispatch(request, *args, **kwargs)
 
     def get_initial(self):
@@ -743,12 +746,25 @@ class EvenimentCreate(CreateView, EvenimentEditMixin):
             self.object.custom_cover_photo = cover_photo
 
         self.object.save()
+        self.create_connections()
         self.update_counts(form)
 
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         return reverse("album:eveniment_detail", kwargs={"slug": self.object.slug})
+
+    def create_connections(self):
+        if self.target_obj is not None:
+            self.object.creeaza_asociere_structura(self.target_obj)
+
+
+class UnitateEvenimentCreate(EvenimentCreate):
+    target_model = Unitate
+
+
+class PatrulaEvenimentCreate(UnitateEvenimentCreate):
+    target_model = Patrula
 
 
 class EvenimentUpdate(UpdateView, EvenimentEditMixin):

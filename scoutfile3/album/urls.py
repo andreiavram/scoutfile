@@ -6,7 +6,7 @@ from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate, EvenimentCreate, EvenimentUpdate, EvenimentDetail, EvenimentDelete, PozaUpdate, ZiEdit, PozaDelete, ImagineTagSearch, ImagineSearchJSON, ZiDetailBeta, \
     RaportEvenimentDetail, RaportEvenimentUpdate, RaportEvenimentHistory, CalendarCentruLocal, CalendarEvents, \
     RaportStatus, RaportActivitate, RaportCompletPentruExport, AsociereEvenimentStructuraCreate, EvenimentParticipanti, \
-    EvenimentParticipantiCreate, EvenimentParticipantiUpdate
+    EvenimentParticipantiCreate, EvenimentParticipantiUpdate, UnitateEvenimentCreate, PatrulaEvenimentCreate
 from album.views import ChangeImagineVisibility
 
 
@@ -29,6 +29,8 @@ urlpatterns = patterns('album.views',
                        (r'eveniment/(?P<pk>\d+)/calendar/events/$', CalendarEvents.as_view(), {}, "events_centru_local"),
 
                        (r'eveniment/create/$', EvenimentCreate.as_view(), {}, "eveniment_create"),
+                       (r'eveniment/unitate/(?P<pk>\d+)/create/$', UnitateEvenimentCreate.as_view(), {}, "unitate_eveniment_create"),
+                       (r'eveniment/patrula/(?P<pk>\d+)/create/$', PatrulaEvenimentCreate.as_view(), {}, "patrula_eveniment_create"),
                        (r'eveniment/(?P<slug>\w+)/edit/$', EvenimentUpdate.as_view(), {}, "eveniment_update"),
                        (r'eveniment/(?P<slug>\w+)/delete/$', EvenimentDelete.as_view(), {}, "eveniment_delete"),
                        (r'eveniment/(?P<slug>\w+)/$', EvenimentDetail.as_view(), {}, "eveniment_detail"),

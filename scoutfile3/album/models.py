@@ -281,6 +281,11 @@ class Eveniment(models.Model):
             return qs[0].content_object.ramura_de_varsta
         return None
 
+    def creeaza_asociere_structura(self, structura):
+        structura_args = dict(eveniment=self,
+                              content_type=ContentType.objects.get_for_model(structura),
+                              object_id=structura.id)
+        AsociereEvenimentStructura.objects.create(**structura_args)
 
 class AsociereEvenimentStructura(models.Model):
     content_type = models.ForeignKey(ContentType, verbose_name=u"Tip structură")
