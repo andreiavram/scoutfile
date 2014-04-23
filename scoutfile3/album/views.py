@@ -137,6 +137,11 @@ class EvenimentList(EvenimentFiltruMixin, ListView):
             self.per_page = int(request.POST.get("per_page", 5))
             self.offset = int(request.POST.get("offset", 0))
 
+        if request.user.is_authenticated():
+            self.centru_local = self.request.user.get_profile().membru.centru_local
+        else:
+            self.centru_local = CentruLocal.objects.get(id=settings.CENTRU_LOCAL_IMPLICIT)
+
         self.process_request_filters(request)
         return super(EvenimentList, self).dispatch(request, *args, **kwargs)
 
@@ -145,8 +150,7 @@ class EvenimentList(EvenimentFiltruMixin, ListView):
 
     def get_queryset(self, *args, **kwargs):
         qs = super(EvenimentList, self).get_queryset(*args, **kwargs)
-        if self.request.user.is_authenticated():
-            qs = qs.filter(centru_local=self.request.user.get_profile().membru.centru_local)
+        qs = qs.filter(centru_local=self.centru_local)
 
         if "qnume" in self.request.session:
             qs = qs.filter(nume__icontains=self.request.session['qnume'])
@@ -177,6 +181,7 @@ class EvenimentList(EvenimentFiltruMixin, ListView):
         an_curent = datetime.datetime.now().year
         data['ani_activitati'] = range(an_curent - 2, an_curent + 1)
         data['ani_activitati'].reverse()
+        data['centru_local'] = self.centru_local
         data.update(self.filters_context_data())
 
         return data
