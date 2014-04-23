@@ -16,6 +16,8 @@ import traceback
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from album.managers import RaportEvenimentManager
+from django import forms
+from generic.widgets import BootstrapDateInput
 
 from settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT, MEDIA_ROOT
 from taggit.managers import TaggableManager
@@ -384,11 +386,62 @@ TIPURI_CAMP_PARTICIPARE = (("text", u"Text"), ("number", u"Număr"), ("bool", u"
 
 class CampArbitrarParticipareEveniment(models.Model):
     eveniment = models.ForeignKey(Eveniment)
+    nume = models.CharField(max_length=255)
+    slug = models.SlugField()
     tip_camp = models.CharField(max_length=255, choices=TIPURI_CAMP_PARTICIPARE)
+    implicit = models.CharField(max_length=255, null=True, blank=True)
+    optional = models.BooleanField(default=True)
+    explicatii_suplimentare = models.CharField(max_length=255, null=True, blank=True, help_text=u"Instrucțiuni despre cum să fie completat acest câmp, format, ...")
+
+    tipuri_camp = {"text": forms.CharField,
+                   "number": forms.FloatField,
+                   "bool": forms.BooleanField,
+                   "date": forms.DateField}
+
+    def get_form_field_class(self):
+        return self.tipuri_camp[self.tip_camp]
+
+    def get_value(self, participare=None):
+        if participare is None:
+            return None
+
+        try:
+            instanta = self.instante.get(participare=participare)
+            if self.tip_camp == "date":
+                return datetime.datetime.strptime(instanta.valoare_text, "%d.%m.%Y").date()
+            if self.tip_camp == "bool":
+                return instanta.valoare_text == "True"
+            return instanta.valoare_text
+        except InstantaCampArbitrarParticipareEveniment.DoesNotExist, e:
+            return None
+
+    def get_translated_value(self, value):
+        if self.tip_camp == "bool":
+            return True if value == "True" else False
+
+        return value
+
+    def set_value(self, valoare, participare=None):
+        if participare is None:
+            return
+
+        try:
+            instanta = self.instante.get(participare=participare)
+        except InstantaCampArbitrarParticipareEveniment.DoesNotExist:
+            instanta_args = dict(participare=participare, camp=self)
+            instanta = InstantaCampArbitrarParticipareEveniment.objects.create(**instanta_args)
+
+        if self.tip_camp == "date":
+            valoare_string = valoare.strftime("%d.%m.%Y")
+        else:
+            valoare_string = valoare
+
+        instanta.valoare_text = valoare_string
+        instanta.save()
 
     
 class InstantaCampArbitrarParticipareEveniment(models.Model):
-    camp = models.ForeignKey(CampArbitrarParticipareEveniment)
+    camp = models.ForeignKey(CampArbitrarParticipareEveniment, related_name="instante")
     participare = models.ForeignKey(ParticipareEveniment)
     valoare_text = models.CharField(max_length=255, null=True, blank=True)
     

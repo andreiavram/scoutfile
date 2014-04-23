@@ -14,9 +14,10 @@ from django.forms.widgets import RadioSelect, Textarea
 from django.core.exceptions import ValidationError
 
 from goodies.widgets import BootstrapDateTimeInput, GeoCoordinatesInput, FacebookLinkWidget, TaggitTagsInput
-from album.models import FlagReport, FLAG_MOTIVES, RaportEveniment, ParticipareEveniment
+from album.models import FlagReport, FLAG_MOTIVES, RaportEveniment, ParticipareEveniment, \
+    CampArbitrarParticipareEveniment
 from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
-from generic.widgets import BootstrapDateTimeInput
+from generic.widgets import BootstrapDateTimeInput, BootstrapDateInput
 
 
 class ReportForm(CrispyBaseModelForm):
@@ -123,3 +124,53 @@ class EvenimentParticipareForm(CrispyBaseModelForm):
     membru = AutoCompleteSelectField("membri", label=u"Cercetaș")
     data_sosire = forms.DateTimeField(widget=BootstrapDateTimeInput, label=u"Sosire")
     data_plecare = forms.DateTimeField(widget=BootstrapDateTimeInput, label=u"Plecare")
+
+    def __init__(self, **kwargs):
+        self.eveniment = kwargs.pop("eveniment")
+        self.request = kwargs.pop("request")
+        super(EvenimentParticipareForm, self).__init__(**kwargs)
+
+        campuri = self.eveniment.camparbitrarparticipareeveniment_set.all()
+
+        for camp in campuri:
+            field_args = self.get_field_args(camp)
+            self.fields[camp.slug] = camp.get_form_field_class()(**field_args)
+
+    def get_field_args(self, camp):
+        field_args = dict(required=not camp.optional,
+                          label=camp.nume,
+                          help_text=camp.explicatii_suplimentare)
+
+        if camp.tip_camp == "date":
+            field_args['widget'] = BootstrapDateInput
+
+        if camp.implicit:
+            field_args['initial'] = camp.implicit
+
+        return field_args
+
+
+class EvenimentParticipareUpdateForm(EvenimentParticipareForm):
+    def get_field_args(self, camp):
+        field_args = dict(required=not camp.optional,
+                          label=camp.nume,
+                          help_text=camp.explicatii_suplimentare)
+
+        if camp.tip_camp == "date":
+            field_args['widget'] = BootstrapDateInput
+
+        value = camp.get_value(participare=self.instance)
+        if value is not None:
+            field_args['initial'] = value
+        elif camp.implicit:
+            field_args['initial'] = camp.implicit
+
+        return field_args
+
+
+
+
+class CampArbitrarForm(CrispyBaseModelForm):
+    class Meta:
+        model = CampArbitrarParticipareEveniment
+        exclude = ["eveniment", "slug"]

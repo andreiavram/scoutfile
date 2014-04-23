@@ -24,9 +24,10 @@ from goodies.views import GenericDeleteView, CalendarViewMixin
 from goodies.views import JSONView
 
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment, \
-    ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT, SetPoze, IMAGINE_PUBLISHED_STATUS
+    ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT, SetPoze, IMAGINE_PUBLISHED_STATUS, \
+    CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm, \
-    EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm
+    EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm, CampArbitrarForm, EvenimentParticipareUpdateForm
 from settings import MEDIA_ROOT
 from structuri.forms import AsociereEvenimentStructuraForm
 from structuri.models import Membru, RamuraDeVarsta, CentruLocal, Unitate, Patrula, TipAsociereMembruStructura
@@ -1212,6 +1213,9 @@ class EvenimentParticipanti(ListView):
         self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
         return super(EvenimentParticipanti, self).dispatch(request, *args, **kwargs)
 
+    def get_queryset(self):
+        return self.model.objects.filter(eveniment=self.eveniment)
+
     def get_context_data(self, **kwargs):
         data = super(EvenimentParticipanti, self).get_context_data(**kwargs)
         data['eveniment'] = self.eveniment
@@ -1233,11 +1237,20 @@ class EvenimentParticipantiCreate(CreateView):
         data['data_plecare'] = self.eveniment.end_date
         return data
 
+    def get_form_kwargs(self):
+        data = super(EvenimentParticipantiCreate, self).get_form_kwargs()
+        data['eveniment'] = self.eveniment
+        data['request'] = self.request
+        return data
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.eveniment = self.eveniment
         self.object.user_modificare = self.request.user.get_profile().membru
         self.object.save()
+
+        for camp in self.eveniment.camparbitrarparticipareeveniment_set.all():
+            camp.set_value(form.cleaned_data[camp.slug], self.object)
 
         return HttpResponseRedirect(self.get_success_url())
 
@@ -1253,7 +1266,7 @@ class EvenimentParticipantiCreate(CreateView):
 class EvenimentParticipantiUpdate(UpdateView):
     model = ParticipareEveniment
     template_name = "album/eveniment_participanti_form.html"
-    form_class = EvenimentParticipareForm
+    form_class = EvenimentParticipareUpdateForm
 
     @allow_by_afiliere([("Participare, Eveniment, Centru Local", "Lider")])
     def dispatch(self, request, *args, **kwargs):
@@ -1264,5 +1277,112 @@ class EvenimentParticipantiUpdate(UpdateView):
         data['eveniment'] = self.object.eveniment
         return data
 
+    def get_form_kwargs(self):
+        data = super(EvenimentParticipantiUpdate, self).get_form_kwargs()
+        data['eveniment'] = self.object.eveniment
+        data['request'] = self.request
+        return data
+
+    def get_initial(self):
+        data = super(EvenimentParticipantiUpdate, self).get_initial()
+        for camp in self.object.eveniment.camparbitrarparticipareeveniment_set.all():
+            data[camp.slug] = camp.get_value(self.object)
+
+        return data
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.user_modificare = self.request.user.get_profile().membru
+        self.object.save()
+
+        for camp in self.object.eveniment.camparbitrarparticipareeveniment_set.all():
+            camp.set_value(form.cleaned_data[camp.slug], self.object)
+
+        return HttpResponseRedirect(self.get_success_url())
+
     def get_success_url(self):
         return reverse("album:eveniment_participanti_list", kwargs={"slug": self.object.eveniment.slug})
+
+
+class EvenimentCampuriArbitrare(ListView):
+    model = CampArbitrarParticipareEveniment
+    template_name = "album/eveniment_campuri_list.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+        return super(EvenimentCampuriArbitrare, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.model.objects.filter(eveniment=self.eveniment)
+
+    def get_context_data(self, **kwargs):
+        data = super(EvenimentCampuriArbitrare, self).get_context_data(**kwargs)
+        data['eveniment'] = self.eveniment
+        return data
+
+
+class EvenimentCampuriArbitrareCreate(CreateView):
+    model = CampArbitrarParticipareEveniment
+    form_class = CampArbitrarForm
+    template_name = "album/eveniment_campuri_form.html"
+
+    #TODO: limit access
+    def dispatch(self, request, *args, **kwargs):
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+        return super(EvenimentCampuriArbitrareCreate, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        from django.template.defaultfilters import slugify
+        self.object.slug = slugify(self.object.nume)
+        self.object.eveniment = self.eveniment
+        self.object.save()
+
+        if self.object.implicit:
+            for participare in self.eveniment.participareeveniment_set.all():
+                self.object.set_value(self.object.implicit, participare=participare)
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("album:eveniment_campuri_list", kwargs={"slug": self.eveniment.slug})
+
+    def get_context_data(self, **kwargs):
+        data = super(EvenimentCampuriArbitrareCreate, self).get_context_data(**kwargs)
+        data['eveniment'] = self.eveniment
+        return data
+
+
+class EvenimentCampuriArbitrareUpdate(UpdateView):
+    model = CampArbitrarParticipareEveniment
+    form_class = CampArbitrarForm
+    template_name = "album/eveniment_campuri_form.html"
+
+    #TODO: limit access
+    def dispatch(self, request, *args, **kwargs):
+        return super(EvenimentCampuriArbitrareUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        data = super(EvenimentCampuriArbitrareUpdate, self).get_context_data(**kwargs)
+        data['eveniment'] = self.object.eveniment
+        return data
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        from django.template.defaultfilters import slugify
+        self.object.slug = slugify(self.object.nume)
+        self.object.save()
+
+        if self.object.implicit:
+            for participare in self.eveniment.participareeveniment_set.all():
+                filter_kwargs = dict(camp=self.object, participare=participare)
+
+                if InstantaCampArbitrarParticipareEveniment.objects.filter(**filter_kwargs).count() == 0:
+                    self.object.set_value(self.object.implicit, participare)
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("album:eveniment_campuri_list", kwargs={"slug": self.object.eveniment.slug})
+
+
