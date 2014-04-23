@@ -73,6 +73,10 @@ class Structura(models.Model):
             return asociere
         return [a.membru for a in asociere]
 
+    def lideri(self, qs=False):
+        return self.cercetasi(qs=qs, tip_asociere=["Lider", "Lider asistent"])
+
+
 SPECIFIC_CENTRU_LOCAL = (("catolic", "Catolic"), ("marinaresc", u"Marinăresc"))
 STATUT_JURIDIC_CENTRU_LOCAL = (("pj", u"Filală"), ("nopj", u"Sucursală"), ("gi", u"Grup de inițiativă"))
 STATUT_DREPTURI_CENTRU_LOCAL = (
@@ -173,9 +177,6 @@ class Patrula(Structura):
     @models.permalink
     def get_absolute_url(self):
         return ("structuri:patrula_detail", [], {"pk": self.id})
-
-    def lideri(self, qs=False):
-        return self.cercetasi(qs=qs, tip_asociere=["Lider", "Lider asistent"])
 
 
 class Utilizator(models.Model):

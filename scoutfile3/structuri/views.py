@@ -635,10 +635,7 @@ class UnitateTabBrief(ListView):
         return super(UnitateTabBrief, self).dispatch(*args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
-        return self.model.objects.filter(tip_asociere__nume__icontains=u"lider",
-                                         tip_asociere__content_types__in=(ContentType.objects.get_for_model(Unitate), ),
-                                         content_type=ContentType.objects.get_for_model(Unitate),
-                                         object_id=self.unitate.id)
+        return self.unitate.lideri()
 
     def get_context_data(self, **kwargs):
         kwargs.update({"object": self.unitate})
