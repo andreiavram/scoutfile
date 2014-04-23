@@ -635,7 +635,7 @@ class UnitateTabBrief(ListView):
         return super(UnitateTabBrief, self).dispatch(*args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
-        return self.unitate.lideri()
+        return self.unitate.lideri(qs=True)
 
     def get_context_data(self, **kwargs):
         kwargs.update({"object": self.unitate})
