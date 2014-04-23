@@ -1039,6 +1039,7 @@ class CalendarCentruLocal(EvenimentFiltruMixin, CalendarViewMixin, DetailView):
     def get_context_data(self, **kwargs):
         data = super(CalendarCentruLocal, self).get_context_data(**kwargs)
         data.update(self.filters_context_data())
+        data['centru_local'] = self.object
         return data
 
 
