@@ -7,6 +7,7 @@ Created on Aug 31, 2012
 from ajax_select.fields import AutoCompleteSelectField
 from crispy_forms.layout import Fieldset, Layout, Field
 from django.core.urlresolvers import reverse
+from django.template.defaultfilters import slugify
 from taggit.forms import TagField
 from goodies.forms import CrispyBaseModelForm
 from django import forms
@@ -168,9 +169,23 @@ class EvenimentParticipareUpdateForm(EvenimentParticipareForm):
         return field_args
 
 
-
-
 class CampArbitrarForm(CrispyBaseModelForm):
     class Meta:
         model = CampArbitrarParticipareEveniment
         exclude = ["eveniment", "slug"]
+
+    def __init__(self, *args, **kwargs):
+        self.eveniment = kwargs.pop("eveniment")
+        super(CampArbitrarForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        if len(self.cleaned_data.get('implicit', "")) > 0 and self.cleaned_data['optional'] is False:
+            raise ValidationError(u"Un câmp opțional nu poate avea valoare implicită!")
+
+        cnt = self.eveniment.participareeveniment_set.all().count()
+        if self.cleaned_data['optional'] is False and cnt > 0:
+            if len(self.cleaned_data.get('implicit', "")) == 0:
+                raise ValidationError(u"Un câmp obligatoriu trebuie să aibă valoare implicită când există deja înregistrări de participare!")
+            #   daca se adauga un camp nou, obligatoriu dar care nu are valoare implicita e o problema
+
+        return self.cleaned_data

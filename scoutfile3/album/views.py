@@ -1321,7 +1321,33 @@ class EvenimentCampuriArbitrare(ListView):
         return data
 
 
-class EvenimentCampuriArbitrareCreate(CreateView):
+class EvenimentSlugMixin(object):
+    def make_slug_unique(self, slug, obj=None):
+        # make sure slug is unique pentru eveniment
+        slugs = self.eveniment.camparbitrarparticipareeveniment_set.all()
+        if obj:
+            slugs = slugs.exclude(id = obj.id)
+        slugs = list(slugs.values_list("slug", flat=True))
+        slugs.sort(key=lambda x: len(x))
+        found = False
+        found_max_count = 0
+        for s in slugs:
+            if s == slug:
+                found = True
+                found_max_count = 1
+
+        if found:
+            s = "%s_%d" % (slug, 1)
+            while s in slugs:
+                found_max_count += 1
+                s = "%s_%d" % (slug, found_max_count)
+
+            slug = s
+
+        return slug
+
+
+class EvenimentCampuriArbitrareCreate(EvenimentSlugMixin, CreateView):
     model = CampArbitrarParticipareEveniment
     form_class = CampArbitrarForm
     template_name = "album/eveniment_campuri_form.html"
@@ -1334,7 +1360,7 @@ class EvenimentCampuriArbitrareCreate(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         from django.template.defaultfilters import slugify
-        self.object.slug = slugify(self.object.nume)
+        self.object.slug = self.make_slug_unique(slugify(self.object.nume))
         self.object.eveniment = self.eveniment
         self.object.save()
 
@@ -1352,8 +1378,13 @@ class EvenimentCampuriArbitrareCreate(CreateView):
         data['eveniment'] = self.eveniment
         return data
 
+    def get_form_kwargs(self):
+        data = super(EvenimentCampuriArbitrareCreate, self).get_form_kwargs()
+        data['eveniment'] = self.eveniment
+        return data
 
-class EvenimentCampuriArbitrareUpdate(UpdateView):
+
+class EvenimentCampuriArbitrareUpdate(EvenimentSlugMixin, UpdateView):
     model = CampArbitrarParticipareEveniment
     form_class = CampArbitrarForm
     template_name = "album/eveniment_campuri_form.html"
@@ -1367,10 +1398,15 @@ class EvenimentCampuriArbitrareUpdate(UpdateView):
         data['eveniment'] = self.object.eveniment
         return data
 
+    def get_object(self, queryset=None):
+        obj = super(EvenimentCampuriArbitrareUpdate, self).get_object(queryset=queryset)
+        self.eveniment = obj.eveniment
+        return obj
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
         from django.template.defaultfilters import slugify
-        self.object.slug = slugify(self.object.nume)
+        self.object.slug = self.make_slug_unique(slugify(self.object.nume), self.object)
         self.object.save()
 
         if self.object.implicit:
@@ -1385,4 +1421,7 @@ class EvenimentCampuriArbitrareUpdate(UpdateView):
     def get_success_url(self):
         return reverse("album:eveniment_campuri_list", kwargs={"slug": self.object.eveniment.slug})
 
-
+    def get_form_kwargs(self):
+        data = super(EvenimentCampuriArbitrareUpdate, self).get_form_kwargs()
+        data['eveniment'] = self.object.eveniment
+        return data
