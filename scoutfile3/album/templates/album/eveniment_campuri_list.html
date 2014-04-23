@@ -33,7 +33,7 @@
         {% for camp in object_list %}
             <tr>
                 <td>#{{ camp.id }}</td>
-                <td>{{ camp.nume }}</td>
+                <td>{{ camp.nume }}<br /><span style = "font-size: 10px; color: #999999">{{ camp.slug }}</span></td>
                 <td>{{ camp.get_tip_camp_display }}</td>
                 <td>{{ camp.implicit }}</td>
                 <td>{% if camp.optional %}<i class = 'icon-ok'></i>{% endif %}</td>
