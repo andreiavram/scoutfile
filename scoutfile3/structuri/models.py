@@ -610,10 +610,17 @@ class Membru(Utilizator):
         if nothing:
             diferenta_trimestre += 1
 
+        # UPDATED: cotizatia se plateste in urma, dar deadline-ul oficial al Centrului Local este 15 a ultimei luni
+        # a trimestrului curent
+        if today > (trimestru_curent.data_sfarsit - datetime.timedelta(days=15)):
+            diferenta_trimestre += 1
+
         # daca suntem in perioada de gratie de doua saptamani de la inceputul trimestrului, nici trimestrul
         # trecut nu conteaza
-        if not trimestru_curent.data_in_trimestru(today - datetime.timedelta(days = 15)):
-            diferenta_trimestre -= 1
+        # UPDATED: perioada de gratie este o chestiune care tine doar de ONCR, la nivel local,
+        # nu exista perioada de gratie
+        #if not trimestru_curent.data_in_trimestru(today - datetime.timedelta(days = 15)):
+        #    diferenta_trimestre -= 1
 
         return diferenta_trimestre, trimestru_curent, ultimul_trimestru
 
