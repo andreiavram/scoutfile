@@ -140,6 +140,7 @@ class Adeziune(Document):
         self.tip_document = TipDocument.obtine("adeziune")
         return super(Adeziune, self).save(**kwargs)
 
+
 class Chitanta(Document):
     casier = models.ForeignKey("structuri.Membru")
     #serie = models.CharField(max_length=255)
@@ -154,13 +155,22 @@ class Chitanta(Document):
     def referinta(self):
         return "Seria %s, nr. %s / %s" % (self.registru.serie, self.numar_inregistrare, self.date_created.strftime("%d.%m.%Y"))
 
-
     def platitor(self):
         from structuri.models import Membru
-        asociere =  AsociereDocument.objects.get(document=self,
-                                               content_type=ContentType.objects.get_for_model(Membru),
-                                               tip_asociere__slug="platitor")
+        asociere_filter = dict(document=self, content_type=ContentType.objects.get_for_model(Membru), tip_asociere__slug="platitor")
+        asociere = AsociereDocument.objects.get(**asociere_filter)
         return asociere.content_object
+
+
+    @classmethod
+    def pentru_membru(cls, membru=None, tip_document="chitanta"):
+        from structuri.models import Membru
+        asociere_filter = dict(content_type=ContentType.objects.get_for_model(Membru),
+                               object_id=membru.id,
+                               document__tip_document__slug=tip_document,
+                               tip_asociere__slug="platitor")
+        asocieri = AsociereDocument.objects.filter(**asociere_filter).order_by("moment_asociere")
+        return [a.document for a in asocieri]
 
 
 class Trimestru(models.Model):
@@ -401,6 +411,7 @@ class PlataCotizatieTrimestru(models.Model):
     def __unicode__(self):
         return u"Plată pentru %s, pe %s, în valoare de %.2f RON" % (self.membru, self.trimestru, self.suma)
 
+
 class ChitantaCotizatie(Chitanta):
     registre_compatibile = ["chitantier", "intern"]
     predat = models.BooleanField(default=False)
@@ -411,6 +422,11 @@ class ChitantaCotizatie(Chitanta):
             self.tip_document.nume = u"Chitanță cotizație"
             self.tip_document.save()
         return super(ChitantaCotizatie, self).save(**kwargs)
+
+    @classmethod
+    def pentru_membru(cls, membru=None, tip_document="cotizatie"):
+        return Chitanta.pentru_membru(membru=membru, tip_document=tip_document)
+
 
 
 REGISTRU_MODES = (("auto", u"Automat"), ("manual", u"Manual"))
