@@ -658,6 +658,23 @@ class Membru(Utilizator):
     def calculeaza_necesar_cotizatie(self):
         return PlataCotizatieTrimestru.calculeaza_necesar(membru=self)
 
+    def recalculeaza_acoperire_cotizatie(self):
+        from documente.models import ChitantaCotizatie
+
+        # potentiala problema este ca la recalcularea cotizatiei, in cazul reducerilor pentru frati,
+        # sa fie probleme la recalculare
+        # o potentiala solutie este posibilitatea de inferenta a carui frate a fost primul la plata cotizatiei
+        # adica daca se recalculeaza cotizatia si un frate are o cotizatie mai mica decat cea nominala dar
+        # care este considerata "plina" (finala) atunci fratele pentru care se recalculeaza primeste
+        # cea mai mare cotizatie ne-acoperita
+
+        chitante_cotizatie = ChitantaCotizatie.pentru_membru(membru=self)
+        PlataCotizatieTrimestru.objects.filter(membru=self).delete()
+
+        for document in chitante_cotizatie:
+            chitanta = document.chitanta.chitantacotizatie
+            PlataCotizatieTrimestru.calculeaza_acoperire(self, chitanta, chitanta.suma, commit=True)
+
     def status_cotizatie_numeric(self):
         status, curent, ultimul = self._status_cotizatie()
         return int(status)

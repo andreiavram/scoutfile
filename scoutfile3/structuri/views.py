@@ -25,7 +25,7 @@ import logging
 import traceback
 from album.models import ParticipareEveniment
 
-from documente.models import Trimestru
+from documente.models import Trimestru, ChitantaCotizatie, PlataCotizatieTrimestru
 from settings import SECRET_KEY, SYSTEM_EMAIL, MEDIA_ROOT, DEBUG, \
     USE_EMAIL_CONFIRMATION
 from structuri.decorators import allow_by_afiliere
@@ -1947,3 +1947,22 @@ class MembruConfirmaFacebook(TemplateView):
         data = super(MembruConfirmaFacebook, self).get_context_data(**kwargs)
         data['facebook_connect_url'] = FacebookUserConnectView.get_facebook_endpoint(self.request)
         return data
+
+
+class MembruRecalculeazaAcoperire(View):
+    @allow_by_afiliere([("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+    def dispatch(self, request, *args, **kwargs):
+        self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
+        return super(MembruRecalculeazaAcoperire, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            self.membru.recalculeaza_acoperire_cotizatie()
+            messages.success(request, u"Acoperirea plăților a fost recalculată cu succes")
+        except Exception, e:
+            messages.error(request, u"Eroare recalculare acoperire cotizație! Contactați administratorul (%s)" % e)
+            print e
+            print traceback.format_exc()
+
+        return HttpResponse("done")
+        # return HttpResponseRedirect(reverse("structuri:membru_details", kwargs={"pk": self.membru.id}) + "#documente")
