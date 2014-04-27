@@ -7,6 +7,7 @@
 			<th>Ramura de vârstă</th>
             <th>Patrule</th>
             <th>Membri (fără lideri)</th>
+            <th>Cotizații</th>
 			<th>&nbsp;</th>
 		</tr>
 	</thead>
@@ -25,6 +26,19 @@
             </td>
             <td>
                 {{ unitate.total_membri_activi }}
+            </td>
+            <td>
+        Trimestrul curent:
+                {% with  unitate.grad_colectare_cotizatie_trimestrul_curent as grad %}
+        <span class = "label label-{% if grad < 25 %}important{% elif grad < 90 %}warning{% else %}success{% endif %}">{{ grad|floatformat }}%</span>
+        {% endwith %}
+            <br />
+        Trimestrul anterior: {% with  unitate.grad_colectare_cotizatie_trimestrul_anterior as grad %}
+        <span class = "label label-{% if grad < 25 %}important{% elif grad < 90 %}warning{% else %}success{% endif %}">{{ grad|floatformat }}%</span>
+        {% endwith %}
+
+
+
             </td>
 			<td>
 			    

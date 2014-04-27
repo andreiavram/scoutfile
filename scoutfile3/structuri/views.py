@@ -23,6 +23,7 @@ import datetime
 import hashlib
 import logging
 import traceback
+from unidecode import unidecode
 from album.models import ParticipareEveniment
 
 from documente.models import Trimestru, ChitantaCotizatie, PlataCotizatieTrimestru
@@ -476,20 +477,14 @@ class CentruLocalMembri(CentruLocalTabMembri):
             qs = qs.filter(Q(membru__nume__icontains=self.q) | Q(membru__prenume__icontains=self.q))
 
         if self.rdv:
-            if self.rdv in ("lupisori", "exploratori", "seniori", "temerari"):
-                #    filtreaza pe baza de unitate
-
-                # TODO: fix this ugly hack for romanian chars
-                if self.rdv == "lupisori":
-                    self.rdv = u"lupișori"
-
+            if self.rdv in ("lupisori", "exploratori", "seniori", "temerari", "adulti"):
                 membri = [a.membru for a in qs]
                 membri_final = []
                 for membru in membri:
                     if membru.is_lider():
                         continue
                     unitate = membru.get_unitate()
-                    if unitate and unitate.ramura_de_varsta.nume.lower() == self.rdv:
+                    if unitate and unitate.ramura_de_varsta.slug == self.rdv:
                         membri_final.append(membru)
 
                 qs = qs.filter(membru__in=membri_final)

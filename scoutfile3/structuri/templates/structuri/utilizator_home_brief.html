@@ -1,10 +1,12 @@
+{% load static %}
+
 {% with request.user.get_profile.membru as object %}
 <div class = "row">
 	<div class = "span3">
 	{% if object.poza_profil %}
 		<img class = "thumbnail" src = "{{ object.poza_profil.get_profile_picture_url }}" />
 	{% else %}
-		<img class = "thumbnail" src = "http://www.placehold.it/240x320/ffffff" />
+		<img class = "thumbnail" src = "{% static 'images/240x320.gif' %}'" />
 	{% endif %}
 	</div>
 	<div class = "span7">

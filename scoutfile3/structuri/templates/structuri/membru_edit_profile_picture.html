@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block page_title %}
 	Editează poza profil
@@ -20,7 +21,7 @@
 	{% if object.poza_profil %}
 		<img class = "thumbnail" src = "{{ object.poza_profil.get_profile_picture_url }}" />
 	{% else %}
-		<img src = "http://placehold.it/240x320/ffffff" class = 'thumbnail' />
+		<img src = "{% static 'images/240x320.gif' %}" class = 'thumbnail' />
 	{% endif %}
 	</div>
 	<div class = "span6">

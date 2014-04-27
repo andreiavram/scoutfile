@@ -1,4 +1,6 @@
+{% load static %}
 {% load cotizatie_tags %}
+
 <p class = "alert alert-{{ membru.status_cotizatie_numeric|cotizatie_level }}">
     {% if membru.is_suspendat %}<strong><i class = "icon-remove"></i> SUSPENDAT</strong> | {% endif %}
     Stare cotizație: <strong>{{ membru.status_cotizatie_numeric|cotizatie_description }}</strong>.
@@ -10,7 +12,7 @@
 	{% if object.poza_profil %}
 		<img class = "thumbnail" src = "{{ object.poza_profil.get_profile_picture_url }}" />
 	{% else %}
-		<img class = "thumbnail" src = "http://www.placehold.it/240x320/ffffff" />
+		<img class = "thumbnail" src = "{% static 'images/240x320.gif' %}" />
 	{% endif %}
 	</div>
 	<div class = "span9">
@@ -18,7 +20,7 @@
         <tbody>
             <tr>
                 <td>Nume</td>
-                <td>{{ object.nume_complet }} ({{ object.cnp }})</td>
+                <td>{{ object.nume_complet }}</td>
             </tr>
             <tr>
                 <td>Status</td>

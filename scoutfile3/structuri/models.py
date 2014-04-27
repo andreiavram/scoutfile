@@ -14,7 +14,7 @@ from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 import unidecode
-from documente.models import PlataCotizatieTrimestru, AsociereDocument
+from documente.models import PlataCotizatieTrimestru, AsociereDocument, Trimestru
 from utils.models import FacebookSession
 
 
@@ -65,7 +65,6 @@ class Structura(models.Model):
                                                           moment_incheiere__isnull=True)
 
         if isinstance(tip_asociere, type([])):
-            print tip_asociere
             asociere = asociere.filter(tip_asociere__nume__in=tip_asociere)
         else:
             asociere = asociere.filter(tip_asociere__nume__iexact=tip_asociere)
@@ -76,6 +75,20 @@ class Structura(models.Model):
 
     def lideri(self, qs=False):
         return self.cercetasi(qs=qs, tip_asociere=["Lider", "Lider asistent"])
+
+    def grad_colectare_cotizatie(self, trimestru=None):
+        target_grp = self.cercetasi(qs=True).filter(moment_inceput__lte=trimestru.data_inceput)
+        print "target grp", target_grp
+        realizat_cnt = PlataCotizatieTrimestru.objects.filter(trimestru=trimestru, final=True, membru__in=[a.membru for a in target_grp]).count()
+        return realizat_cnt * 100. / target_grp.count()
+
+    def grad_colectare_cotizatie_trimestrul_curent(self):
+        return self.grad_colectare_cotizatie(trimestru=Trimestru.trimestru_pentru_data(datetime.datetime.now().date()))
+
+    def grad_colectare_cotizatie_trimestrul_anterior(self):
+        trimestru = Trimestru.trimestru_pentru_data(datetime.datetime.now().date())
+        trimestru = Trimestru.objects.get(ordine_globala=trimestru.ordine_globala-1)
+        return self.grad_colectare_cotizatie(trimestru=trimestru)
 
 
 SPECIFIC_CENTRU_LOCAL = (("catolic", "Catolic"), ("marinaresc", u"Marinăresc"))
@@ -134,6 +147,7 @@ class CentruLocal(Structura):
                                                        document__tip_document__slug="adeziune",
                                                        document__registru__centru_local=self).count()
         return cnt_membri - cnt_adeziuni
+
 
 
 class Unitate(Structura):
