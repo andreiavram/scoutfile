@@ -521,6 +521,7 @@ class CentruLocalUnitateCreate(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.centru_local = self.centru_local
+        self.object.activa = True
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 

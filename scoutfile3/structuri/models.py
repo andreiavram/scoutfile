@@ -145,7 +145,7 @@ class Unitate(Structura):
     centru_local = models.ForeignKey(CentruLocal)
 
     def __unicode__(self):
-        return u"%s (%s)" % (self.nume, self.ramura_de_varsta)
+        return u"Unitatea %s" % self.nume
 
     def patrule(self):
         return self.patrula_set.filter(activa=True, moment_inchidere__isnull=True)
@@ -183,7 +183,7 @@ class Patrula(Structura):
         return self.unitate.centru_local
 
     def __unicode__(self):
-        return u"%s" % self.nume
+        return u"Patrula %s" % self.nume
 
     @models.permalink
     def get_absolute_url(self):
