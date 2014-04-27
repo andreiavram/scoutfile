@@ -6,6 +6,7 @@
 			<th>Nume</th>
             <td>Cercetași</td>
             <td>Lideri</td>
+            <td>Cotizații</td>
 			<th>&nbsp;</th>
 		</tr>
 	</thead>
@@ -31,6 +32,19 @@
                             <a href = "{% url structuri:membru_detail pk=cercetas.id %}">{{ cercetas }}</a></li>
                     {% endfor %}
                 </ul>
+            </td>
+          <td>
+        Trimestrul curent:
+                {% with  object.grad_colectare_cotizatie_trimestrul_curent as grad %}
+        <span class = "label label-{% if grad < 25 %}important{% elif grad < 90 %}warning{% else %}success{% endif %}">{{ grad|floatformat }}%</span>
+        {% endwith %}
+            <br />
+        Trimestrul anterior: {% with  object.grad_colectare_cotizatie_trimestrul_anterior as grad %}
+        <span class = "label label-{% if grad < 25 %}important{% elif grad < 90 %}warning{% else %}success{% endif %}">{{ grad|floatformat }}%</span>
+        {% endwith %}
+
+
+
             </td>
 			<td>    
 				<div class="btn-group pull-right">

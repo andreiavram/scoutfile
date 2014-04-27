@@ -1,3 +1,4 @@
+{% load static %}
 {% block content %}
 	<table class="table table-striped">
 	<thead>
@@ -7,7 +8,7 @@
             <th>&nbsp;</th>
 			<th>&nbsp;</th>
 			<th>Nume</th>
-			<th>Membru de la</th>
+			<th>Vechime</th>
 			<th>Conexiuni</th>
 			<th>&nbsp;</th>
 		</tr>
@@ -34,9 +35,9 @@
 				<li><img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" /></li>
 				{% endfor %}</ul>
             </td>
-			<td><img class = "thumbnail" src = "{% if object.membru.poza_profil %}{{ object.membru.poza_profil.get_profil_mic_url }}{% else %}http://placehold.it/50x50/ffffff{% endif %}" /></td>
+			<td><img class = "thumbnail" src = "{% if object.membru.poza_profil %}{{ object.membru.poza_profil.get_profil_mic_url }}{% else %}{% static 'images/50x50.gif' %}{% endif %}" /></td>
 			<td><a href = "{% url structuri:membru_detail pk=object.membru.id %}" {% if object.membru.is_suspendat %}style="text-decoration: line-through"{% endif %}>{{ object.membru }}</a> {% for badge in object.membru.get_extra_badges %}<img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}</td>
-			<td>{{ object.moment_inceput|date:"j F Y" }} ({{ object.moment_inceput|timesince }})</td>
+			<td>{{ object.moment_inceput|timesince }}<br /><span style="font-size: 10px; color: #999">{{ object.moment_inceput|date:"F Y" }}</span></td>
 			<td>
             {% if object.membru.get_patrula %}
                 <a href = "{{ object.membru.get_patrula.get_absolute_url }}">{{ object.membru.get_patrula }}</a><br />
@@ -68,11 +69,8 @@
 		{% empty %}
 		<tr>
 			<td>&nbsp;</td>
-			<td><em>Nu sunt înregistrați membri. Adăugați un membru nou <a href = "">aici</a>.</em></td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
+			<td colspan="7"><em>Nu sunt înregistrați membri. Adăugați un membru nou <a href = "">aici</a>.</em></td>
+
 		</tr>
 		{% endfor %}
 	</tbody>

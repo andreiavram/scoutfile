@@ -4,12 +4,29 @@
 
 {% block page_title %}
 	Membri
-			
-		<div class = "pull-right">
-			<form class = "navbar-search">
+
+    <div class = "btn-toolbar pull-right">
+        <div class = "btn-group">
+			<form class = "from-inline" style = "margin-bottom: 0;">
   				<input type="text" name = "q" class = "search-query" {% if request.GET.q %}value='{{ request.GET.q }}'{% endif %} placeholder="Caută în membri">
 			</form>
 		</div>
+
+        <div class = "btn-group">
+			<a href = "#" class = "btn disabled">Filtru</a>
+			<a href = "{% url structuri:cl_membri pk=object.id %}?rdv=lupisori" data-title = "Lupișori" class = "{% if request.GET.rdv == 'lupisori' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-lupisori.png" /></a>
+			<a href = "{% url structuri:cl_membri pk=object.id %}?rdv=temerari" data-title = "Temerari" class = "{% if request.GET.rdv == 'temerari' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-temerari.png" /></a>
+			<a href = "{% url structuri:cl_membri pk=object.id %}?rdv=exploratori" data-title = "eXploratori" class = "{% if request.GET.rdv == 'exploratori' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-exploratori.png" /></a>
+			<a href = "{% url structuri:cl_membri pk=object.id %}?rdv=seniori" data-title = "Seniori" class = "{% if request.GET.rdv == 'seniori' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-seniori.png" /></a>
+			<a href = "{% url structuri:cl_membri pk=object.id %}?rdv=lideri" data-title = "Lideri" class = "{% if request.GET.rdv == 'lideri' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-lider.png" /></a>
+			<a href = "{% url structuri:cl_membri pk=object.id %}?rdv=adulti" data-title = "Adulți" class = "btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-adult.png" /></a>
+			<a href = "{% url structuri:cl_membri pk=object.id %}" data-title = "Toată lumea" class = "{% if not request.GET.rdv %}disabled{% endif %} btn tooltip-target">Toată lumea</a>
+		</div>
+		<div class = "btn-group">
+			<a href = "#" class = "btn disabled"><i class = "icon-user"></i> Total</a>
+			<a href = "#" class = "btn">{{ object_list.count }}</a>
+		</div>
+	</div>
 {% endblock %}
 
 {% block extrahead %}
@@ -43,23 +60,19 @@
 	{% if request.GET.q %}
 	<div class = "alert alert-info"><i class = "icon-search"></i> Prezint doar persoanele care au în nume sau prenume <em>"{{ request.GET.q }}"</em> din {{ object }}. <a href = "{% url structuri:cl_membri pk=object.id %}"><i class = "icon-user"></i> Vezi toți membri</a></div>
 	{% endif %}
-	<div class = "btn-toolbar pull-right">
-		<div class = "btn-group">
-			<a href = "#" class = "btn disabled">Filtru <sup>(experimental)</sup> </a>
-			<a href = "{% url structuri:cl_membri pk=object.id %}?rdv=lupisori" data-title = "Lupișori" class = "{% if request.GET.rdv == 'lupisori' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-lupisori.png" /></a>
-			<a href = "{% url structuri:cl_membri pk=object.id %}?rdv=temerari" data-title = "Temerari" class = "{% if request.GET.rdv == 'temerari' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-temerari.png" /></a>
-			<a href = "{% url structuri:cl_membri pk=object.id %}?rdv=exploratori" data-title = "eXploratori" class = "{% if request.GET.rdv == 'exploratori' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-exploratori.png" /></a>
-			<a href = "{% url structuri:cl_membri pk=object.id %}?rdv=seniori" data-title = "Seniori" class = "{% if request.GET.rdv == 'seniori' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-seniori.png" /></a>
-			<a href = "{% url structuri:cl_membri pk=object.id %}?rdv=lideri" data-title = "Lideri" class = "{% if request.GET.rdv == 'lideri' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-lider.png" /></a>
-			<a href = "{% url structuri:cl_membri pk=object.id %}?rdv=adulti" data-title = "Adulți" class = "disabled btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-adult.png" /></a>
-			<a href = "{% url structuri:cl_membri pk=object.id %}" data-title = "Toată lumea" class = "{% if not request.GET.rdv %}disabled{% endif %} btn tooltip-target">Toată lumea</a>
-		</div>
-		<div class = "btn-group">
-			<a href = "#" class = "btn disabled"><i class = "icon-user"></i> Total</a>
-			<a href = "#" class = "btn">{{ object_list.count }}</a> 
-		</div>
-	</div>
-			
+    <div class = "alert alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <i class = "icon-warning-sign"></i> Cotizațiile au fost strânse în proporție de
+        {% with  object.grad_colectare_cotizatie_trimestrul_curent as grad %}
+        <span class = "label label-{% if grad < 25 %}important{% elif grad < 90 %}warning{% else %}success{% endif %}">{{ grad|floatformat }}%</span>
+        {% endwith %}
+        pentru trimestrul curent și
+        {% with  object.grad_colectare_cotizatie_trimestrul_anterior as grad %}
+        <span class = "label label-{% if grad < 25 %}important{% elif grad < 90 %}warning{% else %}success{% endif %}">{{ grad|floatformat }}%</span>
+        {% endwith %}
+        pentru trimestrul trecut.
+    </div>
+
 	{% autopaginate object_list 10 %}	
 	{% include 'structuri/centrulocal_tab_membri.html' %}
 	{% paginate %}
