@@ -147,15 +147,15 @@ class CentruLocalUpdateForm(CentruLocalAdminUpdateForm):
         model = CentruLocal
         exclude = ["nume", "statut_drepturi", "statut_juridic", "moment_initial_cotizatie"]
 
+
 class UnitateCreateForm(CrispyBaseModelForm):
     class Meta:
         model = Unitate
         
-    data_infiintare = forms.DateField(input_formats = ['%d.%m.%Y', ], widget = forms.DateInput(format = "%d.%m.%Y"), label = u"Data înființare", required = False)
+    data_infiintare = forms.DateField(widget=BootstrapDateInput, label=u"Data înființare", required=False)
 
     def __init__(self, *args, **kwargs):
         super(UnitateCreateForm, self).__init__(*args, **kwargs)
-        self.helper.layout = Layout(Field("nume"), Field("data_infiintare", css_class = "datepicker", template = "fields/datepicker.html"), "ramura_de_varsta")
 
 class CentruLocalUnitateCreateForm(UnitateCreateForm):
     class Meta:
