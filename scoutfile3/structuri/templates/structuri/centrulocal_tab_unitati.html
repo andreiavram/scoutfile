@@ -18,7 +18,7 @@
 			<td>{{ unitate.ramura_de_varsta }}</td>
             <td>
                 <ul class = "unstyled">
-                {% for patrula in unitate.patrula_set.all %}
+                {% for patrula in unitate.patrule %}
                      <li><a href = "{% url structuri:patrula_detail pk=patrula.id %}"><i class = "icon-group"></i> {{ patrula }}</a></li>
                 {% endfor %}
                 </ul>

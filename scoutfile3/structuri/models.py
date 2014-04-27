@@ -27,6 +27,7 @@ class RamuraDeVarsta(models.Model):
     varsta_intrare = models.PositiveSmallIntegerField()
     varsta_iesire = models.PositiveSmallIntegerField(null=True, blank=True)
     culoare = models.CharField(max_length=255, null=True, blank=True)
+    are_patrule = models.BooleanField(default=True)
 
     def __unicode__(self):
         return u"%s" % self.nume
@@ -58,7 +59,7 @@ class Structura(models.Model):
 
         return None
 
-    def cercetasi(self, qs=False, tip_asociere=u"Membru"):
+    def cercetasi(self, qs=False, tip_asociere=[u"Membru", u"Membru aspirant", u"Membru suspendat"]):
         asociere = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(self),
                                                           object_id=self.id,
                                                           moment_incheiere__isnull=True)
@@ -93,6 +94,8 @@ class CentruLocal(Structura):
         permissions = (
             ("list_centrulocal", u"Poate vedea o listă cu Centrele lui Locale")
         )
+
+    asocieri_membru = [u"Membru",]
 
     localitate = models.CharField(max_length=255)
     denumire = models.CharField(max_length=255, null=True, blank=True)
@@ -144,6 +147,12 @@ class Unitate(Structura):
     def __unicode__(self):
         return u"%s (%s)" % (self.nume, self.ramura_de_varsta)
 
+    def patrule(self):
+        return self.patrula_set.filter(activa=True, moment_inchidere__isnull=True)
+
+    def patrule_inactive(self):
+        return self.patrula_set.filter(activa=False, moment_inchidere__isnull=False)
+
     def total_membri_activi(self):
         return AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(self),
                                                       object_id=self.id,
@@ -156,12 +165,14 @@ class Unitate(Structura):
     def get_absolute_url(self):
         return ("structuri:unitate_detail", [], {"pk": self.id})
 
+
 class Patrula(Structura):
     class Meta:
         verbose_name = u"Patrulă"
         verbose_name_plural = u"Patrule"
 
     unitate = models.ForeignKey(Unitate)
+    moment_inchidere = models.DateField(null=True, blank=True)
 
     @property
     def ramura_de_varsta(self):
@@ -333,11 +344,19 @@ class Membru(Utilizator):
     def centru_local(self):
         return self.get_centru_local()
 
-    def get_centru_local(self):
-        asocieri = AsociereMembruStructura.objects.filter(membru=self,
-                                                          content_type=ContentType.objects.get_for_model(CentruLocal),
-                                                          tip_asociere__nume=u"Membru",
-                                                          moment_incheiere__isnull=True).order_by("-moment_inceput", )
+    def get_centru_local(self, qs=False, tip_asociere=[]):
+        if len(tip_asociere) == 0:
+            tip_asociere = CentruLocal.asocieri_membru
+
+        asocieri_filter = dict(membru=self,
+                               content_type=ContentType.objects.get_for_model(CentruLocal),
+                               tip_asociere__nume__in=tip_asociere,
+                               moment_incheiere__isnull=True)
+        asocieri = AsociereMembruStructura.objects.filter(**asocieri_filter).order_by("-moment_inceput", )
+
+        if qs:
+            return asocieri
+
         if asocieri.count():
             return asocieri[0].content_object
 
@@ -694,6 +713,18 @@ class Membru(Utilizator):
         if asociere.count():
             return asociere.document
         return None
+
+    def is_aspirant(self):
+        asociere_cl = self.get_centru_local(qs=True, tip_asociere=["Membru aspirant"])
+        if asociere_cl.count() == 1 and asociere_cl[0].tip_asociere.nume == "Membru aspirant":
+            return True
+        return False
+
+    def is_suspendat(self):
+        asociere_cl = self.get_centru_local(qs=True, tip_asociere=["Membru suspendat"])
+        if asociere_cl.count() == 1 and asociere_cl[0].tip_asociere.nume == "Membru suspendat":
+            return True
+        return False
 
 
 class TipAsociereMembruStructura(models.Model):

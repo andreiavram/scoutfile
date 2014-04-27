@@ -23,7 +23,7 @@ from structuri.views import CentruLocalCreate, CentruLocalUpdate,\
     MembruPersoanaDeContactCreate, MembruPersoanaDeContactUpdate,\
     MembriForPatrocle, MembruDestinatarRepr, PersoanaContactDestinatarRepr,\
     MembriFaraAfilieri, GetSpeedList, MembruTabDocumente, SetariSpecialeCentruLocal, MembruConfirmaFacebook, \
-    UnitateTabMembriFaraPatrula, MembruTabActivitati, MembruRecalculeazaAcoperire
+    UnitateTabMembriFaraPatrula, MembruTabActivitati, MembruRecalculeazaAcoperire, UnitateTabPatruleInactive
 
 urlpatterns = patterns('structuri.views',
     (r'centrulocal/adauga/$', CentruLocalCreate.as_view(), {}, "cl_add"),
@@ -60,6 +60,7 @@ urlpatterns = patterns('structuri.views',
     
     (r'centrulocal/unitate/(?P<pk>\d+)/tab/brief/$', UnitateTabBrief.as_view(), {}, "unitate_tab_brief"),
     (r'centrulocal/unitate/(?P<pk>\d+)/tab/patrule/$', UnitateTabPatrule.as_view(), {}, "unitate_tab_patrule"),
+    (r'centrulocal/unitate/(?P<pk>\d+)/tab/patrule/inactive/$', UnitateTabPatruleInactive.as_view(), {}, "unitate_tab_patrule_inactive"),
     (r'centrulocal/unitate/(?P<pk>\d+)/tab/membri/$', UnitateTabMembri.as_view(), {}, "unitate_tab_membri"),
     (r'centrulocal/unitate/(?P<pk>\d+)/tab/membri/farapatrula/$', UnitateTabMembriFaraPatrula.as_view(), {}, "unitate_tab_membri_fara_patrula"),
     
