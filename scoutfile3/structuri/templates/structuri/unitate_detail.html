@@ -12,9 +12,11 @@
 {% block context_menu %}
 	<ul class = "nav nav-list">
 		<li class = "nav-header">Locații</li>
-		<li><a href = "{% url structuri:cl_detail pk=object.centru_local.id %}"><i class = "icon-home"></i> {{ object.centru_local }}</a></li>
+		<li><a href = "{% url structuri:cl_detail pk=object.centru_local.id %}"><i class = "icon-home"></i> Centrul Local</a></li>
 		<li><a href = "{% url structuri:cl_detail pk=object.centru_local.id %}?tab=unitati"><i class = "icon-list"></i> Unități</a></li>
-		
+        <li><a href = "{% url album:calendar_centru_local pk=object.centru_local.id %}?unitate={{ object.id }}"><i class = "icon-calendar"></i> Calendarul unității</a></li>
+        <li><a href = "{% url album:index %}?unitate={{ object.id }}&album=1"><i class = "icon-picture"></i> Albumul unității</a></li>
+
 		
 		<li class = "nav-header">Acțiuni</li>
 		<li><a href = "{% url structuri:unitate_edit pk=object.id %}"><i class = "icon-pencil"></i> Modifică</a></li>

@@ -120,7 +120,6 @@
 
 {% block content %}
     <div class="page-header">
-
         <div class="pull-right form-inline btn-toolbar">
             <div class = "btn-group">
                 <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class = "icon-th-large"></i> Categorie {% if tip_activitate %}({{ tip_activitate }}){% endif %} <span class="caret"></span></a>
@@ -150,6 +149,9 @@
                 {% for unitate in unitati %}
                     <a href = "{% url album:calendar_centru_local pk=object.id %}?unitate={{ unitate.id }}" class = "btn {% if request.session.unitate and request.session.unitate == unitate.id %}disabled{% endif %}" data-id = "{{ unitate.id }}"><img style="height: 18px" src = "{{ STATIC_URL }}images/icon-{{ unitate.ramura_de_varsta|slugify }}.png" /> {{ unitate.nume }}</a>
                 {% endfor %}
+                {% if patrula %}
+                    <a href = "#" class = "btn btn-disabled">{{ patrula }}</a>
+                {% endif %}
             </div>
 
             <div class = "btn-group">

@@ -16,7 +16,8 @@
 		{% for object in object_list %}
 		<tr id = "row_{{ object.id }}">
 			<td>{{ forloop.counter }}</td>
-            <td>{% with object.membru.status_cotizatie_numeric as status %}
+            <td>
+                {% with object.membru.status_cotizatie_numeric as status %}
                 {% if status <= 0 %}
                     <i class = "icon-ok" style = "color:green"></i>
                 {% else %}
@@ -26,12 +27,12 @@
                         <i class = "icon-warning-sign" style="color:#ffaf24"></i>
                     {% endif %}
             {% endif %}{% endwith %}</td>
-			<td><ul class = "unstyled">{% for badge in object.membru.get_badges_rdv %}
+			<td><ul class = "unstyled" style="{% if object.membru.is_aspirant %}opacity: 0.3{% endif %}">{% for badge in object.membru.get_badges_rdv %}
 				<li><img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" /></li>
-				
-				{% endfor %}</ul></td>
+				{% endfor %}</ul>
+            </td>
 			<td><img class = "thumbnail" src = "{% if object.membru.poza_profil %}{{ object.membru.poza_profil.get_profil_mic_url }}{% else %}http://placehold.it/50x50/ffffff{% endif %}" /></td>
-			<td><a href = "{% url structuri:membru_detail pk=object.membru.id %}">{{ object.membru }}</a> {% for badge in object.membru.get_extra_badges %}<img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}</td>
+			<td><a href = "{% url structuri:membru_detail pk=object.membru.id %}" {% if object.membru.is_suspendat %}style="text-decoration: line-through"{% endif %}>{{ object.membru }}</a> {% for badge in object.membru.get_extra_badges %}<img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}</td>
 			<td>{{ object.moment_inceput|date:"j F Y" }} ({{ object.moment_inceput|timesince }})</td>
 			<td>
 				<ul class = "unstyled">

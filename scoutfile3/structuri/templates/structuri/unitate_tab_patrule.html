@@ -42,9 +42,8 @@
 		{% empty %}
 		<tr>
 			<td>&nbsp;</td>
-			<td colspan="4"><em>Unitatea nu are patrule. Adăugați una noua de <a href = "{% url structuri:unitate_patrula_add pk=unitate.id %}"><i class = "icon-plus-sign"></i> aici</a>.</em></td>
+			<td colspan="4"><em>Unitatea nu are patrule active. Adăugați una noua de <a href = "{% url structuri:unitate_patrula_add pk=unitate.id %}"><i class = "icon-plus-sign"></i> aici</a>.</em></td>
 		</tr>
 		{% endfor %}
 	</tbody>
-
 </table>

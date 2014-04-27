@@ -357,7 +357,7 @@ class CentruLocalTabUnitati(ListView):
 
     def get_queryset(self, *args, **kwargs):
         qs = super(CentruLocalTabUnitati, self).get_queryset(*args, **kwargs)
-        qs = qs.filter(centru_local=self.centru_local)
+        qs = qs.filter(centru_local=self.centru_local, activa=True)
         return qs
 
     def get_context_data(self, **kwargs):
@@ -430,13 +430,7 @@ class CentruLocalTabMembri(ListView):
         return super(CentruLocalTabMembri, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
-        tip_asociere_lideri = TipAsociereMembruStructura.objects.get(nume=u"Membru")
-        asocieri = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(CentruLocal),
-                                                          object_id=self.centru_local.id,
-                                                          tip_asociere=tip_asociere_lideri,
-                                                          confirmata=True)
-
-        return asocieri
+        return self.centru_local.cercetasi(qs=True, tip_asociere=CentruLocal.asocieri_membru)
 
 
 class MembriFaraAfilieri(ListView):
@@ -563,10 +557,12 @@ class UnitateDetail(DetailView, TabbedViewMixin):
         return super(UnitateDetail, self).dispatch(request, *args, **kwargs)
 
     def get_tabs(self, *args, **kwargs):
-        self.tabs = (("brief", u"Sumar", reverse("structuri:unitate_tab_brief", kwargs={"pk": self.object.id}), "", 1),
-                     ("patrule", u"Patrule", reverse("structuri:unitate_tab_patrule", kwargs={"pk": self.object.id}), "", 2),
-                     ("membri", u"Membri", reverse("structuri:unitate_tab_membri", kwargs={"pk": self.object.id}), "", 3),
-                     ("membri_fp", u"Membri fără patrulă", reverse("structuri:unitate_tab_membri_fara_patrula", kwargs={"pk": self.object.id}), "", 3))
+        self.tabs = [("brief", u"Sumar", reverse("structuri:unitate_tab_brief", kwargs={"pk": self.object.id}), "", 1),
+                     ("membri", u"Membri", reverse("structuri:unitate_tab_membri", kwargs={"pk": self.object.id}), "", 3)]
+        if self.object.ramura_de_varsta.are_patrule:
+            self.tabs.append(("patrule", u"Patrule", reverse("structuri:unitate_tab_patrule", kwargs={"pk": self.object.id}), "", 2))
+            self.tabs.append(("membri_fp", u"Membri fără patrulă", reverse("structuri:unitate_tab_membri_fara_patrula", kwargs={"pk": self.object.id}), "", 4))
+            self.tabs.append(("patrule_inactive", u"Patrule inactive", reverse("structuri:unitate_tab_patrule_inactive", kwargs={"pk": self.object.id}), "", 5))
 
         return super(UnitateDetail, self).get_tabs(*args, **kwargs)
 
@@ -663,14 +659,24 @@ class UnitateTabPatrule(ListView):
         return super(UnitateTabPatrule, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
-        qs = super(UnitateTabPatrule, self).get_queryset(*args, **kwargs)
-        qs = qs.filter(unitate=self.unitate)
-        return qs
+        return self.unitate.patrule()
 
     def get_context_data(self, *args, **kwargs):
-        current = super(UnitateTabPatrule, self).get_context_data(*args, **kwargs)
-        current.update({"unitate": self.unitate})
-        return current
+        data = super(UnitateTabPatrule, self).get_context_data(*args, **kwargs)
+        data["unitate"] = self.unitate
+        return data
+
+
+class UnitateTabPatruleInactive(UnitateTabPatrule):
+    template_name = "structuri/unitate_tab_patrule_inactive.html"
+    def get_queryset(self, *args, **kwargs):
+        return self.unitate.patrule_inactive()
+
+    def get_context_data(self, *args, **kwargs):
+        data = super(UnitateTabPatruleInactive, self).get_context_data(**kwargs)
+        data['inactive'] = True
+        return data
+
 
 
 class UnitateTabMembri(ListView):
@@ -754,14 +760,12 @@ class PatrulaDetail(DetailView, TabbedViewMixin):
         return super(PatrulaDetail, self).dispatch(request, *args, **kwargs)
 
     def get_tabs(self, *args, **kwargs):
-        self.tabs = (("brief", "Sumar", reverse("structuri:patrula_tab_brief", kwargs={"pk": self.object.id}), "", 1),
-                     ("membri", u"Membri", reverse("structuri:patrula_tab_membri", kwargs={"pk": self.object.id}), "", 2))
+        self.tabs = (("brief", "Sumar", reverse("structuri:patrula_tab_brief", kwargs={"pk": self.object.id}), "", 2),
+                     ("membri", u"Membri", reverse("structuri:patrula_tab_membri", kwargs={"pk": self.object.id}), "", 1))
 
         return super(PatrulaDetail, self).get_tabs(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        #        kwargs.update(self.get_tabs())
-        #        return super(PatrulaDetail, self).get_context_data(**kwargs)
         current = super(PatrulaDetail, self).get_context_data(**kwargs)
         current.update(self.get_tabs())
         return current

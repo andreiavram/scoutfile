@@ -47,21 +47,35 @@ class EvenimentFiltruMixin(object):
             elif "qnume" in request.session:
                 del request.session['qnume']
 
-
         if "status" not in request.session:
             request.session["status"] = "terminat"
         if "status" in request.GET:
             request.session["status"] = request.GET.get("status")
 
         if "unitate" in request.GET:
+            if "patrula" in request.session:
+                del request.session['patrula']
             if request.GET.get("unitate") == "0" and "unitate" in request.session:
                 del request.session['unitate']
             else:
                 request.session['unitate'] = int(request.GET.get("unitate"))
 
+        if "patrula" in request.GET:
+            if "unitate" in request.session:
+                del request.session['unitate']
+            if request.GET.get("patrula") == "0" and "patrula" in request.session:
+                del request.session['patrula']
+            else:
+                request.session['patrula'] = int(request.GET.get("patrula"))
+
         self.unitate = None
         if "unitate" in request.session and request.session['unitate'] != 0:
             self.unitate = Unitate.objects.get(id=request.session['unitate'])
+
+        self.patrula = None
+        if "patrula" in request.session and request.session["patrula"] != 0:
+            self.patrula = Patrula.objects.get(id=request.session["patrula"])
+
 
         if "view" not in request.session:
             request.session["view"] = "list_detail"
@@ -97,6 +111,7 @@ class EvenimentFiltruMixin(object):
         data['status_activitate'] = STATUS_EVENIMENT
         data['tip_activitate'] = self.tip_activitate
         data['unitate'] = self.unitate
+        data['patrula'] = self.patrula
         status = "Toate"
         for s in STATUS_EVENIMENT:
             if s[0] == self.request.session["status"]:
@@ -110,6 +125,8 @@ class EvenimentFiltruMixin(object):
     def apply_filters(self, qs):
         if self.unitate:
             qs = qs.filter(id__in=[e.id for e in qs if e.are_asociere(self.unitate)])
+        if self.patrula:
+            qs = qs.filter(id__in=[e.id for e in qs if e.are_asociere(self.patrula)])
 
         if self.request.session["status"] != "toate":
             qs = qs.filter(status=self.request.session["status"])
