@@ -78,7 +78,9 @@ class Structura(models.Model):
 
     def grad_colectare_cotizatie(self, trimestru=None):
         target_grp = self.cercetasi(qs=True).filter(moment_inceput__lte=trimestru.data_inceput)
-        print "target grp", target_grp
+        if target_grp.count() == 0:
+            return 0
+
         realizat_cnt = PlataCotizatieTrimestru.objects.filter(trimestru=trimestru, final=True, membru__in=[a.membru for a in target_grp]).count()
         return realizat_cnt * 100. / target_grp.count()
 
