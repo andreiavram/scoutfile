@@ -1,20 +1,22 @@
-    <a href = "{% url structuri:patrula_membru_asociaza pk=object.id %}" class = "btn btn-primary"><i class = "icon-plus"></i> Adaugă cercetaș</a>
-	<table class="table table-striped">
-	<thead>
-		<tr>
-			<th>#</th>
-			<th>Nume</th>
-			<th>Membru de la</th>
+<a href = "{% url structuri:patrula_membru_asociaza pk=object.id %}" class = "btn btn-primary"><i class = "icon-plus"></i> Adaugă cercetaș</a>
+{% include 'structuri/centrulocal_tab_membri.html' %}
+
+{#	<table class="table table-striped">#}
+{#	<thead>#}
+{#		<tr>#}
+{#			<th>#</th>#}
+{#			<th>Nume</th>#}
+{#			<th>Membru de la</th>#}
 {#			<th>Categorii</th>#}
-			<th>&nbsp;</th>
-		</tr>
-	</thead>
-	<tbody>
-		{% for object in object_list %}
-		<tr id = "row_{{ object.id }}">
-			<td>{{ forloop.counter }}</td>
-			<td>{{ object.membru }}</td>
-			<td>{{ object.moment_inceput|date:"j F Y" }} ({{ object.moment_inceput|timesince }})</td>
+{#			<th>&nbsp;</th>#}
+{#		</tr>#}
+{#	</thead>#}
+{#	<tbody>#}
+{#		{% for object in object_list %}#}
+{#		<tr id = "row_{{ object.id }}">#}
+{#			<td>{{ forloop.counter }}</td>#}
+{#			<td>{{ object.membru }}</td>#}
+{#			<td>{{ object.moment_inceput|date:"j F Y" }} ({{ object.moment_inceput|timesince }})</td>#}
 {#			<td>#}
 {#				<ul class = "unstyled">#}
 {#				{% for afiliere in object.membru.afilieri_curente %}#}
@@ -24,21 +26,21 @@
 {#				{% endfor %}#}
 {#				</ul>#}
 {#			</td>#}
-			<td>    
-				<div class="btn-group">
-					<a href = "{% url structuri:membru_detail pk=object.membru.id %}" class = "btn btn-mini"><i class = "icon-user"></i></a>
-					<a href = "{% url structuri:membru_afiliere_edit pk=object.id %}" class = "btn btn-mini"><i class = "icon-pencil"></i></a>
-			    </div>
-			</td>
-		</tr>
-		{% empty %}
-		<tr>
-			<td>&nbsp;</td>
-			<td><em>Patrula nu are membri</em></td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-		</tr>
-		{% endfor %}
-	</tbody>
-
-</table>
+{#			<td>    #}
+{#				<div class="btn-group">#}
+{#					<a href = "{% url structuri:membru_detail pk=object.membru.id %}" class = "btn btn-mini"><i class = "icon-user"></i></a>#}
+{#					<a href = "{% url structuri:membru_afiliere_edit pk=object.id %}" class = "btn btn-mini"><i class = "icon-pencil"></i></a>#}
+{#			    </div>#}
+{#			</td>#}
+{#		</tr>#}
+{#		{% empty %}#}
+{#		<tr>#}
+{#			<td>&nbsp;</td>#}
+{#			<td><em>Patrula nu are membri</em></td>#}
+{#			<td>&nbsp;</td>#}
+{#			<td>&nbsp;</td>#}
+{#		</tr>#}
+{#		{% endfor %}#}
+{#	</tbody>#}
+{##}
+{#</table>#}
