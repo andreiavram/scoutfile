@@ -1,8 +1,17 @@
 {% extends 'base.html' %}
 {% load tab_tags %}
+{% load cotizatie_tags %}
 
 {% block page_title %}
-	Profilul tau
+	{% with user.get_profile.membru as membru %}{{ membru }} <span style="font-weight: normal">| dashboard</span>
+
+    <p style = "font-size: 12px; font-weight: normal" class = "pull-right label label-{{ membru.status_cotizatie_numeric|cotizatie_level }}">
+    {% if membru.is_suspendat %}<strong><i class = "icon-remove"></i> SUSPENDAT</strong> | {% endif %}
+    Cotizație: <strong>{{ membru.status_cotizatie_numeric|cotizatie_description }}</strong>
+    {% if membru.status_cotizatie_numeric > 0 %}Mai trebuie să plătești {{ membru.calculeaza_necesar_cotizatie }} RON pentru a ajunge la zi{% endif %}
+    {% endwith %}
+</p>
+
 {% endblock %}
 
 {% block extrahead %}
@@ -14,7 +23,7 @@
 		<li class = "nav-header">Acțiuni</li>
 		<li><a href = "{% url structuri:membru_edit_profile %}"><i class = "icon-pencil"></i> Editează profilul</a></li>
 		<li><a href = "{% url structuri:membru_edit_profile_picture %}"><i class = "icon-picture"></i> Schimbă poza de profil</a></li>
-		<li class = "nav-header">Locații</li>
+{#		<li class = "nav-header">Locații</li>#}
 	</ul>
 {% endblock %}
 

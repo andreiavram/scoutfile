@@ -1328,7 +1328,9 @@ class UtilizatorHome(TemplateView, TabbedViewMixin):
 
     def get_tabs(self):
         self.tabs = (("brief", u"Pe scurt", reverse("structuri:membru_profil_tab_brief"), "", 1),
-                     ("afiliere", u"Afiliere", reverse("structuri:membru_profil_tab_afiliere"), "", 2))
+                     ("documente", u"Documente", reverse("structuri:membru_profil_tab_documente"), "icon-file", 3),
+                     ("activitati", u"Activități", reverse("structuri:membru_profil_tab_activitati"), "icon-calendar", 2),
+                     ("afiliere", u"Istoric", reverse("structuri:membru_profil_tab_afiliere"), "icon-time", 4))
 
         return super(UtilizatorHome, self).get_tabs()
 
@@ -1343,20 +1345,32 @@ class UtilizatorHomeTabsBrief(TemplateView):
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
+        kwargs['pk'] = request.user.get_profile().membru.id
         return super(UtilizatorHomeTabsBrief, self).dispatch(request, *args, **kwargs)
 
 
-class UtilizatorHomeTabsAfiliere(TemplateView):
+class UtilizatorHomeTabsAfiliere(UtilizatorHomeTabsBrief):
     template_name = "structuri/utilizator_home_afiliere.html"
+
+
+class UtilizatorHomeTabsDocumente(MembruTabDocumente):
+    template_name = "structuri/utilizator_home_documente.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        kwargs['pk'] = request.user.get_profile().membru.id
+        return super(UtilizatorHomeTabsDocumente, self).dispatch(request, *args, **kwargs)
+
+
+class UtilizatorHomeTabsActivitati(ListView):
+    template_name = "structuri/utilizator_home_activitati.html"
+    model = ParticipareEveniment
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        return super(UtilizatorHomeTabsAfiliere, self).dispatch(request, *args, **kwargs)
+        return super(UtilizatorHomeTabsActivitati, self).dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, *args, **kwargs):
-        current = super(UtilizatorHomeTabsAfiliere, self).get_context_data(*args, **kwargs)
-
-        return current
+    def get_queryset(self):
+        return self.request.user.get_profile().membru.participareeveniment_set.all()
 
 
 class UtilizatorEditProfile(UpdateView):

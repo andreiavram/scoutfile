@@ -1,0 +1,36 @@
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>Titlu</th>
+			<th>Referință / Emis</th>
+            <th>&nbsp;</th>
+            <th>Detalii</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for afiliere in object_list %}
+		<tr id="row_{{ afiliere.id }}">
+			<td>{{ forloop.counter }}</td>
+			<td>{{ afiliere.document.titlu }}</td>
+			<td>Nr. înreg: {{ afiliere.document.referinta }} <br />
+                {{ afiliere.moment_asociere }}
+			</td>
+            <td>{% if afiliere.document.fisier %}<a href = "{{ afiliere.document.fisier.url }}"><i class = "icon-paper-clip"></i> Document</a>{% endif %}</td>
+			<td>{% if afiliere.document.chitanta.chitantacotizatie %}
+                    {% with afiliere.document.chitanta.chitantacotizatie as cc %}
+                        {% for ptc in cc.platacotizatietrimestru_set.all %}
+                            <strong>{{ ptc.suma }} RON</strong> pentru {{ ptc.trimestru }} {% if ptc.partial %}(partial){% endif %}{% if ptc.final and ptc.partial %}(final){% endif %}<br />
+                        {% endfor %}
+                    {% endwith %}
+                {% endif %}</td>
+
+		</tr>
+		{% empty %}
+		<tr>
+			<td>&nbsp;</td>
+			<td colspan="4"><em>Nu există documente care să se refere la tine.</em></td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
