@@ -76,6 +76,9 @@
 				<div class="btn-group pull-right">
 					<a href = "{% url structuri:membru_detail pk=object.membru.id %}" class = "btn btn-mini"><i class = "icon-user"></i></a>
 					<a href = "{% url structuri:membru_afiliere_edit pk=object.id %}" class = "btn btn-mini"><i class = "icon-pencil"></i></a>
+                    {% if request.user.is_superuser %}
+                        <a href = "{% url index %}?impersonate__id={{ object.membru.user.id }}" class = "btn btn-mini btn-warning"><i class = "icon-user"></i></a>
+                    {% endif %}
 			    </div>
 			</td>
 		</tr>

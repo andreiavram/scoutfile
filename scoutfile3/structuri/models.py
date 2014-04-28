@@ -432,15 +432,11 @@ class Membru(Utilizator):
 
     @permalink
     def get_home_link(self):
-        #TODO: only redirect to CentruLocal detail page if user is lider / board member
-
-        asocieri = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(CentruLocal),
-                                                          tip_asociere__nume__icontains=u"lider",
-                                                          membru=self,
-                                                          moment_incheiere__isnull=True, confirmata=True)
-        if asocieri.count():
+        if self.is_lider():
+            unitate = self.get_unitate(rol=["Lider", "Lider asistent"])
+            if unitate:
+                return ("structuri:unitate_detail", [], {"pk": unitate.id})
             return ("structuri:cl_detail", [], {"pk": self.centru_local.id})
-
         return ("structuri:membru_profil", [], {})
 
     def afilieri_curente(self, end_chain=True, **kwargs):
