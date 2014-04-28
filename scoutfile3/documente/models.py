@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 import datetime
 from django.db.models.aggregates import Sum
-from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, post_delete
 from django.dispatch.dispatcher import receiver
 import traceback
 from settings import VALOARE_IMPLICITA_COTIZATIE_NATIONAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL_SOCIAL, VALOARE_IMPLICITA_COTIZATIE_NATIONAL_SOCIAL
@@ -544,11 +544,10 @@ class DocumentCotizatieSociala(Document):
         return super(DocumentCotizatieSociala, self).save(**kwargs)
 
 
-@receiver(pre_delete, sender=AsociereDocument)
+@receiver(post_delete, sender=AsociereDocument)
 def delete_documentcotizatie(sender, instance, **kwargs):
     if instance.document_ctype == ContentType.objects.get_for_model(DocumentCotizatieSociala):
         document = instance.document
-        instance.document = None
         document.delete()
 
 
