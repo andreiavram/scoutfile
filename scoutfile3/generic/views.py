@@ -1,4 +1,6 @@
 #coding: utf-8
+from django.shortcuts import render_to_response
+from django.template.context import RequestContext
 from django.views.generic.base import TemplateView, View
 import logging
 from django.views.generic.edit import DeleteView, FormView
@@ -282,5 +284,5 @@ class JSONView(View):
         return simplejson.dumps(json)
 
 
-
-
+def custom_500(request, template_name="500.html"):
+    return render_to_response(template_name, {"exception_str": traceback.format_exc()}, context_instance = RequestContext(request))
