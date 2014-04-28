@@ -20,10 +20,25 @@
 
 {% block context_menu %}
 	<ul class = "nav nav-list">
-		<li class = "nav-header">Acțiuni</li>
+		{% with user.get_profile.membru as membru %}
+        <li class = "nav-header">Acțiuni</li>
 		<li><a href = "{% url structuri:membru_edit_profile %}"><i class = "icon-pencil"></i> Editează profilul</a></li>
 		<li><a href = "{% url structuri:membru_edit_profile_picture %}"><i class = "icon-picture"></i> Schimbă poza de profil</a></li>
-{#		<li class = "nav-header">Locații</li>#}
+		<li class = "nav-header">Locații</li>
+        {% for patrula in membru.get_patrule %}
+            <li><a href = "{{ patrula.get_absolute_url }}"><i class = "icon-group"></i> {{ patrula.nume }}</a></li>
+        {% endfor %}
+        {% for unitate in membru.get_unitati %}
+            <li><a href = "{{ unitate.get_absolute_url }}"><i class = "icon-group"></i> {{ unitate }}</a></li>
+        {% endfor %}
+        <li class = "nav-header">Activități</li>
+        {% for patrula in membru.get_patrule %}
+            <li><a href = "{% url album:calendar_centru_local pk=patrula.unitate.centru_local.id %}?patrula={{ patrula.id }}"><i class = "icon-calendar"></i> {{ patrula }}</a></li>
+        {% endfor %}
+        {% for unitate in membru.get_unitati %}
+            <li><a href = "{% url album:calendar_centru_local pk=unitate.centru_local.id %}?unitate={{ unitate.id }}"><i class = "icon-calendar"></i> {{ unitate }}</a></li>
+        {% endfor%}
+        {% endwith %}
 	</ul>
 {% endblock %}
 

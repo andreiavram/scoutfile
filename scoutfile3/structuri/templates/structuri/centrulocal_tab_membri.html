@@ -39,11 +39,24 @@
 			<td><a href = "{% url structuri:membru_detail pk=object.membru.id %}" {% if object.membru.is_suspendat %}style="text-decoration: line-through"{% endif %}>{{ object.membru }}</a> {% for badge in object.membru.get_extra_badges %}<img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}</td>
 			<td>{{ object.moment_inceput|timesince }}<br /><span style="font-size: 10px; color: #999">{{ object.moment_inceput|date:"F Y" }}</span></td>
 			<td>
-            {% if object.membru.get_patrula %}
-                <a href = "{{ object.membru.get_patrula.get_absolute_url }}">{{ object.membru.get_patrula }}</a><br />
-            {% endif %}
-            {% if object.membru.get_unitate %}
-                <a href = "{{ object.membru.get_unitate.get_absolute_url }}">{{ object.membru.get_unitate }}</a><br />
+            {% if object.membru.is_lider %}
+                {% for patrula in object.membru.get_patrule %}
+                    <img src = "{{ STATIC_URL }}images/icon-{{ patrula.unitate.ramura_de_varsta.slug }}.png" /> <a href = "{{ patrula.get_absolute_url }}">{{ patrula }}</a><br />
+                {% endfor %}
+                {% for unitate in object.membru.get_unitati %}
+                    <img src = "{{ STATIC_URL }}images/icon-{{ unitate.ramura_de_varsta.slug }}.png" /> <a href = "{{ unitate.get_absolute_url }}">{{ unitate }}</a><br />
+                {% endfor %}
+            {% else %}
+                {% with object.membru.get_patrula as patrula %}
+                    {% if patrula %}
+                        <img src = "{{ STATIC_URL }}images/icon-{{ patrula.unitate.ramura_de_varsta.slug }}.png" /> <a href = "{{ patrula.get_absolute_url }}">{{ patrula }}</a><br />
+                    {% endif %}
+                {% endwith %}
+                {% with object.membru.get_unitate as unitate %}
+                {% if unitate %}
+                    <img src = "{{ STATIC_URL }}images/icon-{{ unitate.ramura_de_varsta.slug }}.png" /> <a href = "{{ unitate.get_absolute_url }}">{{ unitate }}</a><br />
+                {% endif %}
+                {% endwith %}
             {% endif %}
 {#				<ul class = "unstyled">#}
 {#				{% for afiliere in object.membru.afilieri_curente %}#}
