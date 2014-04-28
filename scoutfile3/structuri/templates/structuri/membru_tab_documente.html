@@ -49,7 +49,16 @@
                             <strong>{{ ptc.suma }} RON</strong> pentru {{ ptc.trimestru }} {% if ptc.partial %}(partial){% endif %}{% if ptc.final and ptc.partial %}(final){% endif %}<br />
                         {% endfor %}
                     {% endwith %}
-                {% endif %}</td>
+                {% endif %}
+                {% with afiliere.document.documentcotizatiesociala as dcs %}{# dcs - declaratie cotizatie sociala #}
+                {% if dcs %}
+                    {% if dcs.este_valabil %}<strong>Aprobat CCL</strong> <br />{% endif %}
+                    {% if dcs.valabilitate_end %}A fost valabil între {{ dcs.valabilitate_start|date:"d F Y" }} și {{ dcs.valabilitate_end|date:"d F Y" }}{% else %}
+                        Valabil de la {{ dcs.valabilitate_start|date:"d F Y" }}
+                    {% endif %}
+                {% endif %}
+                {% endwith %}
+            </td>
 			<td>
 				<div class="btn-group pull-right">
 					<a class="btn btn-mini" href="{{ afiliere.document_edit_link }}"><i class="icon-pencil"></i></a>

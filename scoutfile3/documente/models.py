@@ -265,7 +265,7 @@ class Trimestru(models.Model):
         @see: DecizieCotizatie
         """
 
-        filtru_cotizatii = dict(centru_local=membru.centru_local, trimestru=self, social=membru.are_cotizatie_sociala())
+        filtru_cotizatii = dict(centru_local=membru.centru_local, trimestru=self, social=membru.are_cotizatie_sociala(trimestru=self))
         pachet_cotizatii = DecizieCotizatie.get_package_for_centru_local(**filtru_cotizatii)
         valoare_trimestriala = (pachet_cotizatii['national'] + pachet_cotizatii['local']) / 4.
         return valoare_trimestriala
@@ -348,6 +348,7 @@ class PlataCotizatieTrimestru(models.Model):
         #   TODO: adaugă parametru pentru a verifica daca utilizatorul a beneficiat de cotizatie sociala la un moment dat
         while suma > 0:
             cotizatie_trimestru_nominal = trimestru_curent.identifica_cotizatie(membru)
+            print membru, cotizatie_trimestru_nominal
             cotizatie_trimestru = membru.aplica_reducere_familie(cotizatie_trimestru_nominal, trimestru_curent)
 
             #   suma, final si partial rezolva problemele platilor partiale, in toate scenariile
@@ -524,11 +525,11 @@ class Registru(models.Model):
 
 
 class DocumentCotizatieSociala(Document):
-    nume_parinte = models.CharField(max_length=255, null=True, blank=True, verbose_name=u"Nume părinte",
-                                    help_text=u"Lasă gol pentru cercetași adulți") #  poate fi null pentru persoane peste 18 ani
+    nume_parinte = models.CharField(max_length=255, null=True, blank=True, verbose_name=u"Nume părinte", help_text=u"Lasă gol pentru cercetași adulți") #  poate fi null pentru persoane peste 18 ani
     motiv = models.CharField(max_length=2048, null=True, blank=True)
-    este_valabil = models.BooleanField(verbose_name=u"Este valabilă?",
-                                       help_text=u"Bifează doar dacă cererea a fost aprobată de Consiliu")
+    este_valabil = models.BooleanField(verbose_name=u"Cerere aprobată?", help_text=u"Bifează doar dacă cererea a fost aprobată de Consiliu")
+    valabilitate_start = models.DateField()
+    valabilitate_end = models.DateField(null=True, blank=True)
 
     registre_compatibile = ['io', ]
 
@@ -602,8 +603,7 @@ class DecizieCotizatie(Decizie):
                       "categorie": categorie,
                       "data_inceput__lte": trimestru.data_inceput}
             decizii = cls.objects.filter(**filtru).order_by("-data_inceput")
-            cuantum[categorie.split("-")[0]] = decizii[0].cuantum if decizii.count() else valori_implicite.get(
-                categorie)
+            cuantum[categorie.split("-")[0]] = decizii[0].cuantum if decizii.count() else valori_implicite.get(categorie)
 
         return cuantum
 
