@@ -23,7 +23,8 @@ from structuri.views import CentruLocalCreate, CentruLocalUpdate,\
     MembruPersoanaDeContactCreate, MembruPersoanaDeContactUpdate,\
     MembriForPatrocle, MembruDestinatarRepr, PersoanaContactDestinatarRepr,\
     MembriFaraAfilieri, GetSpeedList, MembruTabDocumente, SetariSpecialeCentruLocal, MembruConfirmaFacebook, \
-    UnitateTabMembriFaraPatrula, MembruTabActivitati, MembruRecalculeazaAcoperire, UnitateTabPatruleInactive
+    UnitateTabMembriFaraPatrula, MembruTabActivitati, MembruRecalculeazaAcoperire, UnitateTabPatruleInactive, \
+    UtilizatorHomeTabsDocumente, UtilizatorHomeTabsActivitati
 
 urlpatterns = patterns('structuri.views',
     (r'centrulocal/adauga/$', CentruLocalCreate.as_view(), {}, "cl_add"),
@@ -110,6 +111,9 @@ urlpatterns = patterns('structuri.views',
     (r'membru/profile/$', UtilizatorHome.as_view(), {}, "membru_profil"),
     (r'membru/profile/tab/brief/$', UtilizatorHomeTabsBrief.as_view(), {}, "membru_profil_tab_brief"),
     (r'membru/profile/tab/afiliere/$', UtilizatorHomeTabsAfiliere.as_view(), {}, "membru_profil_tab_afiliere"),
+    (r'membru/profile/tab/activitati/$', UtilizatorHomeTabsActivitati.as_view(), {}, "membru_profil_tab_activitati"),
+    (r'membru/profile/tab/documente/$', UtilizatorHomeTabsDocumente.as_view(), {}, "membru_profil_tab_documente"),
+
     (r'membru/profile/edit/$', UtilizatorEditProfile.as_view(), {}, "membru_edit_profile"),
     (r'membru/profile/edit/picture/$', UtilizatorEditProfilePicture.as_view(), {}, "membru_edit_profile_picture"),
     
