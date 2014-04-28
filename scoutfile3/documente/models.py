@@ -536,9 +536,11 @@ class DocumentCotizatieSociala(Document):
         return reverse("structuri:membru_cotizatiesociala_modifica", kwargs={"pk": self.id})
 
     def save(self, **kwargs):
-        self.tip_document, created = TipDocument.objects.get_or_create(slug="declaratie-cotizatie-sociala")
+        tip_document, created = TipDocument.objects.get_or_create(slug="declaratie-cotizatie-sociala")
         if created:
-            self.tip_document.save()
+            tip_document.nume = u"Declarație cotizație socială"
+            tip_document.save()
+        self.tip_document = tip_document
         return super(DocumentCotizatieSociala, self).save(**kwargs)
 
 
