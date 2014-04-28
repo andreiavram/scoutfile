@@ -5,7 +5,7 @@
 {% block page_title %}
 	{% with user.get_profile.membru as membru %}{{ membru }} <span style="font-weight: normal">| dashboard</span>
 
-    <p style = "font-size: 12px; font-weight: normal" class = "pull-right label label-{{ membru.status_cotizatie_numeric|cotizatie_level }}">
+    <p style = "font-size: 12px; font-weight: normal" class = "pull-right label label-{{ membru.status_cotizatie_numeric|cotizatie_level_label }}">
     {% if membru.is_suspendat %}<strong><i class = "icon-remove"></i> SUSPENDAT</strong> | {% endif %}
     Cotizație: <strong>{{ membru.status_cotizatie_numeric|cotizatie_description }}</strong>
     {% if membru.status_cotizatie_numeric > 0 %}Mai trebuie să plătești {{ membru.calculeaza_necesar_cotizatie }} RON pentru a ajunge la zi{% endif %}

@@ -95,6 +95,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'pagination.middleware.PaginationMiddleware',
+    'scoutfile3.middleware.ImpersonateUserMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
