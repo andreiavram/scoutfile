@@ -378,27 +378,40 @@ class Membru(Utilizator):
 
         return None
 
-    def get_unitate(self):
-        asociere = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(Unitate),
-                                                          moment_incheiere__isnull=True,
-                                                          tip_asociere__nume=u"Membru",
-                                                          membru=self).order_by("-moment_inceput")
-        if asociere.count():
-            return asociere[0].content_object
-        return None
-
-    def get_patrula(self, qs=False):
-        kwargs = {"content_type": ContentType.objects.get_for_model(Patrula),
+    def get_structura(self, qs=False, rol=[u"Membru", ], single=True, structura_model=None):
+        if self.is_lider and not single:
+            rol = rol + [u"Lider", u"Lider asistent"]
+        kwargs = {"content_type": ContentType.objects.get_for_model(structura_model),
                   "moment_incheiere__isnull": True,
-                  "tip_asociere__nume": u"Membru",
+                  "tip_asociere__nume__in": rol,
                   "tip_asociere__content_types__in": [ContentType.objects.get_for_model(Patrula)],
                   "membru": self}
         asociere = AsociereMembruStructura.objects.filter(**kwargs).order_by("-moment_inceput")
+
         if asociere.count():
             if qs:
-                return asociere[0]
-            return asociere[0].content_object
+                if single:
+                    return asociere[0]
+                else:
+                    return asociere
+            else:
+                if single:
+                    return asociere[0].content_object
+                else:
+                    return [a.content_object for a in asociere]
         return None
+
+    def get_unitate(self, qs=False, rol=[u"Membru", ], single=True):
+        return self.get_structura(qs=qs, rol=rol, single=single, structura_model=Unitate)
+
+    def get_patrula(self, qs=False, rol=[u"Membru", ], single=True):
+        return self.get_structura(qs=qs, rol=rol, single=single, structura_model=Patrula)
+
+    def get_unitati(self, qs=False, rol=[u"Membru", ]):
+        return self.get_unitate(qs=qs, rol=rol, single=False)
+
+    def get_patrule(self, qs=False, rol=[u"Membru", ]):
+        return self.get_patrula(qs=qs, rol=rol, single=False)
 
     def get_centre_locale_permise(self):
         if self.user.groups.filter(name__iexact=u"Administratori sistem").count():
