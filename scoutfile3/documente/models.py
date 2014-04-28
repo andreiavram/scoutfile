@@ -547,7 +547,9 @@ class DocumentCotizatieSociala(Document):
 @receiver(pre_delete, sender=AsociereDocument)
 def delete_documentcotizatie(sender, instance, **kwargs):
     if instance.document_ctype == ContentType.objects.get_for_model(DocumentCotizatieSociala):
-        instance.document.delete()
+        document = instance.document
+        instance.document = None
+        document.delete()
 
 
 #   Implementare decizii
