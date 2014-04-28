@@ -217,10 +217,12 @@ class DeclaratieCotizatieSocialaAdauga(CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-
         self.object.titlu = u"Declarație proprie răspundere cotizație socială"
         self.object.uploader = self.request.user
-        self.object.data_inregistrare = datetime.date.today()
+
+        if self.object.data_inregistrare is None:
+            self.object.data_inregistrare = datetime.date.today()
+
         self.object.save()
 
         responsabil = self.target.centru_local.ocupant_functie(u"Secretar Centru Local")
@@ -228,7 +230,7 @@ class DeclaratieCotizatieSocialaAdauga(CreateView):
         AsociereDocument.inregistreaza(document=self.object,
                                        to=self.target,
                                        tip="beneficiar-cotizatie-sociala",
-                                       responsabil=responsabil)
+                                       responsabil=self.request.user)
 
         messages.success(self.request, u"Declarație salvată")
         return HttpResponseRedirect(self.get_success_url())

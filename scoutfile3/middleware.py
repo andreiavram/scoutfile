@@ -9,9 +9,7 @@ class ImpersonateUserMiddleware(object):
             if request.GET.get("impersonate__id"):
                 request.session["impersonate__id"] = int(request.GET.get("impersonate__id"))
 
-            print "here"
             if "impersonate__clear" in request.GET:
-                print "here here"
                 if "impersonate__id" in request.session:
                     del request.session["impersonate__id"]
 

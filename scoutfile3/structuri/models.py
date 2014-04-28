@@ -594,8 +594,11 @@ class Membru(Utilizator):
 
         return max(trimestru_membru, trimestru_centru, key=lambda x: x.ordine_globala)
 
-    def are_cotizatie_sociala(self):
+    def are_cotizatie_sociala(self, trimestru=None):
         """ Intoarce True daca membrul este in situatia de a plati cotizatie sociala
+            Cotizatia sociala e o problema care poate varia în timp (se poate renunța la ea sau poate
+            exista la o vreme după ce membrul este deja plătitor de cotizație, deci este necesar de știut despre
+            ce trimestru este vorba.
         """
         from documente.models import DocumentCotizatieSociala, AsociereDocument
 
@@ -604,16 +607,25 @@ class Membru(Utilizator):
                             "document_ctype": ContentType.objects.get_for_model(DocumentCotizatieSociala),
                             "document__documentcotizatiesociala__este_valabil": True}
 
-        return AsociereDocument.objects.filter(**filtru_documente).count() != 0
+        qs = AsociereDocument.objects.filter(**filtru_documente)
+
+        if trimestru is None:
+            trimestru = Trimestru.trimestru_pentru_data(datetime.date.today())
+
+        qs = qs.filter(Q(document__documentcotizatiesociala__valabilitate_end__isnull=True) | Q(document__documentcotizatiesociala__valabilitate_end__gte=trimestru.data_inceput))
+        qs = qs.filter(document__documentcotizatiesociala__valabilitate_start__lte=trimestru.data_sfarsit)
+        return qs.count() != 0
 
     def aplica_reducere_familie(self, valoare, trimestru):
         """ Aplica reducerea de familie pentru cotizatie
         """
 
-        if self.are_cotizatie_sociala():
+        if self.are_cotizatie_sociala(trimestru=trimestru):
             return valoare
 
         familie = AsociereMembruFamilie.rude_cercetasi(self, exclude_self=True)
+        #   exclude de la reducerea de membrii de familie membrii de familie care au cotizatie sociala trimestrul asta
+        familie = [m for m in familie if not m.are_cotizatie_sociala(trimestru)]
 
         filter_kwargs = dict(trimestru=trimestru, membru__in=familie, tip_inregistrare="normal")
 
@@ -715,7 +727,9 @@ class Membru(Utilizator):
         chitante_cotizatie = ChitantaCotizatie.pentru_membru(membru=self)
         PlataCotizatieTrimestru.objects.filter(membru=self).delete()
 
+        print "recomputing stuff"
         for document in chitante_cotizatie:
+            print "here is the document", document
             chitanta = document.chitanta.chitantacotizatie
             PlataCotizatieTrimestru.calculeaza_acoperire(self, chitanta, chitanta.suma, commit=True)
 
