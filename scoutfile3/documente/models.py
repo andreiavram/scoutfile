@@ -6,12 +6,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 import datetime
 from django.db.models.aggregates import Sum
-from django.db.models.signals import pre_delete, post_delete
+from django.db.models.signals import post_delete
 from django.dispatch.dispatcher import receiver
-import traceback
+import logging
+
 from settings import VALOARE_IMPLICITA_COTIZATIE_NATIONAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL_SOCIAL, VALOARE_IMPLICITA_COTIZATIE_NATIONAL_SOCIAL
 
-# Create your models here.
+logger = logging.getLogger(__name__)
 
 
 class Document(models.Model):
@@ -146,6 +147,7 @@ class Chitanta(Document):
     #serie = models.CharField(max_length=255)
     #numar = models.IntegerField(default=0)
     suma = models.FloatField(default=0)
+    printata = models.BooleanField(default=False)
 
     def save(self, force_insert=False, force_update=False, using=None):
         if not self.tip_document:
@@ -160,6 +162,9 @@ class Chitanta(Document):
         asociere_filter = dict(document=self, content_type=ContentType.objects.get_for_model(Membru), tip_asociere__slug="platitor")
         asociere = AsociereDocument.objects.get(**asociere_filter)
         return asociere.content_object
+
+    def editabila(self):
+        return not self.printata
 
 
     @classmethod
@@ -322,13 +327,16 @@ class PlataCotizatieTrimestru(models.Model):
 
 
     @classmethod
-    def calculeaza_acoperire(cls, membru, chitanta=None, suma=0, commit=False, casa=None):
+    def calculeaza_acoperire(cls, membru, chitanta=None, suma=0, chitanta_partial=False, commit=False, casa=None, membri_procesati=[]):
         """ Sparge plata de pe o chitanta in asocierile necesare pentru plati 
         trimestriale pentru un membru, cu plati partiale unde este nevoie.
         
         @param membru: membrul pentru care se fac platile
         @param chitanta: chitanta pe baza careia se fac estimarile (posibil sa nu existe la momentul unei simulari)
         @param commit: daca se salveaza sau nu obiectele create (False == simulare)
+        @param chitanta_partial: la recalcularea cotizatiei cu parametrul 'incepand_cu', poate fi nevoie sa se refere
+                doar anumite pct-uri din chitanta asta, ceea ce inseamna ca suma de impartit poate fi mai mica decat
+                suma de pe chitanta
         """
 
         # gaseste ultimul trimestru inregistrat pentru membru
@@ -336,20 +344,26 @@ class PlataCotizatieTrimestru(models.Model):
 
         #   inițializări (chitanta poate fi None pentru simulari)
         if chitanta:
-            suma = chitanta.suma
+            diff = 0
+            if chitanta_partial:
+                #   calculeaza suma de pe PCT-uri existente si scade-o din chitanta.suma
+                suma_dict = PlataCotizatieTrimestru.objects.filter(membru=membru, chitanta=chitanta).aggregate(Sum("suma"))
+                diff = suma_dict["suma__sum"]
+            suma = chitanta.suma - diff
+
+        logger.debug("calculeaza_acoperire: calcul acoperire start")
 
         trimestru_curent = trimestru_initial
         trimestru_plata_completa = trimestru_curent
         plati = []
         index = 0
 
-        #   Sparge suma pe câte trimestre se poate. S-ar putea să existe probleme cu plata retroactivă a cotizațiilor pe
-        # documente sociale, momentan criteriul de lucru cu cotizația sociala este momentul curent.
-        #   TODO: adaugă parametru pentru a verifica daca utilizatorul a beneficiat de cotizatie sociala la un moment dat
+        #   sparge suma pe câte trimestre se poate
         while suma > 0:
             cotizatie_trimestru_nominal = trimestru_curent.identifica_cotizatie(membru)
-            print membru, cotizatie_trimestru_nominal
             cotizatie_trimestru = membru.aplica_reducere_familie(cotizatie_trimestru_nominal, trimestru_curent)
+
+            logger.debug("calculeaza_acoperire: acoperire trimestru pentru %s, nominal %s RON, procesat %s RON" % (membru, cotizatie_trimestru_nominal, cotizatie_trimestru))
 
             #   suma, final si partial rezolva problemele platilor partiale, in toate scenariile
             #   o singura plata partiala
@@ -383,7 +397,7 @@ class PlataCotizatieTrimestru(models.Model):
             if plata.final:
                 trimestru_plata_completa = trimestru_curent
 
-            trimestru_curent = Trimestru.urmatorul_trimestru(trimestru = trimestru_curent)
+            trimestru_curent = Trimestru.urmatorul_trimestru(trimestru=trimestru_curent)
             index += 1
 
         #   verifica status
@@ -407,7 +421,37 @@ class PlataCotizatieTrimestru(models.Model):
             for plata in plati:
                 plata.save()
 
+            #   daca exista plati incomplete pentru trimestrul asta de la membri ai familiei
+            #   recalculeaza platile pentru trimestru avand in vedere ca s-ar putea sa se fi
+            #   modificat pozitia in ierarhia de reduceri pentru unii din ei
+            logger.debug("calculeaza_acoperire: recalculez acoperire pentru familie")
+            cls.recalculeaza_pentru_familie(membru=membru, plati=plati, membri_procesati=membri_procesati)
+
         return plati, suma, membru.status_cotizatie(for_diff=diff), diff
+
+    @classmethod
+    def recalculeaza_pentru_familie(cls, membru, plati, membri_procesati=[]):
+        logger.debug("recalculeaza_pentru_familie: familie: %s" % membri_procesati)
+        from structuri.models import AsociereMembruFamilie
+        familie = AsociereMembruFamilie.rude_cercetasi(membru, exclude_self=True)
+        familie = [m for m in familie if m not in membri_procesati]
+        #   exclude de la reducerea de membrii de familie membrii de familie care au cotizatie sociala trimestrul asta
+        trimestre = []
+        for p in [p for p in plati if p.final is True]: #plati.filter(final=True):
+            if p.trimestru not in trimestre:
+                trimestre.append(p.trimestru)
+
+        for trimestru in trimestre:
+            familie_trimestru = [m for m in familie if not m.are_cotizatie_sociala(trimestru)]
+            for m in familie_trimestru:
+                plati = PlataCotizatieTrimestru.objects.filter(trimestru=trimestru, membru=m)
+                plati_finale = plati.filter(final=True)
+                if plati.count() and plati_finale.count() == 0:
+                    logger.debug("recalculeaza_pentru_familie: recalculare pentru %s, %s" % (m, trimestru))
+                    #   exista plati, dar nu exista o plata finala
+                    #   daca suma platilor este mai mare decat datoria
+                    #   trebuie reimpartita suma, sau (in caz de egalitate) bifata ca finala ultima inregistrare
+                    m.recalculeaza_acoperire_cotizatie(trimestru_start=trimestru, membri_procesati=membri_procesati)
 
     def __unicode__(self):
         return u"Plată pentru %s, pe %s, în valoare de %.2f RON" % (self.membru, self.trimestru, self.suma)
@@ -416,6 +460,7 @@ class PlataCotizatieTrimestru(models.Model):
 class ChitantaCotizatie(Chitanta):
     registre_compatibile = ["chitantier", "intern"]
     predat = models.BooleanField(default=False)
+    blocat = models.BooleanField(default=False)
 
     def save(self, **kwargs):
         self.tip_document, created = TipDocument.objects.get_or_create(slug="cotizatie")
@@ -427,6 +472,9 @@ class ChitantaCotizatie(Chitanta):
     @classmethod
     def pentru_membru(cls, membru=None, tip_document="cotizatie"):
         return Chitanta.pentru_membru(membru=membru, tip_document=tip_document)
+
+    def editabila(self):
+        return not (self.blocat or self.printata)
 
 
 

@@ -1963,20 +1963,43 @@ class MembruConfirmaFacebook(TemplateView):
         return data
 
 
-class MembruRecalculeazaAcoperire(View):
+class MembruDoAJAXWork(View):
     @allow_by_afiliere([("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
-        return super(MembruRecalculeazaAcoperire, self).dispatch(request, *args, **kwargs)
+        return super(MembruDoAJAXWork, self).dispatch(request, *args, **kwargs)
+
+    def do_work(self, request, *args, **kwargs):
+        raise ImproperlyConfigured
 
     def post(self, request, *args, **kwargs):
         try:
-            self.membru.recalculeaza_acoperire_cotizatie()
-            messages.success(request, u"Acoperirea plăților a fost recalculată cu succes")
+            self.do_work(request, *args, **kwargs)
+            messages.success(request, self.get_success_message())
         except Exception, e:
-            messages.error(request, u"Eroare recalculare acoperire cotizație! Contactați administratorul (%s)" % e)
-            print e
-            print traceback.format_exc()
+            messages.error(request, self.get_error_message(e))
 
         return HttpResponse("done")
         # return HttpResponseRedirect(reverse("structuri:membru_details", kwargs={"pk": self.membru.id}) + "#documente")
+
+
+class MembruRecalculeazaAcoperire(MembruDoAJAXWork):
+    def do_work(self, request, *args, **kwargs):
+        return self.membru.recalculeaza_acoperire_cotizatie()
+
+    def get_success_message(self):
+        return u"Acoperirea plăților a fost recalculată cu succes"
+
+    def get_error_message(self, e=""):
+        return u"Eroare recalculare acoperire cotizație! Contactați administratorul (%s)" % e
+
+
+class MembruStergeAcoperire(MembruDoAJAXWork):
+    def do_work(self, request, *args, **kwargs):
+        return self.membru.recalculeaza_acoperire_cotizatie(reset=True)
+
+    def get_success_message(self):
+        return u"Acoperirea plăților a fost ștearsă! Rezolvați ce aveți de rezolvat, apoi recalculați!"
+
+    def get_error_message(self, e=""):
+        return u"Eroare ștergere acoperire cotizație (%s)" % e
