@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.core.urlresolvers import reverse
+from django.db.models.aggregates import Sum
 import logging
 import datetime
 from django.db.models import permalink
@@ -14,7 +15,7 @@ from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 import unidecode
-from documente.models import PlataCotizatieTrimestru, AsociereDocument, Trimestru
+from documente.models import PlataCotizatieTrimestru, AsociereDocument, Trimestru, ChitantaCotizatie
 from utils.models import FacebookSession
 
 
@@ -627,16 +628,57 @@ class Membru(Utilizator):
         #   exclude de la reducerea de membrii de familie membrii de familie care au cotizatie sociala trimestrul asta
         familie = [m for m in familie if not m.are_cotizatie_sociala(trimestru)]
 
+        #   principiul este ca reducerea se aplica doar dupa ce se fac plati complete, nu si partiale
+        #   problema care poate aparea este ca exista plati partiale care trebuie reconsiderate dupa efectuarea unei
+        #   plati finale, ceea ce inseamna redistribuirea sumei respective
+
+        #   in recalcularea cotizatiei pentru membrul familiei care plateste mai mult, se vor gasi plati finale
+        #   efectuate, dar pentru sumele mai mici, ceea ce inseamna ca cotizatia intoarsa va fi si ea redusa, lucru
+        #   eronat. Pentru a evita aceasta situatie, nu doar numarul platilor finale, ci si cuantumul lor trebuie
+        #   determinat
+
+        #   afla care sunt membrii familiei care au plati considerate finale
         filter_kwargs = dict(trimestru=trimestru, membru__in=familie, tip_inregistrare="normal")
 
-        try:
-            platitori_cnt = PlataCotizatieTrimestru.objects.filter(**filter_kwargs).select_related("membru").values_list("membru", flat=True).distinct().count()
-        except Exception, e:
-            logger.error("{0}: problemă la obținerea de platitori de cotizatie: {1}".format(self.__class__.__name__, e))
-            platitori_cnt = 0
+        plati = PlataCotizatieTrimestru.objects.filter(**filter_kwargs).select_related("membru")
+
+        #   ne intereseaza doar platile facute de membrii care au si plati finale (pentru fiecare trimestru fiecare
+        #   membru poate avea o singura plata finala)
+
+        membri_plati_finale = plati.filter(final=True).values_list("membru", flat=True)
+        plati_relevante = plati.filter(membru__id__in=membri_plati_finale)
+        #   pentru fiecare membru cu plati finale, calculeaza ce plata are facuta
+        plati_membri_familie = []
+        for m in membri_plati_finale:
+            suma_membru = plati_relevante.filter(membru__id = m).aggregate(Sum("suma")).get("suma__sum", 0)
+            plati_membri_familie.append((m, suma_membru))
+
+        platitori_cnt = len(plati_membri_familie)
+        plati_membri_familie.sort(key=lambda p: p[1], reverse=True)
+        print plati_membri_familie
+
+        # try:
+        #     plati = PlataCotizatieTrimestru.objects.filter(**filter_kwargs).select_related("membru")
+        #     platitori_cnt = plati.values_list("membru", flat=True).distinct().count()
+        # except Exception, e:
+        #     logger.error("{0}: problemă la obținerea de platitori de cotizatie: {1}".format(self.__class__.__name__, e))
+        #     platitori_cnt = 0
 
         quotas = {0: 1, 1: 0.5, 2: 0.25}
-        quota = quotas.get(platitori_cnt, 0.25)
+        plata_index = 0
+        if len(plati_membri_familie):
+            for q in quotas.items():
+                logger.debug(u"aplica_reducere_familie, verific existență cotizație %s pentru %s, trimestrul %s" % (q[1], self, trimestru))
+                found = False
+                print plati_membri_familie[plata_index]
+                if valoare * q[1] == plati_membri_familie[plata_index][1]:
+                    found = True
+                    plata_index += 1
+
+                if found is False or plata_index > len(plati_membri_familie) - 1:
+                    break
+
+        quota = quotas.get(plata_index, 0.25)
         return valoare * quota
 
     def _status_cotizatie(self):
@@ -714,24 +756,31 @@ class Membru(Utilizator):
     def calculeaza_necesar_cotizatie(self):
         return PlataCotizatieTrimestru.calculeaza_necesar(membru=self)
 
-    def recalculeaza_acoperire_cotizatie(self):
-        from documente.models import ChitantaCotizatie
+    def recalculeaza_acoperire_cotizatie(self, trimestru_start=None, membri_procesati=[], reset=False):
+        chitanta_partial = False
+        pct_filter = dict(membru=self, chitanta__printata=False, chitanta__chitantacotizatie__blocat=False)
+        if trimestru_start:
+            pct_filter['trimestru__ordine_globala__gte'] = trimestru_start.ordine_globala
+            chitanta_partial = True
+        pcts = PlataCotizatieTrimestru.objects.filter(**pct_filter)
 
-        # potentiala problema este ca la recalcularea cotizatiei, in cazul reducerilor pentru frati,
-        # sa fie probleme la recalculare
-        # o potentiala solutie este posibilitatea de inferenta a carui frate a fost primul la plata cotizatiei
-        # adica daca se recalculeaza cotizatia si un frate are o cotizatie mai mica decat cea nominala dar
-        # care este considerata "plina" (finala) atunci fratele pentru care se recalculeaza primeste
-        # cea mai mare cotizatie ne-acoperita
+        if pcts.count() == 0:
+            chitante_cotizatie = ChitantaCotizatie.pentru_membru(membru=self)
+            chitante_cotizatie = [c.id for c in chitante_cotizatie]
+        else:
+            chitante_cotizatie = pcts.order_by("trimestru__ordine_globala").values_list("chitanta", flat=True).order_by().distinct()
+        chitante_cotizatie = list(ChitantaCotizatie.objects.filter(id__in=chitante_cotizatie))
+        pcts.delete()
 
-        chitante_cotizatie = ChitantaCotizatie.pentru_membru(membru=self)
-        PlataCotizatieTrimestru.objects.filter(membru=self).delete()
+        if reset:
+            return
 
-        print "recomputing stuff"
-        for document in chitante_cotizatie:
-            print "here is the document", document
-            chitanta = document.chitanta.chitantacotizatie
-            PlataCotizatieTrimestru.calculeaza_acoperire(self, chitanta, chitanta.suma, commit=True)
+        logger.debug("recalculeaza_acoperire_cotizatie: Chitante %s" % chitante_cotizatie)
+
+        membri_procesati.append(self)
+        for chitanta in chitante_cotizatie:
+            logger.debug("recalculeaza_acoperire_cotizatie: procesez document %s %s" % (self, chitanta))
+            PlataCotizatieTrimestru.calculeaza_acoperire(self, chitanta, chitanta.suma, chitanta_partial=chitanta_partial, commit=True, membri_procesati=membri_procesati)
 
     def status_cotizatie_numeric(self):
         status, curent, ultimul = self._status_cotizatie()
@@ -764,6 +813,9 @@ class Membru(Utilizator):
         if asociere_cl.count() == 1 and asociere_cl[0].tip_asociere.nume == "Membru suspendat":
             return True
         return False
+
+    def is_membru_ccl(self):
+        return self.are_calitate("Membru Consiliul Centrului Local", self.centru_local)
 
 
 class TipAsociereMembruStructura(models.Model):
