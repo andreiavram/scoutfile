@@ -729,7 +729,7 @@ class Membru(Utilizator):
         #    diferenta_trimestre -= 1
         trimestru = ultimul_trimestru
         trimestre_scutite = 0
-        while trimestru.ordine_globala <= trimestru_curent.ordine_globala:
+        while trimestru.ordine_globala < trimestru_curent.ordine_globala:
             if not self.plateste_cotizatie(trimestru=trimestru):
                 trimestre_scutite += 1
             trimestru = trimestru.urmatorul_trimestru(trimestru)
