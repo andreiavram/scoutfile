@@ -166,7 +166,6 @@ class Chitanta(Document):
     def editabila(self):
         return not self.printata
 
-
     @classmethod
     def pentru_membru(cls, membru=None, tip_document="chitanta"):
         from structuri.models import Membru
@@ -176,6 +175,11 @@ class Chitanta(Document):
                                tip_asociere__slug="platitor")
         asocieri = AsociereDocument.objects.filter(**asociere_filter).order_by("moment_asociere")
         return [a.document for a in asocieri]
+
+    def delete(self, **kwargs):
+        if not self.editabila():
+            raise Exception(u"Chitanța nu este editabilă, nu poate fi ștearsă")
+        return super(Chitanta, self).delete(**kwargs)
 
 
 class Trimestru(models.Model):
@@ -485,6 +489,9 @@ class ChitantaCotizatie(Chitanta):
     def editabila(self):
         return not (self.blocat or self.printata)
 
+    def delete(self, **kwargs):
+        self.platacotizatietrimestru_set.all().delete()
+        return super(ChitantaCotizatie, self).delete(**kwargs)
 
 
 REGISTRU_MODES = (("auto", u"Automat"), ("manual", u"Manual"))
