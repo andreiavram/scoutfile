@@ -997,7 +997,6 @@ class MembruTabDocumente(ListView):
     model = Membru
     template_name = "structuri/membru_tab_documente.html"
 
-
     @allow_by_afiliere([("Membru, Centru Local", "Lider"), ])
     def dispatch(self, request, *args, **kwargs):
         self.object = get_object_or_404(self.model, id=kwargs.pop("pk"))
@@ -1005,7 +1004,6 @@ class MembruTabDocumente(ListView):
 
     def get_queryset(self):
         from documente.models import AsociereDocument
-
         filter_kwargs = {"content_type": ContentType.objects.get_for_model(self.object),
                          "object_id": self.object.id}
 
@@ -1353,12 +1351,25 @@ class UtilizatorHomeTabsAfiliere(UtilizatorHomeTabsBrief):
     template_name = "structuri/utilizator_home_afiliere.html"
 
 
-class UtilizatorHomeTabsDocumente(MembruTabDocumente):
+class UtilizatorHomeTabsDocumente(ListView):
     template_name = "structuri/utilizator_home_documente.html"
 
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        kwargs['pk'] = request.user.get_profile().membru.id
+        self.object = request.user.get_profile().membru
         return super(UtilizatorHomeTabsDocumente, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        from documente.models import AsociereDocument
+        filter_kwargs = {"content_type": ContentType.objects.get_for_model(self.object),
+                         "object_id": self.object.id}
+
+        return AsociereDocument.objects.filter(**filter_kwargs).order_by("-moment_asociere")
+
+    def get_context_data(self, **kwargs):
+        data = super(UtilizatorHomeTabsDocumente, self).get_context_data(**kwargs)
+        data.update({"object": self.object})
+        return data
 
 
 class UtilizatorHomeTabsActivitati(ListView):
