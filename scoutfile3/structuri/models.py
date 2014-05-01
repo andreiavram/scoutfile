@@ -822,19 +822,19 @@ class Membru(Utilizator):
         return None
 
     def is_aspirant(self):
-        asociere_cl = self.get_centru_local(qs=True, tip_asociere=["Membru aspirant"])
-        if asociere_cl.count() == 1 and asociere_cl[0].tip_asociere.nume == "Membru aspirant":
-            return True
-        return False
+        return self.are_calitate("Membru aspirant", self.centru_local)
 
     def is_suspendat(self):
-        asociere_cl = self.get_centru_local(qs=True, tip_asociere=["Membru suspendat"])
-        if asociere_cl.count() == 1 and asociere_cl[0].tip_asociere.nume == "Membru suspendat":
-            return True
-        return False
+        return self.are_calitate("Membru suspendat", self.centru_local)
 
     def is_membru_ccl(self):
         return self.are_calitate("Membru Consiliul Centrului Local", self.centru_local)
+
+    def is_inactiv(self):
+        return self.are_calitate("Membru inactiv", self.centru_local)
+
+    def is_adult(self):
+        return self.are_calitate("Membru adult", self.centru_local)
 
     def plateste_cotizatie(self, trimestru=None):
         """ determina daca un membru plateste sau nu cotizatie
