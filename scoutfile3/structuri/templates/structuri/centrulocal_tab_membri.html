@@ -41,6 +41,12 @@
                 {% if object.membru.is_inactiv %}
                     <i style = "color: #333333" class = "icon-arrow-down"></i>
                 {% endif %}
+                {% if object.membru.is_aspirant %}
+                    <i style = "color: #ffaf24" class  ="icon-warning-sign"></i>
+                {% endif %}
+                {% if object.membru.is_suspendat %}
+                    <i style = "color: red" class = "icon-exclamation-sign"></i>
+                {% endif %}
             </td>
 			<td><ul class = "unstyled" style="{% if object.membru.is_aspirant %}opacity: 0.3{% endif %}">{% for badge in object.membru.get_badges_rdv %}
 				<li><img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" /></li>
