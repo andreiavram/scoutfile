@@ -379,56 +379,70 @@ class Membru(Utilizator):
 
         return None
 
-    def get_structura(self, qs=False, rol=[u"Membru", ], single=True, structura_model=None):
+    def get_structura(self, qs=False, rol=[u"Membru", ], single=True, structura_model=None, trimestru=None):
         if self.is_lider and not single:
             rol = rol + [u"Lider", u"Lider asistent"]
         kwargs = {"content_type": ContentType.objects.get_for_model(structura_model),
-                  "moment_incheiere__isnull": True,
                   "tip_asociere__nume__in": rol,
-                  "tip_asociere__content_types__in": [ContentType.objects.get_for_model(Patrula)],
+                  "tip_asociere__content_types__in": (ContentType.objects.get_for_model(Patrula), ),
                   "membru": self}
-        asociere = AsociereMembruStructura.objects.filter(**kwargs).order_by("-moment_inceput")
 
-        if asociere.count():
+        asocieri = AsociereMembruStructura.objects.filter(**kwargs).order_by("-moment_inceput")
+
+        if trimestru is None:
+            # trimestrul curent, vorbim despre prezent
+            asocieri = asocieri.filter(moment_inceput__isnull=False, moment_incheiere__isnull=True)
+        else:
+            asocieri = asocieri.filter(Q(moment_incheiere__isnull=True) | Q(moment_incheiere__gte=trimestru.data_inceput))
+            asocieri = asocieri.filter(moment_inceput__lte=trimestru.data_sfarsit)
+
+        if asocieri.count():
             if qs:
                 if single:
-                    return asociere[0]
+                    return asocieri[0]
                 else:
-                    return asociere
+                    return asocieri
             else:
                 if single:
-                    return asociere[0].content_object
+                    return asocieri[0].content_object
                 else:
-                    return [a.content_object for a in asociere]
+                    return [a.content_object for a in asocieri]
         return None
 
-    def get_unitate(self, qs=False, rol=[u"Membru", ], single=True):
-        return self.get_structura(qs=qs, rol=rol, single=single, structura_model=Unitate)
+    def get_unitate(self, qs=False, rol=[u"Membru", ], single=True, trimestru=None):
+        return self.get_structura(qs=qs, rol=rol, single=single, structura_model=Unitate, trimestru=trimestru)
 
-    def get_patrula(self, qs=False, rol=[u"Membru", ], single=True):
-        return self.get_structura(qs=qs, rol=rol, single=single, structura_model=Patrula)
+    def get_patrula(self, qs=False, rol=[u"Membru", ], single=True, trimestru=None):
+        return self.get_structura(qs=qs, rol=rol, single=single, structura_model=Patrula, trimestru=trimestru)
 
-    def get_unitati(self, qs=False, rol=[u"Membru", ]):
-        return self.get_unitate(qs=qs, rol=rol, single=False)
+    def get_unitati(self, qs=False, rol=[u"Membru", ], trimestru=None):
+        return self.get_unitate(qs=qs, rol=rol, single=False, trimestru=trimestru)
 
-    def get_patrule(self, qs=False, rol=[u"Membru", ]):
-        return self.get_patrula(qs=qs, rol=rol, single=False)
+    def get_patrule(self, qs=False, rol=[u"Membru", ], trimestru=None):
+        return self.get_patrula(qs=qs, rol=rol, single=False, trimestru=trimestru)
 
     def get_centre_locale_permise(self):
         if self.user.groups.filter(name__iexact=u"Administratori sistem").count():
             return CentruLocal.objects.all()
         return [self.centru_local, ]
 
-    def are_calitate(self, calitate, structura):
-        qs = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(structura),
-                                                    object_id=structura.id,
-                                                    tip_asociere__content_types__in=(
-                                                        ContentType.objects.get_for_model(structura), ),
-                                                    tip_asociere__nume__iexact=calitate,
-                                                    moment_inceput__isnull=False,
-                                                    moment_incheiere__isnull=True,
-                                                    membru=self)
-        # logger.debug("%s" % qs.count())
+    def are_calitate(self, calitate, structura, trimestru=None):
+        if not isinstance(calitate, type([])):
+            calitate = [calitate, ]
+
+        ams_filter = dict(content_type=ContentType.objects.get_for_model(structura),
+                          object_id=structura.id,
+                          tip_asociere__content_types__in=(ContentType.objects.get_for_model(structura), ),
+                          tip_asociere__nume__in=calitate,
+                          membru=self)
+
+        qs = AsociereMembruStructura.objects.filter(**ams_filter)
+        if trimestru is None:
+            qs = qs.filter(moment_inceput__isnull=False, moment_incheiere__isnull=True)
+        else:
+            qs = qs.filter(Q(moment_incheiere__isnull=True) | Q(moment_incheiere__gte=trimestru.data_inceput))
+            qs = qs.filter(moment_inceput__lte=trimestru.data_sfarsit)
+
         return qs.count() != 0
 
     @permalink
@@ -816,6 +830,35 @@ class Membru(Utilizator):
 
     def is_membru_ccl(self):
         return self.are_calitate("Membru Consiliul Centrului Local", self.centru_local)
+
+    def plateste_cotizatie(self, trimestru=None):
+        """ determina daca un membru plateste sau nu cotizatie
+        din notele de implementare curente, neplatitori de cotizatie pentru un anumit trimestru sunt
+        1) membrii inactivi, marcati ca atare
+        2) membrii adulti, marcati ca atare si membrii ai unei unitati de adulti
+        toate celalalte categorii de membrii sunt platitori de cotizatie
+        """
+
+        if trimestru is None:
+            trimestru = Trimestru.trimestru_pentru_data(datetime.date.today())
+
+        if self.are_calitate(["Lider", "Lider asistent"], self.centru_local, trimestru=trimestru):
+            return True
+
+        unitate = self.get_unitate(trimestru=trimestru)
+        if unitate is None:
+            #   orice membru care nu este in nicio unitate este un caz special care va fi tratat ca platitor
+            #   nu ar trebui sa existe un asemenea caz
+            logger.info("Membru: membru care nu este lider, si nu apartine niciunei unitati %s" % self)
+            return True
+
+        if unitate.ramura_de_varsta.slug == "adulti" and self.are_calitate("Membru adult", self.centru_local, trimestru=trimestru):
+            return False
+
+        if self.are_calitate("Membru inactiv", self.centru_local, trimestru=trimestru):
+            return False
+
+        return True
 
 
 class TipAsociereMembruStructura(models.Model):
