@@ -312,8 +312,11 @@ class PlataCotizatieTrimestru(models.Model):
         suma_necesara = 0
         while t_current.ordine_globala < t_target.ordine_globala:
             # print t_current, t_target
-            cotizatie_trimestru_nominal = t_current.identifica_cotizatie(membru)
-            cotizatie_trimestru = membru.aplica_reducere_familie(cotizatie_trimestru_nominal, t_current)
+            if membru.plateste_cotizatie(t_current):
+                cotizatie_trimestru_nominal = t_current.identifica_cotizatie(membru)
+                cotizatie_trimestru = membru.aplica_reducere_familie(cotizatie_trimestru_nominal, t_current)
+            else:
+                cotizatie_trimestru = 0
             if plati_partiale:
                 suma_colectata = plati_partiale.aggregate(Sum("suma"))['suma__sum']
                 suma_necesara += cotizatie_trimestru - suma_colectata
@@ -360,8 +363,14 @@ class PlataCotizatieTrimestru(models.Model):
 
         #   sparge suma pe câte trimestre se poate
         while suma > 0:
-            cotizatie_trimestru_nominal = trimestru_curent.identifica_cotizatie(membru)
-            cotizatie_trimestru = membru.aplica_reducere_familie(cotizatie_trimestru_nominal, trimestru_curent)
+            plateste_cotizatia_trimestru = membru.plateste_cotizatie(trimestru_curent)
+            if plateste_cotizatia_trimestru:
+                cotizatie_trimestru_nominal = trimestru_curent.identifica_cotizatie(membru)
+                cotizatie_trimestru = membru.aplica_reducere_familie(cotizatie_trimestru_nominal, trimestru_curent)
+            else:
+                #   skip calcul pentru trimestrul asta
+                trimestru_curent = Trimestru.urmatorul_trimestru(trimestru=trimestru_curent)
+                continue
 
             logger.debug("calculeaza_acoperire: acoperire trimestru pentru %s, nominal %s RON, procesat %s RON" % (membru, cotizatie_trimestru_nominal, cotizatie_trimestru))
 
