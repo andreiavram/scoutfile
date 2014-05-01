@@ -79,11 +79,12 @@ class Structura(models.Model):
 
     def grad_colectare_cotizatie(self, trimestru=None):
         target_grp = self.cercetasi(qs=True).filter(moment_inceput__lte=trimestru.data_inceput)
-        if target_grp.count() == 0:
+        target_grp = [a for a in target_grp if a.membru.plateste_cotizatie(trimestru)]
+        if len(target_grp) == 0:
             return 0
 
         realizat_cnt = PlataCotizatieTrimestru.objects.filter(trimestru=trimestru, final=True, membru__in=[a.membru for a in target_grp]).count()
-        return realizat_cnt * 100. / target_grp.count()
+        return realizat_cnt * 100. / len(target_grp)
 
     def grad_colectare_cotizatie_trimestrul_curent(self):
         return self.grad_colectare_cotizatie(trimestru=Trimestru.trimestru_pentru_data(datetime.datetime.now().date()))
