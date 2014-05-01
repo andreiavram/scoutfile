@@ -520,6 +520,7 @@ class Registru(models.Model):
     valabil = models.BooleanField(default=True)
     editabil = models.BooleanField(default=True)
     data_inceput = models.DateTimeField(auto_now_add=True)
+    descriere = models.TextField(null=True, blank=True, help_text=u"Un scurt text de descriere pentru registru")
 
     def save(self, **kwargs):
         if not self.numar_curent:

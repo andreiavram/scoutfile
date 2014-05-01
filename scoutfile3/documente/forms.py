@@ -140,6 +140,7 @@ class RegistruForm(CrispyBaseModelForm):
 
         return self.cleaned_data
 
+
 class RegistruCreateForm(RegistruForm):
     class Meta:
         model = Registru
