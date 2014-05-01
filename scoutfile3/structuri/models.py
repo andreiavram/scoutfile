@@ -382,9 +382,10 @@ class Membru(Utilizator):
     def get_structura(self, qs=False, rol=[u"Membru", ], single=True, structura_model=None, trimestru=None):
         if self.is_lider and not single:
             rol = rol + [u"Lider", u"Lider asistent"]
+
         kwargs = {"content_type": ContentType.objects.get_for_model(structura_model),
                   "tip_asociere__nume__in": rol,
-                  "tip_asociere__content_types__in": (ContentType.objects.get_for_model(Patrula), ),
+                  "tip_asociere__content_types__in": (ContentType.objects.get_for_model(structura_model), ),
                   "membru": self}
 
         asocieri = AsociereMembruStructura.objects.filter(**kwargs).order_by("-moment_inceput")
@@ -407,6 +408,7 @@ class Membru(Utilizator):
                     return asocieri[0].content_object
                 else:
                     return [a.content_object for a in asocieri]
+
         return None
 
     def get_unitate(self, qs=False, rol=[u"Membru", ], single=True, trimestru=None):
@@ -427,6 +429,10 @@ class Membru(Utilizator):
         return [self.centru_local, ]
 
     def are_calitate(self, calitate, structura, trimestru=None):
+        """ determina daca membrul are o calitate intr-un din structurile locale (Centru Local, Unitate, Patrula)
+        determinarea se face pentru un trimestru, implicit fiind cel din ziua curenta
+        metoda ar trebui sa fie folosita oriunde se incearca determinari de apartenente si calitati
+        """
         if not isinstance(calitate, type([])):
             calitate = [calitate, ]
 
@@ -468,8 +474,9 @@ class Membru(Utilizator):
         return qs
 
     def is_lider(self):
-        qs = self.afilieri_curente(end_chain=False)
-        return qs.filter(tip_asociere__nume__icontains="Lider").count() != 0
+        # qs = self.afilieri_curente(end_chain=False)
+        # return qs.filter(tip_asociere__nume__icontains="Lider").count() != 0
+        return self.are_calitate("Lider", self.centru_local)
 
     def is_membru_ccl(self):
         qs = self.afilieri_curente(end_chain=False)
@@ -669,14 +676,6 @@ class Membru(Utilizator):
 
         platitori_cnt = len(plati_membri_familie)
         plati_membri_familie.sort(key=lambda p: p[1], reverse=True)
-        print plati_membri_familie
-
-        # try:
-        #     plati = PlataCotizatieTrimestru.objects.filter(**filter_kwargs).select_related("membru")
-        #     platitori_cnt = plati.values_list("membru", flat=True).distinct().count()
-        # except Exception, e:
-        #     logger.error("{0}: problemă la obținerea de platitori de cotizatie: {1}".format(self.__class__.__name__, e))
-        #     platitori_cnt = 0
 
         quotas = {0: 1, 1: 0.5, 2: 0.25}
         plata_index = 0
@@ -696,9 +695,7 @@ class Membru(Utilizator):
         return valoare * quota
 
     def _status_cotizatie(self):
-        """ Cotizatia se poate plati pana pe 15 a primei luni din urmatorul trimestru
-        @todo: implementariile viitoare ar trebui sa accepte un sistem de politici de cotizatie, care sa permita
-        implementarea cotizatiilor pentru adulti sau pentru alte categorii de membri (?)
+        """ Cotizatia se poate plati pana pe 15 a ultimei luni din trimestru
         """
 
         pct = PlataCotizatieTrimestru.objects.filter(membru=self, final=True).order_by("-trimestru__ordine_globala")[0:1]
@@ -712,9 +709,6 @@ class Membru(Utilizator):
         from documente.models import Trimestru
         today = datetime.date.today()
         trimestru_curent = Trimestru.trimestru_pentru_data(today)
-
-        # print trimestru_curent
-        # print ultimul_trimestru
 
         # -1 vine de la faptul ca cotizatia se plateste in urma, nu in avans, deci trimestrul curent
         # se plateste dupa ce se termina
@@ -733,7 +727,14 @@ class Membru(Utilizator):
         # nu exista perioada de gratie
         #if not trimestru_curent.data_in_trimestru(today - datetime.timedelta(days = 15)):
         #    diferenta_trimestre -= 1
+        trimestru = ultimul_trimestru
+        trimestre_scutite = 0
+        while trimestru.ordine_globala <= trimestru_curent.ordine_globala:
+            if not self.plateste_cotizatie(trimestru=trimestru):
+                trimestre_scutite += 1
+            trimestru = trimestru.urmatorul_trimestru(trimestru)
 
+        diferenta_trimestre -= trimestre_scutite
         return diferenta_trimestre, trimestru_curent, ultimul_trimestru
 
     def status_cotizatie(self, for_diff=None):
@@ -772,7 +773,7 @@ class Membru(Utilizator):
 
     def recalculeaza_acoperire_cotizatie(self, trimestru_start=None, membri_procesati=[], reset=False):
         chitanta_partial = False
-        pct_filter = dict(membru=self, chitanta__printata=False, chitanta__chitantacotizatie__blocat=False)
+        pct_filter = dict(membru=self, chitanta__printata=False, chitanta__blocat=False)
         if trimestru_start:
             pct_filter['trimestru__ordine_globala__gte'] = trimestru_start.ordine_globala
             chitanta_partial = True
