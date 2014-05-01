@@ -87,6 +87,8 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'johnny.middleware.LocalStoreClearMiddleware',
+    'johnny.middleware.QueryCacheMiddleware',
     'raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware',
     'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -97,6 +99,15 @@ MIDDLEWARE_CLASSES = (
     'pagination.middleware.PaginationMiddleware',
     'scoutfile3.middleware.ImpersonateUserMiddleware',
 )
+
+CACHES = {
+    'default' : dict(
+        BACKEND = 'johnny.backends.memcached.MemcachedCache',
+        LOCATION = ['127.0.0.1:11211'],
+        JOHNNY_CACHE = True,
+    )
+}
+JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_scoutfile3'
 
 ROOT_URLCONF = 'urls'
 
