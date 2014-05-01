@@ -7,6 +7,7 @@
 			<th>&nbsp;</th>
             <th>&nbsp;</th>
 			<th>&nbsp;</th>
+            <th>&nbsp;</th>
 			<th>Nume</th>
 			<th>Vechime</th>
 			<th>Conexiuni</th>
@@ -30,13 +31,23 @@
                         <br /><span style = "font-size: 10px; color:#ffaf24">{{ object.membru.calculeaza_necesar_cotizatie }}</span>
                     {% endif %}
 
-            {% endif %}{% endwith %}</td>
+
+            {% endif %}{% endwith %}
+            </td>
+            <td>
+                {% if object.membru.is_adult %}
+                    <i style = "color:#336699" class = "icon-certificate"></i>
+                {% endif %}
+                {% if object.membru.is_inactiv %}
+                    <i style = "color: #333333" class = "icon-arrow-down"></i>
+                {% endif %}
+            </td>
 			<td><ul class = "unstyled" style="{% if object.membru.is_aspirant %}opacity: 0.3{% endif %}">{% for badge in object.membru.get_badges_rdv %}
 				<li><img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" /></li>
 				{% endfor %}</ul>
             </td>
 			<td><img class = "thumbnail" src = "{% if object.membru.poza_profil %}{{ object.membru.poza_profil.get_profil_mic_url }}{% else %}{% static 'images/50x50.gif' %}{% endif %}" /></td>
-			<td><a href = "{% url structuri:membru_detail pk=object.membru.id %}" {% if object.membru.is_suspendat %}style="text-decoration: line-through"{% endif %}>{{ object.membru }}</a> {% for badge in object.membru.get_extra_badges %}<img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}</td>
+			<td><a href = "{% url structuri:membru_detail pk=object.membru.id %}" {% if object.membru.is_suspendat %}style="text-decoration: line-through"{% endif %}{% if object.membru.is_inactiv %}style="color: #666"{% endif %}>{{ object.membru }}</a> {% for badge in object.membru.get_extra_badges %}<img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}</td>
 			<td>{{ object.moment_inceput|timesince }}<br /><span style="font-size: 10px; color: #999">{{ object.moment_inceput|date:"F Y" }}</span></td>
 			<td>
             {% if object.membru.is_lider %}
