@@ -235,8 +235,7 @@ class Utilizator(models.Model):
 
     def facebook_connected(self):
         #   TODO: add expiration check on facebook session manager
-
-        return FacebookSession.objects.filter(user = self.user).exists()
+        return FacebookSession.objects.filter(user=self.user).exists()
 
 
 class ImagineProfil(ImageModel):
