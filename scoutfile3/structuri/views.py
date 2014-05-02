@@ -485,7 +485,6 @@ class CentruLocalMembri(CentruLocalTabMembri):
         #   initialise and maintain session values for current values
         for switch in self.switches.keys():
             request.session["membri_%s" % switch] = self.switches.get(switch).get("value")
-        print self.switches
 
         kwargs.update({"skip_checks": True})
         return super(CentruLocalMembri, self).dispatch(request, *args, **kwargs)
