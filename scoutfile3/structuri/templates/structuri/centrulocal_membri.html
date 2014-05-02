@@ -60,18 +60,18 @@
 	{% if request.GET.q %}
 	<div class = "alert alert-info"><i class = "icon-search"></i> Prezint doar persoanele care au în nume sau prenume <em>"{{ request.GET.q }}"</em> din {{ object }}. <a href = "{% url structuri:cl_membri pk=object.id %}"><i class = "icon-user"></i> Vezi toți membri</a></div>
 	{% endif %}
-    <div class = "alert alert-warning">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-        <i class = "icon-warning-sign"></i> Cotizațiile au fost strânse în proporție de
-        {% with  object.grad_colectare_cotizatie_trimestrul_curent as grad %}
-        <span class = "label label-{% if grad < 25 %}important{% elif grad < 90 %}warning{% else %}success{% endif %}">{{ grad|floatformat }}%</span>
-        {% endwith %}
-        pentru trimestrul curent și
-        {% with  object.grad_colectare_cotizatie_trimestrul_anterior as grad %}
-        <span class = "label label-{% if grad < 25 %}important{% elif grad < 90 %}warning{% else %}success{% endif %}">{{ grad|floatformat }}%</span>
-        {% endwith %}
-        pentru trimestrul trecut.
-    </div>
+{#    <div class = "alert alert-warning">#}
+{#        <button type="button" class="close" data-dismiss="alert">&times;</button>#}
+{#        <i class = "icon-warning-sign"></i> Cotizațiile au fost strânse în proporție de#}
+{#        {% with  object.grad_colectare_cotizatie_trimestrul_curent as grad %}#}
+{#        <span class = "label label-{% if grad < 25 %}important{% elif grad < 90 %}warning{% else %}success{% endif %}">{{ grad|floatformat }}%</span>#}
+{#        {% endwith %}#}
+{#        pentru trimestrul curent și#}
+{#        {% with  object.grad_colectare_cotizatie_trimestrul_anterior as grad %}#}
+{#        <span class = "label label-{% if grad < 25 %}important{% elif grad < 90 %}warning{% else %}success{% endif %}">{{ grad|floatformat }}%</span>#}
+{#        {% endwith %}#}
+{#        pentru trimestrul trecut.#}
+{#    </div>#}
 
 	{% autopaginate object_list 10 %}	
 	{% include 'structuri/centrulocal_tab_membri.html' %}
