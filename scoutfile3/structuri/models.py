@@ -459,7 +459,7 @@ class Membru(Utilizator):
         return asocieri.count() != 0
 
     CALITATI_COMUNE = ["Membru suspendat", "Membru aspirant", "Membru inactiv", "Membru Consiliul Centrului Local",
-                       "Lider", "Lider asistent", "Membru adult"]
+                       "Lider", "Lider asistent", "Membru adult", u"Șef Centru Local"]
 
     def _proprietati_comune(self):
         if not hasattr(self, "_proprietati") or self._proprietati is None:
@@ -522,28 +522,21 @@ class Membru(Utilizator):
         return asociere
 
     def get_badges_rdv(self):
-        #    daca este lider
         badges = []
-        if self.afilieri_curente(end_chain=False).filter(tip_asociere__nume__icontains=u"Lider").count():
+        if self.is_lider_generic():
             badges.append("lider")
-
-        #    daca este cercetas
         else:
             unitate = self.get_unitate()
             if unitate:
                 badges.append(unidecode.unidecode(unitate.ramura_de_varsta.nume.lower()))
-
         return badges
 
     def get_extra_badges(self):
         badges = []
-
-        if self.afilieri_curente(end_chain=False).filter(tip_asociere__nume__icontains=u"Șef Centru Local").count():
+        if self.is_sef_centru():
             badges.append("sef-centru")
-        if self.afilieri_curente(end_chain=False).filter(
-                tip_asociere__nume__icontains=u"Membru Consiliul Centrului Local").count():
+        if self.is_membru_ccl():
             badges.append("membru-ccl")
-
         return badges
 
     @models.permalink
@@ -853,6 +846,9 @@ class Membru(Utilizator):
 
     def is_membru_ccl(self):
         return self._proprietati_comune().get("Membru Consiliul Centrului Local", False)
+
+    def is_sef_centru(self):
+        return self._proprietati_comune().get(u"Șef Centru Local", False)
 
     def plateste_cotizatie(self, trimestru=None):
         """ determina daca un membru plateste sau nu cotizatie
