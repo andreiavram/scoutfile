@@ -473,8 +473,29 @@ class CentruLocalMembri(CentruLocalTabMembri):
         if "q" in request.GET and request.GET['q']:
             self.q = request.GET['q']
 
+        self.switches = {"activi": {"filter": lambda m: not m.is_suspendat() and not m.is_aspirant() and not m.is_adult() and not m.is_inactiv()},
+                         "inactivi": {"filter": lambda m: m.is_inactiv()},
+                         "suspendati": {"filter": lambda m: m.is_suspendat()},
+                         "aspiranti": {"filter": lambda m: m.is_aspirant()},
+                         "adulti": {"filter": lambda m: m.is_adult()}}
+
+        for switch in self.switches.keys():
+            self.switches[switch]["value"] = int(request.GET.get(switch, request.session.get("membri_%s" % switch, 1)))
+
+        #   initialise and maintain session values for current values
+        for switch in self.switches.keys():
+            request.session["membri_%s" % switch] = self.switches.get(switch).get("value")
+        print self.switches
+
         kwargs.update({"skip_checks": True})
         return super(CentruLocalMembri, self).dispatch(request, *args, **kwargs)
+
+    def check_switches(self, a):
+        valid = False
+        for s in self.switches.values():
+            if s.get("value", 0):
+                valid = s.get("filter")(a.membru) or valid
+        return valid
 
     def get_queryset(self, *args, **kwargs):
         qs = super(CentruLocalMembri, self).get_queryset(*args, **kwargs)
@@ -502,8 +523,11 @@ class CentruLocalMembri(CentruLocalTabMembri):
 
                 qs = qs.filter(membru__in=membri_final)
         qs = qs.order_by("membru__nume", "membru__prenume")
-        return qs
 
+        #   verifica daca toate categoriile sunt selectate
+        if sum([s.get("value") for s in self.switches.values()]) != len(self.switches.keys()):
+            qs = AsociereMembruStructura.objects.filter(id__in=[a.id for a in qs if self.check_switches(a)])
+        return qs
 
     def get_context_data(self, **kwargs):
         kwargs.update({"object": self.centru_local})

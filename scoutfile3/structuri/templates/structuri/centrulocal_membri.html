@@ -22,10 +22,20 @@
 			<a href = "{% url structuri:cl_membri pk=object.id %}?rdv=adulti" data-title = "Adulți" class = "btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-adult.png" /></a>
 			<a href = "{% url structuri:cl_membri pk=object.id %}" data-title = "Toată lumea" class = "{% if not request.GET.rdv %}disabled{% endif %} btn tooltip-target">Toată lumea</a>
 		</div>
+        <div class = "btn-group">
+            <a class = "btn disabled" href = "#"><i class = "icon-user"></i> Status</a>
+            <a data-toggle="tooltip" title = "Membri activi" class = "tooltip-target btn {% if request.session.membri_activi %}disabled{% endif %}" href = "{% url structuri:cl_membri pk=object.id %}?activi={% if request.session.membri_activi == 0 %}1{% else %}0{% endif %}"><i class = "icon-ok"></i></a>
+            <a data-toggle="tooltip" title = "Membri suspendati" class = "tooltip-target btn {% if request.session.membri_suspendati %}disabled{% endif %}" href = "{% url structuri:cl_membri pk=object.id %}?suspendati={% if request.session.membri_suspendati == 0 %}1{% else %}0{% endif %}"><i class = "icon-remove"></i></a>
+            <a data-toggle="tooltip" title = "Membri aspiranti" class = "tooltip-target btn {% if request.session.membri_aspiranti %}disabled{% endif %}" href = "{% url structuri:cl_membri pk=object.id %}?aspiranti={% if request.session.membri_aspiranti == 0 %}1{% else %}0{% endif %}"><i class = "icon-arrow-up"></i></a>
+            <a data-toggle="tooltip" title = "Membri inactivi" class = "tooltip-target btn {% if request.session.membri_inactivi %}disabled{% endif %}" href = "{% url structuri:cl_membri pk=object.id %}?inactivi={% if request.session.membri_inactivi == 0 %}1{% else %}0{% endif %}"><i class = "icon-arrow-down"></i></a>
+            <a data-toggle="tooltip" title = "Membri adulti" class = "tooltip-target btn {% if request.session.membri_adulti %}disabled{% endif %}" href = "{% url structuri:cl_membri pk=object.id %}?adulti={% if request.session.membri_adulti == 0 %}1{% else %}0{% endif %}"><i class = "icon-time"></i></a>
+        </div>
+
 		<div class = "btn-group">
 			<a href = "#" class = "btn disabled"><i class = "icon-user"></i> Total</a>
 			<a href = "#" class = "btn">{{ object_list.count }}</a>
 		</div>
+
 	</div>
 {% endblock %}
 
@@ -72,7 +82,9 @@
 {#        {% endwith %}#}
 {#        pentru trimestrul trecut.#}
 {#    </div>#}
+    <div class = "btn-toolbar pull-right">
 
+    </div>
 	{% autopaginate object_list 10 %}	
 	{% include 'structuri/centrulocal_tab_membri.html' %}
 	{% paginate %}
