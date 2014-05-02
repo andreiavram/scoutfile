@@ -689,7 +689,7 @@ class Membru(Utilizator):
             for q in quotas.items():
                 logger.debug(u"aplica_reducere_familie, verific existență cotizație %s pentru %s, trimestrul %s" % (q[1], self, trimestru))
                 found = False
-                print plati_membri_familie[plata_index]
+
                 if valoare * q[1] == plati_membri_familie[plata_index][1]:
                     found = True
                     plata_index += 1
@@ -864,18 +864,18 @@ class Membru(Utilizator):
         if self.are_calitate(["Lider", "Lider asistent"], self.centru_local, trimestru=trimestru):
             return True
 
-        unitate = self.get_unitate(trimestru=trimestru)
-        if unitate is None:
-            #   orice membru care nu este in nicio unitate este un caz special care va fi tratat ca platitor
-            #   nu ar trebui sa existe un asemenea caz
-            logger.info("Membru: membru care nu este lider, si nu apartine niciunei unitati %s" % self)
-            return True
+        # unitate = self.get_unitate(trimestru=trimestru)
+        # if unitate is None:
+        #     #   orice membru care nu este in nicio unitate este un caz special care va fi tratat ca platitor
+        #     #   nu ar trebui sa existe un asemenea caz
+        #     logger.info("Membru: membru care nu este lider, si nu apartine niciunei unitati %s" % self)
+        #     return True
 
-        if unitate.ramura_de_varsta.slug == "adulti" and self.are_calitate("Membru adult", self.centru_local, trimestru=trimestru):
+        if self.are_calitate(["Membru inactiv", "Membru adult"], self.centru_local, trimestru=trimestru):
             return False
 
-        if self.are_calitate("Membru inactiv", self.centru_local, trimestru=trimestru):
-            return False
+        # if unitate.ramura_de_varsta.slug == "adulti" and self.are_calitate("Membru adult", self.centru_local, trimestru=trimestru):
+        #     return False
 
         return True
 

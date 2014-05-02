@@ -100,11 +100,10 @@ class CentruLocalDetail(DetailView, TabbedViewMixin):
 
     def get_tabs(self, *args, **kwargs):
         self.tabs = (("brief", u"Sumar", reverse("structuri:cl_tab_brief", kwargs={"pk": self.object.id}), "", 2),
-                     ("unitati", u"Unități", reverse("structuri:cl_tab_unitati", kwargs={"pk": self.object.id}), "", 3),
-                     ("contact", u"Contact", reverse("structuri:cl_tab_contact", kwargs={"pk": self.object.id}),
-                      "icon-envelope", 1),)
-        #("lideri", u"Lideri", reverse("structuri:cl_tab_lideri", kwargs = {"pk" : self.object.id }), "", False),
-        #("membri", u"Membri", reverse("structuri:cl_tab_membri", kwargs = {"pk" : self.object.id }), "", False))
+                     ("unitati", u"Unități", reverse("structuri:cl_tab_unitati", kwargs={"pk": self.object.id}), "icon-group", 3),
+                     ("contact", u"Contact", reverse("structuri:cl_tab_contact", kwargs={"pk": self.object.id}), "icon-envelope", 1),
+                     ("lideri", u"Lideri", reverse("structuri:cl_tab_lideri", kwargs = {"pk" : self.object.id }), "icon-user", 4),
+                     ("membri_de_suspendat", u"Membri de suspendat", reverse("structuri:cl_tab_membri_de_suspendat", kwargs = {"pk" : self.object.id }), "icon-remove", 5))
         return super(CentruLocalDetail, self).get_tabs(*args, **kwargs)
 
     def get_context_menu(self, *args, **kwargs):
@@ -371,7 +370,7 @@ class CentruLocalTabUnitati(ListView):
 
 class CentruLocalTabLideri(ListView):
     model = AsociereMembruStructura
-    template_name = "structuri/centrulocal_tab_lideri.html"
+    template_name = "structuri/centrulocal_tab_membri.html"
 
     @allow_by_afiliere([("Centru Local", u"Lider")])
     def dispatch(self, request, *args, **kwargs):
@@ -379,14 +378,7 @@ class CentruLocalTabLideri(ListView):
         return super(CentruLocalTabLideri, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
-        tip_asociere_lideri = TipAsociereMembruStructura.objects.get(nume=u"Lider")
-        asocieri = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(CentruLocal),
-                                                          object_id=self.centru_local.id,
-                                                          tip_asociere=tip_asociere_lideri,
-                                                          confirmata=True)
-
-        return asocieri
-
+        return self.centru_local.lideri(qs=True)
 
 class ContactTab(ListView):
     model = InformatieContact
@@ -431,8 +423,22 @@ class CentruLocalTabMembri(ListView):
         return super(CentruLocalTabMembri, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
-        return self.centru_local.cercetasi(qs=True, tip_asociere=CentruLocal.asocieri_membru)
+        return self.centru_local.cercetasi(qs=True, tip_asociere=CentruLocal.asocieri_membru).select_related("membru")
 
+
+class CentruLocalTabMembriDeSuspendat(CentruLocalTabMembri):
+    model = AsociereMembruStructura
+    template_name = "structuri/centrulocal_tab_membri.html"
+
+    def membru_fits_query(self, membru):
+        status_cotizatie = membru._status_cotizatie()
+        print status_cotizatie
+        return not membru.is_suspendat() and status_cotizatie[0] >= 2
+
+    def get_queryset(self, *args, **kwargs):
+        qs = self.centru_local.cercetasi(qs=True, tip_asociere=CentruLocal.asocieri_membru).select_related("membru")
+        qs = [a for a in qs if self.membru_fits_query(a.membru)]
+        return qs
 
 class MembriFaraAfilieri(ListView):
     model = Membru
