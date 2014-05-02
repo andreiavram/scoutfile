@@ -459,7 +459,7 @@ class Membru(Utilizator):
         return asocieri.count() != 0
 
     CALITATI_COMUNE = ["Membru suspendat", "Membru aspirant", "Membru inactiv", "Membru Consiliul Centrului Local",
-                       "Lider", "Membru adult"]
+                       "Lider", "Lider asistent", "Membru adult"]
 
     def _proprietati_comune(self):
         if not hasattr(self, "_proprietati") or self._proprietati is None:
@@ -844,6 +844,12 @@ class Membru(Utilizator):
 
     def is_lider(self):
         return self._proprietati_comune().get("Lider", False)
+
+    def is_lider_asistent(self):
+        return self._proprietati_comune().get("Lider asistent", False)
+
+    def is_lider_generic(self):
+        return self.is_lider() or self.is_lider_asistent()
 
     def is_membru_ccl(self):
         return self._proprietati_comune().get("Membru Consiliul Centrului Local", False)
