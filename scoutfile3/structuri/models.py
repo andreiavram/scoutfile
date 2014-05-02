@@ -78,7 +78,7 @@ class Structura(models.Model):
         return self.cercetasi(qs=qs, tip_asociere=["Lider", "Lider asistent"])
 
     def grad_colectare_cotizatie(self, trimestru=None):
-        target_grp_total = self.cercetasi(qs=True).filter(moment_inceput__lte=trimestru.data_inceput)
+        target_grp_total = self.cercetasi(qs=True).filter(moment_inceput__lte=trimestru.data_inceput).select_related("membru")
         target_grp = [a for a in target_grp_total if a.membru.plateste_cotizatie(trimestru)]
         realizat_cnt = PlataCotizatieTrimestru.objects.filter(trimestru=trimestru, final=True, membru__in=[a.membru for a in target_grp]).count()
 
@@ -432,7 +432,7 @@ class Membru(Utilizator):
             return CentruLocal.objects.all()
         return [self.centru_local, ]
 
-    def are_calitate(self, calitate, structura, trimestru=None):
+    def are_calitate(self, calitate, structura, trimestru=None, qs=False):
         """ determina daca membrul are o calitate intr-un din structurile locale (Centru Local, Unitate, Patrula)
         determinarea se face pentru un trimestru, implicit fiind cel din ziua curenta
         metoda ar trebui sa fie folosita oriunde se incearca determinari de apartenente si calitati
@@ -446,14 +446,32 @@ class Membru(Utilizator):
                           tip_asociere__nume__in=calitate,
                           membru=self)
 
-        qs = AsociereMembruStructura.objects.filter(**ams_filter)
+        asocieri = AsociereMembruStructura.objects.filter(**ams_filter)
         if trimestru is None:
-            qs = qs.filter(moment_inceput__isnull=False, moment_incheiere__isnull=True)
+            asocieri = asocieri.filter(moment_inceput__isnull=False, moment_incheiere__isnull=True)
         else:
-            qs = qs.filter(Q(moment_incheiere__isnull=True) | Q(moment_incheiere__gte=trimestru.data_inceput))
-            qs = qs.filter(moment_inceput__lte=trimestru.data_sfarsit)
+            asocieri = asocieri.filter(Q(moment_incheiere__isnull=True) | Q(moment_incheiere__gte=trimestru.data_inceput))
+            asocieri = asocieri.filter(moment_inceput__lte=trimestru.data_sfarsit)
 
-        return qs.count() != 0
+        if qs:
+            return asocieri
+
+        return asocieri.count() != 0
+
+    CALITATI_COMUNE = ["Membru suspendat", "Membru aspirant", "Membru inactiv", "Membru Consiliul Centrului Local",
+                       "Lider", "Membru adult"]
+
+    def _proprietati_comune(self):
+        if not hasattr(self, "_proprietati") or self._proprietati is None:
+            self._proprietati = {}
+            for calitate in self.CALITATI_COMUNE:
+                self._proprietati[calitate] = False
+
+            calitati = list(self.are_calitate(self.CALITATI_COMUNE, self.centru_local, qs=True).select_related("tip_asociere"))
+            for calitate in calitati:
+                self._proprietati[calitate.tip_asociere.nume] = True
+
+        return self._proprietati
 
     @permalink
     def get_home_link(self):
@@ -476,15 +494,6 @@ class Membru(Utilizator):
         if end_chain:
             qs = qs.order_by("moment_incheiere")
         return qs
-
-    def is_lider(self):
-        # qs = self.afilieri_curente(end_chain=False)
-        # return qs.filter(tip_asociere__nume__icontains="Lider").count() != 0
-        return self.are_calitate("Lider", self.centru_local)
-
-    def is_membru_ccl(self):
-        qs = self.afilieri_curente(end_chain=False)
-        return qs.filter(tip_asociere__nume__iexact=u"Membru Consiliul Centrului Local").count() != 0
 
     def get_ramura_de_varsta(self):
         if self.is_lider():
@@ -822,19 +831,22 @@ class Membru(Utilizator):
         return None
 
     def is_aspirant(self):
-        return self.are_calitate("Membru aspirant", self.centru_local)
+        return self._proprietati_comune().get("Membru aspirant", False)
 
     def is_suspendat(self):
-        return self.are_calitate("Membru suspendat", self.centru_local)
-
-    def is_membru_ccl(self):
-        return self.are_calitate("Membru Consiliul Centrului Local", self.centru_local)
+        return self._proprietati_comune().get("Membru suspendat", False)
 
     def is_inactiv(self):
-        return self.are_calitate("Membru inactiv", self.centru_local)
+        return self._proprietati_comune().get("Membru inactiv", False)
 
     def is_adult(self):
-        return self.are_calitate("Membru adult", self.centru_local)
+        return self._proprietati_comune().get("Membru adult", False)
+
+    def is_lider(self):
+        return self._proprietati_comune().get("Lider", False)
+
+    def is_membru_ccl(self):
+        return self._proprietati_comune().get("Membru Consiliul Centrului Local", False)
 
     def plateste_cotizatie(self, trimestru=None):
         """ determina daca un membru plateste sau nu cotizatie
