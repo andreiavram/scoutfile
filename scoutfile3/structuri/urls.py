@@ -24,7 +24,7 @@ from structuri.views import CentruLocalCreate, CentruLocalUpdate,\
     MembriForPatrocle, MembruDestinatarRepr, PersoanaContactDestinatarRepr,\
     MembriFaraAfilieri, GetSpeedList, MembruTabDocumente, SetariSpecialeCentruLocal, MembruConfirmaFacebook, \
     UnitateTabMembriFaraPatrula, MembruTabActivitati, MembruRecalculeazaAcoperire, UnitateTabPatruleInactive, \
-    UtilizatorHomeTabsDocumente, UtilizatorHomeTabsActivitati, MembruStergeAcoperire
+    UtilizatorHomeTabsDocumente, UtilizatorHomeTabsActivitati, MembruStergeAcoperire, CentruLocalTabMembriDeSuspendat
 
 urlpatterns = patterns('structuri.views',
     (r'centrulocal/adauga/$', CentruLocalCreate.as_view(), {}, "cl_add"),
@@ -45,6 +45,7 @@ urlpatterns = patterns('structuri.views',
     (r'centrulocal/(?P<pk>\d+)/tab/lideri/$', CentruLocalTabLideri.as_view(), {}, "cl_tab_lideri"),
     (r'centrulocal/(?P<pk>\d+)/tab/contact/$', CentruLocalTabContact.as_view(), {}, "cl_tab_contact"),
     (r'centrulocal/(?P<pk>\d+)/tab/membri/$', CentruLocalTabMembri.as_view(), {}, "cl_tab_membri"),
+    (r'centrulocal/(?P<pk>\d+)/tab/membri/de_suspendat/$', CentruLocalTabMembriDeSuspendat.as_view(), {}, "cl_tab_membri_de_suspendat"),
     
     (r'centrulocal/(?P<pk>\d+)/membri/$', CentruLocalMembri.as_view(), {}, "cl_membri"),
     (r'centrulocal/(?P<pk>\d+)/contact/add/$', CentruLocalContactCreate.as_view(), {}, "cl_contact_add"),
