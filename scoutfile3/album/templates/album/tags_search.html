@@ -119,7 +119,11 @@
         var crt_cnt = 0;
 
         function on_data_return(data) {
-            $("#msg").html("<i class = 'icon-search'></i> Am găsit " + data.total_count + " imagini tag-uite cu <strong>" + $("[name='tags']").val() + "</strong>, cele mai recente mai sus");
+            var arr = $("[name='tags']").val().split(",");
+            console.log(arr);
+            var joined_text = $.grep(arr, function(n) { if (n != "") return(n) }).join(", ");
+
+            $("#msg").html("<i class = 'icon-search'></i> Am găsit " + data.total_count + " imagini tag-uite cu <strong>" + joined_text + "</strong> (cele mai recente mai sus)");
         }
 
 
