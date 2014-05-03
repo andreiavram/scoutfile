@@ -897,6 +897,7 @@ class ImagineTagSearch(TemplateView):
         tags = Tag.objects.all().annotate(num_times=Count("taggit_taggeditem_items")).order_by("-num_times")[:20]
         current = super(ImagineTagSearch, self).get_context_data(**kwargs)
         current.update({"tags": tags})
+        current['report_form'] = ReportFormNoButtons()
         return current
 
 
@@ -963,8 +964,9 @@ class ImagineSearchJSON(JSONView):
         if "authors" in self.cleaned_data:
             qs = qs.filter(set_poze__autor__icontains=self.cleaned_data['authors'])
 
-
         qs = Imagine.filter_visibility(qs, eveniment=eveniment, user=request.user)
+
+
         if self.cleaned_data.get("ordering", "desc") == "desc":
             ordering_strings.append("-data")
         elif self.cleaned_data.get("ordering") == "asc":
