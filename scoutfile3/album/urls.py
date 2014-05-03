@@ -7,7 +7,8 @@ from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     RaportEvenimentDetail, RaportEvenimentUpdate, RaportEvenimentHistory, CalendarCentruLocal, CalendarEvents, \
     RaportStatus, RaportActivitate, RaportCompletPentruExport, AsociereEvenimentStructuraCreate, EvenimentParticipanti, \
     EvenimentParticipantiCreate, EvenimentParticipantiUpdate, UnitateEvenimentCreate, PatrulaEvenimentCreate, \
-    EvenimentCampuriArbitrare, EvenimentCampuriArbitrareCreate, EvenimentCampuriArbitrareUpdate, PozaUpdateTags
+    EvenimentCampuriArbitrare, EvenimentCampuriArbitrareCreate, EvenimentCampuriArbitrareUpdate, PozaUpdateTags, \
+    FlagImageAjax
 from album.views import ChangeImagineVisibility
 
 
@@ -57,6 +58,7 @@ urlpatterns = patterns('album.views',
                        (r'poza/(?P<pk>\d+)/$', PozaDetail.as_view(), {}, "poza_detail"),
                        (r'poza/(?P<pk>\d+)/rotate/$', RotateImage.as_view(), {}, "poza_rotate"),
                        (r'poza/(?P<pk>\d+)/flag/$', FlagImage.as_view(), {}, "poza_flag"),
+                       (r'poza/flag/ajax/$', FlagImageAjax.as_view(), {}, "poza_flag_ajax"),
                        (r'poza/visibility/', ChangeImagineVisibility.as_view(), {}, "poza_visibility"),
                        (r'poza/(?P<pk>\d+)/edit/$', PozaUpdate.as_view(), {}, "poza_edit"),
                        (r'poza/(?P<pk>\d+)/delete/$', PozaDelete.as_view(), {}, "poza_delete"),
