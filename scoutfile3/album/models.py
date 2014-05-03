@@ -771,15 +771,20 @@ class Imagine(ImageModel):
         self.is_face_processed = True
         self.save()
 
+    def check_visibility(self, user):
+        if self.set_poze and self.set_poze.eveniment:
+            return self.published_status >= self.set_poze.eveniment.get_visibility_level(user)
+        return self.published_status == 4
 
     @classmethod
     def filter_visibility(cls, qs, eveniment=None, user=None):
         visibility_level = 4
-        if user is not None:
+        if eveniment and user:
             visibility_level = eveniment.get_visibility_level(user)
-
-        qs = qs.exclude(published_status__lt=visibility_level)
-        return qs
+        elif user:
+            qs = qs.select_related("set_poze__eveniment")
+            return cls.objects.filter(id__in=[i.id for i in qs if i.check_visibility(user)])
+        return qs.exclude(published_status__lt=visibility_level)
 
     def has_flags(self):
         return self.flagreport_set.all().count() > 0
