@@ -1,5 +1,6 @@
 #coding: utf-8
 from django.core.mail import send_mail
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.aggregates import Sum
 from django.db.models.query_utils import Q
@@ -780,6 +781,34 @@ class Imagine(ImageModel):
         qs = qs.exclude(published_status__lt=visibility_level)
         return qs
 
+    def has_flags(self):
+        return self.flagreport_set.all().count() > 0
+
+    def to_json(self, dict=True):
+        json_dict = {
+            "id": self.id,
+            "url_thumb": self.get_thumbnail_url(),
+            "url_detail": reverse("album:poza_detail", kwargs={"pk": self.id}),
+            "url_detail_img": self.get_large_url(),
+            "titlu": u"%s - %s" % (self.set_poze.eveniment.nume, self.titlu),
+            "descriere": self.descriere or "",
+            "autor": self.set_poze.get_autor(),
+            "data": self.data.strftime("%d %B %Y %H:%M:%S"),
+            "tags": [t for t in self.tags.names()[:10]],
+            "rotate_url": reverse("album:poza_rotate", kwargs={"pk": self.id}),
+            "published_status_display": self.get_published_status_display(),
+            "flag_url": reverse("album:poza_flag", kwargs={"pk": self.id}),
+            "score": self.score,
+            "has_flags": self.has_flags()
+        }
+
+        if dict:
+            return json_dict
+
+        import json
+        return json.dumps(json_dict)
+
+
 # tagging.register(Imagine)
 
 
@@ -807,7 +836,6 @@ class FlagReport(models.Model):
     imagine = models.ForeignKey(Imagine)
     motiv = models.CharField(max_length=1024, choices=FLAG_MOTIVES)
     alt_motiv = models.CharField(max_length=1024, null=True, blank=True)
-
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:

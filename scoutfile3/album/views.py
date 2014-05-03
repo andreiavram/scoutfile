@@ -27,7 +27,8 @@ from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEven
     ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT, SetPoze, IMAGINE_PUBLISHED_STATUS, \
     CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment, FLAG_MOTIVES
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm, \
-    EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm, CampArbitrarForm, EvenimentParticipareUpdateForm
+    EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm, CampArbitrarForm, EvenimentParticipareUpdateForm, \
+    ReportFormNoButtons
 from settings import MEDIA_ROOT
 from structuri.forms import AsociereEvenimentStructuraForm
 from structuri.models import Membru, RamuraDeVarsta, CentruLocal, Unitate, Patrula, TipAsociereMembruStructura
@@ -319,7 +320,7 @@ class PozaDetail(DetailView):
                                                                                                          centru_local) or self.request.user.is_superuser):
             current.update({"media_manager": True})
 
-        current["report_form"] = ReportForm()
+        current["report_form"] = ReportFormNoButtons()
         return current
 
 
@@ -397,10 +398,14 @@ class FlagImage(CreateView):
     def get_success_url(self):
         return reverse("album:poza_detail", kwargs={"pk": self.poza.id})
 
+    def get_form(self, form_class):
+        form = super(FlagImage, self).get_form(form_class)
+        form.has_submit_buttons = True
+        return form
+
     def get_context_data(self, *args, **kwargs):
         current = super(FlagImage, self).get_context_data(*args, **kwargs)
-
-        current.update({"poza": self.poza})
+        current.update({"object": self.poza, "poza": self.poza})
 
         return current
 
@@ -879,6 +884,11 @@ class EvenimentDetail(DetailView):
     model = Eveniment
     template_name = "album/eveniment_detail.html"
 
+    def get_context_data(self, **kwargs):
+        data = super(EvenimentDetail, self).get_context_data(**kwargs)
+        data['report_form'] = ReportFormNoButtons()
+        return data
+
 
 class ImagineTagSearch(TemplateView):
     template_name = "album/tags_search.html"
@@ -974,25 +984,11 @@ class ImagineSearchJSON(JSONView):
 
         return HttpResponse(self.construct_json_response(queryset=qs, total_count=total_count))
 
-    def imagine_to_json(self, imagine):
-        return {"id": imagine.id,
-                "url_thumb": imagine.get_thumbnail_url(),
-                "url_detail": reverse("album:poza_detail", kwargs={"pk": imagine.id}),
-                "url_detail_img": imagine.get_large_url(),
-                "titlu": u"%s - %s" % (imagine.set_poze.eveniment.nume, imagine.titlu),
-                "descriere": imagine.descriere or "",
-                "autor": imagine.set_poze.get_autor(),
-                "data": imagine.data.strftime("%d %B %Y %H:%M:%S"),
-                "tags": [t.name for t in imagine.tags.all()[:10]],
-                "rotate_url": reverse("album:poza_rotate", kwargs={"pk": imagine.id}),
-                "published_status_display": imagine.get_published_status_display(),
-                "flag_url": reverse("album:poza_flag", kwargs={"pk": imagine.id}),
-                "score": imagine.score,
-
-        }
+    # def imagine_to_json(self, imagine):
+    #     return imagine.to_json()
 
     def construct_json_response(self, queryset, total_count, **kwargs):
-        response_json = {"data": [self.imagine_to_json(im) for im in queryset],
+        response_json = {"data": [im.to_json() for im in queryset],
                          "offset": self.cleaned_data['offset'],
                          "limit": self.cleaned_data['limit'],
                          "count": queryset.count(),
@@ -1025,6 +1021,7 @@ class ZiDetailBeta(DetailView):
                                                                                                          centru_local) or self.request.user.is_superuser):
             current.update({"media_manager": True})
 
+        current['report_form'] = ReportFormNoButtons()
         return current
 
 

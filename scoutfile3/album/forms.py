@@ -26,25 +26,24 @@ class ReportForm(CrispyBaseModelForm):
         model = FlagReport
         fields = ("motiv", "alt_motiv")
 
-    has_submit_buttons = False
-
     def __init__(self, *args, **kwargs):
         super(ReportForm, self).__init__(*args, **kwargs)
         self.helper.form_class = "form-vertical"
         self.helper.form_id = "raport_form"
 
-
     motiv = forms.ChoiceField(widget=RadioSelect, choices=FLAG_MOTIVES, required=True)
     alt_motiv = forms.CharField(widget=Textarea, required=False, label=u"Care?")
 
-
     def clean(self):
-        if self.cleaned_data['motiv'] == "altul":
+        if "motiv" in self.cleaned_data and self.cleaned_data['motiv'] == "altul":
             if "alt_motiv" not in self.cleaned_data or len(self.cleaned_data["alt_motiv"].strip()) == 0:
                 raise ValidationError(u"Daca ai selectat 'alt motiv' trebuie să spui și care este acesta")
 
         return self.cleaned_data
 
+
+class ReportFormNoButtons(ReportForm):
+    has_submit_buttons = False
 
 class SetPozeCreateForm(CrispyBaseModelForm):
     class Meta:
