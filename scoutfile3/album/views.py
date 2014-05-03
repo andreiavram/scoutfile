@@ -351,6 +351,20 @@ class PozaUpdate(UpdateView):
         return current
 
 
+class PozaUpdateTags(View):
+    def dispatch(self, request, *args, **kwargs):
+        self.poza = get_object_or_404(Imagine, id=kwargs.pop("pk"))
+        return super(PozaUpdateTags, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        logger.debug("PozaUpdateTags: %s", request.POST.get("tags"))
+        self.poza.tags.clear()
+        self.poza.tags.set(*parse_tags(request.POST.get("tags")))
+
+        import json
+        return HttpResponse(json.dumps({"tags": list(self.poza.tags.names())}))
+
+
 class PozaDelete(GenericDeleteView):
     model = Imagine
     template_name = "album/poza_form.html"
