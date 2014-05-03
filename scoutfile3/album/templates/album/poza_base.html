@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load staticfiles %}
 
 {% block extrahead %}
 	<script type = "text/javascript">
@@ -72,8 +73,44 @@
 			    
 			});			
 		});
-		
+
 	</script>
+    <script src="{% static "goodies/js/typeahead.js" %}"></script>
+    <script src="{% static "goodies/js/tagmanager.js" %}"></script>
+    <script>
+    $(document).ready(function () {
+        $("#tag_input").each(function (index) {
+            var field_name = $(this).data("field-name");
+            var ajax_url = $(this).data("ajax-url");
+            var current_tags = $(this).data("current-value").split("|");
+
+            var tagApi = $(this).tagsManager({
+                hiddenTagListName: field_name,
+                tagsContainer: "#" + field_name + "_tag_container",
+                tagClass: "tm-tag-small",
+                AjaxPush: "{% url album:poza_update_tags pk=object.id %}",
+                AjaxPushAllTags: true,
+                AjaxPushParameters: {
+                    csrfmiddlewaretoken: "{{ csrf_token }}"
+                }
+            });
+
+            $.each(current_tags, function (index, value) {
+               console.log(index, value);
+               tagApi.tagsManager("pushTag", value);
+            });
+
+            $(this).typeahead({
+                name: 'tags',
+                limit: 20,
+                remote: ajax_url + "?q=%QUERY"
+            }).on('typeahead:selected', function (e, d) {
+                    tagApi.tagsManager("pushTag", d.value);
+                });
+        });
+    });
+    </script>
+    <link rel="stylesheet" href="{% static "goodies/css/tagmanager.css" %}">
 {% endblock %}
 
 {% block fb_root %}
@@ -145,13 +182,24 @@
 		<li><a href = "{% url album:zi_detail pk=object.get_day.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ object.get_day }}</a></li>
         <li class = "nav-header">Căutare</li>
         <li><a href = "{% url album:tag_search %}"><i class = "icon-search"></i> Căutare după tag-uri</a></li>
+
         <li class = "nav-header">Tag-uri</li>
-        <li>{% for tag in object.tags.all %}
-            <span class = "tag tag-small">{{ tag.name }}</span>
-        {% empty %}
-            <em>Nu sunt</em>
-        {% endfor %}
-        </li>
+
+        <li>
+            {% if media_manager or user.is_superuser %}
+                <input data-current-value="{% for tag in object.tags.names %}{{ tag }}{% if not forloop.last %}|{% endif %}{% endfor %}"
+                       data-field-name = "tag_input" data-ajax-url = "{% url goodies:tag_list %}"
+                       type = "text" style = "width: 100%" id = "tag_input" name = "tag_input" placeholder = "Tag-uri"/>
+
+                <div id="tag_input_tag_container"></div>
+            {% else %}
+                {% for tag in object.tags.all %}
+                    <span class = "tag tag-small">{{ tag.name }}</span>
+                {% empty %}
+                    <em>Nu sunt</em>
+                {% endfor %}
+            {% endif %}
+    </li>
     </ul>
     <ul class = "nav nav-list">
 

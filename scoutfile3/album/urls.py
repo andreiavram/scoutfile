@@ -7,7 +7,7 @@ from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     RaportEvenimentDetail, RaportEvenimentUpdate, RaportEvenimentHistory, CalendarCentruLocal, CalendarEvents, \
     RaportStatus, RaportActivitate, RaportCompletPentruExport, AsociereEvenimentStructuraCreate, EvenimentParticipanti, \
     EvenimentParticipantiCreate, EvenimentParticipantiUpdate, UnitateEvenimentCreate, PatrulaEvenimentCreate, \
-    EvenimentCampuriArbitrare, EvenimentCampuriArbitrareCreate, EvenimentCampuriArbitrareUpdate
+    EvenimentCampuriArbitrare, EvenimentCampuriArbitrareCreate, EvenimentCampuriArbitrareUpdate, PozaUpdateTags
 from album.views import ChangeImagineVisibility
 
 
@@ -60,6 +60,7 @@ urlpatterns = patterns('album.views',
                        (r'poza/visibility/', ChangeImagineVisibility.as_view(), {}, "poza_visibility"),
                        (r'poza/(?P<pk>\d+)/edit/$', PozaUpdate.as_view(), {}, "poza_edit"),
                        (r'poza/(?P<pk>\d+)/delete/$', PozaDelete.as_view(), {}, "poza_delete"),
+                       (r'poza/(?P<pk>\d+)/update_tags/$', PozaUpdateTags.as_view(), {}, "poza_update_tags"),
 
                        (r'tag/search/$', ImagineTagSearch.as_view(), {}, "tag_search"),
                        (r'search/$', ImagineSearchJSON.as_view(), {}, "imagine_search_json"),
