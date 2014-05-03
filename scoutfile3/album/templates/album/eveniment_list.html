@@ -280,7 +280,7 @@
             list: {
                 name: "list",
                 template_id : "#eveniment_list",
-                target: "#eveniment_table tbody",
+                target: "#eveniment_table > tbody:last",
                 initial: "<table id = 'eveniment_table' class = 'table table-striped'><tr><th>Activitate</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th><th>Poze</th><th>Locație</th><th>&nbsp;</th></tr><tbody></tbody></table>",
                 template: $("#eveniment_list").html(),
                 per_page: 20,
