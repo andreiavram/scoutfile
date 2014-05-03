@@ -58,16 +58,7 @@
     <script src="{% static 'gallery/js/blueimp-gallery.js' %}"></script>
     <script src="{% static 'gallery/js/blueimp-gallery-fullscreen.js' %}"></script>
     <script src="{% static 'gallery/js/blueimp-gallery-indicator.js' %}"></script>
-    <script>
-        $(document).ready(function () {
-            $(window).scroll(function () {
-                if (($(window).scrollTop() >= $(document).height() - $(window).height() * 1.5) && !(stop_flag)) {
-                    get_photos();
-                }
-            });
-            get_photos();
-        });
-    </script>
+
     <script>
         var gallery = null;
         var gallery_enabled = true;
@@ -77,6 +68,8 @@
     {% include "album/imagine_handlers.html" %}
     <script>
         $(document).ready(function () {
+            $("#id_tags").focus();
+            $(".loading").hide();
             $(".tm-input").each(function (index) {
                 var field_name = $(this).data("field-name");
                 var ajax_url = $(this).data("ajax-url");
@@ -85,6 +78,7 @@
                 var tagApi = $(this).tagsManager({
                     hiddenTagListName: field_name,
                     tagsContainer: "#" + field_name + "_tag_container",
+
                 });
 
                 $(this).typeahead({
@@ -105,8 +99,9 @@
             $("#tags-search-form").submit(function () {
                 offset = 0;
                 $("#rezultate-list").html("");
-                get_photos();
                 stop_flag = false;
+                gallery_data = [];
+                get_photos();
                 return false;
             });
 
@@ -142,13 +137,20 @@
 
     <form class="form-inline" id="tags-search-form">
         <fieldset>
+            <div class = "row-fluid">
+            <div class = "span4">
             <input id="id_tags"
                    data-field-name="tags" data-ajax-url="{% url goodies:tag_list %}" type="text" name="tags_edit"
                    placeholder="scrie tag-uri aici" class="tm-input" style="margin-bottom: 0px;"/>
             <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i> Caută</button>
-            <br/><br/>
+            </div>
+                <div class = "span8">
+                     <div id="tags_tag_container">
+                    </div>
+                </div>
+            </div>
             {% if tags %}
-                <div class="tag_suggestions">
+                <div class="tag_suggestions" style = "margin-top: 10px">
                     <strong>Tag-uri existente: </strong>
                     {% for tag in tags %}
                         <span class="tm-existing tm-tag tm-tag-small">
@@ -157,8 +159,6 @@
                     {% endfor %}
                 </div>
             {% endif %}
-            <div id="tags_tag_container">
-            </div>
         </fieldset>
     </form>
     <h2>Rezultate</h2>
@@ -188,5 +188,6 @@
         <a class="play-pause"></a>
         <ol class="indicator"></ol>
     </div>
+    <div class="loading"></div>
     {% include 'album/flag_modal.html' %}
 {% endblock %}
