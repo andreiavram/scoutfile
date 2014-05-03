@@ -20,6 +20,21 @@
             return false;
         });
 
+        jQuery(".flag-button", element).unbind("click");
+        jQuery(".flag-button", element).click(function (event) {
+            if ($("#flag_modal").length == 0) {
+                //  if there's no modal in the page, do nothing
+                return true;
+            }
+
+            console.log($(this).data("image"));
+            $("#flag_modal #image_report").attr("src", $("img", element).attr("src"));
+            $("#flag_modal").data("image", $(this).data("image"));
+            $("#flag_modal").modal("show");
+
+            event.preventDefault();
+        });
+
         jQuery(".rotate_cw", element).unbind("click");
         jQuery(".rotate_cw", element).click(function (event) {
             var that = this;
@@ -238,7 +253,7 @@
                         </div>
                     {% endif %}
                     <div class="btn-group pull-right">
-                        <a href="<%= image.flag_url %>" class="btn btn-mini flag"
+                        <a href="<%= image.flag_url %>" class="btn btn-mini <% if (image.has_flags) { %>btn-warning<% } %> flag flag-button"
                            data-image="<%= image.id %>"><i class="icon-flag"></i></a>
                     </div>
                 </div>

@@ -1,28 +1,17 @@
-{#{% extends 'base.html' %}#}
+{% extends 'album/poza_base.html' %}
 {% load crispy_forms_tags %}
 
-{#{% block page_title %}#}
-{#	Raportează poza{% if object.titlu %}{{ object.titlu }}{% endif %}#}
-{#{% endblock %}#}
+{% block page_title_container %}
+	{% block page_title %}
+        <div class = 'page-header'>
+            <h1>Raportează poza {% if object.titlu %}{{ object.titlu }}{% endif %}</h1>
+        </div>
+    {% endblock %}
+{% endblock %}
 
-{#{% block context_menu %}#}
-{#	<ul class = "nav nav-list">#}
-{#		<li class = "nav-header">Locații</li>#}
-{#		<li><a href = "{% url album:eveniment_detail slug=poza.set_poze.eveniment.slug %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ poza.set_poze.eveniment }}</a></li>#}
-{#		<li><a href = "{% url album:zi_detail pk=poza.get_day.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i class = "icon-list"></i> {{ poza.get_day }}</a></li>#}
-{#		<li><a href = "{% url album:poza_detail pk=poza.id %}"><i class = "icon-picture"></i> Poza</a></li>#}
-{#	</ul>#}
-{#	<dl>#}
-{#		{% for exif in object.interesting_exifdata %}#}
-{#			<dt>{{ exif.key }}</dt>#}
-{#				<dd>{{ exif.value }}</dd>#}
-{#		{% endfor %}#}
-{#		<dt>Autor</dt>#}
-{#			<dd>{{ object.set_poze.autor }}</dd>#}
-{#	</dl>#}
-{#{% endblock %}#}
 
-{#{% block extrahead %}#}
+
+{% block extrahead %}
 	<script type = "text/javascript">
 		jQuery(document).ready(function() {
 			jQuery("#div_id_alt_motiv").hide();
@@ -33,18 +22,15 @@
 				}
 			});
 			
-			
 		});
 	</script>
-{#{% endblock %}#}
-{##}
-{#{% block content %}#}
-	<div class = "row">
+{% endblock %}
+
+{% block content %}
 	<div class = "span3 thumbnail" style = "position: relative; max-width: 960px;">
 		<img src = "{{ poza.get_thumbnail_url }}?{{ random_value }}" style = "width: 100%;" />
 	</div>
 	<div class = "span6">
 		{% crispy form form.helper %}
 	</div>
-	</div>
-{#{% endblock %}#}
+{% endblock %}
