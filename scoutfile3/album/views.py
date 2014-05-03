@@ -25,7 +25,7 @@ from goodies.views import JSONView
 
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment, \
     ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT, SetPoze, IMAGINE_PUBLISHED_STATUS, \
-    CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment
+    CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment, FLAG_MOTIVES
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm, \
     EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm, CampArbitrarForm, EvenimentParticipareUpdateForm
 from settings import MEDIA_ROOT
@@ -319,6 +319,7 @@ class PozaDetail(DetailView):
                                                                                                          centru_local) or self.request.user.is_superuser):
             current.update({"media_manager": True})
 
+        current["report_form"] = ReportForm()
         return current
 
 
@@ -390,8 +391,7 @@ class FlagImage(CreateView):
         self.object = form.save(commit=False)
         self.object.imagine = self.poza
         self.object.save()
-        messages.success(self.request,
-                         "Poza a fost flag-uită, un lider sau fotograful vor decide ce acțiune se va lua în continuare")
+        messages.success(self.request, "Poza a fost flag-uită, un lider sau fotograful vor decide ce acțiune se va lua în continuare")
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
@@ -403,6 +403,40 @@ class FlagImage(CreateView):
         current.update({"poza": self.poza})
 
         return current
+
+class FlagImageAjax(JSONView):
+    _params = {"imagine": {"type": "required"},
+               "motiv": {"type": "required"},
+               "motiv_altul": {"type": "required"}}
+
+    def clean_imagine(self, value):
+        try:
+            return Imagine.objects.get(id=int(value))
+        except Exception, e:
+            raise ScoutFileAjaxException(extra_message="This image does not exist", exception=e)
+
+    def clean_motiv(self, value):
+        if value not in [v[0] for v in FLAG_MOTIVES]:
+            raise ScoutFileAjaxException(extra_message="Motivul este invalid")
+        return value
+
+    def clean_motiv_altul(self, value):
+        if not len(value):
+            value = None
+        return value
+
+    def post(self, request, *args, **kwargs):
+        self.validate(**self.parse_json_data())
+
+        if self.cleaned_data['motiv'] == 'altul' and not self.cleaned_data['motiv_altul']:
+            return HttpResponseBadRequest('Motiv "altul" fara explicatii')
+
+        FlagReport.objects.create(imagine=self.cleaned_data['imagine'], motiv=self.cleaned_data["motiv"], alt_motiv=self.cleaned_data["motiv_altul"])
+        return HttpResponse(self.construct_json_response(result=True, imagine=self.cleaned_data['imagine']))
+
+    def construct_json_response(self, **kwargs):
+        json_dict = {"result": kwargs.get("result", False)}
+        return simplejson.dumps(json_dict)
 
 
 class RotateImage(View):

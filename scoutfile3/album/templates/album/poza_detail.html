@@ -1,10 +1,11 @@
 {% extends 'album/poza_base.html' %}
+{% load crispy_forms_tags %}
 
 {% block content %}
     {{ block.super }}
 	<div class = "btn-toolbar">
 		<div class = "btn-group">
-			<a class = "btn" href = "{% url album:poza_flag pk=object.id %}"><i class = "icon-flag"></i></a>
+			<a class = "btn" href = "#flag_modal" data-toggle="modal"><i class = "icon-flag"></i></a>
             {% if media_manager %}<a class = "btn make_cover" href = "javascript:void()" data-image = "{{ object.id }}"><i class = "icon-picture"></i></a>{% endif %}
 		</div>
 		<div class = "btn-group">
@@ -78,4 +79,81 @@
 
     {% if not object.titlu|lower|slice:"-4:" == ".jpg" %}<h1>{{ object.titlu }}</h1>{% endif %}
     {% if object.descriere %}<p>{{ object.descriere|linebreaksbr }}</p>{% endif %}
+
+    <div id = "flag_modal" tabindex = "-1" role = "dialog" aria-hidden = "true" aria-labelledby="flag_modal_head" class="modal hide fade">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3 id = "flag_modal_head">Raportează poza</h3>
+      </div>
+      <div class="modal-body">
+            <div id = "modal-success" style="display: none" class = "alert-success alert">Raportul a fost trimis către administratori!</div>
+            <div id = "modal-error" style="display: none" class = "alert alert-danger">A apărut o eroare în salvarea raportului!</div>
+            <div id = "modal-content" class = "row-fluid">
+                <div class = "span4 thumbnail" style = "position: relative; max-width: 960px;">
+                    <img src = "{{ object.get_thumbnail_url }}?{{ random_value }}" style = "width: 100%;" />
+                </div>
+                <div class = "span8">
+                    {% crispy report_form report_form.helper %}
+                </div>
+            </div>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal" class = "close">Închide</a>
+          <a href="#" class="btn btn-primary" id = "submit-report">Salvează</a>
+{#        <a href="#" class="btn btn-primary">Save changes</a>#}
+      </div>
+    </div>
+    <script type = "text/javascript">
+		jQuery(document).ready(function() {
+            $("#submit-report").click(function (e) {
+                console.log("clicked");
+                if (($('#raport_form input[type=radio]:checked').val() == "altul") && ($("#id_alt_motiv").val().length == 0)) {
+                    $("#modal-error").html("Ați ales 'alt motiv', spuneți și care este acesta").show("fast");
+                    console.log("error1");
+                    return false;
+                }
+                if ($('#raport_form input[type=radio]:checked').val() === null) {
+                    console.log("error2");
+                    $("#modal-error").html("Alegeți un motiv pentru care raportați poza").show("fast");
+                    return false;
+                }
+
+                console.log("posting");
+                $.post("{% url album:poza_flag_ajax %}", {"csrfmiddlewaretoken" : "{{ csrf_token }}",
+                    "imagine": {{ object.id }},
+                    "motiv": $('#raport_form input[type=radio]:checked').val(),
+                    "motiv_altul": $("#id_alt_motiv").val()},
+                    function (data) {
+                        console.log("success");
+                        $("#modal-content").hide();
+                        $("#modal-error").hide();
+                        $("#modal-success").show();
+                        setTimeout(function () {
+                            $("#flag_modal").modal("hide");
+                            setTimeout(function () {
+                                $("modal-success").hide();
+                                $("#modal-content").show();
+                            }, 500);
+
+                        }, 1000);
+                    });
+                e.preventDefault();
+            })
+
+			jQuery("#div_id_alt_motiv").hide();
+
+			jQuery("input[id^='id_motiv_']").change(function () {
+                console.log("changed");
+				if (jQuery(this).is(":checked")) {
+                    if ($(this).attr("id") == "id_motiv_5") {
+                        jQuery("#div_id_alt_motiv").show("fast");
+                    } else {
+                        console.log("hiding");
+                        jQuery("#div_id_alt_motiv").hide("fast");
+                    }
+                }
+
+			});
+		});
+	</script>
 {% endblock %}

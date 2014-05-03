@@ -816,7 +816,7 @@ class FlagReport(models.Model):
         ordering = ["-timestamp", "motiv"]
 
     def __unicode__(self):
-        return "Raport de %s la " % self.motiv
+        return "Raport de %s la #%d (%s)" % (self.motiv, self.imagine.id, self.imagine.set_poze.eveniment)
 
 
 class DetectedFace(models.Model):

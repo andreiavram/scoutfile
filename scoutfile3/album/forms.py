@@ -26,12 +26,12 @@ class ReportForm(CrispyBaseModelForm):
         model = FlagReport
         fields = ("motiv", "alt_motiv")
 
+    has_submit_buttons = False
 
     def __init__(self, *args, **kwargs):
-        retval = super(ReportForm, self).__init__(*args, **kwargs)
-
+        super(ReportForm, self).__init__(*args, **kwargs)
         self.helper.form_class = "form-vertical"
-        return retval
+        self.helper.form_id = "raport_form"
 
 
     motiv = forms.ChoiceField(widget=RadioSelect, choices=FLAG_MOTIVES, required=True)
