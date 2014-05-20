@@ -53,7 +53,7 @@
 				{% endfor %}</ul>
             </td>
 			<td><img class = "thumbnail" src = "{% if object.membru.poza_profil %}{{ object.membru.poza_profil.get_profil_mic_url }}{% else %}{% static 'images/50x50.gif' %}{% endif %}" /></td>
-			<td><a href = "{% url structuri:membru_detail pk=object.membru.id %}" {% if object.membru.is_suspendat %}style="text-decoration: line-through"{% endif %}{% if object.membru.is_inactiv %}style="color: #666"{% endif %}>{{ object.membru }}</a> {% for badge in object.membru.get_extra_badges %}<img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}</td>
+			<td><a href = "{% url structuri:membru_detail pk=object.membru.id %}" {% if object.membru.is_suspendat %}style="text-decoration: line-through"{% endif %}{% if object.membru.is_inactiv %}style="color: #666"{% endif %}>{{ object.membru }}</a> {% for badge in object.membru.get_extra_badges %}<img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}<br /><span style = "font-size: 10px">{{ object.membru.cnp }}</span></td>
 			<td>{{ object.moment_inceput|timesince }}<br /><span style="font-size: 10px; color: #999">{{ object.moment_inceput|date:"F Y" }}</span></td>
 			<td>
             {% if object.membru.is_lider %}
