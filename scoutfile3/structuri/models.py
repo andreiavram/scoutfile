@@ -466,9 +466,11 @@ class Membru(Utilizator):
             for calitate in self.CALITATI_COMUNE:
                 self._proprietati[calitate] = False
 
-            calitati = list(self.are_calitate(self.CALITATI_COMUNE, self.centru_local, qs=True).select_related("tip_asociere"))
-            for calitate in calitati:
-                self._proprietati[calitate.tip_asociere.nume] = True
+            if self.centru_local:
+                calitati = list(self.are_calitate(self.CALITATI_COMUNE, self.centru_local, qs=True).select_related("tip_asociere"))
+
+                for calitate in calitati:
+                    self._proprietati[calitate.tip_asociere.nume] = True
 
         return self._proprietati
 
