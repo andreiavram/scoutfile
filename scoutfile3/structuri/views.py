@@ -1007,7 +1007,6 @@ class MembruDetail(DetailView, TabbedViewMixin):
 class MembruCard(DetailView):
     model = Membru
 
-
 class MembruProgresPersonal(DetailView):
     model = Membru
 
