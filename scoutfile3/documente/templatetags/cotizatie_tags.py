@@ -13,6 +13,16 @@ def cotizatie_level(value):
     if value < 0:
         return "success"
 
+@register.filter(name='cotizatie_level_label')
+def cotizatie_level_label(value):
+    if value > 0:
+        return "important"
+    if value == 0:
+        return "info"
+    if value < 0:
+        return "success"
+
+
 
 @register.filter(name='cotizatie_description')
 def cotizatie_description(value):

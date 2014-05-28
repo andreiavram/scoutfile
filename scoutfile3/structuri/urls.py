@@ -23,7 +23,8 @@ from structuri.views import CentruLocalCreate, CentruLocalUpdate,\
     MembruPersoanaDeContactCreate, MembruPersoanaDeContactUpdate,\
     MembriForPatrocle, MembruDestinatarRepr, PersoanaContactDestinatarRepr,\
     MembriFaraAfilieri, GetSpeedList, MembruTabDocumente, SetariSpecialeCentruLocal, MembruConfirmaFacebook, \
-    UnitateTabMembriFaraPatrula
+    UnitateTabMembriFaraPatrula, MembruTabActivitati, MembruRecalculeazaAcoperire, UnitateTabPatruleInactive, \
+    UtilizatorHomeTabsDocumente, UtilizatorHomeTabsActivitati, MembruStergeAcoperire, CentruLocalTabMembriDeSuspendat
 
 urlpatterns = patterns('structuri.views',
     (r'centrulocal/adauga/$', CentruLocalCreate.as_view(), {}, "cl_add"),
@@ -44,6 +45,7 @@ urlpatterns = patterns('structuri.views',
     (r'centrulocal/(?P<pk>\d+)/tab/lideri/$', CentruLocalTabLideri.as_view(), {}, "cl_tab_lideri"),
     (r'centrulocal/(?P<pk>\d+)/tab/contact/$', CentruLocalTabContact.as_view(), {}, "cl_tab_contact"),
     (r'centrulocal/(?P<pk>\d+)/tab/membri/$', CentruLocalTabMembri.as_view(), {}, "cl_tab_membri"),
+    (r'centrulocal/(?P<pk>\d+)/tab/membri/de_suspendat/$', CentruLocalTabMembriDeSuspendat.as_view(), {}, "cl_tab_membri_de_suspendat"),
     
     (r'centrulocal/(?P<pk>\d+)/membri/$', CentruLocalMembri.as_view(), {}, "cl_membri"),
     (r'centrulocal/(?P<pk>\d+)/contact/add/$', CentruLocalContactCreate.as_view(), {}, "cl_contact_add"),
@@ -60,6 +62,7 @@ urlpatterns = patterns('structuri.views',
     
     (r'centrulocal/unitate/(?P<pk>\d+)/tab/brief/$', UnitateTabBrief.as_view(), {}, "unitate_tab_brief"),
     (r'centrulocal/unitate/(?P<pk>\d+)/tab/patrule/$', UnitateTabPatrule.as_view(), {}, "unitate_tab_patrule"),
+    (r'centrulocal/unitate/(?P<pk>\d+)/tab/patrule/inactive/$', UnitateTabPatruleInactive.as_view(), {}, "unitate_tab_patrule_inactive"),
     (r'centrulocal/unitate/(?P<pk>\d+)/tab/membri/$', UnitateTabMembri.as_view(), {}, "unitate_tab_membri"),
     (r'centrulocal/unitate/(?P<pk>\d+)/tab/membri/farapatrula/$', UnitateTabMembriFaraPatrula.as_view(), {}, "unitate_tab_membri_fara_patrula"),
     
@@ -92,7 +95,10 @@ urlpatterns = patterns('structuri.views',
     (r'membru/(?P<pk>\d+)/tab/contact/$', MembruTabContact.as_view(), {}, "membru_tab_contact"),
     (r'membru/(?P<pk>\d+)/tab/familie/$', MembruTabFamilie.as_view(), {}, "membru_tab_familie"),
     (r'membru/(?P<pk>\d+)/tab/documente/$', MembruTabDocumente.as_view(), {}, "membru_tab_documente"),
+    (r'membru/(?P<pk>\d+)/tab/activitati/$', MembruTabActivitati.as_view(), {}, "membru_tab_activitati"),
     
+    (r'membru/(?P<pk>\d+)/recalculeaza_acoperire/$', MembruRecalculeazaAcoperire.as_view(), {}, "membru_recalculeaza_acoperire"),
+    (r'membru/(?P<pk>\d+)/reseteaza_acoperire/$', MembruStergeAcoperire.as_view(), {}, "membru_reseteaza_acoperire"),
     (r'membru/(?P<pk>\d+)/contact/add/$', MembruContactCreate.as_view(), {}, "membru_contact_add"),
     (r'membru/contact/(?P<pk>\d+)/edit/$', MembruContactUpdate.as_view(), {}, "membru_contact_edit"),
     (r'membru/(?P<pk>\d+)/picture/$', MembruEditProfilePicture.as_view(), {}, "membru_admin_edit_profile_picture"),
@@ -107,6 +113,9 @@ urlpatterns = patterns('structuri.views',
     (r'membru/profile/$', UtilizatorHome.as_view(), {}, "membru_profil"),
     (r'membru/profile/tab/brief/$', UtilizatorHomeTabsBrief.as_view(), {}, "membru_profil_tab_brief"),
     (r'membru/profile/tab/afiliere/$', UtilizatorHomeTabsAfiliere.as_view(), {}, "membru_profil_tab_afiliere"),
+    (r'membru/profile/tab/activitati/$', UtilizatorHomeTabsActivitati.as_view(), {}, "membru_profil_tab_activitati"),
+    (r'membru/profile/tab/documente/$', UtilizatorHomeTabsDocumente.as_view(), {}, "membru_profil_tab_documente"),
+
     (r'membru/profile/edit/$', UtilizatorEditProfile.as_view(), {}, "membru_edit_profile"),
     (r'membru/profile/edit/picture/$', UtilizatorEditProfilePicture.as_view(), {}, "membru_edit_profile_picture"),
     

@@ -15,6 +15,7 @@ from goodies.forms import CrispyBaseModelForm, CrispyBaseForm
 from documente.models import Document, ChitantaCotizatie
 from django.forms.fields import DateField, CharField
 from django.forms.widgets import HiddenInput
+from generic.widgets import BootstrapDateInput
 
 
 class DocumentCreateForm(CrispyBaseModelForm):
@@ -26,6 +27,7 @@ class FolderCreateForm(CrispyBaseModelForm):
     class Meta:
         model = Document
         fields = ("titlu", )
+
 
 class DocumentRegistraturaMixin(object):
     def check_inregistrare(self):
@@ -74,16 +76,17 @@ class CotizatieMembruForm(CrispyBaseModelForm):
                 raise ValidationError(u"Există deja un document cu acest număr de înregistrare în registrul selectat!")
 
         return self.cleaned_data
-        
+
+
 class DeclaratieCotizatieSocialaForm(CrispyBaseModelForm, DocumentRegistraturaMixin):
     class Meta:
         model = DocumentCotizatieSociala
-        fields = ['nume_parinte', 'motiv', 'este_valabil', 'fisier', 'registru', 'numar_inregistrare', 'data_inregistrare']
+        fields = ['nume_parinte', 'motiv', 'este_valabil', 'fisier', 'registru', 'numar_inregistrare',
+                  'data_inregistrare', 'valabilitate_start', 'valabilitate_end']
 
-    data_inregistrare = DateField(widget=BootstrapDateInput,
-                                  label=u"Data înregistrare",
-                                  required=False,
-                                  help_text=u"Lasă gol pentru data de azi")
+    data_inregistrare = DateField(widget=BootstrapDateInput, label=u"Data înregistrare", required=False, help_text=u"Lasă gol pentru data de azi")
+    valabilitate_start = DateField(widget=BootstrapDateInput, label=u"Valabiliă de la", required=True)
+    valabilitate_end = DateField(widget=BootstrapDateInput, label=u"Valabilă până la", required=False)
 
     def __init__(self, *args, **kwargs):
         super(DeclaratieCotizatieSocialaForm, self).__init__(*args, **kwargs)
@@ -91,7 +94,13 @@ class DeclaratieCotizatieSocialaForm(CrispyBaseModelForm, DocumentRegistraturaMi
 
     def clean(self):
         self.check_inregistrare()
+
+        if self.cleaned_data.get("valabilitate_end", None) is not None:
+            if self.cleaned_data.get("valabilitate_end") <= self.cleaned_data.get("valabilitate_start"):
+                raise ValidationError(u"Valabilitatea declarației nu poate să se termine înainte să înceapă!")
+
         return self.cleaned_data
+
 
 class RegistruForm(CrispyBaseModelForm):
     def get_intervale(self):
@@ -130,6 +139,7 @@ class RegistruForm(CrispyBaseModelForm):
                         raise ValidationError(u"Suprapunere de numerotare cu un registru!")
 
         return self.cleaned_data
+
 
 class RegistruCreateForm(RegistruForm):
     class Meta:

@@ -23,8 +23,10 @@ import datetime
 import hashlib
 import logging
 import traceback
+from unidecode import unidecode
+from album.models import ParticipareEveniment
 
-from documente.models import Trimestru
+from documente.models import Trimestru, ChitantaCotizatie, PlataCotizatieTrimestru
 from settings import SECRET_KEY, SYSTEM_EMAIL, MEDIA_ROOT, DEBUG, \
     USE_EMAIL_CONFIRMATION
 from structuri.decorators import allow_by_afiliere
@@ -98,11 +100,10 @@ class CentruLocalDetail(DetailView, TabbedViewMixin):
 
     def get_tabs(self, *args, **kwargs):
         self.tabs = (("brief", u"Sumar", reverse("structuri:cl_tab_brief", kwargs={"pk": self.object.id}), "", 2),
-                     ("unitati", u"Unități", reverse("structuri:cl_tab_unitati", kwargs={"pk": self.object.id}), "", 3),
-                     ("contact", u"Contact", reverse("structuri:cl_tab_contact", kwargs={"pk": self.object.id}),
-                      "icon-envelope", 1),)
-        #("lideri", u"Lideri", reverse("structuri:cl_tab_lideri", kwargs = {"pk" : self.object.id }), "", False),
-        #("membri", u"Membri", reverse("structuri:cl_tab_membri", kwargs = {"pk" : self.object.id }), "", False))
+                     ("unitati", u"Unități", reverse("structuri:cl_tab_unitati", kwargs={"pk": self.object.id}), "icon-group", 3),
+                     ("contact", u"Contact", reverse("structuri:cl_tab_contact", kwargs={"pk": self.object.id}), "icon-envelope", 1),
+                     ("lideri", u"Lideri", reverse("structuri:cl_tab_lideri", kwargs = {"pk" : self.object.id }), "icon-user", 4),
+                     ("membri_de_suspendat", u"Membri de suspendat", reverse("structuri:cl_tab_membri_de_suspendat", kwargs = {"pk" : self.object.id }), "icon-remove", 5))
         return super(CentruLocalDetail, self).get_tabs(*args, **kwargs)
 
     def get_context_menu(self, *args, **kwargs):
@@ -356,7 +357,7 @@ class CentruLocalTabUnitati(ListView):
 
     def get_queryset(self, *args, **kwargs):
         qs = super(CentruLocalTabUnitati, self).get_queryset(*args, **kwargs)
-        qs = qs.filter(centru_local=self.centru_local)
+        qs = qs.filter(centru_local=self.centru_local, activa=True)
         return qs
 
     def get_context_data(self, **kwargs):
@@ -369,7 +370,7 @@ class CentruLocalTabUnitati(ListView):
 
 class CentruLocalTabLideri(ListView):
     model = AsociereMembruStructura
-    template_name = "structuri/centrulocal_tab_lideri.html"
+    template_name = "structuri/centrulocal_tab_membri.html"
 
     @allow_by_afiliere([("Centru Local", u"Lider")])
     def dispatch(self, request, *args, **kwargs):
@@ -377,14 +378,7 @@ class CentruLocalTabLideri(ListView):
         return super(CentruLocalTabLideri, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
-        tip_asociere_lideri = TipAsociereMembruStructura.objects.get(nume=u"Lider")
-        asocieri = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(CentruLocal),
-                                                          object_id=self.centru_local.id,
-                                                          tip_asociere=tip_asociere_lideri,
-                                                          confirmata=True)
-
-        return asocieri
-
+        return self.centru_local.lideri(qs=True)
 
 class ContactTab(ListView):
     model = InformatieContact
@@ -429,14 +423,22 @@ class CentruLocalTabMembri(ListView):
         return super(CentruLocalTabMembri, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
-        tip_asociere_lideri = TipAsociereMembruStructura.objects.get(nume=u"Membru")
-        asocieri = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(CentruLocal),
-                                                          object_id=self.centru_local.id,
-                                                          tip_asociere=tip_asociere_lideri,
-                                                          confirmata=True)
+        return self.centru_local.cercetasi(qs=True, tip_asociere=CentruLocal.asocieri_membru).select_related("membru")
 
-        return asocieri
 
+class CentruLocalTabMembriDeSuspendat(CentruLocalTabMembri):
+    model = AsociereMembruStructura
+    template_name = "structuri/centrulocal_tab_membri.html"
+
+    def membru_fits_query(self, membru):
+        status_cotizatie = membru._status_cotizatie()
+        print status_cotizatie
+        return not membru.is_suspendat() and status_cotizatie[0] >= 2
+
+    def get_queryset(self, *args, **kwargs):
+        qs = self.centru_local.cercetasi(qs=True, tip_asociere=CentruLocal.asocieri_membru).select_related("membru")
+        qs = [a for a in qs if self.membru_fits_query(a.membru)]
+        return qs
 
 class MembriFaraAfilieri(ListView):
     model = Membru
@@ -471,8 +473,28 @@ class CentruLocalMembri(CentruLocalTabMembri):
         if "q" in request.GET and request.GET['q']:
             self.q = request.GET['q']
 
+        self.switches = {"activi": {"filter": lambda m: not m.is_suspendat() and not m.is_aspirant() and not m.is_adult() and not m.is_inactiv()},
+                         "inactivi": {"filter": lambda m: m.is_inactiv()},
+                         "suspendati": {"filter": lambda m: m.is_suspendat()},
+                         "aspiranti": {"filter": lambda m: m.is_aspirant()},
+                         "adulti": {"filter": lambda m: m.is_adult()}}
+
+        for switch in self.switches.keys():
+            self.switches[switch]["value"] = int(request.GET.get(switch, request.session.get("membri_%s" % switch, 1)))
+
+        #   initialise and maintain session values for current values
+        for switch in self.switches.keys():
+            request.session["membri_%s" % switch] = self.switches.get(switch).get("value")
+
         kwargs.update({"skip_checks": True})
         return super(CentruLocalMembri, self).dispatch(request, *args, **kwargs)
+
+    def check_switches(self, a):
+        valid = False
+        for s in self.switches.values():
+            if s.get("value", 0):
+                valid = s.get("filter")(a.membru) or valid
+        return valid
 
     def get_queryset(self, *args, **kwargs):
         qs = super(CentruLocalMembri, self).get_queryset(*args, **kwargs)
@@ -481,20 +503,14 @@ class CentruLocalMembri(CentruLocalTabMembri):
             qs = qs.filter(Q(membru__nume__icontains=self.q) | Q(membru__prenume__icontains=self.q))
 
         if self.rdv:
-            if self.rdv in ("lupisori", "exploratori", "seniori", "temerari"):
-                #    filtreaza pe baza de unitate
-
-                # TODO: fix this ugly hack for romanian chars
-                if self.rdv == "lupisori":
-                    self.rdv = u"lupișori"
-
+            if self.rdv in ("lupisori", "exploratori", "seniori", "temerari", "adulti"):
                 membri = [a.membru for a in qs]
                 membri_final = []
                 for membru in membri:
                     if membru.is_lider():
                         continue
                     unitate = membru.get_unitate()
-                    if unitate and unitate.ramura_de_varsta.nume.lower() == self.rdv:
+                    if unitate and unitate.ramura_de_varsta.slug == self.rdv:
                         membri_final.append(membru)
 
                 qs = qs.filter(membru__in=membri_final)
@@ -506,8 +522,11 @@ class CentruLocalMembri(CentruLocalTabMembri):
 
                 qs = qs.filter(membru__in=membri_final)
         qs = qs.order_by("membru__nume", "membru__prenume")
-        return qs
 
+        #   verifica daca toate categoriile sunt selectate
+        if sum([s.get("value") for s in self.switches.values()]) != len(self.switches.keys()):
+            qs = AsociereMembruStructura.objects.filter(id__in=[a.id for a in qs if self.check_switches(a)])
+        return qs
 
     def get_context_data(self, **kwargs):
         kwargs.update({"object": self.centru_local})
@@ -526,6 +545,7 @@ class CentruLocalUnitateCreate(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.centru_local = self.centru_local
+        self.object.activa = True
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -562,10 +582,12 @@ class UnitateDetail(DetailView, TabbedViewMixin):
         return super(UnitateDetail, self).dispatch(request, *args, **kwargs)
 
     def get_tabs(self, *args, **kwargs):
-        self.tabs = (("brief", u"Sumar", reverse("structuri:unitate_tab_brief", kwargs={"pk": self.object.id}), "", 1),
-                     ("patrule", u"Patrule", reverse("structuri:unitate_tab_patrule", kwargs={"pk": self.object.id}), "", 2),
-                     ("membri", u"Membri", reverse("structuri:unitate_tab_membri", kwargs={"pk": self.object.id}), "", 3),
-                     ("membri_fp", u"Membri fără patrulă", reverse("structuri:unitate_tab_membri_fara_patrula", kwargs={"pk": self.object.id}), "", 3))
+        self.tabs = [("brief", u"Sumar", reverse("structuri:unitate_tab_brief", kwargs={"pk": self.object.id}), "", 1),
+                     ("membri", u"Membri", reverse("structuri:unitate_tab_membri", kwargs={"pk": self.object.id}), "", 3)]
+        if self.object.ramura_de_varsta.are_patrule:
+            self.tabs.append(("patrule", u"Patrule", reverse("structuri:unitate_tab_patrule", kwargs={"pk": self.object.id}), "", 2))
+            self.tabs.append(("membri_fp", u"Membri fără patrulă", reverse("structuri:unitate_tab_membri_fara_patrula", kwargs={"pk": self.object.id}), "", 4))
+            self.tabs.append(("patrule_inactive", u"Patrule inactive", reverse("structuri:unitate_tab_patrule_inactive", kwargs={"pk": self.object.id}), "", 5))
 
         return super(UnitateDetail, self).get_tabs(*args, **kwargs)
 
@@ -634,10 +656,7 @@ class UnitateTabBrief(ListView):
         return super(UnitateTabBrief, self).dispatch(*args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
-        return self.model.objects.filter(tip_asociere__nume__icontains=u"lider",
-                                         tip_asociere__content_types__in=(ContentType.objects.get_for_model(Unitate), ),
-                                         content_type=ContentType.objects.get_for_model(Unitate),
-                                         object_id=self.unitate.id)
+        return self.unitate.lideri(qs=True)
 
     def get_context_data(self, **kwargs):
         kwargs.update({"object": self.unitate})
@@ -665,14 +684,24 @@ class UnitateTabPatrule(ListView):
         return super(UnitateTabPatrule, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
-        qs = super(UnitateTabPatrule, self).get_queryset(*args, **kwargs)
-        qs = qs.filter(unitate=self.unitate)
-        return qs
+        return self.unitate.patrule()
 
     def get_context_data(self, *args, **kwargs):
-        current = super(UnitateTabPatrule, self).get_context_data(*args, **kwargs)
-        current.update({"unitate": self.unitate})
-        return current
+        data = super(UnitateTabPatrule, self).get_context_data(*args, **kwargs)
+        data["unitate"] = self.unitate
+        return data
+
+
+class UnitateTabPatruleInactive(UnitateTabPatrule):
+    template_name = "structuri/unitate_tab_patrule_inactive.html"
+    def get_queryset(self, *args, **kwargs):
+        return self.unitate.patrule_inactive()
+
+    def get_context_data(self, *args, **kwargs):
+        data = super(UnitateTabPatruleInactive, self).get_context_data(**kwargs)
+        data['inactive'] = True
+        return data
+
 
 
 class UnitateTabMembri(ListView):
@@ -756,14 +785,12 @@ class PatrulaDetail(DetailView, TabbedViewMixin):
         return super(PatrulaDetail, self).dispatch(request, *args, **kwargs)
 
     def get_tabs(self, *args, **kwargs):
-        self.tabs = (("brief", "Sumar", reverse("structuri:patrula_tab_brief", kwargs={"pk": self.object.id}), "", 1),
-                     ("membri", u"Membri", reverse("structuri:patrula_tab_membri", kwargs={"pk": self.object.id}), "", 2))
+        self.tabs = (("brief", "Sumar", reverse("structuri:patrula_tab_brief", kwargs={"pk": self.object.id}), "", 2),
+                     ("membri", u"Membri", reverse("structuri:patrula_tab_membri", kwargs={"pk": self.object.id}), "", 1))
 
         return super(PatrulaDetail, self).get_tabs(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        #        kwargs.update(self.get_tabs())
-        #        return super(PatrulaDetail, self).get_context_data(**kwargs)
         current = super(PatrulaDetail, self).get_context_data(**kwargs)
         current.update(self.get_tabs())
         return current
@@ -773,7 +800,7 @@ class PatrulaTabBrief(DetailView):
     model = Patrula
     template_name = "structuri/patrula_tab_brief.html"
 
-    @allow_by_afiliere([("Unitate, Centru Local", "Lider")])
+    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider")])
     def dispatch(self, request, *args, **kwargs):
         return super(PatrulaTabBrief, self).dispatch(request, *args, **kwargs)
 
@@ -964,14 +991,12 @@ class MembruDetail(DetailView, TabbedViewMixin):
 
     def get_tabs(self):
         self.tabs = (("brief", u"Sumar", reverse("structuri:membru_tab_brief", kwargs={"pk": self.object.id}), "", 1),
-                     ("afilieri", u"Afilieri", reverse("structuri:membru_tab_afilieri", kwargs={"pk": self.object.id}),
-                      "", 2),
-                     ("contact", u"Contact", reverse("structuri:membru_tab_contact", kwargs={"pk": self.object.id}), "",
-                      3),
-                     ("familie", u"Familie", reverse("structuri:membru_tab_familie", kwargs={"pk": self.object.id}), "",
-                      4),
-                     ('documente', u"Documente",
-                      reverse("structuri:membru_tab_documente", kwargs={"pk": self.object.id}), "", 5))
+                     ("afilieri", u"Afilieri", reverse("structuri:membru_tab_afilieri", kwargs={"pk": self.object.id}),"", 2),
+                     ("contact", u"Contact", reverse("structuri:membru_tab_contact", kwargs={"pk": self.object.id}), "", 3),
+                     ("familie", u"Familie", reverse("structuri:membru_tab_familie", kwargs={"pk": self.object.id}), "", 4),
+                     ('documente', u"Documente", reverse("structuri:membru_tab_documente", kwargs={"pk": self.object.id}), "", 5),
+                     ('activitati', u"Activități", reverse("structuri:membru_tab_activitati", kwargs={"pk": self.object.id}), "icon-calendar", 6),
+        )
         return super(MembruDetail, self).get_tabs()
 
     def get_context_data(self, **kwargs):
@@ -981,7 +1006,6 @@ class MembruDetail(DetailView, TabbedViewMixin):
 
 class MembruCard(DetailView):
     model = Membru
-
 
 class MembruProgresPersonal(DetailView):
     model = Membru
@@ -1001,7 +1025,6 @@ class MembruTabDocumente(ListView):
     model = Membru
     template_name = "structuri/membru_tab_documente.html"
 
-
     @allow_by_afiliere([("Membru, Centru Local", "Lider"), ])
     def dispatch(self, request, *args, **kwargs):
         self.object = get_object_or_404(self.model, id=kwargs.pop("pk"))
@@ -1009,7 +1032,6 @@ class MembruTabDocumente(ListView):
 
     def get_queryset(self):
         from documente.models import AsociereDocument
-
         filter_kwargs = {"content_type": ContentType.objects.get_for_model(self.object),
                          "object_id": self.object.id}
 
@@ -1055,8 +1077,7 @@ class MembruTabFamilie(DetailView):
     template_name = "structuri/membru_tab_familie.html"
     model = Membru
 
-    @allow_by_afiliere(
-        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruTabFamilie, self).dispatch(request, *args, **kwargs)
 
@@ -1064,6 +1085,19 @@ class MembruTabFamilie(DetailView):
         kwargs.update({"object_list": self.object.asocieremembrufamilie_set.all(),
                        "nonmembru_object_list": self.object.persoanadecontact_set.all(), })
         return super(MembruTabFamilie, self).get_context_data(**kwargs)
+
+
+class MembruTabActivitati(ListView):
+    model = ParticipareEveniment
+    template_name = "structuri/membru_tab_activitati.html"
+
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+    def dispatch(self, request, *args, **kwargs):
+        self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
+        return super(MembruTabActivitati, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.model.objects.filter(membru=self.membru)
 
 
 #   registration views
@@ -1320,7 +1354,9 @@ class UtilizatorHome(TemplateView, TabbedViewMixin):
 
     def get_tabs(self):
         self.tabs = (("brief", u"Pe scurt", reverse("structuri:membru_profil_tab_brief"), "", 1),
-                     ("afiliere", u"Afiliere", reverse("structuri:membru_profil_tab_afiliere"), "", 2))
+                     ("documente", u"Documente", reverse("structuri:membru_profil_tab_documente"), "icon-file", 3),
+                     ("activitati", u"Activități", reverse("structuri:membru_profil_tab_activitati"), "icon-calendar", 2),
+                     ("afiliere", u"Istoric", reverse("structuri:membru_profil_tab_afiliere"), "icon-time", 4))
 
         return super(UtilizatorHome, self).get_tabs()
 
@@ -1335,20 +1371,45 @@ class UtilizatorHomeTabsBrief(TemplateView):
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
+        kwargs['pk'] = request.user.get_profile().membru.id
         return super(UtilizatorHomeTabsBrief, self).dispatch(request, *args, **kwargs)
 
 
-class UtilizatorHomeTabsAfiliere(TemplateView):
+class UtilizatorHomeTabsAfiliere(UtilizatorHomeTabsBrief):
     template_name = "structuri/utilizator_home_afiliere.html"
+
+
+class UtilizatorHomeTabsDocumente(ListView):
+    template_name = "structuri/utilizator_home_documente.html"
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        return super(UtilizatorHomeTabsAfiliere, self).dispatch(request, *args, **kwargs)
+        self.object = request.user.get_profile().membru
+        return super(UtilizatorHomeTabsDocumente, self).dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, *args, **kwargs):
-        current = super(UtilizatorHomeTabsAfiliere, self).get_context_data(*args, **kwargs)
+    def get_queryset(self):
+        from documente.models import AsociereDocument
+        filter_kwargs = {"content_type": ContentType.objects.get_for_model(self.object),
+                         "object_id": self.object.id}
 
-        return current
+        return AsociereDocument.objects.filter(**filter_kwargs).order_by("-moment_asociere")
+
+    def get_context_data(self, **kwargs):
+        data = super(UtilizatorHomeTabsDocumente, self).get_context_data(**kwargs)
+        data.update({"object": self.object})
+        return data
+
+
+class UtilizatorHomeTabsActivitati(ListView):
+    template_name = "structuri/utilizator_home_activitati.html"
+    model = ParticipareEveniment
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(UtilizatorHomeTabsActivitati, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.request.user.get_profile().membru.participareeveniment_set.all()
 
 
 class UtilizatorEditProfile(UpdateView):
@@ -1939,3 +2000,45 @@ class MembruConfirmaFacebook(TemplateView):
         data = super(MembruConfirmaFacebook, self).get_context_data(**kwargs)
         data['facebook_connect_url'] = FacebookUserConnectView.get_facebook_endpoint(self.request)
         return data
+
+
+class MembruDoAJAXWork(View):
+    @allow_by_afiliere([("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+    def dispatch(self, request, *args, **kwargs):
+        self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
+        return super(MembruDoAJAXWork, self).dispatch(request, *args, **kwargs)
+
+    def do_work(self, request, *args, **kwargs):
+        raise ImproperlyConfigured
+
+    def post(self, request, *args, **kwargs):
+        try:
+            self.do_work(request, *args, **kwargs)
+            messages.success(request, self.get_success_message())
+        except Exception, e:
+            messages.error(request, self.get_error_message(e))
+
+        return HttpResponse("done")
+        # return HttpResponseRedirect(reverse("structuri:membru_details", kwargs={"pk": self.membru.id}) + "#documente")
+
+
+class MembruRecalculeazaAcoperire(MembruDoAJAXWork):
+    def do_work(self, request, *args, **kwargs):
+        return self.membru.recalculeaza_acoperire_cotizatie()
+
+    def get_success_message(self):
+        return u"Acoperirea plăților a fost recalculată cu succes"
+
+    def get_error_message(self, e=""):
+        return u"Eroare recalculare acoperire cotizație! Contactați administratorul (%s)" % e
+
+
+class MembruStergeAcoperire(MembruDoAJAXWork):
+    def do_work(self, request, *args, **kwargs):
+        return self.membru.recalculeaza_acoperire_cotizatie(reset=True)
+
+    def get_success_message(self):
+        return u"Acoperirea plăților a fost ștearsă! Rezolvați ce aveți de rezolvat, apoi recalculați!"
+
+    def get_error_message(self, e=""):
+        return u"Eroare ștergere acoperire cotizație (%s)" % e

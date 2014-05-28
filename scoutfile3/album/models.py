@@ -1,5 +1,6 @@
 #coding: utf-8
 from django.core.mail import send_mail
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.aggregates import Sum
 from django.db.models.query_utils import Q
@@ -16,6 +17,8 @@ import traceback
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from album.managers import RaportEvenimentManager
+from django import forms
+from generic.widgets import BootstrapDateInput
 
 from settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT, MEDIA_ROOT
 from taggit.managers import TaggableManager
@@ -37,11 +40,19 @@ class ParticipantiEveniment(models.Model):
 
 TIPURI_EVENIMENT = (("camp", "Camp"), ("intalnire", u"Întâlnire"), ("hike", "Hike"), ("social", "Proiect social"),
                     ("comunitate", u"Proiect de implicare în comunitate"), ("citychallange", u"City Challange"),
-                    ("international", u"Proiect internațional"), ("intalnire", u"Întâlnire"), ("festival", u"Festival"),
+                    ("international", u"Proiect internațional"), ("festival", u"Festival"),
                     ("ecologic", u"Proiect ecologic"), ("alta", u"Alt tip de eveniment"), ("training", u"Stagiu / training"))
 
 
 STATUS_EVENIMENT = (("propus", u"Propus"), ("confirmat", u"Confirmat"), ("derulare", u"În derulare"), ("terminat", u"Încheiat"))
+
+
+class TipEveniment(models.Model):
+    nume = models.CharField(max_length=255)
+    slug = models.SlugField()
+
+    def __unicode__(self):
+        return u"%s" % self.nume
 
 
 class Eveniment(models.Model):
@@ -53,7 +64,8 @@ class Eveniment(models.Model):
     slug = models.SlugField(max_length=255, unique=True)
     custom_cover_photo = models.ForeignKey("Imagine", null=True, blank=True)
 
-    tip_eveniment = models.CharField(default="propus", max_length=255, null=True, blank=True, choices=TIPURI_EVENIMENT)
+    tip_eveniment_text = models.CharField(default="alta", max_length=255, null=True, blank=True, choices=TIPURI_EVENIMENT)
+    tip_eveniment = models.ForeignKey(TipEveniment)
     facebook_event_link = models.URLField(null=True, blank=True, verbose_name=u"Link eveniment Facebook", help_text=u"Folosește copy/paste pentru a lua link-ul din Facebook")
     articol_site_link = models.URLField(null=True, blank=True, verbose_name=u"Link articol site", help_text=u"Link-ul de la articolul de pe site-ul Centrului Local")
 
@@ -68,6 +80,10 @@ class Eveniment(models.Model):
 
     responsabil_raport = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="evenimente_raport")
     responsabil_articol = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="evenimente_articol")
+
+    international = models.BooleanField(default=False, help_text=u"Dacă activitatea implică participanți din alte țări sau are loc în străinătate")
+    organizator = models.CharField(max_length=255, null=True, blank=True, help_text=u"Dacă organizatorul este altul decât Centrul Local, notați-l aici")
+    organizator_cercetas = models.BooleanField(default=True, help_text=u"Dacă organizatorul este un centru local sau ONCR, bifează aici")
 
     class Meta:
         verbose_name = u"Eveniment"
@@ -196,7 +212,6 @@ class Eveniment(models.Model):
         return autori
 
     def cover_photo(self):
-        print self, self.custom_cover_photo
         if self.custom_cover_photo:
             return self.custom_cover_photo
 
@@ -257,8 +272,30 @@ class Eveniment(models.Model):
             return 0
         return self.locatie_geo.split(";")[1]
 
-STATUS_PARTICIPARE = ((1, u"Cu semnul întrebării"), (2, u"Sigur"), (3, u"Avans plătit"), (4, u"Participare efectivă"),
-                      (5, u"Participare anulată"))
+    def are_asociere(self, structura):
+        filter_args = dict(content_type=ContentType.objects.get_for_model(structura), object_id=structura.id)
+        return self.asociereevenimentstructura_set.filter(**filter_args).count() > 0
+
+    def ramura_de_varsta(self):
+        from structuri.models import Unitate
+        filter_args = dict(content_type=ContentType.objects.get_for_model(Unitate))
+        qs = self.asociereevenimentstructura_set.filter(**filter_args)
+        if qs.count() == 1:
+            return qs[0].content_object.ramura_de_varsta
+        return None
+
+    def creeaza_asociere_structura(self, structura):
+        structura_args = dict(eveniment=self,
+                              content_type=ContentType.objects.get_for_model(structura),
+                              object_id=structura.id)
+        AsociereEvenimentStructura.objects.create(**structura_args)
+
+class AsociereEvenimentStructura(models.Model):
+    content_type = models.ForeignKey(ContentType, verbose_name=u"Tip structură")
+    object_id = models.PositiveIntegerField(verbose_name=u"Structură")
+    content_object = GenericForeignKey()
+
+    eveniment = models.ForeignKey(Eveniment)
 
 
 class RaportEveniment(models.Model):
@@ -316,8 +353,11 @@ class RaportEveniment(models.Model):
         self.is_locked = False
         self.save(*args, **kwargs)
 
-
 ROL_PARTICIPARE = (("participant", u"Participant"), ("coordonator", u"Coordonator"), ("staff", u"Membru staff"))
+
+
+STATUS_PARTICIPARE = ((1, u"Cu semnul întrebării"), (2, u"Confirmat"), (3, u"Avans plătit"), (4, u"Participare efectivă"),
+                      (5, u"Participare anulată"))
 
 
 class ParticipareEveniment(models.Model):
@@ -330,9 +370,16 @@ class ParticipareEveniment(models.Model):
     detalii = models.TextField(null=True, blank=True)
     rol = models.CharField(max_length=255, default="participant", choices=ROL_PARTICIPARE)
 
+    ultima_modificare = models.DateTimeField(auto_now=True)
+    user_modificare = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="participari_responsabil")
+
+    class Meta:
+        ordering = ["-data_sosire"]
+
     @property
     def is_partiala(self):
-        return self.data_sosire.date() != self.eveniment.start_date.date() or self.data_plecare.date() != self.eveniment.end_date.date()
+        return self.data_sosire > self.eveniment.start_date or self.data_plecare < self.eveniment.end_date
+
 
 
 TIPURI_CAMP_PARTICIPARE = (("text", u"Text"), ("number", u"Număr"), ("bool", u"Bifă"), ("date", u"Dată"))
@@ -340,11 +387,62 @@ TIPURI_CAMP_PARTICIPARE = (("text", u"Text"), ("number", u"Număr"), ("bool", u"
 
 class CampArbitrarParticipareEveniment(models.Model):
     eveniment = models.ForeignKey(Eveniment)
+    nume = models.CharField(max_length=255)
+    slug = models.SlugField()
     tip_camp = models.CharField(max_length=255, choices=TIPURI_CAMP_PARTICIPARE)
+    implicit = models.CharField(max_length=255, null=True, blank=True)
+    optional = models.BooleanField(default=True)
+    explicatii_suplimentare = models.CharField(max_length=255, null=True, blank=True, help_text=u"Instrucțiuni despre cum să fie completat acest câmp, format, ...")
+
+    tipuri_camp = {"text": forms.CharField,
+                   "number": forms.FloatField,
+                   "bool": forms.BooleanField,
+                   "date": forms.DateField}
+
+    def get_form_field_class(self):
+        return self.tipuri_camp[self.tip_camp]
+
+    def get_value(self, participare=None):
+        if participare is None:
+            return None
+
+        try:
+            instanta = self.instante.get(participare=participare)
+            if self.tip_camp == "date":
+                return datetime.datetime.strptime(instanta.valoare_text, "%d.%m.%Y").date()
+            if self.tip_camp == "bool":
+                return instanta.valoare_text == "True"
+            return instanta.valoare_text
+        except InstantaCampArbitrarParticipareEveniment.DoesNotExist, e:
+            return None
+
+    def get_translated_value(self, value):
+        if self.tip_camp == "bool":
+            return True if value == "True" else False
+
+        return value
+
+    def set_value(self, valoare, participare=None):
+        if participare is None:
+            return
+
+        try:
+            instanta = self.instante.get(participare=participare)
+        except InstantaCampArbitrarParticipareEveniment.DoesNotExist:
+            instanta_args = dict(participare=participare, camp=self)
+            instanta = InstantaCampArbitrarParticipareEveniment.objects.create(**instanta_args)
+
+        if self.tip_camp == "date":
+            valoare_string = valoare.strftime("%d.%m.%Y")
+        else:
+            valoare_string = valoare
+
+        instanta.valoare_text = valoare_string
+        instanta.save()
 
     
 class InstantaCampArbitrarParticipareEveniment(models.Model):
-    camp = models.ForeignKey(CampArbitrarParticipareEveniment)
+    camp = models.ForeignKey(CampArbitrarParticipareEveniment, related_name="instante")
     participare = models.ForeignKey(ParticipareEveniment)
     valoare_text = models.CharField(max_length=255, null=True, blank=True)
     
@@ -368,8 +466,10 @@ class InstantaCampArbitrarParticipareEveniment(models.Model):
     
 @receiver(post_init, sender=InstantaCampArbitrarParticipareEveniment)
 def update_value(sender, instance, **kwargs):
-    instance.valoare = None
-    instance.valoare = getattr(instance, "process_{0}".format(instance.camp.tip_camp))
+    try:
+        instance.valoare = getattr(instance, "process_{0}".format(instance.camp.tip_camp))
+    except Exception, e:
+        instance.valoare = None
 
 
 class ZiEveniment(models.Model):
@@ -671,10 +771,48 @@ class Imagine(ImageModel):
         self.is_face_processed = True
         self.save()
 
+    def check_visibility(self, user):
+        if self.set_poze and self.set_poze.eveniment:
+            return self.published_status >= self.set_poze.eveniment.get_visibility_level(user)
+        return self.published_status == 4
 
     @classmethod
-    def filter_visibility(cls, qs, user):
-        return qs
+    def filter_visibility(cls, qs, eveniment=None, user=None):
+        visibility_level = 4
+        if eveniment and user:
+            visibility_level = eveniment.get_visibility_level(user)
+        elif user:
+            qs = qs.select_related("set_poze__eveniment")
+            return cls.objects.filter(id__in=[i.id for i in qs if i.check_visibility(user)])
+        return qs.exclude(published_status__lt=visibility_level)
+
+    def has_flags(self):
+        return self.flagreport_set.all().count() > 0
+
+    def to_json(self, dict=True):
+        json_dict = {
+            "id": self.id,
+            "url_thumb": self.get_thumbnail_url(),
+            "url_detail": reverse("album:poza_detail", kwargs={"pk": self.id}),
+            "url_detail_img": self.get_large_url(),
+            "titlu": u"%s - %s" % (self.set_poze.eveniment.nume, self.titlu),
+            "descriere": self.descriere or "",
+            "autor": self.set_poze.get_autor(),
+            "data": self.data.strftime("%d %B %Y %H:%M:%S"),
+            "tags": [t for t in self.tags.names()[:10]],
+            "rotate_url": reverse("album:poza_rotate", kwargs={"pk": self.id}),
+            "published_status_display": self.get_published_status_display(),
+            "flag_url": reverse("album:poza_flag", kwargs={"pk": self.id}),
+            "score": self.score,
+            "has_flags": self.has_flags()
+        }
+
+        if dict:
+            return json_dict
+
+        import json
+        return json.dumps(json_dict)
+
 
 # tagging.register(Imagine)
 
@@ -703,7 +841,6 @@ class FlagReport(models.Model):
     imagine = models.ForeignKey(Imagine)
     motiv = models.CharField(max_length=1024, choices=FLAG_MOTIVES)
     alt_motiv = models.CharField(max_length=1024, null=True, blank=True)
-
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -712,7 +849,7 @@ class FlagReport(models.Model):
         ordering = ["-timestamp", "motiv"]
 
     def __unicode__(self):
-        return "Raport de %s la " % self.motiv
+        return "Raport de %s la #%d (%s)" % (self.motiv, self.imagine.id, self.imagine.set_poze.eveniment)
 
 
 class DetectedFace(models.Model):

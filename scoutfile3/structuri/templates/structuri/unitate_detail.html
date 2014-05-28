@@ -2,7 +2,7 @@
 {% load tab_tags %}
 
 {% block page_title %}
-	Unitatea {{ object }}
+	{{ object }}
 {% endblock %}
 
 {% block extrahead %}
@@ -12,14 +12,17 @@
 {% block context_menu %}
 	<ul class = "nav nav-list">
 		<li class = "nav-header">Locații</li>
-		<li><a href = "{% url structuri:cl_detail pk=object.centru_local.id %}"><i class = "icon-home"></i> {{ object.centru_local }}</a>
-		<li><a href = "{% url structuri:cl_detail pk=object.centru_local.id %}?tab=unitati"><i class = "icon-list"></i> Unități</a>
-		
+		<li><a href = "{% url structuri:cl_detail pk=object.centru_local.id %}"><i class = "icon-home"></i> Centrul Local</a></li>
+		<li><a href = "{% url structuri:cl_detail pk=object.centru_local.id %}?tab=unitati"><i class = "icon-list"></i> Unități</a></li>
+        <li><a href = "{% url album:calendar_centru_local pk=object.centru_local.id %}?unitate={{ object.id }}"><i class = "icon-calendar"></i> Calendarul unității</a></li>
+        <li><a href = "{% url album:index %}?unitate={{ object.id }}&album=1"><i class = "icon-picture"></i> Albumul unității</a></li>
+
 		
 		<li class = "nav-header">Acțiuni</li>
-		<li><a href = "{% url structuri:unitate_edit pk=object.id %}"><i class = "icon-pencil"></i> Modifică</a>
-		<li><a href=  "{% url structuri:unitate_delete pk=object.id %}"><i class = "icon-trash"></i> Șterge</a>
-		<li><a href = "{% url structuri:unitate_patrula_add pk=object.id %}"><i class = "icon-plus-sign"></i> Adaugă patrulă</a>
+		<li><a href = "{% url structuri:unitate_edit pk=object.id %}"><i class = "icon-pencil"></i> Modifică</a></li>
+		<li><a href=  "{% url structuri:unitate_delete pk=object.id %}"><i class = "icon-trash"></i> Șterge</a></li>
+		<li><a href = "{% url structuri:unitate_patrula_add pk=object.id %}"><i class = "icon-plus-sign"></i> Patrulă nouă</a></li>
+        <li><a href = "{% url album:unitate_eveniment_create pk=object.id %}"><i class = "icon-picture"></i> Activitate nouă</a></li>
 				
 		<li class = "nav-header">Membri</li>
 		<li><a href = "{% url structuri:unitate_membru_add pk=object.id %}"><i class = "icon-plus-sign"></i> Adaugă membru</a></li>

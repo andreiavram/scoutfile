@@ -1,0 +1,76 @@
+{% load crispy_forms_tags %}
+<div id = "flag_modal" tabindex = "-1" role = "dialog" aria-hidden = "true" aria-labelledby="flag_modal_head" class="modal hide fade">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h3 id = "flag_modal_head">Raportează poza</h3>
+  </div>
+  <div class="modal-body">
+        <div id = "modal-success" style="display: none" class = "alert-success alert">Raportul a fost trimis către administratori!</div>
+        <div id = "modal-error" style="display: none" class = "alert alert-danger">A apărut o eroare în salvarea raportului!</div>
+        <div id = "modal-content" class = "row-fluid">
+            <div class = "span4 thumbnail" style = "position: relative; max-width: 960px;">
+                <img id = "image_report" src = "" style = "width: 100%;" />
+            </div>
+            <div class = "span8">
+                {% crispy report_form report_form.helper %}
+            </div>
+        </div>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal" class = "close">Închide</a>
+      <a href="#" class="btn btn-primary" id = "submit-report">Salvează</a>
+  </div>
+</div>
+<script type = "text/javascript">
+    jQuery(document).ready(function() {
+        $("#submit-report").click(function (e) {
+            if (($('#raport_form input[type=radio]:checked').val() == "altul") && ($("#id_alt_motiv").val().length == 0)) {
+                $("#modal-error").html("Ați ales 'alt motiv', spuneți și care este acesta").show("fast");
+                return false;
+            }
+            if ($('#raport_form input[type=radio]:checked').val() === null) {
+                $("#modal-error").html("Alegeți un motiv pentru care raportați poza").show("fast");
+                return false;
+            }
+
+            $.post("{% url album:poza_flag_ajax %}", {"csrfmiddlewaretoken" : "{{ csrf_token }}",
+                "imagine": $("#flag_modal").data("image"),
+                "motiv": $('#raport_form input[type=radio]:checked').val(),
+                "motiv_altul": $("#id_alt_motiv").val()},
+                function (data) {
+                    $("*[data-image='" + $("#flag_modal").data("image") + "'].flag-button").addClass("btn-warning");
+                    $("#modal-content").hide();
+                    $("#modal-error").hide();
+                    $("#modal-success").show();
+
+                    // reset modal to prevent accidental submission of wrong data
+                    $("#flag_modal").data("image", 0);
+                    $("#flag_modal #image_report").attr("src", "");
+
+                    setTimeout(function () {
+                        $("#flag_modal").modal("hide");
+                        setTimeout(function () {
+                            $("#modal-success").hide();
+                            $("#modal-content").show();
+                            $('#raport_form input[type=radio]').prop('checked', false);
+                        }, 500);
+
+                    }, 1000);
+                });
+            e.preventDefault();
+        })
+
+        jQuery("#div_id_alt_motiv").hide();
+
+        jQuery("input[id^='id_motiv_']").change(function () {
+            if (jQuery(this).is(":checked")) {
+                if ($(this).attr("id") == "id_motiv_5") {
+                    jQuery("#div_id_alt_motiv").show("fast");
+                } else {
+                    jQuery("#div_id_alt_motiv").hide("fast");
+                }
+            }
+
+        });
+    });
+</script>

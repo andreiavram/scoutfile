@@ -17,7 +17,7 @@
 		{% for afiliere in object.afilieri_curente %}
 		<tr id="row_{{ object.id }}">
 			<td>{{ forloop.counter }}</td>
-			<td>{{ afiliere.content_object }}</td>
+			<td><a href = "{{ afiliere.content_object.get_absolute_url }}">{{ afiliere.content_object }}</a></td>
 			<td>{{ afiliere.moment_inceput|date:"j F Y" }} ({{ afiliere.moment_inceput|timesince }})</td>
 			<td>{{ afiliere.tip_asociere }}</td>
 			<td>
@@ -30,11 +30,7 @@
 		{% empty %}
 		<tr>
 			<td>&nbsp;</td>
-			<td><em>Nu există nicio informație cu privire la acest
-					membru. Este membru?</td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
+			<td colspan = "4"><em>Nu există nicio informație cu privire la acest membru. Este membru?</em></td>
 		</tr>
 		{% endfor %}
 	</tbody>
@@ -55,7 +51,7 @@
 		{% for afiliere in object.afilieri_trecute %}
 		<tr id="row_{{ object.id }}">
 			<td>{{ forloop.counter }}</td>
-			<td>{{ afiliere.content_object }}</td>
+			<td><a href = "{{ afiliere.content_object.get_absolute_url }}">{{ afiliere.content_object }}</a></td>
 			<td>{{ afiliere.moment_incheiere|timeuntil:afiliere.moment_inceput }}<br />
 			<span style="font-size: 10px">{{ afiliere.moment_inceput|date:"j F Y" }} - {{ afiliere.moment_incheiere|date:"j F Y" }}</span>
 			</td>

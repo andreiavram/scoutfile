@@ -1,4 +1,6 @@
 #coding: utf-8
+from django.shortcuts import render_to_response
+from django.template.context import RequestContext
 from django.views.generic.base import TemplateView, View
 import logging
 from django.views.generic.edit import DeleteView, FormView
@@ -54,7 +56,6 @@ class Login(FormView):
         return HttpResponseRedirect(self.get_success_url())
     
     def get_success_url(self):
-        #TODO: fix this membru indirection here
         return self.request.user.get_profile().membru.get_home_link()
 
     def get_context_data(self, **kwargs):
@@ -67,22 +68,31 @@ class Logout(View):
         logout(self.request)
         messages.success(self.request, u"Sesiunea a fost terminată. Utilizatorul tău nu mai este conectat.")
         return HttpResponseRedirect(reverse("index"))
-    
+
+
 class IndexView(TemplateView):
     template_name = "home.html"
-    
+
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
+        response = self.loggedin_dispatcher(request)
+        if response:
+            return response
         return super(IndexView, self).dispatch(request, *args, **kwargs)
-    
+
+    def loggedin_dispatcher(self, request):
+        if request.user.is_authenticated():
+            return HttpResponseRedirect(request.user.get_profile().membru.get_home_link())
+        return None
+
     def get_context_data(self, **kwargs):
         context_data = super(IndexView, self).get_context_data(**kwargs)
-        
+
         values = {"project_id" : 1,
                   "status_id" : "closed",
                   "limit" : 10,
                   "key" : REDMINE_API_KEY}
-        
+
         data = urllib.urlencode(values)
         url_to_send = "http://yeti.albascout.ro/redmine/issues.json" + "?" + data + "&sort=updated_on:desc"
         logger.debug(url_to_send)
@@ -274,5 +284,5 @@ class JSONView(View):
         return simplejson.dumps(json)
 
 
-
-
+def custom_500(request, template_name="500.html"):
+    return render_to_response(template_name, {"exception_str": traceback.format_exc()}, context_instance = RequestContext(request))

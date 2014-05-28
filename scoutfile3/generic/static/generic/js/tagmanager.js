@@ -243,7 +243,7 @@
       if (tagManagerOptions.AjaxPushAllTags) {
         if (e.type != 'tm:pushed' || $.inArray(tag, tagManagerOptions.prefilled) == -1) {
           var tlis = obj.data("tlis");
-          $.post(tagManagerOptions.AjaxPush, { tags: tlis.join(baseDelimiter) });
+          $.post(tagManagerOptions.AjaxPush, $.extend({ tags: tlis.join(baseDelimiter) }, tagManagerOptions.AjaxPushParameters));
         }
       }
     };

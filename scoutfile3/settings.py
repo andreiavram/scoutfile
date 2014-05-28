@@ -87,6 +87,8 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'johnny.middleware.LocalStoreClearMiddleware',
+    'johnny.middleware.QueryCacheMiddleware',
     'raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware',
     'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -95,7 +97,17 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'pagination.middleware.PaginationMiddleware',
+    'scoutfile3.middleware.ImpersonateUserMiddleware',
 )
+
+CACHES = {
+    'default' : dict(
+        BACKEND = 'johnny.backends.memcached.MemcachedCache',
+        LOCATION = ['127.0.0.1:11211'],
+        JOHNNY_CACHE = True,
+    )
+}
+JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_scoutfile3'
 
 ROOT_URLCONF = 'urls'
 
@@ -152,7 +164,8 @@ INSTALLED_APPS = (
 
 AJAX_LOOKUP_CHANNELS = {
     #   pass a dict with the model and the field to search against
-    'membri': ('structuri.lookups', 'MembriLookup')
+    'membri': ('structuri.lookups', 'MembriLookup'),
+    'lideri': ('structuri.lookups', 'LideriLookup'),
 }
 
 AJAX_SELECT_BOOTSTRAP = False
@@ -328,3 +341,5 @@ BOWER_INSTALLED_APPS = (
     'underscore',
     'bootstrap-calendar',
 )
+
+CENTRU_LOCAL_IMPLICIT = 1

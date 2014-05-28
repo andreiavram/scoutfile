@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load pagination_tags %}
+{% load customfield_tags %}
+
+{% block page_title %}
+    {{ eveniment }} <span style="font-weight: normal">| participanți</span>
+    <div class = "btn-group pull-right">
+        <a class = "btn btn-primary" href = "{% url album:eveniment_participanti_adauga slug=eveniment.slug %}"><i class = "icon-plus"></i> Adaugă participant</a>
+    </div>
+{% endblock %}
+
+{% block context_menu %}
+    {% include "album/eveniment_context_menu.html" %}
+{% endblock %}
+
+{% block extrahead %}
+    <script type="text/javascript" src="{% url goodies:js_delete app_label='album' model='ParticipareEveniment' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>&nbsp;</th>
+            <th>Cercetaș</th>
+            <th>Rol</th>
+            <th>Status</th>
+            <th>Parțial</th>
+            <th>Detalii</th>
+            {% for camp in eveniment.camparbitrarparticipareeveniment_set.all %}
+                <th>{{ camp.nume }}</th>
+            {% endfor %}
+            <th>&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for participare in object_list %}
+            <tr>
+                <td>#{{ participare.id }}</td>
+                {% with participare.membru as cercetas %}
+                <td>{% for badge in cercetas.get_badges_rdv %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
+                            {% for badge in cercetas.get_extra_badges %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
+                            <a href = "{% url structuri:membru_detail pk=cercetas.id %}">{{ cercetas }}</a></td>
+                {% endwith %}
+                <td>{{ participare.get_rol_display }}</td>
+                <td>{{ participare.get_status_participare_display }}</td>
+                <td>{% if participare.is_partiala %}<i class = "icon-ok"></i>{% endif %}</td>
+                <td>{% if participare.detalii %}{{ participare.detalii|linebreaksbr }}{% endif %}</td>
+                {% for camp in eveniment.camparbitrarparticipareeveniment_set.all %}
+                    <td>{% valoare_camp camp participare %}</td>
+                {% endfor %}
+                <td>
+                    <div class = "btn-group pull-right">
+                        <a href = "{% url album:eveniment_participanti_modifica pk=participare.id %}" class = "btn btn-mini"><i class = "icon-pencil"></i></a>
+                        <a href = "#" id="delete_{{ participare.id }}" class = "btn btn-mini"><i class = "icon-trash"></i></a>
+                    </div>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td>&nbsp;</td>
+                <td colspan="7">
+                    <em>Nu există participanți</em>
+                </td>
+                {% for camp in eveniment.camparbitrarparticipareeveniment_set.all %}
+                    <td>&nbsp;</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+
+
+    </table>
+{% endblock %}
