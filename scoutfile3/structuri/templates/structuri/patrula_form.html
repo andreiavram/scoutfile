@@ -6,9 +6,7 @@
 {% endblock %}
 
 {% block extrahead %}
-	<link type = "text/css" href = "{{ STATIC_URL }}css/datepicker.css" rel = "stylesheet"/>
-	<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-datepicker.js"></script>
-	<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-datepicker-activate.js"></script>
+    {{ form.media }}
 {% endblock %}
 
 {% block context_menu %}

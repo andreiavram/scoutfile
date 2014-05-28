@@ -24,7 +24,7 @@
         {% for eveniment in object_list %}
             <tr>
                 <td>{{ forloop.counter }}</td>
-                <td><a href = "{% url album:eveniment_detail slug=eveniment.slug %}">{{ eveniment }}</a><br /><span class = "small">{% if eveniment.tip_eveniment %}{{ eveniment.get_tip_eveniment_display }}</span>{% else %}<em>Lipsă!{% endif %}</em></td>
+                <td><a href = "{% url album:eveniment_detail slug=eveniment.slug %}">{{ eveniment }}</a><br /><span class = "small">{% if eveniment.tip_eveniment %}{{ eveniment.tip_eveniment }}</span>{% else %}<em>Lipsă!{% endif %}</em></td>
                 <td>
                     {% if eveniment.is_one_day %}{{ eveniment.start_date|date:"l, d F Y" }}, între {{ eveniment.start_date|date:"H:i" }} și {{ eveniment.end_date|date:"H:i"}}
                     {% else %}{{ eveniment.start_date|date:"l, d F Y" }} - {{ eveniment.end_date|date:"l, d F Y" }}{% endif %}

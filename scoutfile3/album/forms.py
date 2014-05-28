@@ -4,8 +4,10 @@ Created on Aug 31, 2012
 
 @author: yeti
 '''
+from ajax_select.fields import AutoCompleteSelectField
 from crispy_forms.layout import Fieldset, Layout, Field
 from django.core.urlresolvers import reverse
+from django.template.defaultfilters import slugify
 from taggit.forms import TagField
 from goodies.forms import CrispyBaseModelForm
 from django import forms
@@ -13,8 +15,10 @@ from django.forms.widgets import RadioSelect, Textarea
 from django.core.exceptions import ValidationError
 
 from goodies.widgets import BootstrapDateTimeInput, GeoCoordinatesInput, FacebookLinkWidget, TaggitTagsInput
-from album.models import FlagReport, FLAG_MOTIVES, RaportEveniment
+from album.models import FlagReport, FLAG_MOTIVES, RaportEveniment, ParticipareEveniment, \
+    CampArbitrarParticipareEveniment
 from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
+from generic.widgets import BootstrapDateTimeInput, BootstrapDateInput
 
 
 class ReportForm(CrispyBaseModelForm):
@@ -22,25 +26,24 @@ class ReportForm(CrispyBaseModelForm):
         model = FlagReport
         fields = ("motiv", "alt_motiv")
 
-
     def __init__(self, *args, **kwargs):
-        retval = super(ReportForm, self).__init__(*args, **kwargs)
-
+        super(ReportForm, self).__init__(*args, **kwargs)
         self.helper.form_class = "form-vertical"
-        return retval
-
+        self.helper.form_id = "raport_form"
 
     motiv = forms.ChoiceField(widget=RadioSelect, choices=FLAG_MOTIVES, required=True)
     alt_motiv = forms.CharField(widget=Textarea, required=False, label=u"Care?")
 
-
     def clean(self):
-        if self.cleaned_data['motiv'] == "altul":
+        if "motiv" in self.cleaned_data and self.cleaned_data['motiv'] == "altul":
             if "alt_motiv" not in self.cleaned_data or len(self.cleaned_data["alt_motiv"].strip()) == 0:
                 raise ValidationError(u"Daca ai selectat 'alt motiv' trebuie să spui și care este acesta")
 
         return self.cleaned_data
 
+
+class ReportFormNoButtons(ReportForm):
+    has_submit_buttons = False
 
 class SetPozeCreateForm(CrispyBaseModelForm):
     class Meta:
@@ -57,7 +60,7 @@ class SetPozeUpdateForm(CrispyBaseModelForm):
 class EvenimentCreateForm(CrispyBaseModelForm):
     class Meta:
         model = Eveniment
-        exclude = ["centru_local", "custom_cover_photo", "ramuri_de_varsta"]
+        exclude = ["centru_local", "custom_cover_photo", "ramuri_de_varsta", "activa"]
 
     descriere = forms.CharField(required=False, widget=Textarea(attrs={"cols": 400}))
     start_date = forms.DateTimeField(required=True, widget=BootstrapDateTimeInput(), label=u"Data început")
@@ -74,12 +77,16 @@ class EvenimentCreateForm(CrispyBaseModelForm):
     lideri = forms.IntegerField(required=True)
     adulti = forms.IntegerField(required=True)
 
+    responsabil_articol = AutoCompleteSelectField("membri", label=u"Responsabil articol", required=False)
+    responsabil_raport = AutoCompleteSelectField("lideri", label=u"Responsabil raport", required=False)
+
     def __init__(self, *args, **kwargs):
         super(EvenimentCreateForm, self).__init__(*args, **kwargs)
         self.helper.layout = Layout("nume", Field("descriere", style="width:100%"), "status", "tip_eveniment", "start_date", "end_date", "slug",
                                     "facebook_event_link", "articol_site_link", "locatie_text", "locatie_geo",
-                                    "published_status", "cover_photo", Fieldset(u"Participanți", "lupisori", "temerari",
-                                                        "exploratori", "seniori", "lideri", "adulti"))
+                                    "organizator", "organizator_cercetas", "international", "published_status", "cover_photo",
+                                    Fieldset(u"Responsabili", "responsabil_articol", "responsabil_raport"),
+                                    Fieldset(u"Participanți", "lupisori", "temerari", "exploratori", "seniori", "lideri", "adulti"))
 
 
 class EvenimentUpdateForm(EvenimentCreateForm):
@@ -109,3 +116,75 @@ class RaportEvenimentForm(CrispyBaseModelForm):
                   "promovare", "buget", "accept_publicare_raport_national"]
 
 
+class EvenimentParticipareForm(CrispyBaseModelForm):
+    class Meta:
+        model = ParticipareEveniment
+        exclude = ["eveniment", "user_modificare"]
+
+    membru = AutoCompleteSelectField("membri", label=u"Cercetaș")
+    data_sosire = forms.DateTimeField(widget=BootstrapDateTimeInput, label=u"Sosire")
+    data_plecare = forms.DateTimeField(widget=BootstrapDateTimeInput, label=u"Plecare")
+
+    def __init__(self, **kwargs):
+        self.eveniment = kwargs.pop("eveniment")
+        self.request = kwargs.pop("request")
+        super(EvenimentParticipareForm, self).__init__(**kwargs)
+
+        campuri = self.eveniment.camparbitrarparticipareeveniment_set.all()
+
+        for camp in campuri:
+            field_args = self.get_field_args(camp)
+            self.fields[camp.slug] = camp.get_form_field_class()(**field_args)
+
+    def get_field_args(self, camp):
+        field_args = dict(required=not camp.optional,
+                          label=camp.nume,
+                          help_text=camp.explicatii_suplimentare)
+
+        if camp.tip_camp == "date":
+            field_args['widget'] = BootstrapDateInput
+
+        if camp.implicit:
+            field_args['initial'] = camp.implicit
+
+        return field_args
+
+
+class EvenimentParticipareUpdateForm(EvenimentParticipareForm):
+    def get_field_args(self, camp):
+        field_args = dict(required=not camp.optional,
+                          label=camp.nume,
+                          help_text=camp.explicatii_suplimentare)
+
+        if camp.tip_camp == "date":
+            field_args['widget'] = BootstrapDateInput
+
+        value = camp.get_value(participare=self.instance)
+        if value is not None:
+            field_args['initial'] = value
+        elif camp.implicit:
+            field_args['initial'] = camp.implicit
+
+        return field_args
+
+
+class CampArbitrarForm(CrispyBaseModelForm):
+    class Meta:
+        model = CampArbitrarParticipareEveniment
+        exclude = ["eveniment", "slug"]
+
+    def __init__(self, *args, **kwargs):
+        self.eveniment = kwargs.pop("eveniment")
+        super(CampArbitrarForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        if len(self.cleaned_data.get('implicit', "")) > 0 and self.cleaned_data['optional'] is False:
+            raise ValidationError(u"Un câmp opțional nu poate avea valoare implicită!")
+
+        cnt = self.eveniment.participareeveniment_set.all().count()
+        if self.cleaned_data['optional'] is False and cnt > 0:
+            if len(self.cleaned_data.get('implicit', "")) == 0:
+                raise ValidationError(u"Un câmp obligatoriu trebuie să aibă valoare implicită când există deja înregistrări de participare!")
+            #   daca se adauga un camp nou, obligatoriu dar care nu are valoare implicita e o problema
+
+        return self.cleaned_data

@@ -1,0 +1,9 @@
+{% if camp.tip_camp == 'bool' %}
+    {% if valoare %}<i class = "icon-ok"></i>{% else %}<i class = "icon-remove"></i>{% endif %}
+{% elif camp.tip_camp == 'number' %}
+    {{ valoare|floatformat }}
+{% elif camp.tip_camp == 'date' %}
+    {{ valoare|date:'l, d F Y' }}
+{% else %}
+    {{ valoare }}
+{% endif %}

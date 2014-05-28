@@ -1,7 +1,7 @@
 
     <ol>
         <li><strong>Denumire proiect/activitate:</strong> {{ object }}</li>
-        <li><strong>Tipul activității / proiectului:</strong> {{ object.get_tip_eveniment_display }}</li>
+        <li><strong>Tipul activității / proiectului:</strong> {{ object.tip_eveniment }}</li>
         <li><strong>Parteneri în cadrul proiectului</strong>: {% if object.raport.parteneri %}<ul>{% for p in object.raport.parteneri_list %}<li>{{ p|capfirst }}</li>{% endfor %}</ul>{% else %}-{% endif %}</li>
         <li><strong>Perioada și locul de desfășurare</strong>: {% if object.is_one_day %} {{ object.start_date|date:"l, d F Y" }}, între {{ object.start_date|date:"H:i" }} - {{ object.end_date|date:"H:i"}}
                 {% else %}{{ object.start_date|date:"l, d F Y" }} - {{ object.end_date|date:"l, d F Y" }}{% endif %} / {{ object.locatie_text }}</li>

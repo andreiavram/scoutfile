@@ -1,28 +1,37 @@
 	<ul class = "nav nav-list">
-		<li class = "nav-header">Acțiuni</li>
-		<li class = "disabled"><a href = ""><i class = "icon-download"></i> Download toate</a>
-		<li class = "disabled"><a href = ""><i class = "icon-download-alt"></i> Torrent</a>
-        {% if user.is_authenticated %}
-		<li><a href = "{% url album:eveniment_upload slug=eveniment.slug %}"><i class = "icon-upload"></i> Upload set poze</a></li>
-        {% endif %}
-        <li class = "nav-header">Locații</li>
-        <li><a href = "{% url album:eveniment_main_detail slug=eveniment.slug %}"><i class = "icon-home"> Prezentare</i></a></li>
-		<li><a href = "{% url album:eveniment_detail slug=eveniment.slug %}"><i class = "icon-picture"></i> Album</a></li>
+        <li><a href = "{% url album:index %}"><i class = "icon-chevron-left"></i> Lista activități</a></li>
+        <li class = "nav-header">Activitate</li>
+        <li><a href = "{% url album:eveniment_detail slug=eveniment.slug %}"><i class = "icon-home"></i> Prezentare</a></li>
+		<li><a href = "{% url album:eveniment_album slug=eveniment.slug %}"><i class = "icon-picture"></i> Album</a></li>
 		<li><a href = "{% url album:eveniment_stats pk=eveniment.id %}"><i class = "icon-list-alt"></i> Statistici</a></li>
 		<li><a href = "{% url album:eveniment_seturi_toate slug=eveniment.slug %}"><i class = "icon-list"></i> Seturi de poze</a></li>
-        <li><a href = "{% url album:index %}"><i class = "icon-chevron-left"></i> Evenimente</a></li>
-		<li class = "nav-header">Căutare</li>
-        <li><a href = "{% url album:tag_search %}"><i class = "icon-search"></i> Căutare după tag-uri</a></li>
+
+        <li><a href = "{% url album:eveniment_asociere_structura_create slug=eveniment.slug %}"><i class = "icon-link"></i> Conexiuni interne</a></li>
+        <li><a href = "{% url album:eveniment_participanti_list slug=eveniment.slug %}"><i class = "icon-group"></i> Participanți</a></li>
+
+        <li class = "nav-header">Acțiuni</li>
+{#		<li class = "disabled"><a href = ""><i class = "icon-download"></i> Download toate</a>#}
+{#		<li class = "disabled"><a href = ""><i class = "icon-download-alt"></i> Torrent</a>#}
+        {% if user.is_authenticated %}
+		<li><a href = "{% url album:eveniment_upload slug=eveniment.slug %}"><i class = "icon-upload"></i> Upload set poze</a></li>
+
+        {% endif %}
+
         {% if user.is_authenticated %}
         <li class = "nav-header">Administrare</li>
         <li><a href = "{% url album:eveniment_update slug=eveniment.slug %}"><i class = "icon-pencil"></i> Editează</a></li>
         <li><a class = "delete" href = "{% url album:eveniment_delete slug=eveniment.slug %}"><i class = "icon-trash"></i> Șterge</a></li>
+        <li><a href = "{% url album:eveniment_campuri_list slug=eveniment.slug %}"><i class = "icon-list-alt"></i> Câmpuri speciale</a></li>
         <li class = "nav-header">Raportare</li>
             <li><a href = "{% url album:eveniment_raport_detail slug=eveniment.slug %}"><i class = "icon-file"></i> Raport curent</a></li>
             <li><a href = "{% url album:eveniment_raport_update slug=eveniment.slug %}"><i class = "icon-edit"></i> Editează raport</a></li>
             <li><a href = "{% url album:eveniment_raport_history slug=eveniment.slug %}"><i class = "icon-list"></i> Listă versiuni</a></li>
             <li><a href = "{% url album:eveniment_raport_complet slug=eveniment.slug %}"><i class = "icon-file"></i> Raport complet (ONCR)</a></li>
         {% endif %}
+
+        <li class = "nav-header">Căutare foto</li>
+        <li><a href = "{% url album:tag_search %}"><i class = "icon-search"></i> Căutare după tag-uri</a></li>
+
         <li class = "nav-header">Fotografi</li>
 
 		<li><a href = "{% url album:eveniment_detail slug=eveniment.slug %}"><i class = "icon-camera"></i> Toți autorii</a></li>

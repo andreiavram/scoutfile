@@ -4,7 +4,7 @@ Created on Sep 18, 2012
 
 @author: yeti
 '''
-from album.models import Imagine
+from album.models import Imagine, ParticipareEveniment
 from structuri.models import CentruLocal, Patrula, Unitate, Membru,\
     AsociereMembruStructura, InformatieContact
 from django.shortcuts import get_object_or_404
@@ -58,6 +58,7 @@ def allow_by_afiliere(asocieri, pkname = "pk", combine = False):
              "Eveniment, Centru Local": lambda: get_object_or_404(Eveniment, slug=kwargs.get(pkname)).centru_local,
              "Utilizator, Centru Local": lambda: args[0].user.utilizator.membru.centru_local,
              "Imagine, Centru Local": lambda: get_object_or_404(Imagine, pk=kwargs.get(pkname)).set_poze.eveniment.centru_local,
+             "Participare, Eveniment, Centru Local": lambda: get_object_or_404(ParticipareEveniment, pk=kwargs.get(pkname)).eveniment.centru_local,
              }
 
             

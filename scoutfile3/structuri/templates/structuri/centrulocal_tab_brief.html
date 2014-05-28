@@ -1,3 +1,18 @@
+    <div class = "alert alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <i class = "icon-warning-sign"></i> Cotizațiile au fost strânse în proporție de
+        {% with  object.grad_colectare_cotizatie_trimestrul_curent as grad %}
+        <span class = "label label-{% if grad < 25 %}important{% elif grad < 90 %}warning{% else %}success{% endif %}">{{ grad|floatformat }}%</span>
+        {% endwith %}
+        pentru trimestrul curent și
+        {% with  object.grad_colectare_cotizatie_trimestrul_anterior as grad %}
+        <span class = "label label-{% if grad < 25 %}important{% elif grad < 90 %}warning{% else %}success{% endif %}">{{ grad|floatformat }}%</span>
+        {% endwith %}
+        pentru trimestrul trecut.
+    </div>
+
+
+
 <table class = "table table-striped">
 	<thead>
 		<tr>
