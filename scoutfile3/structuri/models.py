@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.core.urlresolvers import reverse
+from django.db.models.aggregates import Sum
 import logging
 import datetime
 from django.db.models import permalink
@@ -14,7 +15,7 @@ from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 import unidecode
-from documente.models import PlataCotizatieTrimestru, AsociereDocument
+from documente.models import PlataCotizatieTrimestru, AsociereDocument, Trimestru, ChitantaCotizatie
 from utils.models import FacebookSession
 
 
@@ -27,6 +28,7 @@ class RamuraDeVarsta(models.Model):
     varsta_intrare = models.PositiveSmallIntegerField()
     varsta_iesire = models.PositiveSmallIntegerField(null=True, blank=True)
     culoare = models.CharField(max_length=255, null=True, blank=True)
+    are_patrule = models.BooleanField(default=True)
 
     def __unicode__(self):
         return u"%s" % self.nume
@@ -58,13 +60,12 @@ class Structura(models.Model):
 
         return None
 
-    def cercetasi(self, qs=False, tip_asociere=u"Membru"):
+    def cercetasi(self, qs=False, tip_asociere=[u"Membru", u"Membru aspirant", u"Membru suspendat"]):
         asociere = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(self),
                                                           object_id=self.id,
                                                           moment_incheiere__isnull=True)
 
         if isinstance(tip_asociere, type([])):
-            print tip_asociere
             asociere = asociere.filter(tip_asociere__nume__in=tip_asociere)
         else:
             asociere = asociere.filter(tip_asociere__nume__iexact=tip_asociere)
@@ -72,6 +73,30 @@ class Structura(models.Model):
         if qs:
             return asociere
         return [a.membru for a in asociere]
+
+    def lideri(self, qs=False):
+        return self.cercetasi(qs=qs, tip_asociere=["Lider", "Lider asistent"])
+
+    def grad_colectare_cotizatie(self, trimestru=None):
+        target_grp_total = self.cercetasi(qs=True).filter(moment_inceput__lte=trimestru.data_inceput).select_related("membru")
+        target_grp = [a for a in target_grp_total if a.membru.plateste_cotizatie(trimestru)]
+        realizat_cnt = PlataCotizatieTrimestru.objects.filter(trimestru=trimestru, final=True, membru__in=[a.membru for a in target_grp]).count()
+
+        if len(target_grp) == 0:
+            if target_grp_total.count():
+                return 100
+            return 0
+
+        return realizat_cnt * 100. / len(target_grp)
+
+    def grad_colectare_cotizatie_trimestrul_curent(self):
+        return self.grad_colectare_cotizatie(trimestru=Trimestru.trimestru_pentru_data(datetime.datetime.now().date()))
+
+    def grad_colectare_cotizatie_trimestrul_anterior(self):
+        trimestru = Trimestru.trimestru_pentru_data(datetime.datetime.now().date())
+        trimestru = Trimestru.objects.get(ordine_globala=trimestru.ordine_globala-1)
+        return self.grad_colectare_cotizatie(trimestru=trimestru)
+
 
 SPECIFIC_CENTRU_LOCAL = (("catolic", "Catolic"), ("marinaresc", u"Marinăresc"))
 STATUT_JURIDIC_CENTRU_LOCAL = (("pj", u"Filală"), ("nopj", u"Sucursală"), ("gi", u"Grup de inițiativă"))
@@ -89,6 +114,8 @@ class CentruLocal(Structura):
         permissions = (
             ("list_centrulocal", u"Poate vedea o listă cu Centrele lui Locale")
         )
+
+    asocieri_membru = [u"Membru",]
 
     localitate = models.CharField(max_length=255)
     denumire = models.CharField(max_length=255, null=True, blank=True)
@@ -129,6 +156,7 @@ class CentruLocal(Structura):
         return cnt_membri - cnt_adeziuni
 
 
+
 class Unitate(Structura):
     class Meta:
         verbose_name = u"Unitate"
@@ -138,7 +166,13 @@ class Unitate(Structura):
     centru_local = models.ForeignKey(CentruLocal)
 
     def __unicode__(self):
-        return u"%s (%s)" % (self.nume, self.ramura_de_varsta)
+        return u"Unitatea %s" % self.nume
+
+    def patrule(self):
+        return self.patrula_set.filter(activa=True, moment_inchidere__isnull=True)
+
+    def patrule_inactive(self):
+        return self.patrula_set.filter(activa=False, moment_inchidere__isnull=False)
 
     def total_membri_activi(self):
         return AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(self),
@@ -152,12 +186,14 @@ class Unitate(Structura):
     def get_absolute_url(self):
         return ("structuri:unitate_detail", [], {"pk": self.id})
 
+
 class Patrula(Structura):
     class Meta:
         verbose_name = u"Patrulă"
         verbose_name_plural = u"Patrule"
 
     unitate = models.ForeignKey(Unitate)
+    moment_inchidere = models.DateField(null=True, blank=True)
 
     @property
     def ramura_de_varsta(self):
@@ -168,14 +204,11 @@ class Patrula(Structura):
         return self.unitate.centru_local
 
     def __unicode__(self):
-        return u"%s" % self.nume
+        return u"Patrula %s" % self.nume
 
     @models.permalink
     def get_absolute_url(self):
         return ("structuri:patrula_detail", [], {"pk": self.id})
-
-    def lideri(self, qs=False):
-        return self.cercetasi(qs=qs, tip_asociere=["Lider", "Lider asistent"])
 
 
 class Utilizator(models.Model):
@@ -202,8 +235,7 @@ class Utilizator(models.Model):
 
     def facebook_connected(self):
         #   TODO: add expiration check on facebook session manager
-
-        return FacebookSession.objects.filter(user = self.user).exists()
+        return FacebookSession.objects.filter(user=self.user).exists()
 
 
 class ImagineProfil(ImageModel):
@@ -332,66 +364,123 @@ class Membru(Utilizator):
     def centru_local(self):
         return self.get_centru_local()
 
-    def get_centru_local(self):
-        asocieri = AsociereMembruStructura.objects.filter(membru=self,
-                                                          content_type=ContentType.objects.get_for_model(CentruLocal),
-                                                          tip_asociere__nume=u"Membru",
-                                                          moment_incheiere__isnull=True).order_by("-moment_inceput", )
+    def get_centru_local(self, qs=False, tip_asociere=[]):
+        if len(tip_asociere) == 0:
+            tip_asociere = CentruLocal.asocieri_membru
+
+        asocieri_filter = dict(membru=self,
+                               content_type=ContentType.objects.get_for_model(CentruLocal),
+                               tip_asociere__nume__in=tip_asociere,
+                               moment_incheiere__isnull=True)
+        asocieri = AsociereMembruStructura.objects.filter(**asocieri_filter).order_by("-moment_inceput", )
+
+        if qs:
+            return asocieri
+
         if asocieri.count():
             return asocieri[0].content_object
 
         return None
 
-    def get_unitate(self):
-        asociere = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(Unitate),
-                                                          moment_incheiere__isnull=True,
-                                                          tip_asociere__nume=u"Membru",
-                                                          membru=self).order_by("-moment_inceput")
-        if asociere.count():
-            return asociere[0].content_object
+    def get_structura(self, qs=False, rol=[u"Membru", ], single=True, structura_model=None, trimestru=None):
+        if self.is_lider and not single:
+            rol = rol + [u"Lider", u"Lider asistent"]
+
+        kwargs = {"content_type": ContentType.objects.get_for_model(structura_model),
+                  "tip_asociere__nume__in": rol,
+                  "tip_asociere__content_types__in": (ContentType.objects.get_for_model(structura_model), ),
+                  "membru": self}
+
+        asocieri = AsociereMembruStructura.objects.filter(**kwargs).order_by("-moment_inceput")
+
+        if trimestru is None:
+            # trimestrul curent, vorbim despre prezent
+            asocieri = asocieri.filter(moment_inceput__isnull=False, moment_incheiere__isnull=True)
+        else:
+            asocieri = asocieri.filter(Q(moment_incheiere__isnull=True) | Q(moment_incheiere__gte=trimestru.data_inceput))
+            asocieri = asocieri.filter(moment_inceput__lte=trimestru.data_sfarsit)
+
+        if asocieri.count():
+            if qs:
+                if single:
+                    return asocieri[0]
+                else:
+                    return asocieri
+            else:
+                if single:
+                    return asocieri[0].content_object
+                else:
+                    return [a.content_object for a in asocieri]
+
         return None
 
-    def get_patrula(self, qs=False):
-        kwargs = {"content_type": ContentType.objects.get_for_model(Patrula),
-                  "moment_incheiere__isnull": True,
-                  "tip_asociere__nume": u"Membru",
-                  "tip_asociere__content_types__in": [ContentType.objects.get_for_model(Patrula)],
-                  "membru": self}
-        asociere = AsociereMembruStructura.objects.filter(**kwargs).order_by("-moment_inceput")
-        if asociere.count():
-            if qs:
-                return asociere[0]
-            return asociere[0].content_object
-        return None
+    def get_unitate(self, qs=False, rol=[u"Membru", ], single=True, trimestru=None):
+        return self.get_structura(qs=qs, rol=rol, single=single, structura_model=Unitate, trimestru=trimestru)
+
+    def get_patrula(self, qs=False, rol=[u"Membru", ], single=True, trimestru=None):
+        return self.get_structura(qs=qs, rol=rol, single=single, structura_model=Patrula, trimestru=trimestru)
+
+    def get_unitati(self, qs=False, rol=[u"Membru", ], trimestru=None):
+        return self.get_unitate(qs=qs, rol=rol, single=False, trimestru=trimestru)
+
+    def get_patrule(self, qs=False, rol=[u"Membru", ], trimestru=None):
+        return self.get_patrula(qs=qs, rol=rol, single=False, trimestru=trimestru)
 
     def get_centre_locale_permise(self):
         if self.user.groups.filter(name__iexact=u"Administratori sistem").count():
             return CentruLocal.objects.all()
         return [self.centru_local, ]
 
-    def are_calitate(self, calitate, structura):
-        qs = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(structura),
-                                                    object_id=structura.id,
-                                                    tip_asociere__content_types__in=(
-                                                        ContentType.objects.get_for_model(structura), ),
-                                                    tip_asociere__nume__iexact=calitate,
-                                                    moment_inceput__isnull=False,
-                                                    moment_incheiere__isnull=True,
-                                                    membru=self)
-        # logger.debug("%s" % qs.count())
-        return qs.count() != 0
+    def are_calitate(self, calitate, structura, trimestru=None, qs=False):
+        """ determina daca membrul are o calitate intr-un din structurile locale (Centru Local, Unitate, Patrula)
+        determinarea se face pentru un trimestru, implicit fiind cel din ziua curenta
+        metoda ar trebui sa fie folosita oriunde se incearca determinari de apartenente si calitati
+        """
+        if not isinstance(calitate, type([])):
+            calitate = [calitate, ]
+
+        ams_filter = dict(content_type=ContentType.objects.get_for_model(structura),
+                          object_id=structura.id,
+                          tip_asociere__content_types__in=(ContentType.objects.get_for_model(structura), ),
+                          tip_asociere__nume__in=calitate,
+                          membru=self)
+
+        asocieri = AsociereMembruStructura.objects.filter(**ams_filter)
+        if trimestru is None:
+            asocieri = asocieri.filter(moment_inceput__isnull=False, moment_incheiere__isnull=True)
+        else:
+            asocieri = asocieri.filter(Q(moment_incheiere__isnull=True) | Q(moment_incheiere__gte=trimestru.data_inceput))
+            asocieri = asocieri.filter(moment_inceput__lte=trimestru.data_sfarsit)
+
+        if qs:
+            return asocieri
+
+        return asocieri.count() != 0
+
+    CALITATI_COMUNE = ["Membru suspendat", "Membru aspirant", "Membru inactiv", "Membru Consiliul Centrului Local",
+                       "Lider", "Lider asistent", "Membru adult", u"Șef Centru Local"]
+
+    def _proprietati_comune(self):
+        if not hasattr(self, "_proprietati") or self._proprietati is None:
+            self._proprietati = {}
+            for calitate in self.CALITATI_COMUNE:
+                self._proprietati[calitate] = False
+
+            if self.centru_local:
+                calitati = list(self.are_calitate(self.CALITATI_COMUNE, self.centru_local, qs=True).select_related("tip_asociere"))
+
+                for calitate in calitati:
+                    self._proprietati[calitate.tip_asociere.nume] = True
+
+        return self._proprietati
 
     @permalink
     def get_home_link(self):
-        #TODO: only redirect to CentruLocal detail page if user is lider / board member
-
-        asocieri = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(CentruLocal),
-                                                          tip_asociere__nume__icontains=u"lider",
-                                                          membru=self,
-                                                          moment_incheiere__isnull=True, confirmata=True)
-        if asocieri.count():
+        if self.is_lider():
+            unitate = self.get_unitate(rol=["Lider", "Lider asistent"])
+            if unitate:
+                return ("structuri:unitate_detail", [], {"pk": unitate.id})
             return ("structuri:cl_detail", [], {"pk": self.centru_local.id})
-
         return ("structuri:membru_profil", [], {})
 
     def afilieri_curente(self, end_chain=True, **kwargs):
@@ -406,14 +495,6 @@ class Membru(Utilizator):
         if end_chain:
             qs = qs.order_by("moment_incheiere")
         return qs
-
-    def is_lider(self):
-        qs = self.afilieri_curente(end_chain=False)
-        return qs.filter(tip_asociere__nume__icontains="Lider").count() != 0
-
-    def is_membru_ccl(self):
-        qs = self.afilieri_curente(end_chain=False)
-        return qs.filter(tip_asociere__nume__iexact=u"Membru Consiliul Centrului Local").count() != 0
 
     def get_ramura_de_varsta(self):
         if self.is_lider():
@@ -442,28 +523,21 @@ class Membru(Utilizator):
         return asociere
 
     def get_badges_rdv(self):
-        #    daca este lider
         badges = []
-        if self.afilieri_curente(end_chain=False).filter(tip_asociere__nume__icontains=u"Lider").count():
+        if self.is_lider_generic():
             badges.append("lider")
-
-        #    daca este cercetas
         else:
             unitate = self.get_unitate()
             if unitate:
                 badges.append(unidecode.unidecode(unitate.ramura_de_varsta.nume.lower()))
-
         return badges
 
     def get_extra_badges(self):
         badges = []
-
-        if self.afilieri_curente(end_chain=False).filter(tip_asociere__nume__icontains=u"Șef Centru Local").count():
+        if self.is_sef_centru():
             badges.append("sef-centru")
-        if self.afilieri_curente(end_chain=False).filter(
-                tip_asociere__nume__icontains=u"Membru Consiliul Centrului Local").count():
+        if self.is_membru_ccl():
             badges.append("membru-ccl")
-
         return badges
 
     @models.permalink
@@ -549,8 +623,11 @@ class Membru(Utilizator):
 
         return max(trimestru_membru, trimestru_centru, key=lambda x: x.ordine_globala)
 
-    def are_cotizatie_sociala(self):
+    def are_cotizatie_sociala(self, trimestru=None):
         """ Intoarce True daca membrul este in situatia de a plati cotizatie sociala
+            Cotizatia sociala e o problema care poate varia în timp (se poate renunța la ea sau poate
+            exista la o vreme după ce membrul este deja plătitor de cotizație, deci este necesar de știut despre
+            ce trimestru este vorba.
         """
         from documente.models import DocumentCotizatieSociala, AsociereDocument
 
@@ -559,33 +636,73 @@ class Membru(Utilizator):
                             "document_ctype": ContentType.objects.get_for_model(DocumentCotizatieSociala),
                             "document__documentcotizatiesociala__este_valabil": True}
 
-        return AsociereDocument.objects.filter(**filtru_documente).count() != 0
+        qs = AsociereDocument.objects.filter(**filtru_documente)
+
+        if trimestru is None:
+            trimestru = Trimestru.trimestru_pentru_data(datetime.date.today())
+
+        qs = qs.filter(Q(document__documentcotizatiesociala__valabilitate_end__isnull=True) | Q(document__documentcotizatiesociala__valabilitate_end__gte=trimestru.data_inceput))
+        qs = qs.filter(document__documentcotizatiesociala__valabilitate_start__lte=trimestru.data_sfarsit)
+        return qs.count() != 0
 
     def aplica_reducere_familie(self, valoare, trimestru):
         """ Aplica reducerea de familie pentru cotizatie
         """
 
-        if self.are_cotizatie_sociala():
+        if self.are_cotizatie_sociala(trimestru=trimestru):
             return valoare
 
         familie = AsociereMembruFamilie.rude_cercetasi(self, exclude_self=True)
+        #   exclude de la reducerea de membrii de familie membrii de familie care au cotizatie sociala trimestrul asta
+        familie = [m for m in familie if not m.are_cotizatie_sociala(trimestru)]
 
+        #   principiul este ca reducerea se aplica doar dupa ce se fac plati complete, nu si partiale
+        #   problema care poate aparea este ca exista plati partiale care trebuie reconsiderate dupa efectuarea unei
+        #   plati finale, ceea ce inseamna redistribuirea sumei respective
+
+        #   in recalcularea cotizatiei pentru membrul familiei care plateste mai mult, se vor gasi plati finale
+        #   efectuate, dar pentru sumele mai mici, ceea ce inseamna ca cotizatia intoarsa va fi si ea redusa, lucru
+        #   eronat. Pentru a evita aceasta situatie, nu doar numarul platilor finale, ci si cuantumul lor trebuie
+        #   determinat
+
+        #   afla care sunt membrii familiei care au plati considerate finale
         filter_kwargs = dict(trimestru=trimestru, membru__in=familie, tip_inregistrare="normal")
 
-        try:
-            platitori_cnt = PlataCotizatieTrimestru.objects.filter(**filter_kwargs).select_related("membru").values_list("membru", flat=True).distinct().count()
-        except Exception, e:
-            logger.error("{0}: problemă la obținerea de platitori de cotizatie: {1}".format(self.__class__.__name__, e))
-            platitori_cnt = 0
+        plati = PlataCotizatieTrimestru.objects.filter(**filter_kwargs).select_related("membru")
+
+        #   ne intereseaza doar platile facute de membrii care au si plati finale (pentru fiecare trimestru fiecare
+        #   membru poate avea o singura plata finala)
+
+        membri_plati_finale = plati.filter(final=True).values_list("membru", flat=True)
+        plati_relevante = plati.filter(membru__id__in=membri_plati_finale)
+        #   pentru fiecare membru cu plati finale, calculeaza ce plata are facuta
+        plati_membri_familie = []
+        for m in membri_plati_finale:
+            suma_membru = plati_relevante.filter(membru__id = m).aggregate(Sum("suma")).get("suma__sum", 0)
+            plati_membri_familie.append((m, suma_membru))
+
+        platitori_cnt = len(plati_membri_familie)
+        plati_membri_familie.sort(key=lambda p: p[1], reverse=True)
 
         quotas = {0: 1, 1: 0.5, 2: 0.25}
-        quota = quotas.get(platitori_cnt, 0.25)
+        plata_index = 0
+        if len(plati_membri_familie):
+            for q in quotas.items():
+                logger.debug(u"aplica_reducere_familie, verific existență cotizație %s pentru %s, trimestrul %s" % (q[1], self, trimestru))
+                found = False
+
+                if valoare * q[1] == plati_membri_familie[plata_index][1]:
+                    found = True
+                    plata_index += 1
+
+                if found is False or plata_index > len(plati_membri_familie) - 1:
+                    break
+
+        quota = quotas.get(plata_index, 0.25)
         return valoare * quota
 
     def _status_cotizatie(self):
-        """ Cotizatia se poate plati pana pe 15 a primei luni din urmatorul trimestru
-        @todo: implementariile viitoare ar trebui sa accepte un sistem de politici de cotizatie, care sa permita
-        implementarea cotizatiilor pentru adulti sau pentru alte categorii de membri (?)
+        """ Cotizatia se poate plati pana pe 15 a ultimei luni din trimestru
         """
 
         pct = PlataCotizatieTrimestru.objects.filter(membru=self, final=True).order_by("-trimestru__ordine_globala")[0:1]
@@ -600,20 +717,31 @@ class Membru(Utilizator):
         today = datetime.date.today()
         trimestru_curent = Trimestru.trimestru_pentru_data(today)
 
-        # print trimestru_curent
-        # print ultimul_trimestru
-
         # -1 vine de la faptul ca cotizatia se plateste in urma, nu in avans, deci trimestrul curent
         # se plateste dupa ce se termina
         diferenta_trimestre = trimestru_curent.ordine_globala - ultimul_trimestru.ordine_globala - 1
         if nothing:
             diferenta_trimestre += 1
 
+        # UPDATED: cotizatia se plateste in urma, dar deadline-ul oficial al Centrului Local este 15 a ultimei luni
+        # a trimestrului curent
+        if today > (trimestru_curent.data_sfarsit - datetime.timedelta(days=15)):
+            diferenta_trimestre += 1
+
         # daca suntem in perioada de gratie de doua saptamani de la inceputul trimestrului, nici trimestrul
         # trecut nu conteaza
-        if not trimestru_curent.data_in_trimestru(today - datetime.timedelta(days = 15)):
-            diferenta_trimestre -= 1
+        # UPDATED: perioada de gratie este o chestiune care tine doar de ONCR, la nivel local,
+        # nu exista perioada de gratie
+        #if not trimestru_curent.data_in_trimestru(today - datetime.timedelta(days = 15)):
+        #    diferenta_trimestre -= 1
+        trimestru = ultimul_trimestru
+        trimestre_scutite = 0
+        while trimestru.ordine_globala < trimestru_curent.ordine_globala:
+            if not self.plateste_cotizatie(trimestru=trimestru):
+                trimestre_scutite += 1
+            trimestru = trimestru.urmatorul_trimestru(trimestru)
 
+        diferenta_trimestre -= trimestre_scutite
         return diferenta_trimestre, trimestru_curent, ultimul_trimestru
 
     def status_cotizatie(self, for_diff=None):
@@ -650,6 +778,32 @@ class Membru(Utilizator):
     def calculeaza_necesar_cotizatie(self):
         return PlataCotizatieTrimestru.calculeaza_necesar(membru=self)
 
+    def recalculeaza_acoperire_cotizatie(self, trimestru_start=None, membri_procesati=[], reset=False):
+        chitanta_partial = False
+        pct_filter = dict(membru=self, chitanta__printata=False, chitanta__blocat=False)
+        if trimestru_start:
+            pct_filter['trimestru__ordine_globala__gte'] = trimestru_start.ordine_globala
+            chitanta_partial = True
+        pcts = PlataCotizatieTrimestru.objects.filter(**pct_filter)
+
+        if pcts.count() == 0:
+            chitante_cotizatie = ChitantaCotizatie.pentru_membru(membru=self)
+            chitante_cotizatie = [c.id for c in chitante_cotizatie]
+        else:
+            chitante_cotizatie = pcts.order_by("trimestru__ordine_globala").values_list("chitanta", flat=True).order_by().distinct()
+        chitante_cotizatie = list(ChitantaCotizatie.objects.filter(id__in=chitante_cotizatie))
+        pcts.delete()
+
+        if reset:
+            return
+
+        logger.debug("recalculeaza_acoperire_cotizatie: Chitante %s" % chitante_cotizatie)
+
+        membri_procesati.append(self)
+        for chitanta in chitante_cotizatie:
+            logger.debug("recalculeaza_acoperire_cotizatie: procesez document %s %s" % (self, chitanta))
+            PlataCotizatieTrimestru.calculeaza_acoperire(self, chitanta, chitanta.suma, chitanta_partial=chitanta_partial, commit=True, membri_procesati=membri_procesati)
+
     def status_cotizatie_numeric(self):
         status, curent, ultimul = self._status_cotizatie()
         return int(status)
@@ -669,6 +823,62 @@ class Membru(Utilizator):
         if asociere.count():
             return asociere.document
         return None
+
+    def is_aspirant(self):
+        return self._proprietati_comune().get("Membru aspirant", False)
+
+    def is_suspendat(self):
+        return self._proprietati_comune().get("Membru suspendat", False)
+
+    def is_inactiv(self):
+        return self._proprietati_comune().get("Membru inactiv", False)
+
+    def is_adult(self):
+        return self._proprietati_comune().get("Membru adult", False)
+
+    def is_lider(self):
+        return self._proprietati_comune().get("Lider", False)
+
+    def is_lider_asistent(self):
+        return self._proprietati_comune().get("Lider asistent", False)
+
+    def is_lider_generic(self):
+        return self.is_lider() or self.is_lider_asistent()
+
+    def is_membru_ccl(self):
+        return self._proprietati_comune().get("Membru Consiliul Centrului Local", False)
+
+    def is_sef_centru(self):
+        return self._proprietati_comune().get(u"Șef Centru Local", False)
+
+    def plateste_cotizatie(self, trimestru=None):
+        """ determina daca un membru plateste sau nu cotizatie
+        din notele de implementare curente, neplatitori de cotizatie pentru un anumit trimestru sunt
+        1) membrii inactivi, marcati ca atare
+        2) membrii adulti, marcati ca atare si membrii ai unei unitati de adulti
+        toate celalalte categorii de membrii sunt platitori de cotizatie
+        """
+
+        if trimestru is None:
+            trimestru = Trimestru.trimestru_pentru_data(datetime.date.today())
+
+        if self.are_calitate(["Lider", "Lider asistent"], self.centru_local, trimestru=trimestru):
+            return True
+
+        # unitate = self.get_unitate(trimestru=trimestru)
+        # if unitate is None:
+        #     #   orice membru care nu este in nicio unitate este un caz special care va fi tratat ca platitor
+        #     #   nu ar trebui sa existe un asemenea caz
+        #     logger.info("Membru: membru care nu este lider, si nu apartine niciunei unitati %s" % self)
+        #     return True
+
+        if self.are_calitate(["Membru inactiv", "Membru adult"], self.centru_local, trimestru=trimestru):
+            return False
+
+        # if unitate.ramura_de_varsta.slug == "adulti" and self.are_calitate("Membru adult", self.centru_local, trimestru=trimestru):
+        #     return False
+
+        return True
 
 
 class TipAsociereMembruStructura(models.Model):
@@ -799,3 +1009,4 @@ class InformatieContact(models.Model):
 
     def __unicode__(self):
         return "%s: %s" % (self.tip_informatie.nume, self.valoare)
+

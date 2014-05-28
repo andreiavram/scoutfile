@@ -7,6 +7,7 @@
 			<th>Ramura de vârstă</th>
             <th>Patrule</th>
             <th>Membri (fără lideri)</th>
+            <th>Cotizații</th>
 			<th>&nbsp;</th>
 		</tr>
 	</thead>
@@ -15,16 +16,29 @@
 		<tr id = "row_{{ object.id }}">
 			<td>{{ forloop.counter }}</td>
 			<td><a href = "{% url structuri:unitate_detail pk=unitate.id %}">{{ unitate.nume }}</a></td>
-			<td>{{ unitate.ramura_de_varsta }}</td>
+			<td><img src = "{{ STATIC_URL }}images/icon-{{ unitate.ramura_de_varsta.slug }}.png" /> {{ unitate.ramura_de_varsta }}</td>
             <td>
                 <ul class = "unstyled">
-                {% for patrula in unitate.patrula_set.all %}
+                {% for patrula in unitate.patrule %}
                      <li><a href = "{% url structuri:patrula_detail pk=patrula.id %}"><i class = "icon-group"></i> {{ patrula }}</a></li>
                 {% endfor %}
                 </ul>
             </td>
             <td>
                 {{ unitate.total_membri_activi }}
+            </td>
+            <td>
+        Trimestrul curent:
+                {% with  unitate.grad_colectare_cotizatie_trimestrul_curent as grad %}
+        <span class = "label label-{% if grad < 25 %}important{% elif grad < 90 %}warning{% else %}success{% endif %}">{{ grad|floatformat }}%</span>
+        {% endwith %}
+            <br />
+        Trimestrul anterior: {% with  unitate.grad_colectare_cotizatie_trimestrul_anterior as grad %}
+        <span class = "label label-{% if grad < 25 %}important{% elif grad < 90 %}warning{% else %}success{% endif %}">{{ grad|floatformat }}%</span>
+        {% endwith %}
+
+
+
             </td>
 			<td>
 			    

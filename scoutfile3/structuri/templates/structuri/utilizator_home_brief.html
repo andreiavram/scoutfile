@@ -1,28 +1,81 @@
+{% load static %}
+{% load cotizatie_tags %}
+
 {% with request.user.get_profile.membru as object %}
-<div class = "row">
+{%  with object as membru %}
+
+
+<div>
 	<div class = "span3">
 	{% if object.poza_profil %}
 		<img class = "thumbnail" src = "{{ object.poza_profil.get_profile_picture_url }}" />
 	{% else %}
-		<img class = "thumbnail" src = "http://www.placehold.it/240x320/ffffff" />
+		<img class = "thumbnail" src = "{% static 'images/240x320.gif' %}" />
 	{% endif %}
 	</div>
-	<div class = "span7">
-		<dl>
-			<dt>Nume</dt>
-				<dd>{{ object.nume_complet }} ({{ object.cnp }})</dd>
-			<dt>E-mail</dt>
-				<dd><a href = "mailto:{{ object.email }}"><i class = "icon-envelope"></i> {{ object.email }}</a></dd>
-			<dt>Telefon</dt>
-				<dd>{{ object.telefon }}</dd>
-			<dt>Adresa</dt>
-				<dd>{{ object.adresa }}</dd>
-			<dt>Data nașterii</dt>
-				<dd>{{ object.data_nasterii|date:"l, d F Y" }}</dd>
-				<dd>{{ object.data_nasterii|timesince }}</dd>
-			<dt>Centrul Local</dt>
-				<dd>{{ object.centru_local }}</dd>
-		</dl>
+	<div class = "span9">
+        <table class = "table table-striped">
+        <tbody>
+{#            <tr>#}
+{#                <td>Nume</td>#}
+{#                <td>{{ object.nume_complet }}</td>#}
+{#            </tr>#}
+            <tr>
+                <td>Status</td>
+                <td>
+                    {% if membru.is_aspirant %}
+                        <span style = "color: #6699CC"><i class = "icon-warning-sign"></i> Membru aspirant</span>
+                    {% else %}
+                        {% if membru.is_suspendat %}
+                            <span style="color: red"><i class = "icon-remove"></i> Membru suspendat</span>
+                        {% else %}
+                            Membru cu drepturi depline
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+{#            <tr>#}
+{#                <td>E-mail</td>#}
+{#                <td><a href = "mailto:{{ object.email }}"><i class = "icon-envelope"></i> {{ object.email }}</a></td>#}
+{#            </tr>#}
+{#            <tr>#}
+{#                <td>Telefon</td>#}
+{#                <td>{{ object.mobil }}</td>#}
+{#            </tr>#}
+{#            <tr>#}
+{#                <td>Adresa</td>#}
+{#                <td>{{ object.adresa_postala }}</td>#}
+{#            </tr>#}
+            <tr>
+                <td>Ramura de vârstă</td>
+                <td><img src="{{ STATIC_URL }}images/icon-{{ object.get_ramura_de_varsta|slugify }}.png" /> {{ object.get_ramura_de_varsta }}</td>
+            </tr>
+{#            <tr>#}
+{#                <td>Data nașterii</td>#}
+{#                <td>{{ object.data_nasterii|date:"l, d F Y" }} / {{ object.data_nasterii|timesince }}</td>#}
+{#            </tr>#}
+{#            <tr>#}
+{#                <td>Centrul Local</td>#}
+{#                <td><a href = "{% url structuri:cl_detail pk=object.centru_local.id %}"><i class = "icon-home"></i> {{ object.centru_local }}</a></td>#}
+{#            </tr>#}
+              <tr class = "{{ membru.status_cotizatie_numeric|cotizatie_level }}">
+                  <td>Cotizație</td>
+                  <td class = "{{ membru.status_cotizatie_numeric|cotizatie_level }}">
+                    {% if membru.is_suspendat %}
+                        <strong><i class = "icon-remove"></i> SUSPENDAT</strong> |
+                    {% endif %}
+                    Stare cotizație: <strong>{{ membru.status_cotizatie_numeric|cotizatie_description }}</strong>.
+                    {% if membru.status_cotizatie_numeric > 0 %}
+                        Mai trebuie să plătești {{ membru.calculeaza_necesar_cotizatie }} RON pentru a ajunge la zi.
+                    {% endif %}
+                  </td>
+              </tr>
+
+
+        </tbody>
+        </table>
 	</div>
+
 </div>
+{% endwith %}
 {% endwith %}

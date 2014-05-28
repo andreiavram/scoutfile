@@ -52,3 +52,6 @@ if settings.DEBUG:
                                 'document_root': settings.MEDIA_ROOT,
                             }),
     )
+
+
+handler500 = "scoutfile3.generic.views.custom_500"

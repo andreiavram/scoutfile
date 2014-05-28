@@ -1,5 +1,6 @@
 #coding: utf-8
 from django.core.mail import send_mail
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.aggregates import Sum
 from django.db.models.query_utils import Q
@@ -16,6 +17,8 @@ import traceback
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from album.managers import RaportEvenimentManager
+from django import forms
+from generic.widgets import BootstrapDateInput
 
 from settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT, MEDIA_ROOT
 from taggit.managers import TaggableManager
@@ -281,6 +284,11 @@ class Eveniment(models.Model):
             return qs[0].content_object.ramura_de_varsta
         return None
 
+    def creeaza_asociere_structura(self, structura):
+        structura_args = dict(eveniment=self,
+                              content_type=ContentType.objects.get_for_model(structura),
+                              object_id=structura.id)
+        AsociereEvenimentStructura.objects.create(**structura_args)
 
 class AsociereEvenimentStructura(models.Model):
     content_type = models.ForeignKey(ContentType, verbose_name=u"Tip structură")
@@ -379,11 +387,62 @@ TIPURI_CAMP_PARTICIPARE = (("text", u"Text"), ("number", u"Număr"), ("bool", u"
 
 class CampArbitrarParticipareEveniment(models.Model):
     eveniment = models.ForeignKey(Eveniment)
+    nume = models.CharField(max_length=255)
+    slug = models.SlugField()
     tip_camp = models.CharField(max_length=255, choices=TIPURI_CAMP_PARTICIPARE)
+    implicit = models.CharField(max_length=255, null=True, blank=True)
+    optional = models.BooleanField(default=True)
+    explicatii_suplimentare = models.CharField(max_length=255, null=True, blank=True, help_text=u"Instrucțiuni despre cum să fie completat acest câmp, format, ...")
+
+    tipuri_camp = {"text": forms.CharField,
+                   "number": forms.FloatField,
+                   "bool": forms.BooleanField,
+                   "date": forms.DateField}
+
+    def get_form_field_class(self):
+        return self.tipuri_camp[self.tip_camp]
+
+    def get_value(self, participare=None):
+        if participare is None:
+            return None
+
+        try:
+            instanta = self.instante.get(participare=participare)
+            if self.tip_camp == "date":
+                return datetime.datetime.strptime(instanta.valoare_text, "%d.%m.%Y").date()
+            if self.tip_camp == "bool":
+                return instanta.valoare_text == "True"
+            return instanta.valoare_text
+        except InstantaCampArbitrarParticipareEveniment.DoesNotExist, e:
+            return None
+
+    def get_translated_value(self, value):
+        if self.tip_camp == "bool":
+            return True if value == "True" else False
+
+        return value
+
+    def set_value(self, valoare, participare=None):
+        if participare is None:
+            return
+
+        try:
+            instanta = self.instante.get(participare=participare)
+        except InstantaCampArbitrarParticipareEveniment.DoesNotExist:
+            instanta_args = dict(participare=participare, camp=self)
+            instanta = InstantaCampArbitrarParticipareEveniment.objects.create(**instanta_args)
+
+        if self.tip_camp == "date":
+            valoare_string = valoare.strftime("%d.%m.%Y")
+        else:
+            valoare_string = valoare
+
+        instanta.valoare_text = valoare_string
+        instanta.save()
 
     
 class InstantaCampArbitrarParticipareEveniment(models.Model):
-    camp = models.ForeignKey(CampArbitrarParticipareEveniment)
+    camp = models.ForeignKey(CampArbitrarParticipareEveniment, related_name="instante")
     participare = models.ForeignKey(ParticipareEveniment)
     valoare_text = models.CharField(max_length=255, null=True, blank=True)
     
@@ -712,10 +771,48 @@ class Imagine(ImageModel):
         self.is_face_processed = True
         self.save()
 
+    def check_visibility(self, user):
+        if self.set_poze and self.set_poze.eveniment:
+            return self.published_status >= self.set_poze.eveniment.get_visibility_level(user)
+        return self.published_status == 4
 
     @classmethod
-    def filter_visibility(cls, qs, user):
-        return qs
+    def filter_visibility(cls, qs, eveniment=None, user=None):
+        visibility_level = 4
+        if eveniment and user:
+            visibility_level = eveniment.get_visibility_level(user)
+        elif user:
+            qs = qs.select_related("set_poze__eveniment")
+            return cls.objects.filter(id__in=[i.id for i in qs if i.check_visibility(user)])
+        return qs.exclude(published_status__lt=visibility_level)
+
+    def has_flags(self):
+        return self.flagreport_set.all().count() > 0
+
+    def to_json(self, dict=True):
+        json_dict = {
+            "id": self.id,
+            "url_thumb": self.get_thumbnail_url(),
+            "url_detail": reverse("album:poza_detail", kwargs={"pk": self.id}),
+            "url_detail_img": self.get_large_url(),
+            "titlu": u"%s - %s" % (self.set_poze.eveniment.nume, self.titlu),
+            "descriere": self.descriere or "",
+            "autor": self.set_poze.get_autor(),
+            "data": self.data.strftime("%d %B %Y %H:%M:%S"),
+            "tags": [t for t in self.tags.names()[:10]],
+            "rotate_url": reverse("album:poza_rotate", kwargs={"pk": self.id}),
+            "published_status_display": self.get_published_status_display(),
+            "flag_url": reverse("album:poza_flag", kwargs={"pk": self.id}),
+            "score": self.score,
+            "has_flags": self.has_flags()
+        }
+
+        if dict:
+            return json_dict
+
+        import json
+        return json.dumps(json_dict)
+
 
 # tagging.register(Imagine)
 
@@ -744,7 +841,6 @@ class FlagReport(models.Model):
     imagine = models.ForeignKey(Imagine)
     motiv = models.CharField(max_length=1024, choices=FLAG_MOTIVES)
     alt_motiv = models.CharField(max_length=1024, null=True, blank=True)
-
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -753,7 +849,7 @@ class FlagReport(models.Model):
         ordering = ["-timestamp", "motiv"]
 
     def __unicode__(self):
-        return "Raport de %s la " % self.motiv
+        return "Raport de %s la #%d (%s)" % (self.motiv, self.imagine.id, self.imagine.set_poze.eveniment)
 
 
 class DetectedFace(models.Model):

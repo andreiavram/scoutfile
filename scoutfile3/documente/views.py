@@ -217,9 +217,12 @@ class DeclaratieCotizatieSocialaAdauga(CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-
         self.object.titlu = u"Declarație proprie răspundere cotizație socială"
         self.object.uploader = self.request.user
+
+        if self.object.data_inregistrare is None:
+            self.object.data_inregistrare = datetime.date.today()
+
         self.object.save()
 
         responsabil = self.target.centru_local.ocupant_functie(u"Secretar Centru Local")

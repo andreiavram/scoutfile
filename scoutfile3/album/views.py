@@ -20,43 +20,63 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from taggit.models import Tag
 from taggit.utils import parse_tags
+from goodies.views import GenericDeleteView, CalendarViewMixin
+from goodies.views import JSONView
 
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment, \
-    ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT
+    ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT, SetPoze, IMAGINE_PUBLISHED_STATUS, \
+    CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment, FLAG_MOTIVES
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm, \
-    EvenimentParticipareForm
-from album.models import SetPoze
-from album.forms import SetPozeCreateForm, SetPozeUpdateForm
-from goodies.views import GenericDeleteView, CalendarViewMixin
+    EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm, CampArbitrarForm, EvenimentParticipareUpdateForm, \
+    ReportFormNoButtons
 from settings import MEDIA_ROOT
 from structuri.forms import AsociereEvenimentStructuraForm
-from structuri.models import Membru, RamuraDeVarsta, CentruLocal, Unitate
-from goodies.views import JSONView
+from structuri.models import Membru, RamuraDeVarsta, CentruLocal, Unitate, Patrula, TipAsociereMembruStructura
 from generic.views import ScoutFileAjaxException
-from album.models import IMAGINE_PUBLISHED_STATUS
-from structuri.models import TipAsociereMembruStructura
 from structuri.decorators import allow_by_afiliere
 import settings
+
 
 logger = logging.getLogger(__name__)
 
 
 class EvenimentFiltruMixin(object):
     def process_request_filters(self, request):
+        if not request.is_ajax():
+            if "qnume" in request.GET:
+                request.session['qnume'] = request.GET['qnume']
+            elif "qnume" in request.session:
+                del request.session['qnume']
+
         if "status" not in request.session:
-            request.session["status"] = "incheiat"
+            request.session["status"] = "terminat"
         if "status" in request.GET:
             request.session["status"] = request.GET.get("status")
 
         if "unitate" in request.GET:
+            if "patrula" in request.session:
+                del request.session['patrula']
             if request.GET.get("unitate") == "0" and "unitate" in request.session:
                 del request.session['unitate']
             else:
                 request.session['unitate'] = int(request.GET.get("unitate"))
 
+        if "patrula" in request.GET:
+            if "unitate" in request.session:
+                del request.session['unitate']
+            if request.GET.get("patrula") == "0" and "patrula" in request.session:
+                del request.session['patrula']
+            else:
+                request.session['patrula'] = int(request.GET.get("patrula"))
+
         self.unitate = None
         if "unitate" in request.session and request.session['unitate'] != 0:
             self.unitate = Unitate.objects.get(id=request.session['unitate'])
+
+        self.patrula = None
+        if "patrula" in request.session and request.session["patrula"] != 0:
+            self.patrula = Patrula.objects.get(id=request.session["patrula"])
+
 
         if "view" not in request.session:
             request.session["view"] = "list_detail"
@@ -92,6 +112,7 @@ class EvenimentFiltruMixin(object):
         data['status_activitate'] = STATUS_EVENIMENT
         data['tip_activitate'] = self.tip_activitate
         data['unitate'] = self.unitate
+        data['patrula'] = self.patrula
         status = "Toate"
         for s in STATUS_EVENIMENT:
             if s[0] == self.request.session["status"]:
@@ -105,6 +126,8 @@ class EvenimentFiltruMixin(object):
     def apply_filters(self, qs):
         if self.unitate:
             qs = qs.filter(id__in=[e.id for e in qs if e.are_asociere(self.unitate)])
+        if self.patrula:
+            qs = qs.filter(id__in=[e.id for e in qs if e.are_asociere(self.patrula)])
 
         if self.request.session["status"] != "toate":
             qs = qs.filter(status=self.request.session["status"])
@@ -130,6 +153,11 @@ class EvenimentList(EvenimentFiltruMixin, ListView):
             self.per_page = int(request.POST.get("per_page", 5))
             self.offset = int(request.POST.get("offset", 0))
 
+        if request.user.is_authenticated():
+            self.centru_local = request.user.get_profile().membru.centru_local
+        else:
+            self.centru_local = CentruLocal.objects.get(id=settings.CENTRU_LOCAL_IMPLICIT)
+
         self.process_request_filters(request)
         return super(EvenimentList, self).dispatch(request, *args, **kwargs)
 
@@ -138,8 +166,10 @@ class EvenimentList(EvenimentFiltruMixin, ListView):
 
     def get_queryset(self, *args, **kwargs):
         qs = super(EvenimentList, self).get_queryset(*args, **kwargs)
-        if self.request.user.is_authenticated():
-            qs = qs.filter(centru_local=self.request.user.get_profile().membru.centru_local)
+        qs = qs.filter(centru_local=self.centru_local)
+
+        if "qnume" in self.request.session:
+            qs = qs.filter(nume__icontains=self.request.session['qnume'])
 
         qs = self.apply_filters(qs)
 
@@ -167,6 +197,7 @@ class EvenimentList(EvenimentFiltruMixin, ListView):
         an_curent = datetime.datetime.now().year
         data['ani_activitati'] = range(an_curent - 2, an_curent + 1)
         data['ani_activitati'].reverse()
+        data['centru_local'] = self.centru_local
         data.update(self.filters_context_data())
 
         return data
@@ -289,6 +320,7 @@ class PozaDetail(DetailView):
                                                                                                          centru_local) or self.request.user.is_superuser):
             current.update({"media_manager": True})
 
+        current["report_form"] = ReportFormNoButtons()
         return current
 
 
@@ -321,6 +353,20 @@ class PozaUpdate(UpdateView):
         return current
 
 
+class PozaUpdateTags(View):
+    def dispatch(self, request, *args, **kwargs):
+        self.poza = get_object_or_404(Imagine, id=kwargs.pop("pk"))
+        return super(PozaUpdateTags, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        logger.debug("PozaUpdateTags: %s", request.POST.get("tags"))
+        self.poza.tags.clear()
+        self.poza.tags.set(*parse_tags(request.POST.get("tags")))
+
+        import json
+        return HttpResponse(json.dumps({"tags": list(self.poza.tags.names())}))
+
+
 class PozaDelete(GenericDeleteView):
     model = Imagine
     template_name = "album/poza_form.html"
@@ -346,19 +392,56 @@ class FlagImage(CreateView):
         self.object = form.save(commit=False)
         self.object.imagine = self.poza
         self.object.save()
-        messages.success(self.request,
-                         "Poza a fost flag-uită, un lider sau fotograful vor decide ce acțiune se va lua în continuare")
+        messages.success(self.request, "Poza a fost flag-uită, un lider sau fotograful vor decide ce acțiune se va lua în continuare")
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         return reverse("album:poza_detail", kwargs={"pk": self.poza.id})
 
+    def get_form(self, form_class):
+        form = super(FlagImage, self).get_form(form_class)
+        form.has_submit_buttons = True
+        return form
+
     def get_context_data(self, *args, **kwargs):
         current = super(FlagImage, self).get_context_data(*args, **kwargs)
-
-        current.update({"poza": self.poza})
+        current.update({"object": self.poza, "poza": self.poza})
 
         return current
+
+class FlagImageAjax(JSONView):
+    _params = {"imagine": {"type": "required"},
+               "motiv": {"type": "required"},
+               "motiv_altul": {"type": "required"}}
+
+    def clean_imagine(self, value):
+        try:
+            return Imagine.objects.get(id=int(value))
+        except Exception, e:
+            raise ScoutFileAjaxException(extra_message="This image does not exist", exception=e)
+
+    def clean_motiv(self, value):
+        if value not in [v[0] for v in FLAG_MOTIVES]:
+            raise ScoutFileAjaxException(extra_message="Motivul este invalid")
+        return value
+
+    def clean_motiv_altul(self, value):
+        if not len(value):
+            value = None
+        return value
+
+    def post(self, request, *args, **kwargs):
+        self.validate(**self.parse_json_data())
+
+        if self.cleaned_data['motiv'] == 'altul' and not self.cleaned_data['motiv_altul']:
+            return HttpResponseBadRequest('Motiv "altul" fara explicatii')
+
+        FlagReport.objects.create(imagine=self.cleaned_data['imagine'], motiv=self.cleaned_data["motiv"], alt_motiv=self.cleaned_data["motiv_altul"])
+        return HttpResponse(self.construct_json_response(result=True, imagine=self.cleaned_data['imagine']))
+
+    def construct_json_response(self, **kwargs):
+        json_dict = {"result": kwargs.get("result", False)}
+        return simplejson.dumps(json_dict)
 
 
 class RotateImage(View):
@@ -706,10 +789,16 @@ class EvenimentCreate(CreateView, EvenimentEditMixin):
     model = Eveniment
     form_class = EvenimentCreateForm
     template_name = "album/eveniment_form.html"
+    target_model = CentruLocal
 
     @allow_by_afiliere([("Utilizator, Centru Local", "Lider")])
     def dispatch(self, request, *args, **kwargs):
         self.centru_local = request.user.utilizator.membru.centru_local
+
+        self.target_obj = None
+        if "pk" in kwargs:
+            self.target_obj = get_object_or_404(self.target_model, id=kwargs.pop("pk"))
+
         return super(CreateView, self).dispatch(request, *args, **kwargs)
 
     def get_initial(self):
@@ -728,12 +817,25 @@ class EvenimentCreate(CreateView, EvenimentEditMixin):
             self.object.custom_cover_photo = cover_photo
 
         self.object.save()
+        self.create_connections()
         self.update_counts(form)
 
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         return reverse("album:eveniment_detail", kwargs={"slug": self.object.slug})
+
+    def create_connections(self):
+        if self.target_obj is not None:
+            self.object.creeaza_asociere_structura(self.target_obj)
+
+
+class UnitateEvenimentCreate(EvenimentCreate):
+    target_model = Unitate
+
+
+class PatrulaEvenimentCreate(UnitateEvenimentCreate):
+    target_model = Patrula
 
 
 class EvenimentUpdate(UpdateView, EvenimentEditMixin):
@@ -782,6 +884,11 @@ class EvenimentDetail(DetailView):
     model = Eveniment
     template_name = "album/eveniment_detail.html"
 
+    def get_context_data(self, **kwargs):
+        data = super(EvenimentDetail, self).get_context_data(**kwargs)
+        data['report_form'] = ReportFormNoButtons()
+        return data
+
 
 class ImagineTagSearch(TemplateView):
     template_name = "album/tags_search.html"
@@ -790,6 +897,7 @@ class ImagineTagSearch(TemplateView):
         tags = Tag.objects.all().annotate(num_times=Count("taggit_taggeditem_items")).order_by("-num_times")[:20]
         current = super(ImagineTagSearch, self).get_context_data(**kwargs)
         current.update({"tags": tags})
+        current['report_form'] = ReportFormNoButtons()
         return current
 
 
@@ -844,16 +952,21 @@ class ImagineSearchJSON(JSONView):
         ordering_strings = []
         if "tags" in self.cleaned_data:
             qs = qs.filter(tags__name__in=self.cleaned_data['tags'])
+
+        eveniment = None
         if "eveniment" in self.cleaned_data:
+            eveniment =self.cleaned_data['eveniment']
             ordering_strings.append("-score")
             qs = qs.filter(set_poze__eveniment=self.cleaned_data['eveniment'])
+
         if "zi" in self.cleaned_data:
             qs = qs.filter(id__in=[p.id for p in self.cleaned_data['zi'].filter_photos(user=request.user)])
         if "authors" in self.cleaned_data:
             qs = qs.filter(set_poze__autor__icontains=self.cleaned_data['authors'])
 
+        qs = Imagine.filter_visibility(qs, eveniment=eveniment, user=request.user)
 
-        qs = Imagine.filter_visibility(qs, request.user)
+
         if self.cleaned_data.get("ordering", "desc") == "desc":
             ordering_strings.append("-data")
         elif self.cleaned_data.get("ordering") == "asc":
@@ -873,25 +986,11 @@ class ImagineSearchJSON(JSONView):
 
         return HttpResponse(self.construct_json_response(queryset=qs, total_count=total_count))
 
-    def imagine_to_json(self, imagine):
-        return {"id": imagine.id,
-                "url_thumb": imagine.get_thumbnail_url(),
-                "url_detail": reverse("album:poza_detail", kwargs={"pk": imagine.id}),
-                "url_detail_img": imagine.get_large_url(),
-                "titlu": u"%s - %s" % (imagine.set_poze.eveniment.nume, imagine.titlu),
-                "descriere": imagine.descriere or "",
-                "autor": imagine.set_poze.get_autor(),
-                "data": imagine.data.strftime("%d %B %Y %H:%M:%S"),
-                "tags": [t.name for t in imagine.tags.all()[:10]],
-                "rotate_url": reverse("album:poza_rotate", kwargs={"pk": imagine.id}),
-                "published_status_display": imagine.get_published_status_display(),
-                "flag_url": reverse("album:poza_flag", kwargs={"pk": imagine.id}),
-                "score": imagine.score,
-
-        }
+    # def imagine_to_json(self, imagine):
+    #     return imagine.to_json()
 
     def construct_json_response(self, queryset, total_count, **kwargs):
-        response_json = {"data": [self.imagine_to_json(im) for im in queryset],
+        response_json = {"data": [im.to_json() for im in queryset],
                          "offset": self.cleaned_data['offset'],
                          "limit": self.cleaned_data['limit'],
                          "count": queryset.count(),
@@ -924,6 +1023,7 @@ class ZiDetailBeta(DetailView):
                                                                                                          centru_local) or self.request.user.is_superuser):
             current.update({"media_manager": True})
 
+        current['report_form'] = ReportFormNoButtons()
         return current
 
 
@@ -1020,6 +1120,7 @@ class CalendarCentruLocal(EvenimentFiltruMixin, CalendarViewMixin, DetailView):
     def get_context_data(self, **kwargs):
         data = super(CalendarCentruLocal, self).get_context_data(**kwargs)
         data.update(self.filters_context_data())
+        data['centru_local'] = self.object
         return data
 
 
@@ -1176,6 +1277,9 @@ class EvenimentParticipanti(ListView):
         self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
         return super(EvenimentParticipanti, self).dispatch(request, *args, **kwargs)
 
+    def get_queryset(self):
+        return self.model.objects.filter(eveniment=self.eveniment)
+
     def get_context_data(self, **kwargs):
         data = super(EvenimentParticipanti, self).get_context_data(**kwargs)
         data['eveniment'] = self.eveniment
@@ -1197,11 +1301,20 @@ class EvenimentParticipantiCreate(CreateView):
         data['data_plecare'] = self.eveniment.end_date
         return data
 
+    def get_form_kwargs(self):
+        data = super(EvenimentParticipantiCreate, self).get_form_kwargs()
+        data['eveniment'] = self.eveniment
+        data['request'] = self.request
+        return data
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.eveniment = self.eveniment
         self.object.user_modificare = self.request.user.get_profile().membru
         self.object.save()
+
+        for camp in self.eveniment.camparbitrarparticipareeveniment_set.all():
+            camp.set_value(form.cleaned_data[camp.slug], self.object)
 
         return HttpResponseRedirect(self.get_success_url())
 
@@ -1217,7 +1330,7 @@ class EvenimentParticipantiCreate(CreateView):
 class EvenimentParticipantiUpdate(UpdateView):
     model = ParticipareEveniment
     template_name = "album/eveniment_participanti_form.html"
-    form_class = EvenimentParticipareForm
+    form_class = EvenimentParticipareUpdateForm
 
     @allow_by_afiliere([("Participare, Eveniment, Centru Local", "Lider")])
     def dispatch(self, request, *args, **kwargs):
@@ -1228,5 +1341,151 @@ class EvenimentParticipantiUpdate(UpdateView):
         data['eveniment'] = self.object.eveniment
         return data
 
+    def get_form_kwargs(self):
+        data = super(EvenimentParticipantiUpdate, self).get_form_kwargs()
+        data['eveniment'] = self.object.eveniment
+        data['request'] = self.request
+        return data
+
+    def get_initial(self):
+        data = super(EvenimentParticipantiUpdate, self).get_initial()
+        for camp in self.object.eveniment.camparbitrarparticipareeveniment_set.all():
+            data[camp.slug] = camp.get_value(self.object)
+
+        return data
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.user_modificare = self.request.user.get_profile().membru
+        self.object.save()
+
+        for camp in self.object.eveniment.camparbitrarparticipareeveniment_set.all():
+            camp.set_value(form.cleaned_data[camp.slug], self.object)
+
+        return HttpResponseRedirect(self.get_success_url())
+
     def get_success_url(self):
         return reverse("album:eveniment_participanti_list", kwargs={"slug": self.object.eveniment.slug})
+
+
+class EvenimentCampuriArbitrare(ListView):
+    model = CampArbitrarParticipareEveniment
+    template_name = "album/eveniment_campuri_list.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+        return super(EvenimentCampuriArbitrare, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.model.objects.filter(eveniment=self.eveniment)
+
+    def get_context_data(self, **kwargs):
+        data = super(EvenimentCampuriArbitrare, self).get_context_data(**kwargs)
+        data['eveniment'] = self.eveniment
+        return data
+
+
+class EvenimentSlugMixin(object):
+    def make_slug_unique(self, slug, obj=None):
+        # make sure slug is unique pentru eveniment
+        slugs = self.eveniment.camparbitrarparticipareeveniment_set.all()
+        if obj:
+            slugs = slugs.exclude(id = obj.id)
+        slugs = list(slugs.values_list("slug", flat=True))
+        slugs.sort(key=lambda x: len(x))
+        found = False
+        found_max_count = 0
+        for s in slugs:
+            if s == slug:
+                found = True
+                found_max_count = 1
+
+        if found:
+            s = "%s_%d" % (slug, 1)
+            while s in slugs:
+                found_max_count += 1
+                s = "%s_%d" % (slug, found_max_count)
+
+            slug = s
+
+        return slug
+
+
+class EvenimentCampuriArbitrareCreate(EvenimentSlugMixin, CreateView):
+    model = CampArbitrarParticipareEveniment
+    form_class = CampArbitrarForm
+    template_name = "album/eveniment_campuri_form.html"
+
+    #TODO: limit access
+    def dispatch(self, request, *args, **kwargs):
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+        return super(EvenimentCampuriArbitrareCreate, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        from django.template.defaultfilters import slugify
+        self.object.slug = self.make_slug_unique(slugify(self.object.nume))
+        self.object.eveniment = self.eveniment
+        self.object.save()
+
+        if self.object.implicit:
+            for participare in self.eveniment.participareeveniment_set.all():
+                self.object.set_value(self.object.implicit, participare=participare)
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("album:eveniment_campuri_list", kwargs={"slug": self.eveniment.slug})
+
+    def get_context_data(self, **kwargs):
+        data = super(EvenimentCampuriArbitrareCreate, self).get_context_data(**kwargs)
+        data['eveniment'] = self.eveniment
+        return data
+
+    def get_form_kwargs(self):
+        data = super(EvenimentCampuriArbitrareCreate, self).get_form_kwargs()
+        data['eveniment'] = self.eveniment
+        return data
+
+
+class EvenimentCampuriArbitrareUpdate(EvenimentSlugMixin, UpdateView):
+    model = CampArbitrarParticipareEveniment
+    form_class = CampArbitrarForm
+    template_name = "album/eveniment_campuri_form.html"
+
+    #TODO: limit access
+    def dispatch(self, request, *args, **kwargs):
+        return super(EvenimentCampuriArbitrareUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        data = super(EvenimentCampuriArbitrareUpdate, self).get_context_data(**kwargs)
+        data['eveniment'] = self.object.eveniment
+        return data
+
+    def get_object(self, queryset=None):
+        obj = super(EvenimentCampuriArbitrareUpdate, self).get_object(queryset=queryset)
+        self.eveniment = obj.eveniment
+        return obj
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        from django.template.defaultfilters import slugify
+        self.object.slug = self.make_slug_unique(slugify(self.object.nume), self.object)
+        self.object.save()
+
+        if self.object.implicit:
+            for participare in self.eveniment.participareeveniment_set.all():
+                filter_kwargs = dict(camp=self.object, participare=participare)
+
+                if InstantaCampArbitrarParticipareEveniment.objects.filter(**filter_kwargs).count() == 0:
+                    self.object.set_value(self.object.implicit, participare)
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("album:eveniment_campuri_list", kwargs={"slug": self.object.eveniment.slug})
+
+    def get_form_kwargs(self):
+        data = super(EvenimentCampuriArbitrareUpdate, self).get_form_kwargs()
+        data['eveniment'] = self.object.eveniment
+        return data

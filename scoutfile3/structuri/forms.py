@@ -147,15 +147,15 @@ class CentruLocalUpdateForm(CentruLocalAdminUpdateForm):
         model = CentruLocal
         exclude = ["nume", "statut_drepturi", "statut_juridic", "moment_initial_cotizatie"]
 
+
 class UnitateCreateForm(CrispyBaseModelForm):
     class Meta:
         model = Unitate
         
-    data_infiintare = forms.DateField(input_formats = ['%d.%m.%Y', ], widget = forms.DateInput(format = "%d.%m.%Y"), label = u"Data înființare", required = False)
+    data_infiintare = forms.DateField(widget=BootstrapDateInput, label=u"Data înființare", required=False)
 
     def __init__(self, *args, **kwargs):
         super(UnitateCreateForm, self).__init__(*args, **kwargs)
-        self.helper.layout = Layout(Field("nume"), Field("data_infiintare", css_class = "datepicker", template = "fields/datepicker.html"), "ramura_de_varsta")
 
 class CentruLocalUnitateCreateForm(UnitateCreateForm):
     class Meta:
@@ -168,23 +168,23 @@ class UnitateUpdateForm(UnitateCreateForm):
         model = Unitate
         exclude = ["centru_local", ]
         
+
 class PatrulaCreateForm(CrispyBaseModelForm):
     class Meta:
         model = Patrula
         exclude = ("unitate", )
         
-    data_infiintare = forms.DateField(input_formats = ['%d.%m.%Y', ], widget = forms.DateInput(format = "%d.%m.%Y"), label = u"Data înființare", required = False)
-    
-    def __init__(self, *args, **kwargs):
-        super(PatrulaCreateForm, self).__init__(*args, **kwargs)
-        self.helper.layout = Layout(Field("nume"), Field("data_infiintare", css_class = "datepicker", template = "fields/datepicker.html"))
-        
+    data_infiintare = forms.DateField(widget=BootstrapDateInput, label=u"Data înființare", required=False)
+
+
 class PatrulaUpdateForm(PatrulaCreateForm):
     class Meta:
         model = Patrula
         exclude = ("unitate", )
-        
-        
+
+    moment_inchidere = forms.DateField(widget=BootstrapDateInput, required=False, label=u"Dată la desființare", help_text=u"Dacă patrula nu mai este activă, trece aici data la care s-a închis")
+
+
 class MembruRegistrationForm(CrispyBaseModelForm):
     class Meta:
         model = Membru
@@ -208,7 +208,6 @@ class MembruRegistrationForm(CrispyBaseModelForm):
                                     Fieldset(u"Informații de contact", "email", "telefon", "adresa"),
                                     Fieldset(u"Apartenență la ONCR", "centrul_local", "unitate", "adeziune"),
                                     Fieldset(u"Cont", "parola", "parola_verificare"))
-        
         
         return retval
     

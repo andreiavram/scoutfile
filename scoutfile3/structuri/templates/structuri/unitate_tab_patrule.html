@@ -6,6 +6,7 @@
 			<th>Nume</th>
             <td>Cercetași</td>
             <td>Lideri</td>
+            <td>Cotizații</td>
 			<th>&nbsp;</th>
 		</tr>
 	</thead>
@@ -32,6 +33,19 @@
                     {% endfor %}
                 </ul>
             </td>
+          <td>
+        Trimestrul curent:
+                {% with  object.grad_colectare_cotizatie_trimestrul_curent as grad %}
+        <span class = "label label-{% if grad < 25 %}important{% elif grad < 90 %}warning{% else %}success{% endif %}">{{ grad|floatformat }}%</span>
+        {% endwith %}
+            <br />
+        Trimestrul anterior: {% with  object.grad_colectare_cotizatie_trimestrul_anterior as grad %}
+        <span class = "label label-{% if grad < 25 %}important{% elif grad < 90 %}warning{% else %}success{% endif %}">{{ grad|floatformat }}%</span>
+        {% endwith %}
+
+
+
+            </td>
 			<td>    
 				<div class="btn-group pull-right">
 				    <a class = "btn btn-mini" href = "{% url structuri:patrula_edit pk=object.id %}"><i class = "icon-pencil"></i></a>
@@ -42,9 +56,8 @@
 		{% empty %}
 		<tr>
 			<td>&nbsp;</td>
-			<td colspan="4"><em>Unitatea nu are patrule. Adăugați una noua de <a href = "{% url structuri:unitate_patrula_add pk=unitate.id %}"><i class = "icon-plus-sign"></i> aici</a>.</em></td>
+			<td colspan="4"><em>Unitatea nu are patrule active. Adăugați una noua de <a href = "{% url structuri:unitate_patrula_add pk=unitate.id %}"><i class = "icon-plus-sign"></i> aici</a>.</em></td>
 		</tr>
 		{% endfor %}
 	</tbody>
-
 </table>

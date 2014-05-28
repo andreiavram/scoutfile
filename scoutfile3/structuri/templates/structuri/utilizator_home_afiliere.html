@@ -2,16 +2,22 @@
 	<h4>În prezent</h4>
 	<ul class = "unstyled">
 	{% for 	afiliere in object.afilieri_curente %}
-		<li>{{ afiliere.tip_asociere }} din {{ afiliere.moment_inceput|date:"d F Y" }} (de {{ afiliere.moment_inceput|timesince }}) în {{ afiliere.content_object }}</li>
+		<li><strong>{{ afiliere.tip_asociere }}</strong> din {{ afiliere.moment_inceput|date:"F Y" }} în <a href = "{{ afiliere.content_object.get_absolute_url }}">{{ afiliere.content_object }}</a></li>
 	{% endfor %}
 	</ul>
-	
-	<h4>În trecut</h4>
-	<ul class = "unstyled">
-	{% for afiliere in object.afilieri_trecute %}
-		<li>{{ afiliere.tip_asociere }} din {{ afiliere.moment_inceput|date:"d F Y" }} până în {{ afiliere.moment_incheiere|date:"d F Y" }} (timp de {{ afiliere.moment_inceput|timesince:afiliere.moment_incheiere }}) în {{ afiliere.content_object }}</li>
-	{% endfor %}
-	</ul>
+
+    {% if object.afilieri_trecute|length %}
+        <h4>În trecut</h4>
+        <ul class = "unstyled">
+        {% for afiliere in object.afilieri_trecute %}
+            <li>
+                <strong>{{ afiliere.tip_asociere }}</strong>
+                între {{ afiliere.moment_inceput|date:"d F Y" }} și {{ afiliere.moment_incheiere|date:"d F Y" }}
+                la <a href ="{{ afiliere.content_object.get_absolute_url }}">{{ afiliere.content_object }}</a>
+            </li>
+        {% endfor %}
+        </ul>
+    {% endif %}
 	
 	
 {% endwith %}
