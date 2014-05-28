@@ -1009,3 +1009,4 @@ class InformatieContact(models.Model):
 
     def __unicode__(self):
         return "%s: %s" % (self.tip_informatie.nume, self.valoare)
+
