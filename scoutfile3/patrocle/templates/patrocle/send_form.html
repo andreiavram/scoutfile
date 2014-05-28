@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
-
+{% load staticfiles %}
 {% block page_title %}
 	Trimite SMS
 {% endblock %}
@@ -83,7 +83,7 @@
 						if (item.profil != "") {
 							html_string += "<img style = 'height: 50px; width: 50px;' class = 'thumbnail' src = '" + item.profil + "'>";
 						} else {
-							html_string += "<img style = 'height: 50px; width: 50px;' class = 'thumbnail' src = 'http://placehold.it/50x50/ffffff'>";
+							html_string += "<img style = 'height: 50px; width: 50px;' class = 'thumbnail' src = '{% static 'images/50x50.gif' %}'>";
 						}
 						html_string += "</div>";
 						html_string += "<div class = 'span2'>" + that.highlighter(item) + "</div>";

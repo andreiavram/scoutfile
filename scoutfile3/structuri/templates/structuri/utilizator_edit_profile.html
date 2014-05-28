@@ -2,13 +2,17 @@
 {% load crispy_forms_tags %}
 
 {% block page_title %}
-	Profilul tau - editează
+	{{ request.user.get_profile.membru }} <span style = "font-weight: normal">| editare date</span>
 {% endblock %}
 
 {% block context_menu %}
 	<ul class = "nav nav-list">
-		<li class = "nav-header">Acțiuni</li>
 		<li class = "nav-header">Locații</li>
+        <li><a href = "{% url structuri:membru_profil %}"><i class = "icon-home"></i> Dashboard</a></li>
+
+        <li class = "nav-header">Acțiuni</li>
+        <li><a href = "{% url structuri:membru_edit_profile_picture %}"><i class = "icon-picture"></i> Schimbă poza de profil</a></li>
+
 	</ul>
 {% endblock %}
 

@@ -20,10 +20,14 @@
 				<span class = "caret"></span>
 			</a> 
 			<ul class = "dropdown-menu">
-				<li><a href = "{% url logout %}"><i class = "icon-lock"></i> Logout</a></li>
+				{% if request.session.impersonate__id %}
+                    <li><a href = "{% url index %}?impersonate__clear"><i class = "icon-unlock"></i> Înapoi la userul tău</a></li>
+                {% else %}
+                    <li><a href = "{% url logout %}"><i class = "icon-lock"></i> Logout</a></li>
+                {% endif %}
 				<li><a href = "{% url structuri:membru_profil %}"><i class = "icon-user"></i> Profil</a></li>
 				<li><a href = "{% url structuri:membru_change_password %}"><i class = "icon-wrench"></i> Schimbă parola</a></li>
-                 <li><a href = "{% url structuri:membru_confirma_facebook %}"><i class = 'icon-facebook'></i>
+                     <li><a href = "{% url structuri:membru_confirma_facebook %}"><i class = 'icon-facebook'></i>
                 {% if user.get_profile.facebook_connected %}
                    Setări Facebook
                 {% else %}

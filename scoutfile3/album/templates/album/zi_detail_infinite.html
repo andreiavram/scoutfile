@@ -63,7 +63,9 @@
             return {"offset": offset,
                 "limit": limit,
                 "zi": {{ object.id }},
-                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                "csrfmiddlewaretoken": "{{ csrf_token }}"
+                ,
+                "eveniment": "{{ object.eveniment.id }}",
                 "ordering": "asc"
                 {% if "autor" in request.GET %},"authors": "{{ request.GET.autor }}"{% endif %}}
         }
@@ -115,5 +117,6 @@
     <div class="thumbnails" id="rezultate-list">
     </div>
     <div class="loading"></div>
+    {% include 'album/flag_modal.html' %}
 
 {% endblock %}

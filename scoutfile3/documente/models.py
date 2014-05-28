@@ -6,12 +6,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 import datetime
 from django.db.models.aggregates import Sum
-from django.db.models.signals import pre_delete
+from django.db.models.signals import post_delete
 from django.dispatch.dispatcher import receiver
-import traceback
+import logging
+
 from settings import VALOARE_IMPLICITA_COTIZATIE_NATIONAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL_SOCIAL, VALOARE_IMPLICITA_COTIZATIE_NATIONAL_SOCIAL
 
-# Create your models here.
+logger = logging.getLogger(__name__)
 
 
 class Document(models.Model):
@@ -140,11 +141,13 @@ class Adeziune(Document):
         self.tip_document = TipDocument.obtine("adeziune")
         return super(Adeziune, self).save(**kwargs)
 
+
 class Chitanta(Document):
     casier = models.ForeignKey("structuri.Membru")
     #serie = models.CharField(max_length=255)
     #numar = models.IntegerField(default=0)
     suma = models.FloatField(default=0)
+    printata = models.BooleanField(default=False)
 
     def save(self, force_insert=False, force_update=False, using=None):
         if not self.tip_document:
@@ -154,13 +157,29 @@ class Chitanta(Document):
     def referinta(self):
         return "Seria %s, nr. %s / %s" % (self.registru.serie, self.numar_inregistrare, self.date_created.strftime("%d.%m.%Y"))
 
-
     def platitor(self):
         from structuri.models import Membru
-        asociere =  AsociereDocument.objects.get(document=self,
-                                               content_type=ContentType.objects.get_for_model(Membru),
-                                               tip_asociere__slug="platitor")
+        asociere_filter = dict(document=self, content_type=ContentType.objects.get_for_model(Membru), tip_asociere__slug="platitor")
+        asociere = AsociereDocument.objects.get(**asociere_filter)
         return asociere.content_object
+
+    def editabila(self):
+        return not self.printata
+
+    @classmethod
+    def pentru_membru(cls, membru=None, tip_document="chitanta"):
+        from structuri.models import Membru
+        asociere_filter = dict(content_type=ContentType.objects.get_for_model(Membru),
+                               object_id=membru.id,
+                               document__tip_document__slug=tip_document,
+                               tip_asociere__slug="platitor")
+        asocieri = AsociereDocument.objects.filter(**asociere_filter).order_by("moment_asociere")
+        return [a.document for a in asocieri]
+
+    def delete(self, **kwargs):
+        if not self.editabila():
+            raise Exception(u"Chitanța nu este editabilă, nu poate fi ștearsă")
+        return super(Chitanta, self).delete(**kwargs)
 
 
 class Trimestru(models.Model):
@@ -255,7 +274,7 @@ class Trimestru(models.Model):
         @see: DecizieCotizatie
         """
 
-        filtru_cotizatii = dict(centru_local=membru.centru_local, trimestru=self, social=membru.are_cotizatie_sociala())
+        filtru_cotizatii = dict(centru_local=membru.centru_local, trimestru=self, social=membru.are_cotizatie_sociala(trimestru=self))
         pachet_cotizatii = DecizieCotizatie.get_package_for_centru_local(**filtru_cotizatii)
         valoare_trimestriala = (pachet_cotizatii['national'] + pachet_cotizatii['local']) / 4.
         return valoare_trimestriala
@@ -297,8 +316,11 @@ class PlataCotizatieTrimestru(models.Model):
         suma_necesara = 0
         while t_current.ordine_globala < t_target.ordine_globala:
             # print t_current, t_target
-            cotizatie_trimestru_nominal = t_current.identifica_cotizatie(membru)
-            cotizatie_trimestru = membru.aplica_reducere_familie(cotizatie_trimestru_nominal, t_current)
+            if membru.plateste_cotizatie(t_current):
+                cotizatie_trimestru_nominal = t_current.identifica_cotizatie(membru)
+                cotizatie_trimestru = membru.aplica_reducere_familie(cotizatie_trimestru_nominal, t_current)
+            else:
+                cotizatie_trimestru = 0
             if plati_partiale:
                 suma_colectata = plati_partiale.aggregate(Sum("suma"))['suma__sum']
                 suma_necesara += cotizatie_trimestru - suma_colectata
@@ -312,13 +334,16 @@ class PlataCotizatieTrimestru(models.Model):
 
 
     @classmethod
-    def calculeaza_acoperire(cls, membru, chitanta=None, suma=0, commit=False, casa=None):
+    def calculeaza_acoperire(cls, membru, chitanta=None, suma=0, chitanta_partial=False, commit=False, casa=None, membri_procesati=[]):
         """ Sparge plata de pe o chitanta in asocierile necesare pentru plati 
         trimestriale pentru un membru, cu plati partiale unde este nevoie.
         
         @param membru: membrul pentru care se fac platile
         @param chitanta: chitanta pe baza careia se fac estimarile (posibil sa nu existe la momentul unei simulari)
         @param commit: daca se salveaza sau nu obiectele create (False == simulare)
+        @param chitanta_partial: la recalcularea cotizatiei cu parametrul 'incepand_cu', poate fi nevoie sa se refere
+                doar anumite pct-uri din chitanta asta, ceea ce inseamna ca suma de impartit poate fi mai mica decat
+                suma de pe chitanta
         """
 
         # gaseste ultimul trimestru inregistrat pentru membru
@@ -326,19 +351,32 @@ class PlataCotizatieTrimestru(models.Model):
 
         #   inițializări (chitanta poate fi None pentru simulari)
         if chitanta:
-            suma = chitanta.suma
+            diff = 0
+            if chitanta_partial:
+                #   calculeaza suma de pe PCT-uri existente si scade-o din chitanta.suma
+                suma_dict = PlataCotizatieTrimestru.objects.filter(membru=membru, chitanta=chitanta).aggregate(Sum("suma"))
+                diff = suma_dict["suma__sum"]
+            suma = chitanta.suma - diff
+
+        logger.debug("calculeaza_acoperire: calcul acoperire start")
 
         trimestru_curent = trimestru_initial
         trimestru_plata_completa = trimestru_curent
         plati = []
         index = 0
 
-        #   Sparge suma pe câte trimestre se poate. S-ar putea să existe probleme cu plata retroactivă a cotizațiilor pe
-        # documente sociale, momentan criteriul de lucru cu cotizația sociala este momentul curent.
-        #   TODO: adaugă parametru pentru a verifica daca utilizatorul a beneficiat de cotizatie sociala la un moment dat
+        #   sparge suma pe câte trimestre se poate
         while suma > 0:
-            cotizatie_trimestru_nominal = trimestru_curent.identifica_cotizatie(membru)
-            cotizatie_trimestru = membru.aplica_reducere_familie(cotizatie_trimestru_nominal, trimestru_curent)
+            plateste_cotizatia_trimestru = membru.plateste_cotizatie(trimestru_curent)
+            if plateste_cotizatia_trimestru:
+                cotizatie_trimestru_nominal = trimestru_curent.identifica_cotizatie(membru)
+                cotizatie_trimestru = membru.aplica_reducere_familie(cotizatie_trimestru_nominal, trimestru_curent)
+            else:
+                #   skip calcul pentru trimestrul asta
+                trimestru_curent = Trimestru.urmatorul_trimestru(trimestru=trimestru_curent)
+                continue
+
+            logger.debug("calculeaza_acoperire: acoperire trimestru pentru %s, nominal %s RON, procesat %s RON" % (membru, cotizatie_trimestru_nominal, cotizatie_trimestru))
 
             #   suma, final si partial rezolva problemele platilor partiale, in toate scenariile
             #   o singura plata partiala
@@ -372,7 +410,7 @@ class PlataCotizatieTrimestru(models.Model):
             if plata.final:
                 trimestru_plata_completa = trimestru_curent
 
-            trimestru_curent = Trimestru.urmatorul_trimestru(trimestru = trimestru_curent)
+            trimestru_curent = Trimestru.urmatorul_trimestru(trimestru=trimestru_curent)
             index += 1
 
         #   verifica status
@@ -396,14 +434,46 @@ class PlataCotizatieTrimestru(models.Model):
             for plata in plati:
                 plata.save()
 
+            #   daca exista plati incomplete pentru trimestrul asta de la membri ai familiei
+            #   recalculeaza platile pentru trimestru avand in vedere ca s-ar putea sa se fi
+            #   modificat pozitia in ierarhia de reduceri pentru unii din ei
+            logger.debug("calculeaza_acoperire: recalculez acoperire pentru familie")
+            cls.recalculeaza_pentru_familie(membru=membru, plati=plati, membri_procesati=membri_procesati)
+
         return plati, suma, membru.status_cotizatie(for_diff=diff), diff
+
+    @classmethod
+    def recalculeaza_pentru_familie(cls, membru, plati, membri_procesati=[]):
+        logger.debug("recalculeaza_pentru_familie: familie: %s" % membri_procesati)
+        from structuri.models import AsociereMembruFamilie
+        familie = AsociereMembruFamilie.rude_cercetasi(membru, exclude_self=True)
+        familie = [m for m in familie if m not in membri_procesati]
+        #   exclude de la reducerea de membrii de familie membrii de familie care au cotizatie sociala trimestrul asta
+        trimestre = []
+        for p in [p for p in plati if p.final is True]: #plati.filter(final=True):
+            if p.trimestru not in trimestre:
+                trimestre.append(p.trimestru)
+
+        for trimestru in trimestre:
+            familie_trimestru = [m for m in familie if not m.are_cotizatie_sociala(trimestru)]
+            for m in familie_trimestru:
+                plati = PlataCotizatieTrimestru.objects.filter(trimestru=trimestru, membru=m)
+                plati_finale = plati.filter(final=True)
+                if plati.count() and plati_finale.count() == 0:
+                    logger.debug("recalculeaza_pentru_familie: recalculare pentru %s, %s" % (m, trimestru))
+                    #   exista plati, dar nu exista o plata finala
+                    #   daca suma platilor este mai mare decat datoria
+                    #   trebuie reimpartita suma, sau (in caz de egalitate) bifata ca finala ultima inregistrare
+                    m.recalculeaza_acoperire_cotizatie(trimestru_start=trimestru, membri_procesati=membri_procesati)
 
     def __unicode__(self):
         return u"Plată pentru %s, pe %s, în valoare de %.2f RON" % (self.membru, self.trimestru, self.suma)
 
+
 class ChitantaCotizatie(Chitanta):
     registre_compatibile = ["chitantier", "intern"]
     predat = models.BooleanField(default=False)
+    blocat = models.BooleanField(default=False)
 
     def save(self, **kwargs):
         self.tip_document, created = TipDocument.objects.get_or_create(slug="cotizatie")
@@ -411,6 +481,17 @@ class ChitantaCotizatie(Chitanta):
             self.tip_document.nume = u"Chitanță cotizație"
             self.tip_document.save()
         return super(ChitantaCotizatie, self).save(**kwargs)
+
+    @classmethod
+    def pentru_membru(cls, membru=None, tip_document="cotizatie"):
+        return Chitanta.pentru_membru(membru=membru, tip_document=tip_document)
+
+    def editabila(self):
+        return not (self.blocat or self.printata)
+
+    def delete(self, **kwargs):
+        self.platacotizatietrimestru_set.all().delete()
+        return super(ChitantaCotizatie, self).delete(**kwargs)
 
 
 REGISTRU_MODES = (("auto", u"Automat"), ("manual", u"Manual"))
@@ -439,6 +520,7 @@ class Registru(models.Model):
     valabil = models.BooleanField(default=True)
     editabil = models.BooleanField(default=True)
     data_inceput = models.DateTimeField(auto_now_add=True)
+    descriere = models.TextField(null=True, blank=True, help_text=u"Un scurt text de descriere pentru registru")
 
     def save(self, **kwargs):
         if not self.numar_curent:
@@ -508,11 +590,11 @@ class Registru(models.Model):
 
 
 class DocumentCotizatieSociala(Document):
-    nume_parinte = models.CharField(max_length=255, null=True, blank=True, verbose_name=u"Nume părinte",
-                                    help_text=u"Lasă gol pentru cercetași adulți") #  poate fi null pentru persoane peste 18 ani
+    nume_parinte = models.CharField(max_length=255, null=True, blank=True, verbose_name=u"Nume părinte", help_text=u"Lasă gol pentru cercetași adulți") #  poate fi null pentru persoane peste 18 ani
     motiv = models.CharField(max_length=2048, null=True, blank=True)
-    este_valabil = models.BooleanField(verbose_name=u"Este valabilă?",
-                                       help_text=u"Bifează doar dacă cererea a fost aprobată de Consiliu")
+    este_valabil = models.BooleanField(verbose_name=u"Cerere aprobată?", help_text=u"Bifează doar dacă cererea a fost aprobată de Consiliu")
+    valabilitate_start = models.DateField()
+    valabilitate_end = models.DateField(null=True, blank=True)
 
     registre_compatibile = ['io', ]
 
@@ -520,16 +602,19 @@ class DocumentCotizatieSociala(Document):
         return reverse("structuri:membru_cotizatiesociala_modifica", kwargs={"pk": self.id})
 
     def save(self, **kwargs):
-        self.tip_document, created = TipDocument.objects.get_or_create(slug="declaratie-cotizatie-sociala")
+        tip_document, created = TipDocument.objects.get_or_create(slug="declaratie-cotizatie-sociala")
         if created:
-            self.tip_document.save()
+            tip_document.nume = u"Declarație cotizație socială"
+            tip_document.save()
+        self.tip_document = tip_document
         return super(DocumentCotizatieSociala, self).save(**kwargs)
 
 
-@receiver(pre_delete, sender=AsociereDocument)
+@receiver(post_delete, sender=AsociereDocument)
 def delete_documentcotizatie(sender, instance, **kwargs):
     if instance.document_ctype == ContentType.objects.get_for_model(DocumentCotizatieSociala):
-        instance.document.delete()
+        document = instance.document
+        document.delete()
 
 
 #   Implementare decizii
@@ -583,8 +668,7 @@ class DecizieCotizatie(Decizie):
                       "categorie": categorie,
                       "data_inceput__lte": trimestru.data_inceput}
             decizii = cls.objects.filter(**filtru).order_by("-data_inceput")
-            cuantum[categorie.split("-")[0]] = decizii[0].cuantum if decizii.count() else valori_implicite.get(
-                categorie)
+            cuantum[categorie.split("-")[0]] = decizii[0].cuantum if decizii.count() else valori_implicite.get(categorie)
 
         return cuantum
 

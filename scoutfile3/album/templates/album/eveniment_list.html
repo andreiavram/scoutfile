@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load pagination_tags %}
+{% load staticfiles %}
 
 {% block page_title %}
 	{% if album %}Album foto{% else %}Activități{% endif %} <div class = "btn-toolbar pull-right">
@@ -10,7 +10,7 @@
         </div>
 
         <div class = "btn-group">
-            <a class = "btn" href = "{% url album:calendar_centru_local pk=request.user.get_profile.membru.centru_local.id %}"><i class = "icon-calendar"></i> Calendar</a>
+            <a class = "btn" href = "{% url album:calendar_centru_local pk=centru_local.id %}"><i class = "icon-calendar"></i> Calendar</a>
             <a class = "btn disabled" href = "{% url album:index%}"><i class = "icon-list"></i> Listă</a>
         </div>
     </div>
@@ -75,7 +75,7 @@
 			<div class = "" style = "position:relative;">
 				<div class = "span3">
 					<a href = "<%= eveniment.urls.detail %>">
-						<img class = "thumbnail" src = "<% if (eveniment.cover_photo.thumbnail_url) { %><%= eveniment.cover_photo.thumbnail_url %><% } else { %>http://placehold.it/320x240<% } %>" />
+						<img class = "thumbnail" src = "<% if (eveniment.cover_photo.thumbnail_url) { %><%= eveniment.cover_photo.thumbnail_url %><% } else { %>{% static 'images/event_placeholder.jpg' %}<% } %>" />
 					</a>
 				</div>
 				<div class = "span9" style = "position: relative">
@@ -138,7 +138,7 @@
     </script>
     <script id = "eveniment_grid" type = "text/template">
         <div class = "span3 thumbnail" style = "min-height: 300px; margin-bottom: 10px;">
-            <img src = "<% if (eveniment.cover_photo.thumbnail_url) { %><%= eveniment.cover_photo.thumbnail_url %><% } else { %>http://placehold.it/320x240<% } %>" />
+            <a href = "<%= eveniment.urls.detail %>"><img src = "<% if (eveniment.cover_photo.thumbnail_url) { %><%= eveniment.cover_photo.thumbnail_url %><% } else { %>{% static 'images/event_placeholder.jpg' %}<% } %>" /></a>
             <h2 style = "text-align: center; font-size: 14px;"><a href = "<%= eveniment.urls.detail %>"><%= eveniment.nume %></a></h2>
             <% if (eveniment.descriere) { %><p style = "text-align: center; font-size: 10px;"><%= eveniment.descriere_truncated %></p><% } %>
             <p style = "text-align: center; font-weight: bold;">
@@ -280,7 +280,7 @@
             list: {
                 name: "list",
                 template_id : "#eveniment_list",
-                target: "#eveniment_table tbody",
+                target: "#eveniment_table > tbody:last",
                 initial: "<table id = 'eveniment_table' class = 'table table-striped'><tr><th>Activitate</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th><th>Poze</th><th>Locație</th><th>&nbsp;</th></tr><tbody></tbody></table>",
                 template: $("#eveniment_list").html(),
                 per_page: 20,
@@ -314,7 +314,13 @@
 
 {% block content %}
     {% if request.user.is_authenticated %}
+    {% if request.session.qnume %}
+        <p class = "alert alert-info"><i class = "icon-search"></i> Căutare după <em>{{ request.session.qnume }}</em>. Pentru a te întoarce la lista de evenimente, apasă <a href = "{% url album:index %}">aici.</a></p>
+    {% endif %}
     <div class = "btn-toolbar pull-right" style = "margin-bottom: 20px">
+        <div class = "btn-group">
+            <form class = "form-inline" style="margin:0"><input class = "search-query" {% if request.session.qnume %}value = "{{ request.session.qnume }}"{% endif %} type = "text" placeholder="Caută după nume" name="qnume"></form>
+        </div>
         <div class = "btn-group">
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class = "icon-th-large"></i> Categorie {% if tip_activitate %}({{ tip_activitate }}){% endif %} <span class="caret"></span></a>
             <ul class="dropdown-menu">
@@ -343,6 +349,9 @@
             {% for unitate in unitati %}
                 <a href = "{% url album:index %}?unitate={{ unitate.id }}" class = "btn {% if request.session.unitate and request.session.unitate == unitate.id %}disabled{% endif %}" data-id = "{{ unitate.id }}"><img style="height: 18px" src = "{{ STATIC_URL }}images/icon-{{ unitate.ramura_de_varsta|slugify }}.png" /> {{ unitate.nume }}</a>
             {% endfor %}
+            {% if patrula %}
+                <a href = "#" class = "btn disabled">{{ patrula }}</a>
+            {% endif %}
         </div>
 
         <div class = "btn-group">

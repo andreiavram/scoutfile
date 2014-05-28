@@ -19,9 +19,9 @@
             <td>{{ participare.get_status_participare_display }}</td>
             <td>{% if participare.is_partiala %}<i class = "icon-ok"></i>{% endif %}</td>
             <td>{% if participare.data_sosire.date == participare.data_plecare.date %}
-                    {{ participare.data_sosire|date:"l, j F Y" }}, între {{ participare.data_sosire|date:"H:i" }} - {{ participare.data_plecare|date:"H:i" }}
+                    {{ participare.data_sosire|date:"l, d F Y" }}, între {{ participare.data_sosire|date:"H:i" }} - {{ participare.data_plecare|date:"H:i" }}
                 {% else %}
-                    {{ participare.data_sosire|date:"l, j F Y ora H:i" }} - {{ participare.data_plecare|date:"l, j F Y ora H:i" }}
+                    {{ participare.data_sosire|date:"l, d F Y H:i" }} - {{ participare.data_plecare|date:"l, d F Y H:i" }}
                 {% endif %}</td>
         </tr>
     {% empty %}
