@@ -15,6 +15,7 @@ from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 import unidecode
+from album.models import Imagine
 from documente.models import PlataCotizatieTrimestru, AsociereDocument, Trimestru, ChitantaCotizatie
 from utils.models import FacebookSession
 
@@ -1010,3 +1011,88 @@ class InformatieContact(models.Model):
     def __unicode__(self):
         return "%s: %s" % (self.tip_informatie.nume, self.valoare)
 
+
+DOMENII_DEZVOLTARE = (("intelectual", "Intelectual"),
+                      ("fizic", "Fizic"),
+                      ("afectiv", "Afectiv"),
+                      ("social", "Social"),
+                      ("caracter", "Caracter"),
+                      ("spiritual", "Spiritual"))
+
+
+class ObiectivEducativProgres(models.Model):
+    titlu = models.CharField(max_length=2048)
+    descriere = models.TextField(null=True, blank=True)
+    domeniu = models.CharField(max_length=255, choices=DOMENII_DEZVOLTARE)
+    pista = models.CharField(max_length=1024, null=True, blank=True)
+
+
+class EtapaProgres(models.Model):
+    ramura_de_varsta = models.ForeignKey(RamuraDeVarsta)
+    nume = models.CharField(max_length=255)
+    logo = models.ForeignKey(Imagine)
+    ordine = models.PositiveSmallIntegerField(null=True, blank=True)
+    slug = models.SlugField()
+
+    reguli = models.CharField(max_length=1024, null=True, blank=True)
+
+    def __unicode__(self):
+        return self.nume
+
+
+class BadgeMerit(models.Model):
+    ramura_de_varsta = models.ForeignKey(RamuraDeVarsta, null=True, blank=True)
+    etapa_progres = models.ForeignKey(EtapaProgres, null=True, blank=True)
+    nume = models.CharField(max_length=255)
+    descriere = models.TextField(null=True, blank=True)
+    logo = models.ForeignKey(Imagine, null=True, blank=True)
+
+
+class TargetEtapaProgres(models.Model):
+    titlu = models.CharField(max_length=2048)
+    capitol = models.CharField(max_length=2048)
+
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    target = GenericForeignKey()
+
+
+class EtapaProgresMembru(models.Model):
+    etapa_progres = models.ForeignKey(EtapaProgres)
+    membru = models.ForeignKey(Membru, related_name="etape_progres")
+    evaluator = models.ForeignKey(Membru, related_name="etape_progres_evaluate")
+    data = models.DateField()
+    detalii = models.TextField(null=True, blank=True)
+
+
+class BadgeMeritMembru(models.Model):
+    badge = models.ForeignKey(BadgeMerit)
+    membru = models.ForeignKey(Membru, related_name="badgeuri_merit")
+    evaluator = models.ForeignKey(Membru, related_name="badgeuri_merit_evaluate")
+    data = models.DateField()
+    detalii = models.TextField(null=True, blank=True)
+
+
+class NoteObiectivProgresMembru(models.Model):
+    obiectiv = models.ForeignKey(ObiectivEducativProgres)
+    nota = models.TextField()
+
+    membru = models.ForeignKey(Membru, related_name="note_obiective_progres")
+    evaluator = models.ForeignKey(Membru, related_name="note_obiective_progres_evaluate")
+    timestamp = models.DateTimeField()
+
+    activitate = models.ForeignKey("album.Eveniment", null=True, blank=True)
+    obiectiv_atins = models.BooleanField(default=False)
+    etapa_progres = models.ForeignKey(EtapaProgres)
+
+
+class NotaTargetEtapaProgres(models.Model):
+    target = models.ForeignKey(TargetEtapaProgres)
+
+    membru = models.ForeignKey(Membru, related_name="note_etape_progres")
+    evaluator = models.ForeignKey(Membru, related_name="note_etape_progres_evaluate")
+
+    timestamp = models.DateTimeField(auto_now_add=True)
+    target_atins = models.BooleanField()
+
+    activitate = models.ForeignKey("album.Eveniment", null=True, blank=True)

@@ -12,8 +12,6 @@ MANAGERS = ADMINS
 components = os.path.abspath(__file__).split(os.sep)[:-2]
 FILE_ROOT = str.join(os.sep, components)
 
-from local_settings import *
-
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -89,8 +87,8 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'johnny.middleware.LocalStoreClearMiddleware',
     'johnny.middleware.QueryCacheMiddleware',
-    'raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware',
-    'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
+    #'raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware',
+    #'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -101,13 +99,13 @@ MIDDLEWARE_CLASSES = (
 )
 
 CACHES = {
-    'default' : dict(
-        BACKEND = 'johnny.backends.memcached.MemcachedCache',
-        LOCATION = ['127.0.0.1:11211'],
-        JOHNNY_CACHE = True,
+    'default': dict(
+        BACKEND='johnny.backends.memcached.MemcachedCache',
+        LOCATION=['127.0.0.1:11211'],
+        JOHNNY_CACHE=True,
     )
 }
-JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_scoutfile3'
+JOHNNY_MIDDLEWARE_KEY_PREFIX = 'jc_scoutfile3'
 
 ROOT_URLCONF = 'urls'
 
@@ -156,9 +154,9 @@ INSTALLED_APPS = (
     'patrocle', 'documente', 'extra',
     "utils",
     
-    'raven.contrib.django.raven_compat',
+    #'raven.contrib.django.raven_compat',
     'django_extensions', 'gunicorn', 'goodies',
-    'djangobower', 'longerusername',
+    'djangobower', 'longerusername', 'storages',
 )
 
 
@@ -212,10 +210,10 @@ LOGGING = {
             'level':'DEBUG',
             'class':'django.utils.log.NullHandler',
         },
-        'sentry' : {
-            'level' : 'ERROR',
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-        },
+        # 'sentry' : {
+        #     'level' : 'ERROR',
+        #     'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+        # },
     },
     'loggers': {
         'django.request': {
@@ -230,23 +228,23 @@ LOGGING = {
             'level':'DEBUG',
         },
 
-        'sentry.errors': {
-            'level': 'DEBUG',
-            'handlers': ['default'],
-            'propagate': False,
-        },
-        
+        # 'sentry.errors': {
+        #     'level': 'DEBUG',
+        #     'handlers': ['default'],
+        #     'propagate': False,
+        # },
+
         'django.db.backends' : {
             'handlers' : ['null', ], 
             'propagate' : False,
             'level': 'DEBUG',
         },
 
-       'raven': {
-            'level': 'DEBUG',
-            'handlers': ['default'],
-            'propagate': False,
-        },
+       # 'raven': {
+       #      'level': 'DEBUG',
+       #      'handlers': ['default'],
+       #      'propagate': False,
+       #  },
             
     }
 }
@@ -330,11 +328,11 @@ FACEBOOK_PERMISSIONS = ['email', 'publish_stream']
 FACEBOOK_ERROR_URL = "login"
 
 AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',
-                           'utils.auth_backends.FacebookBackend',
-)
+                           'utils.auth_backends.FacebookBackend',)
 
 CRISPY_TEMPLATE_PACK = "bootstrap"
 BOWER_COMPONENTS_ROOT = os.path.join(FILE_ROOT, "components")
+BOWER_PATH = '/usr/local/bin/bower'
 
 BOWER_INSTALLED_APPS = (
     'jquery#1.9',
@@ -343,3 +341,7 @@ BOWER_INSTALLED_APPS = (
 )
 
 CENTRU_LOCAL_IMPLICIT = 1
+
+DEFAULT_FILE_STORAGE = 's3utils.MediaS3BotoStorage'
+
+from local_settings import *
