@@ -12,8 +12,6 @@ MANAGERS = ADMINS
 components = os.path.abspath(__file__).split(os.sep)[:-2]
 FILE_ROOT = str.join(os.sep, components)
 
-from local_settings import *
-
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -101,13 +99,13 @@ MIDDLEWARE_CLASSES = (
 )
 
 CACHES = {
-    'default' : dict(
-        BACKEND = 'johnny.backends.memcached.MemcachedCache',
-        LOCATION = ['127.0.0.1:11211'],
-        JOHNNY_CACHE = True,
+    'default': dict(
+        BACKEND='johnny.backends.memcached.MemcachedCache',
+        LOCATION=['127.0.0.1:11211'],
+        JOHNNY_CACHE=True,
     )
 }
-JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_scoutfile3'
+JOHNNY_MIDDLEWARE_KEY_PREFIX = 'jc_scoutfile3'
 
 ROOT_URLCONF = 'urls'
 
@@ -158,7 +156,7 @@ INSTALLED_APPS = (
     
     'raven.contrib.django.raven_compat',
     'django_extensions', 'gunicorn', 'goodies',
-    'djangobower', 'longerusername',
+    'djangobower', 'longerusername', 'storages',
 )
 
 
@@ -330,8 +328,7 @@ FACEBOOK_PERMISSIONS = ['email', 'publish_stream']
 FACEBOOK_ERROR_URL = "login"
 
 AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',
-                           'utils.auth_backends.FacebookBackend',
-)
+                           'utils.auth_backends.FacebookBackend',)
 
 CRISPY_TEMPLATE_PACK = "bootstrap"
 BOWER_COMPONENTS_ROOT = os.path.join(FILE_ROOT, "components")
@@ -344,3 +341,7 @@ BOWER_INSTALLED_APPS = (
 )
 
 CENTRU_LOCAL_IMPLICIT = 1
+
+DEFAULT_FILE_STORAGE = 's3utils.MediaS3BotoStorage'
+
+from local_settings import *
