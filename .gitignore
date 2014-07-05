@@ -8,3 +8,5 @@ components/*
 !components/components.index
 *local_settings.*.py
 .idea/*
+.vagrant/*
+*.sql
