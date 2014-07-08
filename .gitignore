@@ -6,7 +6,8 @@ media/*
 logs/*”
 components/*
 !components/components.index
-*local_settings.*.py
 .idea/*
 .vagrant/*
 *.sql
+scoutfile3/local_settings.local.py
+scoutfile3/local_settings.py
