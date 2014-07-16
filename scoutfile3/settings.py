@@ -154,7 +154,7 @@ INSTALLED_APPS = (
     'patrocle', 'documente', 'extra',
     "utils",
     
-    #'raven.contrib.django.raven_compat',
+    'raven.contrib.django.raven_compat',
     'django_extensions', 'gunicorn', 'goodies',
     'djangobower', 'longerusername', 'storages',
 )
@@ -177,10 +177,10 @@ AJAX_SELECT_INLINES = False
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    # 'root' : {
-    #   'level' : 'WARNING',
-    #   'handlers' : ['sentry'],
-    # },
+    'root' : {
+      'level' : 'WARNING',
+      'handlers' : ['sentry'],
+    },
     'formatters': {
         'verbose': {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
@@ -210,10 +210,10 @@ LOGGING = {
             'level':'DEBUG',
             'class':'django.utils.log.NullHandler',
         },
-        # 'sentry' : {
-        #     'level' : 'ERROR',
-        #     'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-        # },
+        'sentry' : {
+            'level' : 'ERROR',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+        },
     },
     'loggers': {
         'django.request': {
@@ -228,11 +228,11 @@ LOGGING = {
             'level':'DEBUG',
         },
 
-        # 'sentry.errors': {
-        #     'level': 'DEBUG',
-        #     'handlers': ['default'],
-        #     'propagate': False,
-        # },
+        'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['default'],
+            'propagate': False,
+        },
 
         'django.db.backends' : {
             'handlers' : ['null', ], 
@@ -240,11 +240,11 @@ LOGGING = {
             'level': 'DEBUG',
         },
 
-       # 'raven': {
-       #      'level': 'DEBUG',
-       #      'handlers': ['default'],
-       #      'propagate': False,
-       #  },
+       'raven': {
+            'level': 'DEBUG',
+            'handlers': ['default'],
+            'propagate': False,
+       },
             
     }
 }
@@ -276,12 +276,6 @@ EMAIL_USE_TLS = True
 
 
 LESS_OUTPUT_DIR = "less_cache"
-
-SMSLINK_URL = "http://www.smslink.ro/sms/gateway/communicate/"
-SMSLINK_CONNID = "A196357A18017C10"
-SMSLINK_PASSWORD = "yetiRulz1_"
-
-REDMINE_API_KEY = "f393aac0746069a9de25eb251b0171b1ff1ed793"
 
 VALOARE_IMPLICITA_COTIZATIE_LOCAL = 0
 VALOARE_IMPLICITA_COTIZATIE_NATIONAL = 50

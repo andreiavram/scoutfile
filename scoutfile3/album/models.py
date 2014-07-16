@@ -555,12 +555,15 @@ class SetPoze(models.Model):
         self.save()
 
         try:
+            # TODO: create folders on AWS
             event_path_no_root = os.path.join(SCOUTFILE_ALBUM_STORAGE_ROOT, unicode(self.eveniment.centru_local.id),
                                               unicode(self.eveniment.id), unidecode(self.autor.replace(" ", "_")))
             event_path = os.path.join(MEDIA_ROOT, event_path_no_root)
             if not os.path.exists(os.path.join(MEDIA_ROOT, event_path)):
+                # TODO: create folders on AWS
                 os.makedirs(os.path.join(MEDIA_ROOT, event_path))
 
+            # TODO: read the zipfile from AWS
             with ZipFile(self.zip_file) as zf:
                 total_count = len(zf.infolist())
                 current_count = 0
@@ -572,6 +575,7 @@ class SetPoze(models.Model):
                         continue
                     logger.debug("SetPoze: extracting file %s to %s" % (f.filename, event_path))
                     zf.extract(f, event_path)
+                    # TODO: do not populate the path to the image field, rather create the StorageFile object so that it uploads to AWS
                     im = Imagine(set_poze=self, titlu=os.path.basename(f.filename),
                                  image=os.path.join(event_path_no_root, f.filename))
                     logger.debug("SetPoze: poza: %s" % im.image)
