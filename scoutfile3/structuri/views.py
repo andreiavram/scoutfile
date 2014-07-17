@@ -463,7 +463,7 @@ class MembriFaraAfilieri(ListView):
 class CentruLocalMembri(CentruLocalTabMembri):
     template_name = "structuri/centrulocal_membri.html"
 
-    @allow_by_afiliere([("Centru Local", u"Lider")])
+    @allow_by_afiliere([("Centru Local", u"Lider"), ("Centru Local", u"Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         self.rdv = None
         if "rdv" in request.GET and request.GET['rdv']:
