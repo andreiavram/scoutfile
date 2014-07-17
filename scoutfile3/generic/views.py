@@ -18,7 +18,7 @@ import datetime
 import traceback
 from django.utils import simplejson
 
-from settings import REDMINE_API_KEY
+from django.conf import settings
 from utils.views import FacebookLoginView
 
 
@@ -91,7 +91,7 @@ class IndexView(TemplateView):
         values = {"project_id" : 1,
                   "status_id" : "closed",
                   "limit" : 10,
-                  "key" : REDMINE_API_KEY}
+                  "key" : settings.REDMINE_API_KEY}
 
         data = urllib.urlencode(values)
         url_to_send = "http://yeti.albascout.ro/redmine/issues.json" + "?" + data + "&sort=updated_on:desc"
@@ -131,7 +131,7 @@ class Issues(TemplateView):
         values = {"project_id" : 1,
                   "status_id" : self.status,
                   "limit" : 50,
-                  "key" : REDMINE_API_KEY}
+                  "key" : settings.REDMINE_API_KEY}
         
         if self.tracker:
             values.update({"tracker_id" : self.tracker})
@@ -180,7 +180,7 @@ class CreateIssue(FormView):
         data = simplejson.dumps(post_data)
         logger.debug("%s: %s" % (self.__class__.__name__, data))
         
-        url_to_send = 'http://yeti.albascout.ro/redmine/issues.json?key=%s' % REDMINE_API_KEY
+        url_to_send = 'http://yeti.albascout.ro/redmine/issues.json?key=%s' % settings.REDMINE_API_KEY
         try:
             req = urllib2.Request(url_to_send, data, {'Content-Type': 'application/json'})
             f = urllib2.urlopen(req)
