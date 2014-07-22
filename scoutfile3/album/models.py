@@ -85,6 +85,8 @@ class Eveniment(models.Model):
     organizator = models.CharField(max_length=255, null=True, blank=True, help_text=u"Dacă organizatorul este altul decât Centrul Local, notați-l aici")
     organizator_cercetas = models.BooleanField(default=True, help_text=u"Dacă organizatorul este un centru local sau ONCR, bifează aici")
 
+    proiect = models.ForeignKey("proiecte.Project", null=True, blank=True)
+
     class Meta:
         verbose_name = u"Eveniment"
         verbose_name_plural = u"Evenimente"
