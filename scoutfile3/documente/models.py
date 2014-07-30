@@ -9,7 +9,7 @@ from django.db.models.aggregates import Sum
 from django.db.models.signals import post_delete
 from django.dispatch.dispatcher import receiver
 import logging
-from s3utils import ProtectedS3BotoStorage
+from s3utils import ProtectedS3BotoStorage, LocalStorage
 
 from settings import VALOARE_IMPLICITA_COTIZATIE_NATIONAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL_SOCIAL, VALOARE_IMPLICITA_COTIZATIE_NATIONAL_SOCIAL
 
@@ -24,7 +24,7 @@ class Document(models.Model):
     titlu = models.CharField(max_length=1024)
     descriere = models.CharField(max_length=2048, null=True, blank=True)
 
-    fisier = models.FileField(upload_to=lambda instance, file_name: "declaratii/%s" % file_name, null=True, blank=True, storage=ProtectedS3BotoStorage)
+    fisier = models.FileField(upload_to=lambda instance, file_name: "declaratii/%s" % file_name, null=True, blank=True, storage=LocalStorage)
     url = models.URLField(max_length=2048, null=True, blank=True)
 
     version_number = models.IntegerField(default=0)

@@ -338,5 +338,7 @@ CENTRU_LOCAL_IMPLICIT = 1
 REDMINE_APY_KEY = ""
 
 DEFAULT_FILE_STORAGE = 's3utils.MediaS3BotoStorage'
+LOCAL_MEDIA_ROOT = os.path.join(FILE_ROOT, "media")
+LOCAL_MEDIA_URL = "/media/"
 
 from local_settings import *

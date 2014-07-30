@@ -537,7 +537,7 @@ class SetPoze(models.Model):
     date_uploaded = models.DateTimeField(auto_now=True)
     offset_secunde = models.IntegerField(default=0,
                                          help_text="Numărul de secunde cu care ceasul camerei voastre a fost decalat față de ceasul corect (poate fi și negativ). Foarte util pentru sincronizarea pozelor de la mai mulți fotografi")
-    offset_changed = models.BooleanField(default = False, verbose_name = u"Offset-ul a fost modificat")
+    offset_changed = models.BooleanField(default=False, verbose_name = u"Offset-ul a fost modificat")
 
     class Meta:
         verbose_name = u"Set poze"
