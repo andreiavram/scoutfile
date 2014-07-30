@@ -4,7 +4,7 @@ from django.db import models
 # Create your models here.
 
 
-PROJECT_VISIBILITY_STATUSES = ((1, "Secret"), (2, u"Centrul Local"), (3, u"Organizație", (4, u"Public")))
+PROJECT_VISIBILITY_STATUSES = ((1, u"Secret"), (2, u"Centrul Local"), (3, u"Organizație"), (4, u"Public"))
 
 
 class Project(models.Model):
