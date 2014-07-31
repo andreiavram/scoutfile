@@ -87,8 +87,8 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'johnny.middleware.LocalStoreClearMiddleware',
     'johnny.middleware.QueryCacheMiddleware',
-    'raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware',
-    'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
+    # 'raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware',
+    # 'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -154,7 +154,7 @@ INSTALLED_APPS = (
     'patrocle', 'documente', 'extra',
     "utils", "proiecte",
     
-    'raven.contrib.django.raven_compat',
+    # 'raven.contrib.django.raven_compat',
     'django_extensions', 'gunicorn', 'goodies',
     'djangobower', 'longerusername', 'storages',
 )
@@ -178,8 +178,8 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'root' : {
-      'level' : 'WARNING',
-      'handlers' : ['sentry'],
+      'level' : 'DEBUG',
+      'handlers' : ['default'],
     },
     'formatters': {
         'verbose': {
@@ -210,10 +210,10 @@ LOGGING = {
             'level':'DEBUG',
             'class':'django.utils.log.NullHandler',
         },
-        'sentry' : {
-            'level' : 'ERROR',
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-        },
+        # 'sentry' : {
+        #     'level' : 'ERROR',
+        #     'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+        # },
     },
     'loggers': {
         'django.request': {
@@ -228,11 +228,11 @@ LOGGING = {
             'level':'DEBUG',
         },
 
-        'sentry.errors': {
-            'level': 'DEBUG',
-            'handlers': ['default'],
-            'propagate': False,
-        },
+        # 'sentry.errors': {
+        #     'level': 'DEBUG',
+        #     'handlers': ['default'],
+        #     'propagate': False,
+        # },
 
         'django.db.backends' : {
             'handlers' : ['null', ], 
@@ -240,11 +240,11 @@ LOGGING = {
             'level': 'DEBUG',
         },
 
-       'raven': {
-            'level': 'DEBUG',
-            'handlers': ['default'],
-            'propagate': False,
-       },
+       # 'raven': {
+       #      'level': 'DEBUG',
+       #      'handlers': ['default'],
+       #      'propagate': False,
+       # },
             
     }
 }

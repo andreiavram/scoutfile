@@ -16,13 +16,15 @@ import logging
 import traceback
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+import shutil
+from django.core.files.base import File
 from album.managers import RaportEvenimentManager
 from django import forms
 from generic.widgets import BootstrapDateInput
 
-from settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT, MEDIA_ROOT
+# from settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT, MEDIA_ROOT
 from taggit.managers import TaggableManager
-import settings
+from django.conf import settings
 
 
 logger = logging.getLogger(__name__)
@@ -214,6 +216,8 @@ class Eveniment(models.Model):
         return autori
 
     def cover_photo(self):
+        return None
+
         if self.custom_cover_photo:
             return self.custom_cover_photo
 
@@ -557,34 +561,47 @@ class SetPoze(models.Model):
         self.save()
 
         try:
-            # TODO: create folders on AWS
-            event_path_no_root = os.path.join(SCOUTFILE_ALBUM_STORAGE_ROOT, unicode(self.eveniment.centru_local.id),
+            #   folder creation is not required on AWS
+            event_path_no_root = os.path.join(settings.SCOUTFILE_ALBUM_STORAGE_ROOT, unicode(self.eveniment.centru_local.id),
                                               unicode(self.eveniment.id), unidecode(self.autor.replace(" ", "_")))
-            event_path = os.path.join(MEDIA_ROOT, event_path_no_root)
-            if not os.path.exists(os.path.join(MEDIA_ROOT, event_path)):
-                # TODO: create folders on AWS
-                os.makedirs(os.path.join(MEDIA_ROOT, event_path))
 
-            # TODO: read the zipfile from AWS
+            # event_path = os.path.join(settings.MEDIA_DIRECTORY, event_path_no_root)
+            # path creation is not a thing with S3
+            # if not os.path.exists(os.path.join(settings.LOCAL_MEDIA_ROOT, event_path)):
+            #     # TODO: create folders on AWS
+            #     os.makedirs(os.path.join(settings.LOCAL_MEDIA_ROOT, event_path))
+
+            #   setup temp path to unzip in
+            import hashlib
+            tmp_album_path = hashlib.sha224(event_path_no_root).hexdigest()
+            tmp_album_path = os.path.join("/tmp", tmp_album_path)
+            if os.path.exists(tmp_album_path):
+                shutil.rmtree(tmp_album_path)
+            os.makedirs(tmp_album_path)
+
             with ZipFile(self.zip_file) as zf:
                 total_count = len(zf.infolist())
                 current_count = 0
                 for f in zf.infolist():
                     logger.debug("SetPoze: fisier extras %s" % f)
+
                     f.external_attr = 0777 << 16L
                     if f.filename.endswith("/") or os.path.splitext(f.filename)[1].lower() not in (".jpg", ".jpeg", ".png"):
                         logger.debug("SetPoze skipping %s %s %s" % (f, f.filename, os.path.splitext(f.filename)[1].lower()))
                         continue
-                    logger.debug("SetPoze: extracting file %s to %s" % (f.filename, event_path))
-                    zf.extract(f, event_path)
-                    # TODO: do not populate the path to the image field, rather create the StorageFile object so that it uploads to AWS
-                    im = Imagine(set_poze=self, titlu=os.path.basename(f.filename),
-                                 image=os.path.join(event_path_no_root, f.filename))
-                    logger.debug("SetPoze: poza: %s" % im.image)
+
+                    logger.debug("SetPoze: extracting file %s to S3:%s" % (f.filename, event_path_no_root))
+                    zf.extract(f, tmp_album_path)
+
+                    im = Imagine(set_poze=self, titlu=os.path.basename(f.filename))
+                    file_handler = open(os.path.join(tmp_album_path, f.filename))
+                    im.image.save(os.path.join(event_path_no_root, f.filename), File(file_handler))
+
                     try:
-                        im.save()
+                        im.save(file_handler=file_handler, local_file_name=os.path.join(tmp_album_path, f.filename))
                     except Exception, e:
                         logger.error("eroare: %s %s" % (e, traceback.format_exc()))
+
                     current_count += 1
                     current_percent = current_count * 100. / total_count
                     if current_percent - 5 > self.procent_procesat:
@@ -600,6 +617,7 @@ class SetPoze(models.Model):
                       [self.autor_user.email, ])
             self.save()
             os.unlink(self.zip_file)
+            shutil.rmtree(tmp_album_path)
             logger.error(
                 "SetPoze: error extracting files: %s (%s), deleting uploaded file" % (e, traceback.format_exc()))
             return
@@ -639,23 +657,27 @@ class Imagine(ImageModel):
         ordering = ["date_taken", ]
 
     def rotate(self, direction="cw"):
-        im = Image.open(self.image)
+        fh = self.image.open("w+")
+        im = Image.open(fh)
 
-        angle = -90
         if direction == "cw":
             angle = -90
         else:
             angle = 90
 
         im = im.rotate(angle)
-        im.save("%s%s" % (MEDIA_ROOT, self.image))
+        im.save(fh)
+        fh.close()
 
-        if os.path.exists(self.get_large_filename()):
-            os.unlink(self.get_large_filename())
-        if os.path.exists(self.get_thumbnail_filename()):
-            os.unlink(self.get_thumbnail_filename())
-        if os.path.exists(self.get_profile_filename()):
-            os.unlink(self.get_profile_filename())
+        try:
+            if os.path.exists(self.get_large_filename()):
+                os.unlink(self.get_large_filename())
+            if os.path.exists(self.get_thumbnail_filename()):
+                os.unlink(self.get_thumbnail_filename())
+            if os.path.exists(self.get_profile_filename()):
+                os.unlink(self.get_profile_filename())
+        except Exception, e:
+            logger.debug("%s: deleted cached sizes (does this even work on S3?" % self.__class__.__name__)
 
         return
 
@@ -699,19 +721,20 @@ class Imagine(ImageModel):
     def interesting_exifdata(self):
         return self.exifdata_set.filter(key__in=("Model", ))
 
-    def save(self, *args, **kwargs):
+    def save(self, file_handler=None, local_file_name=None, *args, **kwargs):
         im = None
-        if self.resolution_x is None or self.resolution_y is None:
-            logger.debug("Imagine.save: opening file: %s" % os.path.join(MEDIA_ROOT, "%s" % self.image))
-            im = Image.open(os.path.join(MEDIA_ROOT, "%s" % self.image))
+        if (self.resolution_x is None or self.resolution_y is None) and file_handler:
+            # logger.debug("Imagine.save: opening file: %s" % os.path.join(settings.MEDIA_ROOT, "%s" % self.image))
+            im = Image.open(file_handler)
             self.resolution_x, self.resolution_y = im.size
 
         on_create = False
         if self.id is None:
             on_create = True
-            if im is None:
-                im = Image.open(self.image)
+            # if im is None:
+            #     im = Image.open(self.image)
             try:
+                im = im if im else Image.open(file_handler)
                 info = im._getexif()
             except Exception, e:
                 info = None
@@ -740,7 +763,7 @@ class Imagine(ImageModel):
                 #    delete any existing faces, thus allowing detected face reset by
                 #    switching the is_face_processed flag
                 self.detectedface_set.all().delete()
-            self.find_faces()
+            self.find_faces(local_file_name)
             self.is_face_processed = True
 
         if on_create:
@@ -760,13 +783,18 @@ class Imagine(ImageModel):
         self.score += score
         self.save()
 
-    def find_faces(self):
+    def find_faces(self, file_name=None):
         import cv
 
-        imcolor = cv.LoadImage("%s/%s" % (MEDIA_ROOT, self.image)) #@UndefinedVariable
+        if file_name is None:
+            return
+
+        logger.debug("%s: %s" % (self.__class__.__name__, file_name))
+
+        imcolor = cv.LoadImage(file_name) #@UndefinedVariable
         detectors = ["haarcascade_frontalface_default.xml", "haarcascade_profileface.xml"]
         for detector in detectors:
-            haarFace = cv.Load(os.path.join(STATIC_ROOT, detector))  # @UndefinedVariable
+            haarFace = cv.Load(os.path.join(settings.STATIC_ROOT, detector))  # @UndefinedVariable
             storage = cv.CreateMemStorage() #@UndefinedVariable
             detectedFaces = cv.HaarDetectObjects(imcolor, haarFace, storage, min_size=(200, 200)) #@UndefinedVariable
             if detectedFaces:
