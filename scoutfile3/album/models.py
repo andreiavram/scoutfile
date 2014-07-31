@@ -586,7 +586,7 @@ class SetPoze(models.Model):
                     logger.debug("SetPoze: fisier extras %s" % f)
 
                     f.external_attr = 0777 << 16L
-                    if f.filename.endswith("/") or os.path.splitext(f.filename)[1].lower() not in (".jpg", ".jpeg", ".png"):
+                    if f.filename.endswith("/") or os.path.splitext(f.filename)[1].lower() not in (".jpg", ".jpeg", ".png") or os.path.basename(f.filename).startswith(".") or f.filename.startswith("__"):
                         logger.debug("SetPoze skipping %s %s %s" % (f, f.filename, os.path.splitext(f.filename)[1].lower()))
                         continue
 
@@ -595,7 +595,7 @@ class SetPoze(models.Model):
 
                     im = Imagine(set_poze=self, titlu=os.path.basename(f.filename))
                     file_handler = open(os.path.join(tmp_album_path, f.filename))
-                    im.image.save(os.path.join(event_path_no_root, f.filename), File(file_handler))
+                    im.image.save(os.path.join(event_path_no_root, f.filename), File(file_handler), save=False)
 
                     try:
                         im.save(file_handler=file_handler, local_file_name=os.path.join(tmp_album_path, f.filename))
@@ -632,6 +632,7 @@ class SetPoze(models.Model):
                   settings.SYSTEM_EMAIL,
                   [self.autor_user.email, ])
         os.unlink(self.zip_file)
+        shutil.rmtree(tmp_album_path)
 
 
 class Imagine(ImageModel):
@@ -722,23 +723,24 @@ class Imagine(ImageModel):
         return self.exifdata_set.filter(key__in=("Model", ))
 
     def save(self, file_handler=None, local_file_name=None, *args, **kwargs):
+        logger.debug("Calling Image.save with fh %s and lfn %s" % (file_handler, local_file_name))
         im = None
-        if (self.resolution_x is None or self.resolution_y is None) and file_handler:
-            # logger.debug("Imagine.save: opening file: %s" % os.path.join(settings.MEDIA_ROOT, "%s" % self.image))
-            im = Image.open(file_handler)
+        if (self.resolution_x is None or self.resolution_y is None) and local_file_name is not None:
+            logger.debug("Imagine.save: opening file: %s" % local_file_name)
+            im = Image.open(local_file_name)
             self.resolution_x, self.resolution_y = im.size
+            logger.debug("Imagine resolution: %d, %d" % (self.resolution_x, self.resolution_y))
 
         on_create = False
         if self.id is None:
             on_create = True
-            # if im is None:
-            #     im = Image.open(self.image)
             try:
-                im = im if im else Image.open(file_handler)
+                if im is None:
+                    im = Image.open(local_file_name)
                 info = im._getexif()
             except Exception, e:
+                logger.debug("%s: %s, %s" % (self.__class__.__name__, e, traceback.format_exc()))
                 info = None
-
 
             exif_data = {}
 
@@ -756,6 +758,7 @@ class Imagine(ImageModel):
 
                     exif_data[decoded] = value
 
+            logger.debug("exifdata %s" % exif_data)
         retval = super(Imagine, self).save(*args, **kwargs)
 
         if not self.is_face_processed:
@@ -777,6 +780,8 @@ class Imagine(ImageModel):
                 except Exception, e:
                     continue
 
+        if im is not None:
+            im.close()
         return retval
 
     def vote_photo(self, score):
@@ -832,7 +837,7 @@ class Imagine(ImageModel):
             "titlu": u"%s - %s" % (self.set_poze.eveniment.nume, self.titlu),
             "descriere": self.descriere or "",
             "autor": self.set_poze.get_autor(),
-            "data": self.data.strftime("%d %B %Y %H:%M:%S"),
+            "data": self.data.strftime("%d %B %Y %H:%M:%S") if self.data else datetime.datetime.now().strftime("%d %B %Y %H:%M:%S"),
             "tags": [t for t in self.tags.names()[:10]],
             "rotate_url": reverse("album:poza_rotate", kwargs={"pk": self.id}),
             "published_status_display": self.get_published_status_display(),
