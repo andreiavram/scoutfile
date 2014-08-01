@@ -22,6 +22,7 @@ from taggit.models import Tag
 from taggit.utils import parse_tags
 from goodies.views import GenericDeleteView, CalendarViewMixin
 from goodies.views import JSONView
+from django.core.files.base import File
 
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment, \
     ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT, SetPoze, IMAGINE_PUBLISHED_STATUS, \
@@ -776,13 +777,31 @@ class EvenimentEditMixin(object):
         if hasattr(self, 'object') and self.object is not None and self.object.id is not None:
             fname += str(self.object.id) + "-" + fname
 
-        base_path = os.path.join("album", fname)
-        path = os.path.join(MEDIA_ROOT, base_path)
+        path = os.path.join("/tmp", fname)
+        #path = os.path.join(MEDIA_ROOT, base_path)
         with open(path, 'wb+') as destination:
             for chunk in f.chunks():
                 destination.write(chunk)
 
-        return base_path
+        return path
+
+    def save_cover_photo(self, save=True):
+        if "cover_photo" in self.request.FILES:
+            try:
+                path = self.handle_uploaded_file(self.request.FILES['cover_photo'])
+            except Exception, e:
+                return
+
+            if self.object.cover_photo:
+                self.object.cover_photo.image.delete()
+                self.object.cover_photo.delete()
+            filehandler = open(path, "r")
+            cover_photo = Imagine()
+            cover_photo.image.save(os.path.join(settings.PHOTOLOGUE_DIR, "covers", self.request.FILES['cover_photo'].name), File(filehandler))
+            self.object.custom_cover_photo = cover_photo
+
+            if save:
+                self.object.save()
 
 
 class EvenimentCreate(CreateView, EvenimentEditMixin):
@@ -809,14 +828,10 @@ class EvenimentCreate(CreateView, EvenimentEditMixin):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.centru_local = self.centru_local
-
-        if "cover_photo" in self.request.FILES:
-            path = self.handle_uploaded_file(self.request.FILES['cover_photo'])
-            cover_photo = Imagine(image=path)
-            cover_photo.save()
-            self.object.custom_cover_photo = cover_photo
-
         self.object.save()
+
+        self.save_cover_photo()
+
         self.create_connections()
         self.update_counts(form)
 
@@ -854,11 +869,12 @@ class EvenimentUpdate(UpdateView, EvenimentEditMixin):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        if "cover_photo" in self.request.FILES:
-            path = self.handle_uploaded_file(self.request.FILES['cover_photo'])
-            cover_photo = Imagine(image=path)
-            cover_photo.save()
-            self.object.custom_cover_photo = cover_photo
+        # if "cover_photo" in self.request.FILES:
+        #     path = self.handle_uploaded_file(self.request.FILES['cover_photo'])
+        #     cover_photo = Imagine(image=path)
+        #     cover_photo.save()
+        #     self.object.custom_cover_photo = cover_photo
+        self.save_cover_photo(save=False)
         self.object.save()
         self.update_counts(form)
 
