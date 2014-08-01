@@ -179,7 +179,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'root' : {
       'level' : 'DEBUG',
-      'handlers' : ['default'],
+      'handlers' : ['sentry'],
     },
     'formatters': {
         'verbose': {
@@ -210,10 +210,10 @@ LOGGING = {
             'level':'DEBUG',
             'class':'django.utils.log.NullHandler',
         },
-        # 'sentry' : {
-        #     'level' : 'ERROR',
-        #     'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-        # },
+        'sentry' : {
+            'level' : 'ERROR',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+        },
     },
     'loggers': {
         'django.request': {
@@ -228,11 +228,11 @@ LOGGING = {
             'level':'DEBUG',
         },
 
-        # 'sentry.errors': {
-        #     'level': 'DEBUG',
-        #     'handlers': ['default'],
-        #     'propagate': False,
-        # },
+        'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['default'],
+            'propagate': False,
+        },
 
         'django.db.backends' : {
             'handlers' : ['null', ], 
@@ -240,11 +240,11 @@ LOGGING = {
             'level': 'DEBUG',
         },
 
-       # 'raven': {
-       #      'level': 'DEBUG',
-       #      'handlers': ['default'],
-       #      'propagate': False,
-       # },
+       'raven': {
+            'level': 'DEBUG',
+            'handlers': ['default'],
+            'propagate': False,
+       },
             
     }
 }

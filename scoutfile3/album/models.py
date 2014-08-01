@@ -602,6 +602,10 @@ class SetPoze(models.Model):
                     except Exception, e:
                         logger.error("eroare: %s %s" % (e, traceback.format_exc()))
 
+                    #   Creating thumbnail and large urls without setting the actual flag on photosize
+                    im.get_thumbnail_url()
+                    im.get_large_url()
+
                     current_count += 1
                     current_percent = current_count * 100. / total_count
                     if current_percent - 5 > self.procent_procesat:
