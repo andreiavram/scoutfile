@@ -792,12 +792,13 @@ class EvenimentEditMixin(object):
             except Exception, e:
                 return
 
-            if self.object.cover_photo:
-                self.object.cover_photo.image.delete()
-                self.object.cover_photo.delete()
+            if self.object.custom_cover_photo:
+                self.object.custom_cover_photo.image.delete()
+                self.object.custom_cover_photo.delete()
             filehandler = open(path, "r")
             cover_photo = Imagine()
-            cover_photo.image.save(os.path.join(settings.PHOTOLOGUE_DIR, "covers", self.request.FILES['cover_photo'].name), File(filehandler))
+            cover_photo.image.save(os.path.join(settings.PHOTOLOGUE_DIR, "covers", self.request.FILES['cover_photo'].name), File(filehandler), save=False)
+            cover_photo.save(file_handler=filehandler, local_file_name=path)
             self.object.custom_cover_photo = cover_photo
 
             if save:
