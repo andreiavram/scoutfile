@@ -216,8 +216,6 @@ class Eveniment(models.Model):
         return autori
 
     def cover_photo(self):
-        return None
-
         if self.custom_cover_photo:
             return self.custom_cover_photo
 
