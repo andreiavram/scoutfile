@@ -6,10 +6,11 @@ from django.db.models.aggregates import Sum
 from django.db.models.query_utils import Q
 from django.db.models.signals import post_init
 from django.dispatch.dispatcher import receiver
-from photologue.models import ImageModel
+from photologue.models import ImageModel, PhotoSizeCache
 from PIL import Image
 import datetime
 import os
+from photologue.processors import PhotologueSpec
 from unidecode import unidecode
 from zipfile import ZipFile
 import logging
@@ -17,7 +18,8 @@ import traceback
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 import shutil
-from django.core.files.base import File
+from django.core.files.base import File, ContentFile
+from io import BytesIO
 from album.managers import RaportEvenimentManager
 from django import forms
 from generic.widgets import BootstrapDateInput
@@ -655,9 +657,19 @@ class Imagine(ImageModel):
         verbose_name_plural = u"Imagini"
         ordering = ["date_taken", ]
 
+    #   override for the original method of getting the filename
+    def _get_SIZE_filename(self, size):
+        photosize = PhotoSizeCache().sizes.get(size)
+        generator = PhotologueSpec(photo=self, photosize=photosize)
+        return generator.cachefile_name
+
     def rotate(self, direction="cw"):
-        fh = self.image.open("w+")
-        im = Image.open(fh)
+        try:
+            im = Image.open(self.image.storage.open(self.image.name))
+        except IOError:
+            return
+
+        im_format = im.format
 
         if direction == "cw":
             angle = -90
@@ -665,18 +677,16 @@ class Imagine(ImageModel):
             angle = 90
 
         im = im.rotate(angle)
-        im.save(fh)
-        fh.close()
+        im_buffer = BytesIO()
+        im.save(im_buffer, im_format)
+        buffer_contents = ContentFile(im_buffer.getvalue())
+        self.image.storage.delete(self.image.name)
+        self.image.storage.save(self.image.name, buffer_contents)
 
         try:
-            if os.path.exists(self.get_large_filename()):
-                os.unlink(self.get_large_filename())
-            if os.path.exists(self.get_thumbnail_filename()):
-                os.unlink(self.get_thumbnail_filename())
-            if os.path.exists(self.get_profile_filename()):
-                os.unlink(self.get_profile_filename())
+            self.clear_cache()
         except Exception, e:
-            logger.debug("%s: deleted cached sizes (does this even work on S3?" % self.__class__.__name__)
+            logger.debug("%s: deleted cached sizes (does this even work on S3?): %s, %s" % (self.__class__.__name__, e, traceback.format_exc()))
 
         return
 
