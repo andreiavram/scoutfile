@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+    Cantece
+{% endblock %}
+
+{% block content %}
+    <table class = "table table-striped">
+        <thead>
+            <tr>
+                <td>&nbsp;</td>
+                <td>Titlu</td>
+                <td>Artist</td>
+                <td>Adaugat</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cantec in object_list %}
+                <tr>
+                    <td>#{{ cantec.id }}</td>
+                    <td>{{ cantec.titlu }}</td>
+                    <td>{{ cantec.artist }}</td>
+                    <td>{{ cantec.owner.membru }}, {{ cantec.timestamp|date:"l, j F Y" }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">
+                        <em>Nu există cântece încă!</em>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
