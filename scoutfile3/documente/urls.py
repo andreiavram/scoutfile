@@ -4,7 +4,7 @@ from documente.views import DeclaratieCotizatieSocialaAdauga, CentruLocalRegistr
     DecizieGeneralaAdauga, DecizieGeneralaModifica
 from documente.views import CotizatieMembruAdauga
 
-urlpatterns = patterns('structuri.views',
+urlpatterns = patterns('documente.views',
        (r'cotizatie/(?P<pk>\d+)/adauga/$', CotizatieMembruAdauga.as_view(), {}, "cotizatie_membru_add"),
        (r'adeziune/(?P<pk>\d+)/adauga/$', AdeziuneMembruAdauga.as_view(), {}, "adeziune_add"),
        (r'adeziune/(?P<pk>\d+)/modifica/$', AdeziuneMembruModifica.as_view(), {}, "adeziune_edit"),

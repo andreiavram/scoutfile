@@ -152,7 +152,7 @@ INSTALLED_APPS = (
     
     'structuri', 'generic', 'album',
     'patrocle', 'documente', 'extra',
-    "utils", "proiecte",
+    "utils", "proiecte", "cantece",
     
     # 'raven.contrib.django.raven_compat',
     'django_extensions', 'gunicorn', 'goodies',

@@ -16,5 +16,5 @@ ProtectedS3BotoStorage = lambda: S3BotoStorage(
 
 LocalStorage = lambda: FileSystemStorage(
     location = settings.LOCAL_MEDIA_ROOT,
-    bse_url = settings.LOCAL_MEDIA_URL,
+    base_url = settings.LOCAL_MEDIA_URL,
 )

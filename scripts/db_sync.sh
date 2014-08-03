@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 ssh gatekeeper "mysqldump -pme11on_ -uroot scoutfile3_base > /home/yeti/dmp.sql"
 scp gatekeeper:dmp.sql .
