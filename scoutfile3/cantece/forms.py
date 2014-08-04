@@ -16,7 +16,7 @@ class CantecForm(CrispyBaseModelForm):
 
 
 class CantecFileForm(CrispyBaseForm):
-    song_content = forms.CharField(widget=AceWidget(mode='latex', theme='twilight'))
+    song_content = forms.CharField(widget=AceWidget(mode='latex', theme='twilight', height="800px"))
 
 
 class CarteCanteceForm(CrispyBaseModelForm):
