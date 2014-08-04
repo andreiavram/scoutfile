@@ -1,5 +1,6 @@
 Django==1.4.3
 Django-Select2==4.2.2
+Markdown==2.4.1
 MySQL-python==1.2.4
 Pillow==2.1.0
 South==0.8.2
@@ -9,6 +10,7 @@ argparse==1.2.1
 boto==2.30.0
 boto-rsync==0.8.1
 distribute==0.6.34
+django-ace==1.0.1
 django-ajax-selects==1.2.5
 django-appconf==0.6
 django-bower==4.8.1
@@ -20,6 +22,7 @@ django-extensions==1.1.0
 -e git+https://github.com/andreiavram/django_goodies.git@be44f4d10240544a9e46c96617ab0f86a2477bfe#egg=django_goodies-master
 django-imagekit==3.0.3
 django-less==0.7
+django-markdown==0.6.1
 django-pagination==1.0.7
 -e git+https://github.com/petry/django-photologue.git@c00fea5c83d733023787093b023bb2301eaf98e4#egg=django_photologue-master
 django-recaptcha==0.0.6

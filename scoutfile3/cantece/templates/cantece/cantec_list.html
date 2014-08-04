@@ -4,7 +4,14 @@
     Cantece
 {% endblock %}
 
+{% block context_menu %}
+    {% include 'cantece/cantec_top_menu.html' %}
+{% endblock %}
+
 {% block content %}
+    <div class = "btn-group pull-right">
+        <a href = "{% url cantece:cantec_add %}" class = "btn btn-primary"><i class = "icon-plus-sign"></i> Adaugă</a>
+    </div>
     <table class = "table table-striped">
         <thead>
             <tr>
@@ -18,14 +25,15 @@
             {% for cantec in object_list %}
                 <tr>
                     <td>#{{ cantec.id }}</td>
-                    <td>{{ cantec.titlu }}</td>
+                    <td><a href = "{% url cantece:cantec_detail pk=cantec.id %}">{{ cantec.titlu }}</a></td>
                     <td>{{ cantec.artist }}</td>
-                    <td>{{ cantec.owner.membru }}, {{ cantec.timestamp|date:"l, j F Y" }}</td>
+                    <td>{{ cantec.owner.get_profile.membru }}, {{ cantec.timestamp|date:"l, j F Y" }}</td>
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="4">
-                        <em>Nu există cântece încă!</em>
+                    <td>&nbsp;</td>
+                    <td colspan="3">
+                        <em>Nu există cântece încă! Adauga unul <a href = "{% url cantece:cantec_add %}"><i class = "icon-plus-sign"></i> aici</a></em>
                     </td>
                 </tr>
             {% endfor %}

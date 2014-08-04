@@ -15,7 +15,7 @@ class Cantec(models.Model):
     #   TODO: create a better filename
     cover_photo = models.ImageField(upload_to=lambda instance, fn: os.path.join("cartecantece", "cover", fn), null=True, blank=True)
     album = models.CharField(max_length=255, null=True, blank=True)
-    tags = TaggableManager()
+    tags = TaggableManager(blank=True)
 
     owner = models.ForeignKey(User)
     timestamp = models.DateTimeField(auto_now=True)
