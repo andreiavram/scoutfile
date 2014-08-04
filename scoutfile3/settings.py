@@ -154,9 +154,11 @@ INSTALLED_APPS = (
     'patrocle', 'documente', 'extra',
     "utils", "proiecte", "cantece",
     
-    # 'raven.contrib.django.raven_compat',
+    'raven.contrib.django.raven_compat',
     'django_extensions', 'gunicorn', 'goodies',
     'djangobower', 'longerusername', 'storages',
+
+    'django_ace',
 )
 
 

@@ -1,10 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
 
-</body>
-</html>
+{% block page_title %}
+    {{ object.titlu }}
+    <div class = "pull-right btn-group">
+        <a href = "{% url cantece:cantec_edit pk=object.id %}" class = "btn btn-primary"><i class = "icon-pencil"></i> Editează</a>
+    </div>
+
+    <span style = "font-size: 50%; font-weight: normal">{{ object.artist }} - {{ object.album }}</span>
+{% endblock %}
+
+{% block extrahead %}
+    {{ form.media }}
+{% endblock %}
+
+{% block context_menu %}
+    {% include 'cantece/cantec_top_menu.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class = "row-fluid">
+        <div class = "span6">
+            {% crispy form form.helper %}
+        </div>
+        <div class = "span6">
+            test2
+        </div>
+    </div>
+{% endblock %}
