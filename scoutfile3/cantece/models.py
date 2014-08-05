@@ -20,6 +20,11 @@ class Cantec(models.Model):
     owner = models.ForeignKey(User)
     timestamp = models.DateTimeField(auto_now=True)
 
+    def delete(self, **kwargs):
+        if os.path.exists(self.nume_fisier):
+            os.unlink(self.nume_fisier)
+        return super(Cantec, self).delete(**kwargs)
+
 
 class OptiuniTemplateCarteCantece(models.Model):
     nume = models.CharField(max_length=255)
