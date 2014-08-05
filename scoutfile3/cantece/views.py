@@ -46,14 +46,15 @@ class CantecCreate(CreateView):
             file_path = os.path.join(settings.LOCAL_MEDIA_ROOT, "cartecantece", "cantece", file_name)
             cnt += 1
 
+        header = u"\\beginsong{%s}\n\t[by=%s,album=%s]\n\n" % (self.object.titlu, self.object.artist, self.object.album)
+        header = header.encode('utf8', 'replace')
         with open(file_path, "w") as f:
-            f.write("\\beginsong{%s}\n\t[by=%s,album=%s]\n\n" % (self.object.titlu, self.object.artist, self.object.album))
+            f.write(header)
 
         return file_path
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-
         self.object.nume_fisier = self.create_song_file()
         self.object.owner = self.request.user
         self.object.save()
