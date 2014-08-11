@@ -770,7 +770,7 @@ class Imagine(ImageModel):
 
                     exif_data[decoded] = value
 
-            logger.debug("exifdata %s" % exif_data)
+            # logger.debug("exifdata %s" % exif_data)
         retval = super(Imagine, self).save(*args, **kwargs)
 
         if not self.is_face_processed:
@@ -793,7 +793,7 @@ class Imagine(ImageModel):
                     continue
 
         if im is not None:
-            im.close()
+            del im
         return retval
 
     def vote_photo(self, score):
