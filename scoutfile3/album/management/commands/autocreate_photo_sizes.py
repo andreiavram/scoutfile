@@ -22,5 +22,5 @@ class Command(BaseCommand):
             img.get_large_url()
             img.get_thumbnail_url()
             idx += 1
-            if idx % 100:
-                self.stdout.write("%d out of %d processed" % (idx, cnt))
+            if idx % 10 == 0:
+                self.stdout.write("%d out of %d processed\n" % (idx, cnt))
