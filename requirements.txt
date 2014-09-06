@@ -1,14 +1,17 @@
 Django==1.4.3
 Django-Select2==4.2.2
+Jinja2==2.7.3
 Markdown==2.4.1
+MarkupSafe==0.23
 MySQL-python==1.2.4
 Pillow==2.1.0
 South==0.8.2
 URLObject==2.3.1
-Unidecode==0.04.12
+Unidecode==0.04.16
 argparse==1.2.1
 boto==2.30.0
 boto-rsync==0.8.1
+chardet==2.2.1
 distribute==0.6.34
 django-ace==1.0.1
 django-ajax-selects==1.2.5
@@ -35,13 +38,15 @@ johnny-cache==1.4
 longerusername==0.4
 numpy==1.7.1
 oauthlib==0.6.1
+-e git://github.com/patacrep/patacrep.git@eaafa620337b05826d5046c8877f8353ec4a44d6#egg=patacrep-master
 pilkit==1.1.9
+plasTeX==1.0
 pygraphviz==1.2
 python-memcached==1.53
 python-openid==2.2.5
 raven==3.1.16
 reportlab==2.7
-requests==2.2.1
+requests==2.3.0
 requests-oauthlib==0.4.0
 simplejson==3.0.7
 six==1.2.0
