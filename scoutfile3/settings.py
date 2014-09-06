@@ -257,7 +257,7 @@ PHOTOLOGUE_IMAGE_FIELD_MAX_LENGTH = 1024
 FIXTURE_DIRS = ["%s/fixtures" % FILE_ROOT, ]
 
 #HAYSTACK_CONNECTIONS = {
-#    'default': {
+#    'default': {r
 #        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
 #        'URL': 'http://127.0.0.1:9200/',
 #        'INDEX_NAME': 'haystack',
@@ -286,6 +286,7 @@ VALOARE_IMPLICITA_COTIZATIE_NATIONAL_SOCIAL = 12
 
 
 SCOUTFILE_ALBUM_STORAGE_ROOT = "album"
+PHOTOLOGUE_PATH = lambda instance, filename: os.path.join(SCOUTFILE_ALBUM_STORAGE_ROOT, filename)
 
 from version import *
 
