@@ -220,6 +220,7 @@ class AlbumEvenimentDetail(DetailView):
             zile.append((zi_eveniment, zi_eveniment.filter_photos(autor=self.autor, user=self.request.user)))
 
         current.update({"zile": zile, "autor": self.autor})
+        current["visibility_states"] = IMAGINE_PUBLISHED_STATUS
 
         return current
 
@@ -904,6 +905,7 @@ class EvenimentDetail(DetailView):
     def get_context_data(self, **kwargs):
         data = super(EvenimentDetail, self).get_context_data(**kwargs)
         data['report_form'] = ReportFormNoButtons()
+        data['visibility_states'] = IMAGINE_PUBLISHED_STATUS
         return data
 
 
