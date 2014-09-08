@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load jocuri_utils %}
+
+{% block page_title %}
+	Idei de jocuri și activități
+{% endblock %}
+
+{% block extrahead %}
+	<script type = "text/javascript" src = "{% url goodies:js_delete app_label='jocuri' model='fisaactivitate' %}"></script>
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Acțiuni</li>
+		<li><a href = "{% url jocuri:activitate_create %}"><i class = "icon-plus-sign"></i> Adaugă joc</a>
+	</ul>
+{% endblock %}
+
+
+{% block content %}
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>Nume</th>
+			<th>Descriere</th>
+			<th>Participanți</th>
+            <th>Durată</th>
+            <th>Context</th>
+            <th>Categorie</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for object in object_list %}
+		<tr id = "row_{{ object.id }}">
+			<td>#{{ object.id }}</td>
+			<td>{{ object.titlu }}</td>
+            <td>{{ object.descriere|truncatewords_html:100 }}</td>
+            <td>{{ object|numar_participanti_string }}</td>
+            <td>{{ object|durata_string }}</td>
+            <td>
+                <div class = "btn-group pull-right">
+                    <a href = "{% url jocuri:activitate_detail pk=object.id %}"><i class = "icon-file"></i></a>
+                    <a href = "{% url jocuri:activitate_edit pk=object.id %}"><i class = "icon-edit"></i></a>
+                    <a href = "javascript:void();" class = "btn btn-mini" id = "delete_{{ object.id }}"><i class = "icon-trash"></i></a>
+                </div>
+            </td>
+		</tr>
+		{% empty %}
+		<tr>
+			<td>&nbsp;</td>
+			<td colspan="7"><em>Nu există jocuri / idei de activități care să corespundă căutării tale. Poți adăuga idei / jocuri / activități noi de <a href = "{% url jocuri:activitate_create %}"><i class = "icon-plus-sign"></i> aici</a>.</em></td>
+		</tr>
+		{% endfor %}
+	</tbody>
+
+</table>
+{% endblock %}
