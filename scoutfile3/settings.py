@@ -329,7 +329,7 @@ AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',
 
 CRISPY_TEMPLATE_PACK = "bootstrap"
 BOWER_COMPONENTS_ROOT = os.path.join(FILE_ROOT, "components")
-BOWER_PATH = '/usr/local/bin/bower'
+BOWER_PATH = '/usr/bin/bower'
 
 BOWER_INSTALLED_APPS = (
     'jquery#1.9',
