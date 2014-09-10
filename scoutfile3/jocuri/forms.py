@@ -1,6 +1,9 @@
 # coding: utf-8
 from django.core.exceptions import ValidationError
+from django.forms.widgets import TextInput, Textarea
+from django_markdown.widgets import MarkdownWidget
 from goodies.forms import CrispyBaseModelForm
+from pagedown.widgets import PagedownWidget
 from jocuri.models import FisaActivitate
 from django import forms
 
@@ -10,12 +13,14 @@ __author__ = 'andrei'
 class FisaActivitateForm(CrispyBaseModelForm):
     class Meta:
         model = FisaActivitate
-        fields = ("titlu", "descriere_joc", "materiale_necesare", "ramuri_de_varsta",
+        fields = ("titlu", "descriere", "descriere_joc", "materiale_necesare", "ramuri_de_varsta",
                     "min_participanti", "max_participanti",
                     "obiective_educative", "categorie", "sursa")
 
     min_durata_string = forms.CharField(required=False, label=u"Durată minimă", help_text=u"Folosește expresii de tipul 2h15m sau 1z3h30m sau 2h sau 12m")
     max_durata_string = forms.CharField(required=False, label=u"Durată maximă", help_text=u"Folosește expresii de tipul 2h15m sau 1z3h30m sau 2h sau 12m")
+    descriere_joc = forms.CharField(required=True, label=u"Descriere", help_text=u"Format Markdown, descrierea jocului, ce trebuie pregătit, ce trebuie făcut, care este obiectivul, care sunt regulile ...", widget=MarkdownWidget)
+    descriere = forms.CharField(required=False, label=u"Descriere pe scurt", help_text=u"Un text de descriere pentru căutare", widget=Textarea())
 
     def clean(self):
         if not "max_participanti" in self.cleaned_data and not "min_participanti" in self.cleaned_data:

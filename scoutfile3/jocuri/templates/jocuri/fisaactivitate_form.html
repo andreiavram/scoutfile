@@ -7,6 +7,11 @@
 
 {% block extrahead %}
     {{ form.media }}
+    <style>
+        .markItUpPreviewFrame {
+            border: 0;
+        }
+    </style>
 {% endblock %}
 
 {% block context_menu %}
@@ -24,4 +29,7 @@
 
 {% block content %}
 	{% crispy form form.helper %}
+{% endblock %}
+
+{% block extrajs %}
 {% endblock %}

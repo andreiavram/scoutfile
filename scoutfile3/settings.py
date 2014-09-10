@@ -145,7 +145,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.markup',
-    
+    'django.contrib.markup',
+
     'south', 'photologue',
     'dajax', 'dajaxice',
     'crispy_forms', 'djangorestframework', 'captcha',
@@ -158,6 +159,7 @@ INSTALLED_APPS = (
     'raven.contrib.django.raven_compat',
     'django_extensions', 'gunicorn', 'goodies',
     'djangobower', 'longerusername', 'storages',
+    'django_markdown',
 
     'django_ace',
 )
@@ -344,5 +346,10 @@ REDMINE_APY_KEY = ""
 DEFAULT_FILE_STORAGE = 's3utils.MediaS3BotoStorage'
 LOCAL_MEDIA_ROOT = os.path.join(FILE_ROOT, "media")
 LOCAL_MEDIA_URL = "/media/"
+
+MARKDOWN_EXTENSIONS = ['extra']
+
+MARKDOWN_STYLE = os.path.join(STATIC_ROOT, "css", "markdown-preview.css")
+MARKDOWN_EDITOR_SKIN = 'simple'
 
 from local_settings import *
