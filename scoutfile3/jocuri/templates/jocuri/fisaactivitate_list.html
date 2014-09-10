@@ -35,14 +35,16 @@
 		{% for object in object_list %}
 		<tr id = "row_{{ object.id }}">
 			<td>#{{ object.id }}</td>
-			<td>{{ object.titlu }}</td>
-            <td>{{ object.descriere_joc|truncatewords_html:100 }}</td>
-            <td>{{ object|numar_participanti_string }}</td>
+			<td><a href = "{% url jocuri:activitate_detail pk=object.id %}">{{ object.titlu }}</a></td>
+            <td>{{ object.descriere|truncatewords:100 }}</td>
+            <td>{{ object|numar_participanti_string }} participanți</td>
             <td>{{ object|durata_string }}</td>
+            <td>&nbsp;</td>
+            <td>{{ object.categorie }}</td>
             <td>
                 <div class = "btn-group pull-right">
-                    <a href = "{% url jocuri:activitate_detail pk=object.id %}"><i class = "icon-file"></i></a>
-                    <a href = "{% url jocuri:activitate_edit pk=object.id %}"><i class = "icon-edit"></i></a>
+                    <a href = "{% url jocuri:activitate_detail pk=object.id %}" class = "btn btn-mini"><i class = "icon-file"></i></a>
+                    <a href = "{% url jocuri:activitate_edit pk=object.id %}" class = "btn btn-mini"><i class = "icon-edit"></i></a>
                     <a href = "javascript:void();" class = "btn btn-mini" id = "delete_{{ object.id }}"><i class = "icon-trash"></i></a>
                 </div>
             </td>

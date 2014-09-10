@@ -16,7 +16,7 @@ class CategorieFiseActivitate(models.Model):
 class FisaActivitate(Document):
     descriere_joc = models.TextField(null=True, blank=True, verbose_name=u"Descriere")
 
-    materiale_necesare = models.TextField(null=True, blank=True)
+    materiale_necesare = models.TextField(null=True, blank=True, help_text=u"Câte unul pe linie, fără numerotare adițională")
     ramuri_de_varsta = models.ManyToManyField(RamuraDeVarsta, null=True, blank=True)
 
     min_participanti = models.PositiveIntegerField(null=True, blank=True, verbose_name=u"Minim participanți")
@@ -24,7 +24,7 @@ class FisaActivitate(Document):
     min_durata = models.PositiveIntegerField(null=True, blank=True, verbose_name=u"Durata minimă", help_text=u"Folosește expresii de tipul 2h15m sau 1z3h30m sau 2h sau 12m")
     max_durata = models.PositiveIntegerField(null=True, blank=True, verbose_name=u"Durata maximă", help_text=u"Folosește expresii de tipul 2h15m sau 1z3h30m sau 2h sau 12m")
 
-    obiective_educative = models.TextField(null=True, blank=True)
+    obiective_educative = models.TextField(null=True, blank=True, help_text=u"Câte unul pe linie, fără numerotare (se va face automat)")
     categorie = models.ForeignKey("CategorieFiseActivitate")
 
     sursa = models.CharField(max_length=255, null=True, blank=True, help_text=u"De unde ați adus jocul / activitatea asta în grupul vostru")
