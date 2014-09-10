@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load jocuri_utils %}
+{% load markup %}
+
+{% block page_title %}
+	{{ object }} | <span style = "font-weight: normal">Joc / Activitate</span>
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Acțiuni</li>
+		<li><a href = "{% url jocuri:activitate_create %}"><i class = "icon-plus-sign"></i> Adaugă joc</a></li>
+        <li><a href = "{% url jocuri:activitate_edit pk=object.id %}"><i class = "icon-pencil"></i> Editează joc</a></li>
+
+
+        <li class = 'nav-header'>Locații</li>
+        <li><a href = "{% url jocuri:activitate_search %}"><i class="icon-search"></i> Căutare</a></li>
+
+	</ul>
+{% endblock %}
+
+
+{% block content %}
+    {{ object.descriere_joc|markdown }}
+{% endblock %}

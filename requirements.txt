@@ -41,7 +41,7 @@ oauthlib==0.6.1
 -e git://github.com/patacrep/patacrep.git@eaafa620337b05826d5046c8877f8353ec4a44d6#egg=patacrep-master
 pilkit==1.1.9
 plasTeX==1.0
-pygraphviz==1.2
+#pygraphviz==1.2
 python-memcached==1.53
 python-openid==2.2.5
 raven==3.1.16

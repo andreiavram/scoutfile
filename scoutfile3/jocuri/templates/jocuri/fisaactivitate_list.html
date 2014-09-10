@@ -36,7 +36,7 @@
 		<tr id = "row_{{ object.id }}">
 			<td>#{{ object.id }}</td>
 			<td>{{ object.titlu }}</td>
-            <td>{{ object.descriere|truncatewords_html:100 }}</td>
+            <td>{{ object.descriere_joc|truncatewords_html:100 }}</td>
             <td>{{ object|numar_participanti_string }}</td>
             <td>{{ object|durata_string }}</td>
             <td>
