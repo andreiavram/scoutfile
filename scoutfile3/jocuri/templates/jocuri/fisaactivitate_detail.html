@@ -10,8 +10,8 @@
 {% block context_menu %}
 	<ul class = "nav nav-list">
 		<li class = "nav-header">Acțiuni</li>
-		<li><a href = "{% url jocuri:activitate_create %}"><i class = "icon-plus-sign"></i> Adaugă joc</a></li>
-        <li><a href = "{% url jocuri:activitate_edit pk=object.id %}"><i class = "icon-pencil"></i> Editează joc</a></li>
+		<li><a href = "{% url jocuri:activitate_create %}"><i class = "icon-plus-sign"></i> Adaugă</a></li>
+        <li><a href = "{% url jocuri:activitate_edit pk=object.id %}"><i class = "icon-pencil"></i> Editează</a></li>
 
 
         <li class = 'nav-header'>Locații</li>
@@ -28,9 +28,12 @@
         </div>
         <div class = "span4">
             <h3>Sumar</h3>
-            {{ object|numar_participanti_string }}<br />
-            {{ object|durata_string }}<br />
-            {% for rdv in object.ramuri_de_varsta.all %}<img style = "margin-right: 3px" src = '{{ STATIC_URL }}images/icon-{{ rdv.slug }}.png'>{% endfor %}
+            <ul class = "unstyled">
+                <li>{{ object|numar_participanti_string }} participanți</li>
+                <li>{{ object|durata_string }}</li>
+                <li>{% for rdv in object.ramuri_de_varsta.all %}<img style = "margin-right: 3px" src = '{{ STATIC_URL }}images/icon-{{ rdv.slug }}.png'>{% endfor %}</li>
+            </ul>
+
 
             <h3>Categorie</h3>
             {{ object.categorie }}

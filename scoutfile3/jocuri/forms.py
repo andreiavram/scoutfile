@@ -6,6 +6,7 @@ from goodies.forms import CrispyBaseModelForm
 from pagedown.widgets import PagedownWidget
 from jocuri.models import FisaActivitate
 from django import forms
+from structuri.models import RamuraDeVarsta
 
 __author__ = 'andrei'
 
@@ -21,22 +22,29 @@ class FisaActivitateForm(CrispyBaseModelForm):
     max_durata_string = forms.CharField(required=False, label=u"Durată maximă", help_text=u"Folosește expresii de tipul 2h15m sau 1z3h30m sau 2h sau 12m")
     descriere_joc = forms.CharField(required=True, label=u"Descriere", help_text=u"Format Markdown, descrierea jocului, ce trebuie pregătit, ce trebuie făcut, care este obiectivul, care sunt regulile ...", widget=MarkdownWidget)
     descriere = forms.CharField(required=False, label=u"Descriere pe scurt", help_text=u"Un text de descriere pentru căutare", widget=Textarea())
+    ramuri_de_varsta = forms.ModelMultipleChoiceField(RamuraDeVarsta.objects.all(), required=True, label=u"Ramuri de vârstă", help_text=u"Alegeți mărcar una", widget=forms.CheckboxSelectMultiple)
 
     def clean(self):
         if not "max_participanti" in self.cleaned_data and not "min_participanti" in self.cleaned_data:
             raise ValidationError(u"Măcar un număr minim sau un număr maxim de participanți trebuie completat")
-        elif self.cleaned_data.get("min_participanti") >= self.cleaned_data.get("max_participanti"):
+        elif self.cleaned_data.get("min_participanti", 0) >= self.cleaned_data.get("max_participanti", 10000):
             raise ValidationError(u"Minimul de participanți nu poate fi mai mare decât maximul")
+
+        if "max_durata_string" in self.cleaned_data and "min_durata_string" in self.cleaned_data:
+            if self.cleaned_data.get("min_durata_string") >= self.cleaned_data.get("max_durata_string"):
+                self.errors["min_durata_string"] = ["Durata minimă trebuie să fie mai mică decât cea maximă", ]
+                raise ValidationError(u"Durata minimă trebuie să fie mai mică decât cea maximă")
 
         return self.cleaned_data
 
     def clean_min_durata_string(self):
-        return self._clean_time_string(self.cleaned_data.get("min_durata", ""))
+        return self._clean_time_string(self.cleaned_data.get("min_durata_string", ""))
 
     def clean_max_durata_string (self):
-        return self._clean_time_string(self.cleaned_data.get("max_durata", ""))
+        return self._clean_time_string(self.cleaned_data.get("max_durata_string", ""))
 
-    def _clean_time_string(self, value):
+    @staticmethod
+    def _clean_time_string(value):
         string_order = {
             "s": 60 * 60 * 2400 * 7,
             "z": 60 * 60 * 2400,
@@ -55,6 +63,6 @@ class FisaActivitateForm(CrispyBaseModelForm):
             result = result.strip()
             if not result:
                 continue
-            seconds += int(result[0:-1]) * string_order.get(results[-1])
+            seconds += int(result[0:-1]) * string_order.get(result[-1], 0)
 
         return seconds
