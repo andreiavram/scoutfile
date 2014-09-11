@@ -44,6 +44,38 @@ class ActivitateUpdate(UpdateView):
     def dispatch(self, request, *args, **kwargs):
         return super(ActivitateUpdate, self).dispatch(request, *args, **kwargs)
 
+    @staticmethod
+    def seconds_to_shortstring(value):
+        import datetime
+        td = datetime.timedelta(seconds=value)
+        weeks, days, hours, minutes = td.days // 7, td.days % 7, td.seconds // 3600, td.seconds // 60 % 60
+        output = ""
+        if weeks:
+            output += u"%ds"
+        if days:
+            output += " " if len(output) else ""
+            output += "%dz" % days
+        if hours:
+            output += " " if len(output) else ""
+            output += "%dh" % hours
+        if minutes:
+            output += " " if len(output) else ""
+            output += "%dm" % minutes
+        return output
+
+    def get_initial(self):
+        data = super(ActivitateUpdate, self).get_initial()
+        data["min_durata_string"] = self.seconds_to_shortstring(self.object.min_durata) if self.object.min_durata else None
+        data["max_durata_string"] = self.seconds_to_shortstring(self.object.max_durata) if self.object.max_durata else None
+        return data
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.min_durata = form.cleaned_data.get("min_durata_string", None)
+        self.object.max_durata = form.cleaned_data.get("max_durata_string", None)
+        self.object.save()
+        return super(ActivitateUpdate, self).form_valid(form)
+
     def get_success_url(self):
         return reverse("jocuri:activitate_detail", kwargs={"pk": self.object.id})
 
