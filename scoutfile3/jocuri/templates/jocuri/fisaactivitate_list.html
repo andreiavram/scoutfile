@@ -18,6 +18,12 @@
 
 
 {% block content %}
+{% if categorie or tag %}
+    <div class = "alert alert-info">
+        <i class = "icon-search"></i> Sunt afișate doar activitățile marcate cu
+        {% if categorie %} categoria <strong>{{ categorie }}</strong>{% endif %} {% if tag %} tag-ul <strong>{{ tag }}</strong>{% endif %}.
+    </div>
+{% endif %}
 <table class="table table-striped">
 	<thead>
 		<tr>
