@@ -1,5 +1,6 @@
 # coding: utf-8
 from django.db import models
+from taggit.managers import TaggableManager
 from documente.models import Document, TipDocument
 # Create your models here.
 from structuri.models import RamuraDeVarsta
@@ -28,6 +29,8 @@ class FisaActivitate(Document):
     categorie = models.ForeignKey("CategorieFiseActivitate")
 
     sursa = models.CharField(max_length=255, null=True, blank=True, help_text=u"De unde ați adus jocul / activitatea asta în grupul vostru")
+
+    tags = TaggableManager()
 
     def save(self, **kwargs):
         self.tip_document = TipDocument.obtine("fisa_activitate")
