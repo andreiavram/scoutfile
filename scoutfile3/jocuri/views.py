@@ -1,18 +1,45 @@
 # Create your views here.
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django.core.urlresolvers import reverse
+from taggit.models import Tag
 from jocuri.forms import FisaActivitateForm
-from jocuri.models import FisaActivitate
+from jocuri.models import FisaActivitate, CategorieFiseActivitate
 
 
 class ActivitateSearch(ListView):
     model = FisaActivitate
     template_name = "jocuri/fisaactivitate_list.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        self.category = None
+        self.tag = None
+
+        self.requested_category_id = int(request.GET.get("cat", 0))
+        if self.requested_category_id:
+            self.category = get_object_or_404(CategorieFiseActivitate, id=self.requested_category_id)
+        self.requested_tag_id = int(request.GET.get("tag", 0))
+        if self.requested_tag_id:
+            self.tag = get_object_or_404(Tag, id=self.requested_tag_id)
+        return super(ActivitateSearch, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        qs = super(ActivitateSearch, self).get_queryset()
+        if self.requested_category_id:
+            qs = qs.filter(categorie_id=self.requested_category_id)
+        if self.requested_tag_id:
+            qs = qs.filter(tags__in=[Tag.objects.get(id=self.requested_tag_id)])
+        return qs
+
+    def get_context_data(self, **kwargs):
+        data = super(ActivitateSearch, self).get_context_data(**kwargs)
+        data['tag'] = self.tag
+        data['categorie'] = self.category
+        return data
 
 class ActivitateCreate(CreateView):
     model = FisaActivitate

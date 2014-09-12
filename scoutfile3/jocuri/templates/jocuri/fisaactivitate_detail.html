@@ -35,8 +35,10 @@
             </ul>
 
 
-            <h3>Categorie</h3>
-            {{ object.categorie }}
+            <strong>Categorie</strong>: <a href = "{% url jocuri:activitate_search %}?cat={{ object.categorie.id }}">{{ object.categorie }}</a><br />
+            {% if object.tags.count %}
+                <strong>Tag-uri</strong>: {% for tag in object.tags.all %}<a href = "{% url jocuri:activitate_search %}?tag={{ tag.id }}">{{ tag }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+            {% endif %}
 
             <h3>Materiale necesare</h3>
             {{ object.materiale_necesare|linenumbers|linebreaksbr }}
