@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load jocuri_utils %}
+{% load pagination_tags %}
 
 {% block page_title %}
 	Idei de jocuri și activități
@@ -21,10 +22,12 @@
 
 
 {% block content %}
-{% if categorie or tag %}
-    <div class = "alert alert-info">
-        <i class = "icon-search"></i> Sunt afișate doar activitățile marcate cu
-        {% if categorie %} categoria <strong>{{ categorie }}</strong>{% endif %} {% if tag %} tag-ul <strong>{{ tag }}</strong>{% endif %}. <a class = "pull-right" href = "{% url jocuri:activitate_search %}">Toate jocurile</a>
+{% if categorie or tag or filtered %}
+    <div class = "alert alert-info"><i class = "icon-search"></i> {% if filtered %}
+        Avem <strong>{{ object_list.count }}</strong> activități care să corespundă criteriilor de căutare (care sunt afișate mai jos).
+        {% else %}
+        Sunt afișate doar activitățile marcate cu
+        {% if categorie %} categoria <strong>{{ categorie }}</strong>{% endif %} {% if tag %} tag-ul <strong>{{ tag }}</strong>{% endif %}. <a class = "pull-right" href = "{% url jocuri:activitate_search %}">Toate jocurile</a>{% endif %}
     </div>
 {% endif %}
 
@@ -64,7 +67,7 @@
         <div class = "row-fluid">
             <div class = "span12">
                 <label for = "id_tags">Să fie marcat și cu (selectează oricâte):</label> <input style = "width: 100%" id="id_tags" type = 'text' readonly="readonly"> <br />
-        {% for tag in taguri %}<a class = "taglink btn btn-mini" data-name = "{{ tag.0.name }}" data-id = "{{ tag.0.id }}" href = "#"><i class = "icon-tag"></i> {{ tag.0 }} - {{ tag.1 }}</a> {% endfor %}<input type="hidden" name = "tags" id="selected_tags">
+        {% for tag in taguri %}<a class = "taglink btn btn-mini" data-name = "{{ tag.0.name }}" data-id = "{{ tag.0.id }}" href = "#"><i class = "icon-tag"></i> {{ tag.0 }} - {{ tag.1 }}</a> {% endfor %}<input value="{{ request.GET.tags }}" type="hidden" name = "tags" id="selected_tags">
             </div>
         </div>
         <div class = "pull-right"><button type="submit" class="btn btn-primary"><i class = "icon-search"></i> Caută</button></div>
@@ -81,6 +84,7 @@
 		</tr>
 	</thead>
 	<tbody>
+        {% autopaginate object_list 20 %}
 		{% for object in object_list %}
 		<tr id = "row_{{ object.id }}">
 			<td>#{{ object.id }}</td>
@@ -113,6 +117,7 @@
 	</tbody>
 
 </table>
+    {% paginate %}
 {% endblock %}
 
 {% block extrajs %}
@@ -126,8 +131,16 @@
                 return;
             }
             $(".rdv_checkbox[value='"+ e +"']").attr("checked", "checked");
-            console.log("checking", e);
-        })
+        });
+
+        _.each($("#selected_tags").val().split(","), function (e) {
+            if (!e) return;
+            console.log(e);
+            var name = $("a.taglink[data-id='" + e + "']").data("name");
+            tag_list.push({id: e, name: name});
+        });
+
+        $("#id_tags").val(_.pluck(tag_list, "name").join(", "));
 
         $(".rdv_checkbox").each(function (i, e) {
             if ($(e).is(":checked")) {
@@ -144,18 +157,28 @@
             $("#rdv").val(rdv_list.join(","));
         });
 
-        $("a.taglink").click(function (e) {
-            var id = $(this).data("id");
-            if (!(_.find(tag_list, function (o) { return o.id == id}))) {
-                tag_list.push({id: id, name: $(this).data("name")});
-                $(this).addClass("btn-primary");
+        function process_tags(elm, inverted) {
+            var id = $(elm).data("id");
+            var cond = !(_.find(tag_list, function (o) { return o.id == id}));
+            if (inverted) cond = !cond;
+
+            if (cond) {
+                if (!inverted) tag_list.push({id: id, name: $(elm).data("name")});
+                $(elm).addClass("btn-primary");
             } else {
-                tag_list = _.filter(tag_list, function (o) { return o.id != id });
-                $(this).removeClass("btn-primary");
+                if (!inverted) tag_list = _.filter(tag_list, function (o) { return o.id != id });
+                $(elm).removeClass("btn-primary");
             }
+        }
+
+        $("a.taglink").each(function (i, e) {
+            // console.log(i, e);
+            process_tags(e, true);
+        }).click(function (e) {
+            process_tags(this);
+            e.preventDefault();
             $("#id_tags").val(_.pluck(tag_list, "name").join(", "));
             $("#selected_tags").val(_.pluck(tag_list, "id").join(","));
-            e.preventDefault();
         });
 
         {% if not filtered %}$("#search-form").hide();{% endif %}
