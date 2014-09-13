@@ -338,6 +338,7 @@ BOWER_INSTALLED_APPS = (
     'jquery#1.9',
     'underscore',
     'bootstrap-calendar',
+    'lodash',
 )
 
 CENTRU_LOCAL_IMPLICIT = 1

@@ -3,6 +3,9 @@
 
 {% block page_title %}
 	Idei de jocuri și activități
+    <div class = "pull-right">
+    <a class = "btn btn-primary" href = "#" id = "toggle-search"><i class = "icon-search"></i> Găsește jocuri</a>
+    </div>
 {% endblock %}
 
 {% block extrahead %}
@@ -21,19 +24,59 @@
 {% if categorie or tag %}
     <div class = "alert alert-info">
         <i class = "icon-search"></i> Sunt afișate doar activitățile marcate cu
-        {% if categorie %} categoria <strong>{{ categorie }}</strong>{% endif %} {% if tag %} tag-ul <strong>{{ tag }}</strong>{% endif %}.
+        {% if categorie %} categoria <strong>{{ categorie }}</strong>{% endif %} {% if tag %} tag-ul <strong>{{ tag }}</strong>{% endif %}. <a class = "pull-right" href = "{% url jocuri:activitate_search %}">Toate jocurile</a>
     </div>
 {% endif %}
+
+<div class = "well" id = "search-form">
+    <form method="GET" action="" >
+        <div class = "row-fluid">
+        <div class = "span4">
+            <label for = "id_text_search">Să conțină oricare din cuvintele: </label><input value="{{ request.GET.query }}" name = "query" placeholder="Ce să conțină?" id = "id_text_search" type="text">
+
+        </div>
+        <div class = "span4">
+            <label for = "id_durata">Cam cât să dureze? </label><input name="time" value="{{ request.GET.time }}" placeholder="ex: 1h30m" id="id_durata" type="text">
+        </div>
+        <div class = "span4">
+            <label for = "id_participanti">Pentru cam câți participanți?</label> <input value="{{ request.GET.participanti }}" name="participanti" placeholder="ex: 15" id = "id_participanti" type="text">
+        </div>
+        </div>
+        <div class = "row-fluid">
+            <div class = "span4">
+                Ramuri de vârstă?
+                <div style = 'margin-top: 8px'>
+                {% for rdv in ramuri_de_varsta %}
+                    <label style = "display: inline" for = "id_ramura_de_varsta_{{ rdv.slug }}"><input class = "rdv_checkbox" type="checkbox" value = "{{ rdv.id }}" id="id_ramura_de_varsta_{{ rdv.slug }}"> <img src = "{{ STATIC_URL }}images/icon-{{ rdv.slug }}.png"></label>
+                {% endfor %}
+                <input type = "hidden" name = "rdv" id = "rdv" value="{{ request.GET.rdv }}">
+                </div>
+            </div>
+        <div class = "span4">
+                <label for = "id_categorie">Cauți un joc dintr-o categorie anume?</label>
+                <select name="categorie" id = "id_categorie">
+                    <option value="">Toate categoriile</option>
+                    {% for categorie in categorii %}
+                        <option {% if categorie.id == request.GET.categorie|add:"0" %}selected="selected"{% endif %} value="{{ categorie.id }}">{{ categorie }}</option>{% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class = "row-fluid">
+            <div class = "span12">
+                <label for = "id_tags">Să fie marcat și cu (selectează oricâte):</label> <input style = "width: 100%" id="id_tags" type = 'text' readonly="readonly"> <br />
+        {% for tag in taguri %}<a class = "taglink btn btn-mini" data-name = "{{ tag.0.name }}" data-id = "{{ tag.0.id }}" href = "#"><i class = "icon-tag"></i> {{ tag.0 }} - {{ tag.1 }}</a> {% endfor %}<input type="hidden" name = "tags" id="selected_tags">
+            </div>
+        </div>
+        <div class = "pull-right"><button type="submit" class="btn btn-primary"><i class = "icon-search"></i> Caută</button></div>
+    </form>
+</div>
 <table class="table table-striped">
 	<thead>
 		<tr>
 			<th>#</th>
-			<th>Nume</th>
-			<th>Descriere</th>
-			<th>Participanți</th>
-            <th>Durată</th>
+			<th>Nume și descriere</th>
+			<th>Participanți / Durată</th>
             <th>Context</th>
-            <th>Categorie</th>
 			<th>&nbsp;</th>
 		</tr>
 	</thead>
@@ -41,12 +84,18 @@
 		{% for object in object_list %}
 		<tr id = "row_{{ object.id }}">
 			<td>#{{ object.id }}</td>
-			<td><a href = "{% url jocuri:activitate_detail pk=object.id %}">{{ object.titlu }}</a></td>
-            <td>{{ object.descriere|truncatewords:100 }}</td>
-            <td>{{ object|numar_participanti_string }} participanți</td>
-            <td>{{ object|durata_string }}</td>
-            <td>&nbsp;</td>
-            <td>{{ object.categorie }}</td>
+			<td><strong><a href = "{% url jocuri:activitate_detail pk=object.id %}">{{ object.titlu }}</a></strong><br />
+            <em>{{ object.descriere|truncatewords:100 }}</em></td>
+            <td>{% for rdv in object.ramuri_de_varsta.all %}<img style = "margin-right: 3px" src = '{{ STATIC_URL }}images/icon-{{ rdv.slug }}.png'>{% endfor %}<br>
+                {{ object|numar_participanti_string }} participanți<br />
+
+            {{ object|durata_string }}</td>
+            <td>
+                <a href = "{% url jocuri:activitate_search %}?cat={{ object.categorie.id }}">{{ object.categorie }}</a><br />
+                {% for tag in object.tags.all %}
+                    <i class = "icon-tag"></i> <a href = "{% url jocuri:activitate_search %}?tag={{ tag.id }}">{{ tag }}</a>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </td>
             <td>
                 <div class = "btn-group pull-right">
                     <a href = "{% url jocuri:activitate_detail pk=object.id %}" class = "btn btn-mini"><i class = "icon-file"></i></a>
@@ -64,4 +113,56 @@
 	</tbody>
 
 </table>
+{% endblock %}
+
+{% block extrajs %}
+    <script>
+    $("document").ready(function () {
+        tag_list = [];
+        rdv_list = [];
+
+        _.each($("#rdv").val().split(","), function (e) {
+            if (!e) {
+                return;
+            }
+            $(".rdv_checkbox[value='"+ e +"']").attr("checked", "checked");
+            console.log("checking", e);
+        })
+
+        $(".rdv_checkbox").each(function (i, e) {
+            if ($(e).is(":checked")) {
+                rdv_list.push($(e).val());
+            }
+            $("#rdv").val(rdv_list.join(","));
+        }).change(function (e) {
+            var val = $(this).val();
+            if ($(this).is(":checked")) {
+                rdv_list.push(val);
+            } else {
+                rdv_list.splice(rdv_list.indexOf(val), 1);
+            }
+            $("#rdv").val(rdv_list.join(","));
+        });
+
+        $("a.taglink").click(function (e) {
+            var id = $(this).data("id");
+            if (!(_.find(tag_list, function (o) { return o.id == id}))) {
+                tag_list.push({id: id, name: $(this).data("name")});
+                $(this).addClass("btn-primary");
+            } else {
+                tag_list = _.filter(tag_list, function (o) { return o.id != id });
+                $(this).removeClass("btn-primary");
+            }
+            $("#id_tags").val(_.pluck(tag_list, "name").join(", "));
+            $("#selected_tags").val(_.pluck(tag_list, "id").join(","));
+            e.preventDefault();
+        });
+
+        {% if not filtered %}$("#search-form").hide();{% endif %}
+        $("#toggle-search").click(function (e) {
+            $("#search-form").toggle();
+            e.preventDefault();
+        })
+    })
+    </script>
 {% endblock %}

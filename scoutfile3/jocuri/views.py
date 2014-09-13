@@ -1,5 +1,6 @@
 # Create your views here.
 from django.contrib.auth.decorators import login_required
+from django.db.models.query_utils import Q
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic.detail import DetailView
@@ -7,13 +8,15 @@ from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django.core.urlresolvers import reverse
 from taggit.models import Tag
-from jocuri.forms import FisaActivitateForm
+from jocuri.forms import FisaActivitateForm, parse_string_to_seconds
 from jocuri.models import FisaActivitate, CategorieFiseActivitate
+from structuri.models import RamuraDeVarsta
 
 
 class ActivitateSearch(ListView):
     model = FisaActivitate
     template_name = "jocuri/fisaactivitate_list.html"
+    form_search_params = ("query", "time", "participanti", "rdv", "categorie", "tags")
 
     def dispatch(self, request, *args, **kwargs):
         self.category = None
@@ -25,7 +28,32 @@ class ActivitateSearch(ListView):
         self.requested_tag_id = int(request.GET.get("tag", 0))
         if self.requested_tag_id:
             self.tag = get_object_or_404(Tag, id=self.requested_tag_id)
+
         return super(ActivitateSearch, self).dispatch(request, *args, **kwargs)
+
+    def process_search_form(self, qs):
+        query_data = {}
+        for query_key in self.form_search_params:
+            query_data[query_key] = self.request.GET.get(query_key, None)
+
+        self.filtered = False
+        if any(query_data.values()):
+            self.filtered = True
+        if query_data.get("query"):
+            qs = qs.filter(Q(titlu__icontains=query_data.get("query")) | Q(descriere__icontains=query_data.get("query")) | Q(descriere_joc__icontains=query_data.get("query")) | Q(materiale_necesare__icontains=query_data.get("query")) | Q(obiective_educative__icontains=query_data.get("query")))
+        if query_data.get("time"):
+            durata_secunde = parse_string_to_seconds(query_data.get("time"))
+            qs = qs.filter(Q(min_durata__isnull=True, max_durata__gte=0.9 * durata_secunde) | Q(max_durata__isnull=True, min_durata__lte=durata_secunde * 1.1) | Q(min_durata__lte = durata_secunde * 1.1, max_durata__gte = durata_secunde * 0.9))
+        if query_data.get("participanti"):
+            p = int(query_data.get("participanti"))
+            qs = qs.filter(Q(min_participanti__isnull=True, max_participanti__gte=0.9 * p) | Q(max_participanti__isnull=True, min_participanti__lte=p * 1.1) | Q(min_participanti__lte = p * 1.1, max_participanti__gte = p * 0.9))
+        if query_data.get("rdv"):
+            qs = qs.filter(ramuri_de_varsta__in=[rdv for rdv in RamuraDeVarsta.objects.filter(id__in=query_data.get("rdv").split(","))]).distinct()
+        if query_data.get("categorie"):
+            qs = qs.filter(categorie_id=query_data.get("categorie"))
+        if query_data.get("tags"):
+            qs = qs.filter(tags__in=[tag for tag in Tag.objects.filter(id__in=query_data.get("tags").split(","))])
+        return qs
 
     def get_queryset(self):
         qs = super(ActivitateSearch, self).get_queryset()
@@ -33,12 +61,29 @@ class ActivitateSearch(ListView):
             qs = qs.filter(categorie_id=self.requested_category_id)
         if self.requested_tag_id:
             qs = qs.filter(tags__in=[Tag.objects.get(id=self.requested_tag_id)])
+
+        qs = self.process_search_form(qs)
         return qs
 
     def get_context_data(self, **kwargs):
         data = super(ActivitateSearch, self).get_context_data(**kwargs)
         data['tag'] = self.tag
         data['categorie'] = self.category
+        data['categorii'] = CategorieFiseActivitate.objects.all()
+
+        taguri = Tag.objects.all()
+        taguri_relevante = []
+        from django.db.models import Count
+        for tag in taguri:
+            cnt = FisaActivitate.objects.filter(tags__in=[tag]).count()
+            if cnt:
+                taguri_relevante.append((tag, cnt))
+
+        taguri_relevante.sort(key=lambda x: x[1], reverse=True)
+        data['taguri'] = taguri_relevante
+        data['ramuri_de_varsta'] = RamuraDeVarsta.objects.all()
+        data['filtered'] = self.filtered
+
         return data
 
 class ActivitateCreate(CreateView):
