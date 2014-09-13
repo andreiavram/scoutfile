@@ -144,7 +144,9 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
-    
+    'django.contrib.markup',
+    'django.contrib.markup',
+
     'south', 'photologue',
     'dajax', 'dajaxice',
     'crispy_forms', 'djangorestframework', 'captcha',
@@ -152,11 +154,12 @@ INSTALLED_APPS = (
     
     'structuri', 'generic', 'album',
     'patrocle', 'documente', 'extra',
-    "utils", "proiecte", "cantece",
+    "utils", "proiecte", "cantece", "jocuri",
     
     'raven.contrib.django.raven_compat',
     'django_extensions', 'gunicorn', 'goodies',
     'djangobower', 'longerusername', 'storages',
+    'django_markdown',
 
     'django_ace',
 )
@@ -335,6 +338,7 @@ BOWER_INSTALLED_APPS = (
     'jquery#1.9',
     'underscore',
     'bootstrap-calendar',
+    'lodash',
 )
 
 CENTRU_LOCAL_IMPLICIT = 1
@@ -343,5 +347,10 @@ REDMINE_APY_KEY = ""
 DEFAULT_FILE_STORAGE = 's3utils.MediaS3BotoStorage'
 LOCAL_MEDIA_ROOT = os.path.join(FILE_ROOT, "media")
 LOCAL_MEDIA_URL = "/media/"
+
+MARKDOWN_EXTENSIONS = ['extra']
+
+MARKDOWN_STYLE = os.path.join(STATIC_ROOT, "css", "markdown-preview.css")
+MARKDOWN_EDITOR_SKIN = 'simple'
 
 from local_settings import *
