@@ -52,7 +52,7 @@ class ActivitateSearch(ListView):
         if query_data.get("categorie"):
             qs = qs.filter(categorie_id=query_data.get("categorie"))
         if query_data.get("tags"):
-            qs = qs.filter(tags__in=[tag for tag in Tag.objects.filter(id__in=query_data.get("tags").split(","))])
+            qs = qs.filter(tags__in=[tag for tag in Tag.objects.filter(id__in=query_data.get("tags").split(","))]).distinct()
         return qs
 
     def get_queryset(self):
