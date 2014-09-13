@@ -577,7 +577,7 @@ class UnitateUpdate(UpdateView):
 class UnitateDetail(DetailView, TabbedViewMixin):
     model = Unitate
 
-    @allow_by_afiliere([("Unitate, Centru Local", u"Lider")])
+    @allow_by_afiliere([("Unitate, Centru Local", u"Lider"), ("Unitate, Centru Local", u"Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         return super(UnitateDetail, self).dispatch(request, *args, **kwargs)
 
@@ -650,7 +650,7 @@ class UnitateTabBrief(ListView):
     model = AsociereMembruStructura
     template_name = "structuri/unitate_tab_brief.html"
 
-    @allow_by_afiliere([("Unitate, Centru Local", "Lider")])
+    @allow_by_afiliere([("Unitate, Centru Local", "Lider"), ("Unitate, Centru Local", "Lider asistent")])
     def dispatch(self, *args, **kwargs):
         self.unitate = get_object_or_404(Unitate, id=kwargs.pop("pk"))
         return super(UnitateTabBrief, self).dispatch(*args, **kwargs)
@@ -678,7 +678,7 @@ class UnitateTabPatrule(ListView):
     model = Patrula
     template_name = "structuri/unitate_tab_patrule.html"
 
-    @allow_by_afiliere([("Unitate, Centru Local", "Lider")])
+    @allow_by_afiliere([("Unitate, Centru Local", "Lider"), ("Unitate, Centru Local", "Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         self.unitate = get_object_or_404(Unitate, id=kwargs.pop("pk"))
         return super(UnitateTabPatrule, self).dispatch(request, *args, **kwargs)
@@ -708,7 +708,7 @@ class UnitateTabMembri(ListView):
     model = AsociereMembruStructura
     template_name = "structuri/unitate_tab_membri.html"
 
-    @allow_by_afiliere([("Unitate, Centru Local", "Lider")])
+    @allow_by_afiliere([("Unitate, Centru Local", "Lider"), ("Unitate, Centru Local", "Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         self.unitate = get_object_or_404(Unitate, id=kwargs.pop("pk"))
         return super(UnitateTabMembri, self).dispatch(request, *args, **kwargs)
@@ -780,7 +780,7 @@ class PatrulaUpdate(UpdateView):
 class PatrulaDetail(DetailView, TabbedViewMixin):
     model = Patrula
 
-    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider")])
+    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider"), ("Patrula, Unitate, Centru Local", "Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         return super(PatrulaDetail, self).dispatch(request, *args, **kwargs)
 
@@ -800,7 +800,7 @@ class PatrulaTabBrief(DetailView):
     model = Patrula
     template_name = "structuri/patrula_tab_brief.html"
 
-    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider")])
+    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider"), ("Patrula, Unitate, Centru Local", "Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         return super(PatrulaTabBrief, self).dispatch(request, *args, **kwargs)
 
@@ -810,7 +810,7 @@ class PatrulaTabMembri(ListView):
     template_name = "structuri/patrula_tab_membri.html"
 
 
-    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider")])
+    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider"), ("Patrula, Unitate, Centru Local", "Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         self.patrula = get_object_or_404(Patrula, id=kwargs.pop("pk"))
         return super(PatrulaTabMembri, self).dispatch(request, *args, **kwargs)
