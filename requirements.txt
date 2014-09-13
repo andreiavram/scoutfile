@@ -12,11 +12,10 @@ argparse==1.2.1
 boto==2.30.0
 boto-rsync==0.8.1
 chardet==2.2.1
-distribute==0.6.34
 django-ace==1.0.1
 django-ajax-selects==1.2.5
 django-appconf==0.6
-django-bower==4.8.1
+django-bower==5.0.1
 django-crispy-forms==1.2.3
 django-dajax==0.9.2
 django-dajaxice==0.5.5
@@ -26,6 +25,7 @@ django-extensions==1.1.0
 django-imagekit==3.0.3
 django-less==0.7
 django-markdown==0.6.1
+django-pagedown==0.1.0
 django-pagination==1.0.7
 -e git+https://github.com/petry/django-photologue.git@c00fea5c83d733023787093b023bb2301eaf98e4#egg=django_photologue-master
 django-recaptcha==0.0.6
@@ -38,15 +38,16 @@ johnny-cache==1.4
 longerusername==0.4
 numpy==1.7.1
 oauthlib==0.6.1
--e git://github.com/patacrep/patacrep.git@eaafa620337b05826d5046c8877f8353ec4a44d6#egg=patacrep-master
+-e git://github.com/patacrep/patacrep.git@eaafa620337b05826d5046c8877f8353ec4a44d6#egg=patacrep-dev
 pilkit==1.1.9
-pygraphviz==1.2
+plasTeX==1.0
+#pygraphviz==1.2
 python-memcached==1.53
 python-openid==2.2.5
-raven==3.1.16
+raven==5.0.0
 reportlab==2.7
 requests==2.3.0
 requests-oauthlib==0.4.0
 simplejson==3.0.7
-six==1.2.0
+six==1.7.3
 wsgiref==0.1.2

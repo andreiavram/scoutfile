@@ -26,20 +26,21 @@ urlpatterns = patterns('',
                        (r'^extra/', include('extra.urls', namespace='extra')),
                        (r'^utils/', include('utils.urls', namespace='utils')),
                        (r'^cantece/', include('cantece.urls', namespace='cantece')),
+                       (r'^jocuri/', include('jocuri.urls', namespace='jocuri')),
 
                        (r'issues/$', Issues.as_view(), {}, "issues"),
                        (r'issues/create/$', CreateIssue.as_view(), {}, "create_issue"),
 
-
                        ('^$', IndexView.as_view(template_name="home.html"), {}, "index"),
-
 
                        (r'ajax_select/', include('ajax_select.urls')),
                        (r'^photologue/', include('photologue.urls')),
 
+
                        (r'login/$', Login.as_view(), {}, "login"),
                        (r'logout/$', Logout.as_view(), {}, "logout"),
 
+                       url('^markdown/', include('django_markdown.urls')),
                        url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
                        url(r'^admin/', include(admin.site.urls)),
 )
