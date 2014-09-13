@@ -7,9 +7,10 @@
 		{% endif %}
 		<li><a href = "{% url album:index %}"><i class = "icon-picture"></i> Activități</a></li>
 		{% if request.user.is_staff %}
-		<li class = "disabled"><a href = "{% url cantece:cantec_list %}"><i class = "icon-book"></i> Cântece</a></li>
+		<li class = "disabled"><a href = "{% url cantece:cantec_list %}"><i class = "icon-music"></i> Cântece</a></li>
 		{% endif %}
-		<li class = "disabled"><a href = "{% url patrocle:home %}"><i class = "icon-phone"></i> Patrocle</a></li>
+{#		<li class = "disabled"><a href = "{% url patrocle:home %}"><i class = "icon-phone"></i> Patrocle</a></li>#}
+    		<li><a href = "{% url jocuri:activitate_search %}"><i class = "icon-book"></i> Jocuri</a></li>
 	</ul>
 	
 	<ul class = 'nav pull-right'>

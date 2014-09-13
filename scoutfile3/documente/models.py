@@ -126,7 +126,7 @@ class TipDocument(models.Model):
     def obtine(cls, slug):
         tip, created = cls.objects.get_or_create(slug=slug)
         if created:
-            tip.nume = slug.capitalize()
+            tip.nume = slug.capitalize().replace("_", " ")
             tip.save()
 
         return tip
