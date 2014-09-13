@@ -49,24 +49,30 @@ class FisaActivitateForm(CrispyBaseModelForm):
 
     @staticmethod
     def _clean_time_string(value):
-        string_order = {
-            "s": 60 * 60 * 2400 * 7,
-            "z": 60 * 60 * 2400,
-            "h": 60 * 60,
-            "m": 60,
-        }
+        return parse_string_to_seconds(value)
 
-        regex = r"(\d+s){0,1} *(\d+z){0,1} *(\d+h){0,1} *(\d+m){0,1}"
-        import re
-        results = re.findall(regex, value, re.IGNORECASE)
-        if len(results) == 0:
-            raise ValidationError("String invalid pentru timp. Foloseste s pentru saptamani, z pentru zile, h pentru ore, m pentru minute. 5 ore jumatate ar fi: 5h30m")
 
-        seconds = 0
-        for result in results[0]:
-            result = result.strip()
-            if not result:
-                continue
-            seconds += int(result[0:-1]) * string_order.get(result[-1], 0)
+def parse_string_to_seconds(value, silent=False):
+    string_order = {
+        "s": 60 * 60 * 2400 * 7,
+        "z": 60 * 60 * 2400,
+        "h": 60 * 60,
+        "m": 60,
+    }
 
-        return seconds
+    regex = r"(\d+s){0,1} *(\d+z){0,1} *(\d+h){0,1} *(\d+m){0,1}"
+    import re
+    results = re.findall(regex, value, re.IGNORECASE)
+    if len(results) == 0:
+        if silent:
+            return 0
+        raise ValidationError("String invalid pentru timp. Foloseste s pentru saptamani, z pentru zile, h pentru ore, m pentru minute. 5 ore jumatate ar fi: 5h30m")
+
+    seconds = 0
+    for result in results[0]:
+        result = result.strip()
+        if not result:
+            continue
+        seconds += int(result[0:-1]) * string_order.get(result[-1], 0)
+
+    return seconds
