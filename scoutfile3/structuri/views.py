@@ -350,7 +350,7 @@ class CentruLocalTabUnitati(ListView):
     model = Unitate
     template_name = "structuri/centrulocal_tab_unitati.html"
 
-    @allow_by_afiliere([("Centru Local", u"Lider")])
+    @allow_by_afiliere([("Centru Local", u"Lider"), ("Centru Local", u"Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         self.centru_local = get_object_or_404(CentruLocal, id=kwargs.pop("pk"))
         return super(CentruLocalTabUnitati, self).dispatch(request, *args, **kwargs)
@@ -810,7 +810,7 @@ class PatrulaTabMembri(ListView):
     template_name = "structuri/patrula_tab_membri.html"
 
 
-    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider"), ("Patrula, Unitate, Centru Local", "Lider asistent")])
+    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider"), ("Patrula, Unitate, Centru Local", "Lider asistent ")])
     def dispatch(self, request, *args, **kwargs):
         self.patrula = get_object_or_404(Patrula, id=kwargs.pop("pk"))
         return super(PatrulaTabMembri, self).dispatch(request, *args, **kwargs)
