@@ -94,7 +94,7 @@ class CentruLocalUpdate(UpdateView):
 class CentruLocalDetail(DetailView, TabbedViewMixin):
     model = CentruLocal
 
-    @allow_by_afiliere([("Centru Local", "Lider")])
+    @allow_by_afiliere([("Centru Local", "Lider"), (("Centru Local", "Lider asistent"))])
     def dispatch(self, request, *args, **kwargs):
         return super(CentruLocalDetail, self).dispatch(request, *args, **kwargs)
 
