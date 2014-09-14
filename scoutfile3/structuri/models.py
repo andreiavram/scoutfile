@@ -440,6 +440,11 @@ class Membru(Utilizator):
         if not isinstance(calitate, type([])):
             calitate = [calitate, ]
 
+        if not structura:
+            if qs:
+                return AsociereMembruStructura.objects.none()
+            return False
+
         ams_filter = dict(content_type=ContentType.objects.get_for_model(structura),
                           object_id=structura.id,
                           tip_asociere__content_types__in=(ContentType.objects.get_for_model(structura), ),
