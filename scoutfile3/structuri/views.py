@@ -408,7 +408,7 @@ class CentruLocalTabContact(ContactTab):
     template_name = "structuri/centrulocal_tab_contact.html"
     target_model = CentruLocal
 
-    @allow_by_afiliere([("Centru Local", u"Lider")])
+    @allow_by_afiliere([("Centru Local", u"Lider"), ("Centru Local", "Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         return super(CentruLocalTabContact, self).dispatch(request, *args, **kwargs)
 
@@ -417,7 +417,7 @@ class CentruLocalTabMembri(ListView):
     model = AsociereMembruStructura
     template_name = "structuri/centrulocal_tab_membri.html"
 
-    @allow_by_afiliere([("Centru Local", u"Lider")])
+    @allow_by_afiliere([("Centru Local", u"Lider"), ("Centru Local", u"Lider asistent"), ])
     def dispatch(self, request, *args, **kwargs):
         self.centru_local = get_object_or_404(CentruLocal, id=kwargs.pop("pk"))
         return super(CentruLocalTabMembri, self).dispatch(request, *args, **kwargs)
@@ -985,7 +985,7 @@ class MembruDetail(DetailView, TabbedViewMixin):
     model = Membru
 
     @allow_by_afiliere(
-        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruDetail, self).dispatch(request, *args, **kwargs)
 
@@ -1016,7 +1016,7 @@ class MembruTabBrief(DetailView):
     template_name = "structuri/membru_tab_brief.html"
 
     @allow_by_afiliere(
-        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruTabBrief, self).dispatch(request, *args, **kwargs)
 
@@ -1025,7 +1025,7 @@ class MembruTabDocumente(ListView):
     model = Membru
     template_name = "structuri/membru_tab_documente.html"
 
-    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ])
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         self.object = get_object_or_404(self.model, id=kwargs.pop("pk"))
         return ListView.dispatch(self, request, *args, **kwargs)
@@ -1048,7 +1048,7 @@ class MembruTabConexiuni(DetailView):
     template_name = "structuri/membru_tab_conexiuni.html"
 
     @allow_by_afiliere(
-        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruTabConexiuni, self).dispatch(request, *args, **kwargs)
 
@@ -1058,7 +1058,7 @@ class MembruTabIstoric(DetailView):
     template_name = "structuri/membru_tab_istoric.html"
 
     @allow_by_afiliere(
-        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruTabIstoric, self).dispatch(request, *args, **kwargs)
 
@@ -1068,7 +1068,7 @@ class MembruTabContact(ContactTab):
     target_model = Membru
 
     @allow_by_afiliere(
-        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruTabContact, self).dispatch(request, *args, **kwargs)
 
@@ -1077,7 +1077,7 @@ class MembruTabFamilie(DetailView):
     template_name = "structuri/membru_tab_familie.html"
     model = Membru
 
-    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruTabFamilie, self).dispatch(request, *args, **kwargs)
 
@@ -1091,7 +1091,7 @@ class MembruTabActivitati(ListView):
     model = ParticipareEveniment
     template_name = "structuri/membru_tab_activitati.html"
 
-    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
         return super(MembruTabActivitati, self).dispatch(request, *args, **kwargs)
@@ -1594,7 +1594,7 @@ class MembruContactCreate(GenericContactCreate):
     target_model = Membru
 
     @allow_by_afiliere(
-        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruContactCreate, self).dispatch(request, *args, **kwargs)
 
@@ -1663,7 +1663,7 @@ class MembruAddFamilie(CreateView):
     form_class = AsociereMembruFamilieForm
     template_name = "structuri/membru_familie_form.html"
 
-    @allow_by_afiliere([("Membru, Centru Local", "Lider")])
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
         return super(MembruAddFamilie, self).dispatch(request, *args, **kwargs)
@@ -1695,7 +1695,7 @@ class MembruEditFamilie(UpdateView):
     form_class = AsociereMembruFamilieForm
     template_name = "structuri/membru_familie_form.html"
 
-    @allow_by_afiliere([("Membru, Centru Local", "Lider")], pkname="mpk")
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent")], pkname="mpk")
     def dispatch(self, request, *args, **kwargs):
         return super(MembruEditFamilie, self).dispatch(request, *args, **kwargs)
 
@@ -1724,7 +1724,7 @@ class MembruPersoanaDeContactCreate(CreateView):
     template_name = "structuri/membru_pdc_form.html"
     form_class = PersoanaDeContactForm
 
-    @allow_by_afiliere([("Membru, Centru Local", "Lider")])
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
         return super(MembruPersoanaDeContactCreate, self).dispatch(request, *args, **kwargs)
@@ -1750,7 +1750,7 @@ class MembruPersoanaDeContactUpdate(UpdateView):
     template_name = "structuri/membru_pdc_form.html"
     form_class = PersoanaDeContactForm
 
-    @allow_by_afiliere([("Membru, Centru Local", "Lider")], pkname="mpk")
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent")], pkname="mpk")
     def dispatch(self, request, *args, **kwargs):
         return super(MembruPersoanaDeContactUpdate, self).dispatch(request, *args, **kwargs)
 
