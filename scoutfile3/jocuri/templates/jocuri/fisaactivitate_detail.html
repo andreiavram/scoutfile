@@ -2,6 +2,7 @@
 {% load jocuri_utils %}
 {% load django_markdown %}
 {% load jocuri_utils %}
+{% load static %}
 
 {% block page_title %}
 	{{ object }} | <span style = "font-weight: normal">Joc / Activitate</span>
@@ -45,6 +46,27 @@
 
             <h3>Obiective educative</h3>
             {{ object.obiective_educative|linenumbers|linebreaksbr }}
+
+            {% if object.editori.all.count %}
+            <h3>Autori</h3>
+                <ul class = "unstyled">
+                {% for autor in object.editori.all %}
+                    <li><div class = "row-fluid">
+                        <div class = "span2">
+                        <a href = "{% url structuri:membru_detail pk=autor.id %}">
+                        <img style = "display:inline; margin-right: 10px;" class = "thumbnail" src = "{% if object.membru.poza_profil %}{{ object.membru.poza_profil.get_profil_mic_url }}{% else %}{% static 'images/50x50.gif' %}{% endif %}" />
+                        </a>
+                        </div>
+                        <div class = 'span10'>
+
+                        <a href = "{% url structuri:membru_detail pk=autor.id %}">
+                            {{ autor }}</a><br />
+                            {{ autor.centru_local }}
+                            </div>
+                    </div></li>
+                {% endfor %}
+                </ul>
+            {% endif %}
         </div>
     </div>
 

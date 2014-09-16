@@ -11,6 +11,9 @@ from taggit.models import Tag
 from jocuri.forms import FisaActivitateForm, parse_string_to_seconds
 from jocuri.models import FisaActivitate, CategorieFiseActivitate
 from structuri.models import RamuraDeVarsta
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ActivitateSearch(ListView):
@@ -86,6 +89,7 @@ class ActivitateSearch(ListView):
 
         return data
 
+
 class ActivitateCreate(CreateView):
     model = FisaActivitate
     template_name = "jocuri/fisaactivitate_form.html"
@@ -100,6 +104,10 @@ class ActivitateCreate(CreateView):
         self.object.uploader = self.request.user
         self.object.min_durata = form.cleaned_data.get("min_durata_string", None)
         self.object.max_durata = form.cleaned_data.get("max_durata_string", None)
+        try:
+            self.object.editori.add(self.request.user.get_profile().membru)
+        except Exception, e:
+            logger.error("%s: error adding user %s to activitate, cannot fetch membru (%s)" % (self.__class__.__name__, e))
         self.object.save()
         return super(ActivitateCreate, self).form_valid(form)
 
@@ -145,6 +153,14 @@ class ActivitateUpdate(UpdateView):
         self.object = form.save(commit=False)
         self.object.min_durata = form.cleaned_data.get("min_durata_string", None)
         self.object.max_durata = form.cleaned_data.get("max_durata_string", None)
+        try:
+            editor = self.request.user.get_profile().membru
+        except Exception, e:
+            editor = None
+            logger.error("%s: error adding user %s to activitate, cannot fetch membru (%s)" % (self.__class__.__name__, e))
+        if editor not in self.object.editori.all():
+            self.object.editori.add(editor)
+
         self.object.save()
         return super(ActivitateUpdate, self).form_valid(form)
 
