@@ -33,8 +33,6 @@ class FisaActivitate(Document):
 
     tags = TaggableManager()
 
-    tags = TaggableManager()
-
     def save(self, **kwargs):
         self.tip_document = TipDocument.obtine("fisa_activitate")
         return super(FisaActivitate, self).save(**kwargs)

@@ -54,7 +54,7 @@
                     <li><div class = "row-fluid">
                         <div class = "span2">
                         <a href = "{% url structuri:membru_detail pk=autor.id %}">
-                        <img style = "display:inline; margin-right: 10px;" class = "thumbnail" src = "{% if object.membru.poza_profil %}{{ object.membru.poza_profil.get_profil_mic_url }}{% else %}{% static 'images/50x50.gif' %}{% endif %}" />
+                        <img style = "display:inline; margin-right: 10px;" class = "thumbnail" src = "{% if autor.poza_profil %}{{ autor.poza_profil.get_profil_mic_url }}{% else %}{% static 'images/50x50.gif' %}{% endif %}" />
                         </a>
                         </div>
                         <div class = 'span10'>
