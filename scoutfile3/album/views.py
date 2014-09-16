@@ -731,7 +731,41 @@ class ChangeImagineVisibility(JSONView):
         return simplejson.dumps(json_dict)
 
 
-class EvenimentEditMixin(object):
+class FileUploadMixin(object):
+    def handle_uploaded_file(self, f):
+        fname = f.name
+        if hasattr(self, 'object') and self.object is not None and self.object.id is not None:
+            fname += str(self.object.id) + "-" + fname
+
+        path = os.path.join("/tmp", fname)
+        #path = os.path.join(MEDIA_ROOT, base_path)
+        with open(path, 'wb+') as destination:
+            for chunk in f.chunks():
+                destination.write(chunk)
+
+        return path
+
+    def save_photo(self, form_field_name="cover_photo", object_field_name="custom_cover_photo", image_class=Imagine, folder_path="covers", save=True):
+        if form_field_name in self.request.FILES:
+            try:
+                path = self.handle_uploaded_file(self.request.FILES[form_field_name])
+            except Exception, e:
+                return
+
+            if getattr(self.object, object_field_name):
+                getattr(self.object, object_field_name).image.delete()
+                getattr(self.object, object_field_name).delete()
+            filehandler = open(path, "r")
+            cover_photo = image_class()
+            cover_photo.image.save(os.path.join(settings.PHOTOLOGUE_DIR, folder_path, self.request.FILES[form_field_name].name), File(filehandler), save=False)
+            cover_photo.save(file_handler=filehandler, local_file_name=path)
+            setattr(self.object, object_field_name, cover_photo)
+
+            if save:
+                self.object.save()
+
+
+class EvenimentEditMixin(FileUploadMixin):
     participanti = ["lupisori", "temerari", "seniori", "exploratori", "adulti", "lideri"]
 
     def update_counts(self, form):
@@ -773,37 +807,40 @@ class EvenimentEditMixin(object):
                 totals[c.alta_categorie] = c.numar
         return totals
 
-    def handle_uploaded_file(self, f):
-        fname = f.name
-        if hasattr(self, 'object') and self.object is not None and self.object.id is not None:
-            fname += str(self.object.id) + "-" + fname
-
-        path = os.path.join("/tmp", fname)
-        #path = os.path.join(MEDIA_ROOT, base_path)
-        with open(path, 'wb+') as destination:
-            for chunk in f.chunks():
-                destination.write(chunk)
-
-        return path
+    # def handle_uploaded_file(self, f):
+    #     fname = f.name
+    #     if hasattr(self, 'object') and self.object is not None and self.object.id is not None:
+    #         fname += str(self.object.id) + "-" + fname
+    #
+    #     path = os.path.join("/tmp", fname)
+    #     #path = os.path.join(MEDIA_ROOT, base_path)
+    #     with open(path, 'wb+') as destination:
+    #         for chunk in f.chunks():
+    #             destination.write(chunk)
+    #
+    #     return path
 
     def save_cover_photo(self, save=True):
-        if "cover_photo" in self.request.FILES:
-            try:
-                path = self.handle_uploaded_file(self.request.FILES['cover_photo'])
-            except Exception, e:
-                return
-
-            if self.object.custom_cover_photo:
-                self.object.custom_cover_photo.image.delete()
-                self.object.custom_cover_photo.delete()
-            filehandler = open(path, "r")
-            cover_photo = Imagine()
-            cover_photo.image.save(os.path.join(settings.PHOTOLOGUE_DIR, "covers", self.request.FILES['cover_photo'].name), File(filehandler), save=False)
-            cover_photo.save(file_handler=filehandler, local_file_name=path)
-            self.object.custom_cover_photo = cover_photo
-
-            if save:
-                self.object.save()
+        cover_photo_args = dict(form_field_name="cover_photo", object_field_name="custom_cover_photo", image_class=Imagine, folder_path="covers")
+        cover_photo_args['save'] = save
+        self.save_photo(**cover_photo_args)
+        # if "cover_photo" in self.request.FILES:
+        #     try:
+        #         path = self.handle_uploaded_file(self.request.FILES['cover_photo'])
+        #     except Exception, e:
+        #         return
+        #
+        #     if self.object.custom_cover_photo:
+        #         self.object.custom_cover_photo.image.delete()
+        #         self.object.custom_cover_photo.delete()
+        #     filehandler = open(path, "r")
+        #     cover_photo = Imagine()
+        #     cover_photo.image.save(os.path.join(settings.PHOTOLOGUE_DIR, "covers", self.request.FILES['cover_photo'].name), File(filehandler), save=False)
+        #     cover_photo.save(file_handler=filehandler, local_file_name=path)
+        #     self.object.custom_cover_photo = cover_photo
+        #
+        #     if save:
+        #         self.object.save()
 
 
 class EvenimentCreate(CreateView, EvenimentEditMixin):

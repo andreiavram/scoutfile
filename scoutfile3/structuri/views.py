@@ -25,6 +25,7 @@ import logging
 import traceback
 from unidecode import unidecode
 from album.models import ParticipareEveniment
+from album.views import FileUploadMixin
 
 from documente.models import Trimestru, ChitantaCotizatie, PlataCotizatieTrimestru
 from settings import SECRET_KEY, SYSTEM_EMAIL, MEDIA_ROOT, DEBUG, \
@@ -942,7 +943,7 @@ class MembruUpdate(UpdateView):
         return reverse("structuri:membru_detail", kwargs={"pk": self.object.id})
 
 
-class MembruEditProfilePicture(UpdateView):
+class MembruEditProfilePicture(FileUploadMixin, UpdateView):
     form_class = UtilizatorProfilePictureForm
     template_name = "structuri/membru_edit_profile_picture.html"
     model = Membru
@@ -951,28 +952,35 @@ class MembruEditProfilePicture(UpdateView):
     def dispatch(self, request, *args, **kwargs):
         return super(MembruEditProfilePicture, self).dispatch(request, *args, **kwargs)
 
+    def save_profile_photo(self, save=True):
+        profile_photo_kwargs = dict(form_field_name="poza_profil", object_field_name="poza_profil", image_class=ImagineProfil, folder_path="profil")
+        profile_photo_kwargs['save'] = save
+        self.save_photo(**profile_photo_kwargs)
+
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
-        try:
-            #    upload the file
-            uploaded_file = self.request.FILES['poza_profil']
-            with open('%sprofil/%d-%s' % (MEDIA_ROOT, self.object.id, uploaded_file.name), 'wb+') as destination:
-                for chunk in uploaded_file.chunks():
-                    destination.write(chunk)
-        except Exception, e:
-            logger.error(
-                u"%s: nu am putut să uploades poza. %s : %s" % (self.__class__.__name__, e, traceback.format_exc()))
-            messages.error(self.request, u"Nu am putut încărca poza (%s)" % e)
-            return HttpResponseRedirect(reverse("structuri:membru_edit_profile_picture"))
-
-        #        if self.object.poza_profil != None:
-        #            self.object.poza_profil.delete()
-
-        poza_profil = ImagineProfil(image="profil/%d-%s" % (self.object.id, uploaded_file.name))
-        poza_profil.save()
-        self.object.poza_profil = poza_profil
+        # try:
+        #     #    upload the file
+        #     uploaded_file = self.request.FILES['poza_profil']
+        #     with open('%sprofil/%d-%s' % (MEDIA_ROOT, self.object.id, uploaded_file.name), 'wb+') as destination:
+        #         for chunk in uploaded_file.chunks():
+        #             destination.write(chunk)
+        # except Exception, e:
+        #     logger.error(
+        #         u"%s: nu am putut să uploades poza. %s : %s" % (self.__class__.__name__, e, traceback.format_exc()))
+        #     messages.error(self.request, u"Nu am putut încărca poza (%s)" % e)
+        #     return HttpResponseRedirect(reverse("structuri:membru_edit_profile_picture"))
+        #
+        # #        if self.object.poza_profil != None:
+        # #            self.object.poza_profil.delete()
+        #
+        # poza_profil = ImagineProfil(image="profil/%d-%s" % (self.object.id, uploaded_file.name))
+        # poza_profil.save()
+        # self.object.poza_profil = poza_profil
         self.object.save()
+        self.save_profile_photo(save=True)
 
         messages.success(self.request, u"Poza de profil a fost modificată cu success")
         return HttpResponseRedirect(self.get_success_url())
