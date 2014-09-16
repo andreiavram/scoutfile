@@ -957,7 +957,6 @@ class MembruEditProfilePicture(FileUploadMixin, UpdateView):
         profile_photo_kwargs['save'] = save
         self.save_photo(**profile_photo_kwargs)
 
-
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
