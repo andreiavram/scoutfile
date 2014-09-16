@@ -745,6 +745,9 @@ class FileUploadMixin(object):
 
         return path
 
+    def get_save_kwargs(self, file_handler, local_file_name):
+        return {}
+
     def save_photo(self, form_field_name="cover_photo", object_field_name="custom_cover_photo", image_class=Imagine, folder_path="covers", save=True):
         if form_field_name in self.request.FILES:
             try:
@@ -758,7 +761,7 @@ class FileUploadMixin(object):
             filehandler = open(path, "r")
             cover_photo = image_class()
             cover_photo.image.save(os.path.join(settings.PHOTOLOGUE_DIR, folder_path, self.request.FILES[form_field_name].name), File(filehandler), save=False)
-            cover_photo.save(file_handler=filehandler, local_file_name=path)
+            cover_photo.save(**self.get_save_kwargs(file_handler=filehandler, local_file_name=path))
             setattr(self.object, object_field_name, cover_photo)
 
             if save:
@@ -767,6 +770,9 @@ class FileUploadMixin(object):
 
 class EvenimentEditMixin(FileUploadMixin):
     participanti = ["lupisori", "temerari", "seniori", "exploratori", "adulti", "lideri"]
+
+    def get_save_kwargs(self, file_handler, local_file_name):
+        return {"file_handler": file_handler, "local_file_name": local_file_name}
 
     def update_counts(self, form):
         counts = ParticipantiEveniment.objects.filter(eveniment=self.object)
