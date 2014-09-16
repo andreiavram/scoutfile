@@ -241,8 +241,9 @@ class Utilizator(models.Model):
 
 class ImagineProfil(ImageModel):
     def delete(self):
-        if os.path.exists("%s%s" % (MEDIA_ROOT, self.image)):
-            os.unlink("%s%s" % (MEDIA_ROOT, self.image))
+        self.image.delete()
+        # if os.path.exists("%s%s" % (MEDIA_ROOT, self.image)):
+        #     os.unlink("%s%s" % (MEDIA_ROOT, self.image))
         return super(ImagineProfil, self).delete()
 
 
