@@ -29,6 +29,7 @@ class FisaActivitate(Document):
     categorie = models.ForeignKey("CategorieFiseActivitate")
 
     sursa = models.CharField(max_length=255, null=True, blank=True, help_text=u"De unde ați adus jocul / activitatea asta în grupul vostru")
+    editori = models.ManyToManyField("structuri.Membru")
 
     tags = TaggableManager()
 
