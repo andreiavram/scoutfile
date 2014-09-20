@@ -749,26 +749,33 @@ class FileUploadMixin(object):
         return {}
 
     def save_photo(self, form_field_name="cover_photo", object_field_name="custom_cover_photo", image_class=Imagine, folder_path="covers", save=True):
+        return self.save_file(form_field_name, object_field_name, image_class, folder_path, save)
+
+    def get_target_object(self):
+        return self.object
+
+    def save_file(self, form_field_name="cover_photo", object_field_name='custom_cover_photo', image_class=Imagine, folder_path="covers", save=True):
         if form_field_name in self.request.FILES:
             try:
                 path = self.handle_uploaded_file(self.request.FILES[form_field_name])
             except Exception, e:
                 return
 
-            if getattr(self.object, object_field_name):
+            target_object = self.get_target_object()
+            if getattr(target_object, object_field_name):
                 try:
-                    getattr(self.object, object_field_name).image.delete()
-                    getattr(self.object, object_field_name).delete()
+                    getattr(target_object, object_field_name).image.delete()
+                    getattr(target_object, object_field_name).delete()
                 except Exception, e:
                     logger.error("%s: Could not delete photo %s" % (self.__class__.__name__, e))
             filehandler = open(path, "r")
             cover_photo = image_class()
             cover_photo.image.save(os.path.join(settings.PHOTOLOGUE_DIR, folder_path, self.request.FILES[form_field_name].name), File(filehandler), save=False)
             cover_photo.save(**self.get_save_kwargs(file_handler=filehandler, local_file_name=path))
-            setattr(self.object, object_field_name, cover_photo)
+            setattr(target_object, object_field_name, cover_photo)
 
             if save:
-                self.object.save()
+                target_object.save()
 
 
 class EvenimentEditMixin(FileUploadMixin):

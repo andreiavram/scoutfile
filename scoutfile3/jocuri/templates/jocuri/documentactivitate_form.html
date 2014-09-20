@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+	{% if object %}Modifică {{ object }}{% else %}Adaugă documente pentru {{ activitate }}{% endif %}
+{% endblock %}
+
+{% block extrahead %}
+    {{ form.media }}
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Locații</li>
+		{% if object %}
+		<li><a href = "{% url jocuri:activitate_detail pk=activitate.id %}"><i class = "icon-home"></i> {{ activitate }}</a></li>
+		{% endif %}
+		{% if user.is_staff %}
+		<li><a href = "{% url jocuri:activitate_search %}"><i class = "icon-search"></i> Căutare jocuri</a>
+		{% endif %}
+	</ul>
+{% endblock %}
+
+
+{% block content %}
+	{% crispy form form.helper %}
+{% endblock %}
+
+{% block extrajs %}
+{% endblock %}

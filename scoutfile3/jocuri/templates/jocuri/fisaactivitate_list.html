@@ -104,7 +104,8 @@
                 <div class = "btn-group pull-right">
                     <a href = "{% url jocuri:activitate_detail pk=object.id %}" class = "btn btn-mini"><i class = "icon-file"></i></a>
                     <a href = "{% url jocuri:activitate_edit pk=object.id %}" class = "btn btn-mini"><i class = "icon-edit"></i></a>
-                    <a href = "javascript:void();" class = "btn btn-mini" id = "delete_{{ object.id }}"><i class = "icon-trash"></i></a>
+                    <a href = "{% url jocuri:activitate_documents pk=object.id %}" class = "btn btn-mini"><i class = "icon-paper-clip"></i> {% if object.fisiere.count != 0 %}{{ object.fisiere.count }}{% endif %}</a>
+                    {% if request.user.is_staff %}<a href = "javascript:void();" class = "btn btn-mini" id = "delete_{{ object.id }}"><i class = "icon-trash"></i></a>{% endif %}
                 </div>
             </td>
 		</tr>
