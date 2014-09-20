@@ -20,20 +20,29 @@ class ScoutfilePattern(Pattern):
 
     def handleMatch(self, m):
         from documente.models import Document
+        from album.models import Imagine
 
         shortcode = m.group(3)
         components = shortcode.split("#")
-        print components, shortcode
+
         tag_registry = {
-            "doc": "documente/markdown/document.html"
+            "doc": {
+                "template": "documente/markdown/document.html",
+                "model": Document
+            },
+            "img": {
+                "template": "album/markdown/imagine.html",
+                "model": Imagine
+            }
         }
 
-        template_name = tag_registry.get(components[0], None)
-        print template_name, "template name"
+        descriptor = tag_registry.get(components[0], {})
+        template_name = descriptor.get("template")
+
         if template_name is None:
             return ""
 
-        html = render_to_string(template_name, {"object": Document.objects.get(id=int(components[1]))})
+        html = render_to_string(template_name, {"object": descriptor.get("model").objects.get(id=int(components[1]))})
         return self.markdown.htmlStash.store(html)
 
 

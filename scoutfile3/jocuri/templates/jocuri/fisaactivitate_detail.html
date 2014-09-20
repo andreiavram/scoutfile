@@ -13,21 +13,46 @@
 		<li class = "nav-header">Acțiuni</li>
 		<li><a href = "{% url jocuri:activitate_create %}"><i class = "icon-plus-sign"></i> Adaugă</a></li>
         <li><a href = "{% url jocuri:activitate_edit pk=object.id %}"><i class = "icon-pencil"></i> Editează</a></li>
+        <li><a href = "{% url jocuri:activitate_document_create pk=object.id %}"><i class = "icon-paper-clip"></i> Atașamente</a></li>
 
 
         <li class = 'nav-header'>Locații</li>
         <li><a href = "{% url jocuri:activitate_search %}"><i class="icon-search"></i> Căutare</a></li>
 
 	</ul>
+
+    {% if object and object.fisiere.count > 0 %}
+    <ul class = "nav-list nav" style="margin-top: 20px;">
+        <li class = "nav-header">Atașamente</li>
+    {% for doc in object.fisiere.all %}
+        <li>
+            <a class = "doc-link" data-shortcode="{{ doc.shortcode_reference }}" href = "{{ doc.get_download_url }}">
+            {% comment %}
+                {% if doc.image_storage %}
+                    <img src = "{{ doc.image_storage.get_thumbnail_url }}" class = "thumbnail" style="width: 100%">
+                {% endif %}
+            {% endcomment %}
+            <i class = "icon-{% if doc.source_type.0 == "fisier" %}file{% elif doc.source_type.0 == "imagine" %}picture{% endif %}"></i> {{ doc.titlu }}
+            {% if doc.descriere and 0 %}
+                <span style = "font-size: 10px; color: #666666">- {{ doc.descriere }}</span>
+            {% endif %}</a>
+        </li>
+    {% endfor %}
+            <li>
+            <em><a href = "{% url jocuri:activitate_document_create pk=object.id %}" target="_blank"><i class = "icon-plus-sign"></i> Adaugă atașament</a></em>
+        </li>
+
+    </ul>
+    {% endif %}
 {% endblock %}
 
 
 {% block content %}
     <div class = "row-fluid">
-        <div class = "span8">
+        <div class = "span10" style = "text-align: justify">
             {{ object.descriere_joc|markdown }}
         </div>
-        <div class = "span4">
+        <div class = "span2">
             <h3>Sumar</h3>
             <ul class = "unstyled">
                 <li>{{ object|numar_participanti_string }} participanți</li>
@@ -57,7 +82,10 @@
                         <img style = "display:inline; margin-right: 10px;" class = "thumbnail" src = "{% if autor.poza_profil %}{{ autor.poza_profil.get_profil_mic_url }}{% else %}{% static 'images/50x50.gif' %}{% endif %}" />
                         </a>
                         </div>
-                        <div class = 'span10'>
+                        <div class = "span1">
+                            &nbsp;
+                        </div>
+                        <div class = 'span9'>
 
                         <a href = "{% url structuri:membru_detail pk=autor.id %}">
                             {{ autor }}</a><br />
