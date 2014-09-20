@@ -1,0 +1,15 @@
+{% if object.image_storage %}
+    <div class = "thumbnail" style="text-align: center">
+        <img src = "{{ object.image_storage.get_large_url }}" />
+        <em><strong>{{ object.titlu }}</strong>{% if object.descriere %}: {% endif %}{{ object.descriere }}</em>
+    </div>
+{% endif %}
+{% if object.fisier %}
+    <div style = "width: 100%; background-color: #EFEFEF; border: 1px solid #CCC">
+        <div style="padding: 5px 10px">
+            <a href = "{{ object.fisier.url }}"><i class = "icon-download"></i> {{ object.titlu }}</a>{% if object.descriere %}
+            - {{ object.descriere }}{% endif %}
+            <a class = "btn btn-mini pull-right btn-primaty"><i class = "icon-download"></i> Download</a>
+        </div>
+    </div>
+{% endif %}

@@ -89,7 +89,7 @@ class Document(models.Model):
 
     @property
     def shortcode_reference(self):
-        return "[doc#%s]" % self.id
+        return "[[doc#%s]]" % self.id
 
 # tagging.register(Document)
 

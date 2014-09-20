@@ -1,5 +1,6 @@
 # coding: utf-8
 import os.path
+from utils.mdextend import iconfonts
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -348,7 +349,9 @@ DEFAULT_FILE_STORAGE = 's3utils.MediaS3BotoStorage'
 LOCAL_MEDIA_ROOT = os.path.join(FILE_ROOT, "media")
 LOCAL_MEDIA_URL = "/media/"
 
-MARKDOWN_EXTENSIONS = ['extra']
+from pyembed.markdown import PyEmbedMarkdown
+from utils.mdextend import scoutfile as scoutfile_markdown
+MARKDOWN_EXTENSIONS = ['extra', PyEmbedMarkdown(), scoutfile_markdown.makeExtension()] #iconfonts.makeExtension()]
 
 MARKDOWN_STYLE = os.path.join(STATIC_ROOT, "css", "markdown-preview.css")
 MARKDOWN_EDITOR_SKIN = 'simple'
