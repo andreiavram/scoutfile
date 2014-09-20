@@ -110,7 +110,7 @@ class ActivitateCreate(CreateView):
         try:
             self.object.editori.add(self.request.user.get_profile().membru)
         except Exception, e:
-            logger.error("%s: error adding user %s to activitate, cannot fetch membru (%s)" % (self.__class__.__name__, e))
+            logger.error("%s: error adding user %s to activitate, cannot fetch membru (%s)" % (self.__class__.__name__, self.request.user, e))
         self.object.save()
         return super(ActivitateCreate, self).form_valid(form)
 
