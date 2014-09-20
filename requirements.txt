@@ -4,12 +4,14 @@ Jinja2==2.7.3
 Markdown==2.4.1
 MarkupSafe==0.23
 MySQL-python==1.2.4
-Pillow==2.5.3
+Pillow==2.1.0
+PyYAML==3.11
 South==0.8.2
-URLObject==2.3.1
+URLObject==2.4.0
 Unidecode==0.04.16
 argparse==1.2.1
-boto==2.30.0
+beautifulsoup4==4.3.2
+boto==2.32.1
 boto-rsync==0.8.1
 chardet==2.2.1
 django-ace==1.0.1
@@ -33,15 +35,17 @@ django-storages==1.1.8
 django-taggit==0.10
 djangorestframework==0.3.3
 gdata==2.0.17
-gunicorn==0.17.2
+gunicorn==19.1.1
 johnny-cache==1.4
 longerusername==0.4
+markdown-checklist==0.4.0
 numpy==1.7.1
 oauthlib==0.6.1
 -e git://github.com/patacrep/patacrep.git@eaafa620337b05826d5046c8877f8353ec4a44d6#egg=patacrep-dev
 pilkit==1.1.9
 plasTeX==1.0
-#pygraphviz==1.2
+pyembed==1.1.1
+pyembed-markdown==1.1.0
 python-memcached==1.53
 python-openid==2.2.5
 raven==5.0.0
