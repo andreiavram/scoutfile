@@ -801,7 +801,10 @@ class Imagine(ImageModel):
         self.save()
 
     def find_faces(self, file_name=None):
-        import cv
+        try:
+            import cv
+        except ImportError:
+            return
 
         if file_name is None:
             return

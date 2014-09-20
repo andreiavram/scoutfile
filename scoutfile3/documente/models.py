@@ -9,7 +9,7 @@ from django.db.models.aggregates import Sum
 from django.db.models.signals import post_delete
 from django.dispatch.dispatcher import receiver
 import logging
-from s3utils import ProtectedS3BotoStorage, LocalStorage
+from s3utils import LocalStorage
 
 from settings import VALOARE_IMPLICITA_COTIZATIE_NATIONAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL, VALOARE_IMPLICITA_COTIZATIE_LOCAL_SOCIAL, VALOARE_IMPLICITA_COTIZATIE_NATIONAL_SOCIAL
 
@@ -24,7 +24,7 @@ class Document(models.Model):
     titlu = models.CharField(max_length=1024)
     descriere = models.CharField(max_length=2048, null=True, blank=True)
 
-    fisier = models.FileField(upload_to=lambda instance, file_name: "declaratii/%s" % file_name, null=True, blank=True, storage=LocalStorage)
+    fisier = models.FileField(upload_to=lambda instance, file_name: "declaratii/%s" % file_name, null=True, blank=True, storage=LocalStorage())
     url = models.URLField(max_length=2048, null=True, blank=True)
 
     version_number = models.IntegerField(default=0)
@@ -41,6 +41,10 @@ class Document(models.Model):
     registru = models.ForeignKey("Registru", null=True, blank=True)
     numar_inregistrare = models.PositiveIntegerField(null=True, blank=True)
 
+    #   de folosit pentru cand documentul este in fapt o imagine, care trebuie procesata (thumbnail-uri ...)
+    image_storage = models.ForeignKey("album.Imagine", null=True, blank=True)
+    # rol_in_folder = models.ForeignKey
+
     def __unicode__(self):
         return u"%s" % self.titlu
 
@@ -50,10 +54,10 @@ class Document(models.Model):
     def edit_link(self):
         return ""
 
-    def save(self, force_insert=False, force_update=False, using=None):
+    def save(self, **kwargs):
         if not self.data_inregistrare:
             self.data_inregistrare = self.date_created
-        return super(Document, self).save(force_insert=force_insert, force_update=force_update, using=using)
+        return super(Document, self).save(**kwargs)
 
     def get_absolute_url(self):
         if hasattr(self, "decizie"):
@@ -66,6 +70,26 @@ class Document(models.Model):
             qs = qs.filter(tip_asociere__slug = tip)
 
         return qs
+
+    def get_download_url(self):
+        if self.fisier:
+            return self.fisier.url
+        if self.image_storage:
+            return self.image_storage.image.url
+
+    @property
+    def source_type(self):
+        if self.fisier:
+            return ("fisier", u"Fișier")
+        if self.image_storage:
+            return ("imagine", u"Imagine")
+        if self.url:
+            return ("link", u"Link")
+        return ("necunoscut", u"?")
+
+    @property
+    def shortcode_reference(self):
+        return "[doc#%s]" % self.id
 
 # tagging.register(Document)
 

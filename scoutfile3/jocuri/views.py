@@ -8,7 +8,10 @@ from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django.core.urlresolvers import reverse
 from taggit.models import Tag
-from jocuri.forms import FisaActivitateForm, parse_string_to_seconds
+from album.models import Imagine
+from album.views import FileUploadMixin
+from documente.models import Document
+from jocuri.forms import FisaActivitateForm, parse_string_to_seconds, DocumentActivitateForm
 from jocuri.models import FisaActivitate, CategorieFiseActivitate
 from structuri.models import RamuraDeVarsta
 import logging
@@ -171,3 +174,68 @@ class ActivitateUpdate(UpdateView):
 class ActivitateDetail(DetailView):
     model = FisaActivitate
     template_name = "jocuri/fisaactivitate_detail.html"
+
+
+class DocumentActivitateAdauga(FileUploadMixin, CreateView):
+    model = Document
+    form_class = DocumentActivitateForm
+    template_name = "jocuri/documentactivitate_form.html"
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        self.activitate = get_object_or_404(FisaActivitate, id=kwargs.pop("pk"))
+        return super(DocumentActivitateAdauga, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.folder = self.activitate
+
+        import os
+        print "numefisier ", os.path.splitext(form.cleaned_data.get("fisier").name)
+        fname, fextension = os.path.splitext(form.cleaned_data.get("fisier").name)
+        fextension = fextension[1:]
+        if fextension.lower() in ["jpg", "jpeg", "png", "gif"]:
+            if not self.object.titlu:
+                self.object.titlu = "Imagine #"
+            #   delegate image safe to image object
+            self.save_file(form_field_name="fisier", object_field_name="image_storage", image_class=Imagine, folder_path="jocuri", save=False)
+            self.object.image_storage.title = self.object.titlu
+            self.object.fisier = None
+        else:
+            if not self.object.titlu:
+                self.object.titlu = "Document #"
+
+        print self.object.fisier.storage.__class__.__name__
+        self.object.uploader = self.request.user
+        self.object.is_folder = False
+
+        self.object.save()
+        if self.object.titlu.endswith("#"):
+            self.object.titlu += str(self.object.id)
+            self.object.save()
+        return super(DocumentActivitateAdauga, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse("jocuri:activitate_documents", kwargs={"pk": self.activitate.id})
+
+    def get_context_data(self, **kwargs):
+        data = super(DocumentActivitateAdauga, self).get_context_data(**kwargs)
+        data['activitate'] = self.activitate
+        return data
+
+
+class DocumentActivitateList(ListView):
+    model = Document
+    template_name = "jocuri/documentactivitate_list.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.activitate = get_object_or_404(FisaActivitate, id=kwargs.pop("pk"))
+        return super(DocumentActivitateList, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return Document.objects.filter(folder=self.activitate)
+
+    def get_context_data(self, **kwargs):
+        data = super(DocumentActivitateList, self).get_context_data(**kwargs)
+        data['activitate'] = self.activitate
+        return data

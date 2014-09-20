@@ -6,6 +6,7 @@ from goodies.forms import CrispyBaseModelForm
 from goodies.widgets import TaggitTagsInput
 from pagedown.widgets import PagedownWidget
 from taggit.forms import TagField
+from documente.models import Document
 from jocuri.models import FisaActivitate
 from django import forms
 from structuri.models import RamuraDeVarsta
@@ -76,3 +77,11 @@ def parse_string_to_seconds(value, silent=False):
         seconds += int(result[0:-1]) * string_order.get(result[-1], 0)
 
     return seconds
+
+
+class DocumentActivitateForm(CrispyBaseModelForm):
+    class Meta:
+        model = Document
+        fields = ("titlu", "descriere", "fisier")
+
+    descriere = forms.CharField(required=False, label=u"Descriere", widget=Textarea)
