@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+    {% extends 'base.html' %}
 {% load jocuri_utils %}
 {% load django_markdown %}
 {% load jocuri_utils %}
@@ -7,6 +7,16 @@
 {% block page_title %}
 	{{ object }} <span style = "font-weight: normal">| Joc / Activitate</span>
 {% endblock %}
+
+{% block meta %}
+    <meta property="og:title" content="{{ object.titlu }}" />
+    <meta property="og:type" content="object" />
+    <meta property="og:url" content="{{ url_root }}{% url jocuri:activitate_detail pk=object.id %}" />
+{#    <meta property="og:image" content="{{ url_root }}{% url album:poza_detail pk=object.id %}" />#}
+    <meta property="og:image" content="{{ url_root }}{% static "images/bufnita.png" %}" />
+    <meta property="og:description" content="{{ object.descriere }}" />
+{% endblock %}
+
 
 {% block context_menu %}
 	<ul class = "nav nav-list">
