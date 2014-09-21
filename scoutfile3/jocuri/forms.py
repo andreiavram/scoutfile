@@ -98,3 +98,4 @@ class DocumentActivitateForm(CrispyBaseModelForm):
         fields = ("titlu", "descriere", "fisier")
 
     descriere = forms.CharField(required=False, label=u"Descriere", widget=Textarea)
+    fisier = forms.FileField(required=True, label=u"Fișier", help_text=u"Alege un fișier local pentru upload")
