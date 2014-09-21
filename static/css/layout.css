@@ -182,3 +182,16 @@ div.document-list {
     }
 
 }
+
+form.jocuri-form {
+
+}
+
+form.jocuri-form p.help-block {
+    font-style: italic;
+    color: #999;
+}
+
+form.jocuri-form label.control-label {
+    font-weight: bold;
+}
