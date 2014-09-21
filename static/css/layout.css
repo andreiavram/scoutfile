@@ -10,6 +10,10 @@
     text-align: center;
 }
 
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+
 #menu {
     /*border-right: 2px #CCC solid; */
     /*background-color: rgba(245, 245, 245, 0.7);*/
@@ -194,4 +198,16 @@ form.jocuri-form p.help-block {
 
 form.jocuri-form label.control-label {
     font-weight: bold;
+}
+
+form.jocuri-form .markItUp {
+    width: 100%;
+}
+
+form.jocuri-form .markItUpEditor {
+    width: 100%;
+    font-size: 14px;
+    font-family: monospace;
+    line-height: 24px;
+    height: 500px;
 }
