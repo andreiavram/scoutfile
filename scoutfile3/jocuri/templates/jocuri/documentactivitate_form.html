@@ -12,12 +12,24 @@
 {% block context_menu %}
 	<ul class = "nav nav-list">
 		<li class = "nav-header">Locații</li>
-		{% if object %}
 		<li><a href = "{% url jocuri:activitate_detail pk=activitate.id %}"><i class = "icon-home"></i> {{ activitate }}</a></li>
-		{% endif %}
-		{% if user.is_staff %}
 		<li><a href = "{% url jocuri:activitate_search %}"><i class = "icon-search"></i> Căutare jocuri</a>
-		{% endif %}
+
+           <li class = "nav-header">Atașamente</li>
+    {% for doc in activitate.fisiere.all %}
+        <li>
+            <a class = "doc-link" data-shortcode="{{ doc.shortcode_reference }}" href = "{{ doc.get_download_url }}">
+            {% comment %}
+                {% if doc.image_storage %}
+                    <img src = "{{ doc.image_storage.get_thumbnail_url }}" class = "thumbnail" style="width: 100%">
+                {% endif %}
+            {% endcomment %}
+            <i class = "icon-{% if doc.source_type.0 == "fisier" %}file{% elif doc.source_type.0 == "imagine" %}picture{% endif %}"></i> {{ doc.titlu }}
+            {% if doc.descriere and 0 %}
+                <span style = "font-size: 10px; color: #666666">- {{ doc.descriere }}</span>
+            {% endif %}</a>
+        </li>
+    {% endfor %}
 	</ul>
 {% endblock %}
 
