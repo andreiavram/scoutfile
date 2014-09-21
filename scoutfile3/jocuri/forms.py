@@ -44,7 +44,7 @@ class FisaActivitateForm(CrispyBaseModelForm):
         model = FisaActivitate
         fields = ("titlu", "descriere", "descriere_joc", "materiale_necesare", "ramuri_de_varsta",
                     "min_participanti", "max_participanti",
-                    "obiective_educative", "categorie", "sursa", "tags")
+                    "obiective_educative", "categorie", "sursa", "tags", "is_draft")
 
     titlu = forms.CharField(required=True, label=u"Titlu", widget=TextInput(attrs={"style": "width: 100%; font-size: 24px; line-height: 28px; padding: 10px 5px"}))
     min_durata_string = forms.CharField(required=False, label=u"Durată minimă", help_text=u"Folosește expresii de tipul 2h15m sau 1z3h30m sau 2h sau 12m")
@@ -64,7 +64,7 @@ class FisaActivitateForm(CrispyBaseModelForm):
                                     Field("obiective_educative"), Field("materiale_necesare"),
                                     Div(
                                         Div(Field("min_durata_string"), Field("max_durata_string"), Field("sursa"), css_class="span4"),
-                                        Div(Field("categorie"), Field("min_participanti"), Field("max_participanti"),  css_class="span4"),
+                                        Div(Field("categorie"), Field("min_participanti"), Field("max_participanti"), Field("is_draft"),  css_class="span4"),
                                         Div( Field("ramuri_de_varsta"), Field("tags"), css_class="span4"),
                                         css_class="row-fluid"),
                                     )
@@ -91,6 +91,7 @@ class FisaActivitateForm(CrispyBaseModelForm):
     @staticmethod
     def _clean_time_string(value):
         return parse_string_to_seconds(value)
+
 
 class DocumentActivitateForm(CrispyBaseModelForm):
     class Meta:

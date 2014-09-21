@@ -107,11 +107,12 @@ class ActivitateCreate(CreateView):
         self.object.uploader = self.request.user
         self.object.min_durata = form.cleaned_data.get("min_durata_string", None)
         self.object.max_durata = form.cleaned_data.get("max_durata_string", None)
+        self.object.save()
+
         try:
             self.object.editori.add(self.request.user.get_profile().membru)
         except Exception, e:
             logger.error("%s: error adding user %s to activitate, cannot fetch membru (%s)" % (self.__class__.__name__, self.request.user, e))
-        self.object.save()
         return super(ActivitateCreate, self).form_valid(form)
 
     def get_success_url(self):

@@ -48,6 +48,9 @@
 
 
 {% block content %}
+    {% if object.is_draft %}
+        <div class = "alert alert-warning"><i class = "icon-warning-sign"></i> Fișa asta este marcată ca și draft, ceea ce înseamnă că editorii ei nu consideră că este completă și gata de a fi folosită pentru activități. </div>
+    {%  endif %}
     <div class = "row-fluid">
         <div class = "span10" style = "text-align: justify">
             {{ object.descriere_joc|markdown }}
