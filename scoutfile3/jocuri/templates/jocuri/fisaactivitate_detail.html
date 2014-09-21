@@ -55,15 +55,15 @@
         <div class = "span2">
             <h3>Sumar</h3>
             <ul class = "unstyled">
-                <li>{{ object|numar_participanti_string }} participanți</li>
-                <li>{{ object|durata_string }}</li>
+                <li><strong>Pentru: </strong>{{ object|numar_participanti_string }} participanți</li>
+                <li><strong>Durată: </strong>{{ object|durata_string }}</li>
                 <li>{% for rdv in object.ramuri_de_varsta.all %}<img style = "margin-right: 3px" src = '{{ STATIC_URL }}images/icon-{{ rdv.slug }}.png'>{% endfor %}</li>
             </ul>
 
 
             <strong>Categorie</strong>: <a href = "{% url jocuri:activitate_search %}?cat={{ object.categorie.id }}">{{ object.categorie }}</a><br />
             {% if object.tags.count %}
-                <strong>Tag-uri</strong>: {% for tag in object.tags.all %}<a href = "{% url jocuri:activitate_search %}?tag={{ tag.id }}">{{ tag }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+                <strong>Tag-uri</strong>: {% for tag in object.tags.all %}<a href = "{% url jocuri:activitate_search %}?tag={{ tag.id }}"><i class = "icon-tag"></i> {{ tag }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
             {% endif %}
 
             <h3>Materiale necesare</h3>

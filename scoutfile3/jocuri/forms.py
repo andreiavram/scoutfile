@@ -46,7 +46,7 @@ class FisaActivitateForm(CrispyBaseModelForm):
                     "min_participanti", "max_participanti",
                     "obiective_educative", "categorie", "sursa", "tags")
 
-    titlu = forms.CharField(required=True, label=u"Titlu", widget=TextInput(attrs={"style": "width: 100%; font-size: 24px; padding: 10px;"}))
+    titlu = forms.CharField(required=True, label=u"Titlu", widget=TextInput(attrs={"style": "width: 100%; font-size: 24px; line-height: 28px; padding: 10px 5px"}))
     min_durata_string = forms.CharField(required=False, label=u"Durată minimă", help_text=u"Folosește expresii de tipul 2h15m sau 1z3h30m sau 2h sau 12m")
     max_durata_string = forms.CharField(required=False, label=u"Durată maximă", help_text=u"Folosește expresii de tipul 2h15m sau 1z3h30m sau 2h sau 12m")
     descriere_joc = forms.CharField(required=True, label=u"Conținut", help_text=u"Format Markdown, descrierea jocului, ce trebuie pregătit, ce trebuie făcut, care este obiectivul, care sunt regulile ...", widget=MarkdownWidget())
