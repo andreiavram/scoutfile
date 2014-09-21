@@ -30,6 +30,7 @@ class FisaActivitate(Document):
 
     sursa = models.CharField(max_length=255, null=True, blank=True, help_text=u"De unde ați adus jocul / activitatea asta în grupul vostru")
     editori = models.ManyToManyField("structuri.Membru")
+    is_draft = models.BooleanField(default=True, verbose_name=u"Este incomplet?", help_text=u"Dacă nu ești chiar gata, marchează bifa aici ca să știe și ceilalți")
 
     tags = TaggableManager()
 
