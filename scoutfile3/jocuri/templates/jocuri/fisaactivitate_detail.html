@@ -23,7 +23,7 @@
 		<li class = "nav-header">Acțiuni</li>
 		<li><a href = "{% url jocuri:activitate_create %}"><i class = "icon-plus-sign"></i> Adaugă</a></li>
         <li><a href = "{% url jocuri:activitate_edit pk=object.id %}"><i class = "icon-pencil"></i> Editează</a></li>
-        <li><a href = "{% url jocuri:activitate_document_create pk=object.id %}"><i class = "icon-paper-clip"></i> Atașamente</a></li>
+        <li><a href = "{% url jocuri:activitate_documents pk=object.id %}"><i class = "icon-paper-clip"></i> Atașamente</a></li>
 
 
         <li class = 'nav-header'>Locații</li>
@@ -79,11 +79,15 @@
                 <strong>Tag-uri</strong>: {% for tag in object.tags.all %}<a href = "{% url jocuri:activitate_search %}?tag={{ tag.id }}"><i class = "icon-tag"></i> {{ tag }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
             {% endif %}
 
-            <h3>Materiale necesare</h3>
-            {{ object.materiale_necesare|linenumbers|linebreaksbr }}
+            {% if object.materiale_necesare %}
+                <h3>Materiale necesare</h3>
+                {{ object.materiale_necesare|linenumbers|linebreaksbr }}
+            {% endif %}
 
+            {% if object.obiective_educative %}
             <h3>Obiective educative</h3>
             {{ object.obiective_educative|linenumbers|linebreaksbr }}
+            {% endif %}
 
             {% if object.editori.all.count %}
             <h3>Autori</h3>
