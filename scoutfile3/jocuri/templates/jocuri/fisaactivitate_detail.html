@@ -119,6 +119,11 @@
                $(".bigimage").load(function () {
                    $(this).parents(".bigimage_container").css("width", $(this).width());
                });
+
+               $(window).resize(function() {
+                   $(".bigimage").parents(".bigimage_container").css("width", $(this).width());
+               });
            });
+
     </script>
 {% endblock %}
