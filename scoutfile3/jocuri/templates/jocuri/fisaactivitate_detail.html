@@ -112,3 +112,13 @@
     </div>
 
 {% endblock %}
+
+{% block extrajs %}
+    <script>
+           $(document).ready(function() {
+               $(".bigimage").load(function () {
+                   $(".bigimage_container").css("width", $(this).width());
+               });
+           });
+    </script>
+{% endblock %}
