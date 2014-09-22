@@ -117,7 +117,7 @@
     <script>
            $(document).ready(function() {
                $(".bigimage").load(function () {
-                   $(".bigimage_container").css("width", $(this).width());
+                   $(this).parents(".bigimage_container").css("width", $(this).width());
                });
            });
     </script>
