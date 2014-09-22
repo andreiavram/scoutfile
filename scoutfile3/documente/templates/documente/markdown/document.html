@@ -1,6 +1,6 @@
 {% if object.image_storage %}
-    <div class = "thumbnail" style="text-align: center">
-        <img src = "{{ object.image_storage.get_large_url }}" />
+    <div class = "bigimage_container thumbnail" style="text-align: center; margin-left: auto; margin-right: auto">
+        <img class = "bigimage" src = "{{ object.image_storage.get_large_url }}" />
         <em><strong>{{ object.titlu }}</strong>{% if object.descriere %}: {% endif %}{{ object.descriere }}</em>
     </div>
 {% endif %}
