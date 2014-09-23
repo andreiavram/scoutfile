@@ -220,7 +220,7 @@ class CentruLocalLiderCreate(CreateView):
                  "valoare": self.object.telefon})
             InformatieContact(**info_kwargs).save()
 
-        if not DEBUG:
+        if not DEBUG or USE_EMAIL_CONFIRMATION:
             self.send_email(parola)
 
         messages.success(self.request,
@@ -930,7 +930,7 @@ class MembruUpdate(UpdateView):
             self.object.user.username = self.object.email
             self.object.user.save()
 
-            if not DEBUG:
+            if not DEBUG or USE_EMAIL_CONFIRMATION:
                 send_mail(u"Schimbare cont ScoutFile",
                           u"Utilizatorul tau pentru ScoutFile a fost schimbat pe această adresa.\n\nNumai bine,\nyeti",
                           SERVER_EMAIL,
@@ -1439,7 +1439,7 @@ class UtilizatorEditProfile(UpdateView):
             self.object.user.email = self.object.email
             self.object.user.save()
 
-            if not DEBUG:
+            if not DEBUG or USE_EMAIL_CONFIRMATION:
                 send_mail(u"Schimbare cont ScoutFile",
                           u"Utilizatorul tau pentru ScoutFile a fost schimbat pe această adresa.\n\nNumai bine,\nyeti",
                           SERVER_EMAIL,
