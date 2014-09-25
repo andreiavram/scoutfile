@@ -97,6 +97,12 @@
 
     </ul>
     {% endif %}
+
+
+    <div class="fb-like" style="position: absolute; bottom: 20px; left: 20px;"
+                 data-href="{{ url_root }}{% url album:fisaactivitate_detail pk=object.id%}" data-action="like"
+                 data-layout="box_count" data-width="150" data-show-faces="true" data-share="true"></div>
+
 {% endblock %}
 
 
