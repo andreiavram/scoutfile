@@ -31,11 +31,13 @@ django-pagedown==0.1.0
 django-pagination==1.0.7
 -e git+https://github.com/petry/django-photologue.git@c00fea5c83d733023787093b023bb2301eaf98e4#egg=django_photologue-master
 django-recaptcha==0.0.6
+django-redis==3.7.1
 django-storages==1.1.8
 django-taggit==0.10
 djangorestframework==0.3.3
 gdata==2.0.17
 gunicorn==19.1.1
+hiredis==0.1.4
 johnny-cache==1.4
 longerusername==0.4
 markdown-checklist==0.4.0
@@ -49,6 +51,7 @@ pyembed-markdown==1.1.0
 python-memcached==1.53
 python-openid==2.2.5
 raven==5.0.0
+redis==2.10.3
 reportlab==3.1.8
 requests==2.4.1
 requests-oauthlib==0.4.0

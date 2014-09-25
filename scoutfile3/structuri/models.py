@@ -9,8 +9,6 @@ import logging
 import datetime
 from django.db.models import permalink
 from photologue.models import ImageModel
-from django.conf.global_settings import MEDIA_ROOT
-import os.path
 from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
@@ -18,9 +16,10 @@ import unidecode
 from album.models import Imagine
 from documente.models import PlataCotizatieTrimestru, AsociereDocument, Trimestru, ChitantaCotizatie
 from utils.models import FacebookSession
-
+from django.core import cache
 
 logger = logging.getLogger(__name__)
+redis_cache = cache.get_cache("redis")
 
 
 class RamuraDeVarsta(models.Model):
@@ -468,6 +467,10 @@ class Membru(Utilizator):
                        "Lider", "Lider asistent", "Membru adult", u"Șef Centru Local"]
 
     def _proprietati_comune(self):
+        _proprietati = self.get_from_cache("proprietati")
+        if _proprietati:
+            return _proprietati
+
         if not hasattr(self, "_proprietati") or self._proprietati is None:
             self._proprietati = {}
             for calitate in self.CALITATI_COMUNE:
@@ -479,6 +482,7 @@ class Membru(Utilizator):
                 for calitate in calitati:
                     self._proprietati[calitate.tip_asociere.nume] = True
 
+        self.save_to_cache("proprietati", self._proprietati)
         return self._proprietati
 
     @permalink
@@ -604,6 +608,22 @@ class Membru(Utilizator):
 
         return data
 
+    def clear_cache(self, index):
+        mapping = {"asociere": ["trimestru_initial", "proprietati"],
+                   "cotizatie_sociala": ["are_cotizatie_sociala", "status_cotizatie"],
+                   "cotizatie": ["status_cotizatie", ]}
+        to_clear = mapping.get(index, None)
+        if to_clear is not None:
+            for idx in to_clear:
+                redis_cache.delete("m:%d:%s" % self.id, idx)
+
+    def get_from_cache(self, index):
+        val = redis_cache.get("m:%d:%s" % (self.id, index))
+        return val
+
+    def save_to_cache(self, index, value, timeout=0):
+        return redis_cache.set("m:%d:%s" % (self.id, index), value, timeout)
+
     #    Cotizatie specific code
     def get_trimestru_initial_cotizatie(self):
         """ Obtine primul trimestu din care acest membru ar trebui sa plateasca cotizatie.
@@ -611,6 +631,10 @@ class Membru(Utilizator):
         al centrului local) sau este momentul 0 al centrului local (pentru cei inscrisi pana 
         la momentul 0)
         """
+        stored_value = self.get_from_cache("trimestru_initial")
+        if stored_value:
+            from documente.models import Trimestru
+            return Trimestru.objects.get(id=stored_value)
 
         #    in mod necesar membrul are macar un centru local asociat
         #    calitatea de membru in ONCR se intampla prin intermediul Centrelor Locale
@@ -628,7 +652,9 @@ class Membru(Utilizator):
 
         trimestru_centru = self.centru_local.moment_initial_cotizatie
 
-        return max(trimestru_membru, trimestru_centru, key=lambda x: x.ordine_globala)
+        return_value = max(trimestru_membru, trimestru_centru, key=lambda x: x.ordine_globala)
+        self.save_to_cache("trimestru_initial", return_value.id)
+        return return_value
 
     def are_cotizatie_sociala(self, trimestru=None):
         """ Intoarce True daca membrul este in situatia de a plati cotizatie sociala
@@ -636,6 +662,11 @@ class Membru(Utilizator):
             exista la o vreme după ce membrul este deja plătitor de cotizație, deci este necesar de știut despre
             ce trimestru este vorba.
         """
+
+        stored_value = self.get_from_cache("are_cotizatie_sociala")
+        if stored_value:
+            return stored_value
+
         from documente.models import DocumentCotizatieSociala, AsociereDocument
 
         filtru_documente = {"content_type": ContentType.objects.get_for_model(self),
@@ -650,7 +681,10 @@ class Membru(Utilizator):
 
         qs = qs.filter(Q(document__documentcotizatiesociala__valabilitate_end__isnull=True) | Q(document__documentcotizatiesociala__valabilitate_end__gte=trimestru.data_inceput))
         qs = qs.filter(document__documentcotizatiesociala__valabilitate_start__lte=trimestru.data_sfarsit)
-        return qs.count() != 0
+
+        return_value = qs.count() != 0
+        self.save_to_cache("are_cotizatie_sociala", return_value)
+        return return_value
 
     def aplica_reducere_familie(self, valoare, trimestru):
         """ Aplica reducerea de familie pentru cotizatie
@@ -712,6 +746,10 @@ class Membru(Utilizator):
         """ Cotizatia se poate plati pana pe 15 a ultimei luni din trimestru
         """
 
+        stored_value = self.get_from_cache("status_cotizatie")
+        if stored_value:
+            return stored_value
+
         pct = PlataCotizatieTrimestru.objects.filter(membru=self, final=True).order_by("-trimestru__ordine_globala")[0:1]
         nothing = False
         if pct.count():
@@ -749,7 +787,10 @@ class Membru(Utilizator):
             trimestru = trimestru.urmatorul_trimestru(trimestru)
 
         diferenta_trimestre -= trimestre_scutite
-        return diferenta_trimestre, trimestru_curent, ultimul_trimestru
+
+        return_value = diferenta_trimestre, trimestru_curent, ultimul_trimestru
+        self.save_to_cache("status_cotizatie", return_value, 60 * 60 * 2)
+        return return_value
 
     def status_cotizatie(self, for_diff=None):
         if for_diff is None:

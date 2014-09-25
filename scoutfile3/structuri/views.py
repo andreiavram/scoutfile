@@ -1543,6 +1543,10 @@ class AsociereUpdate(UpdateView):
                        "object_id": self.object.object_id})
         return super(AsociereUpdate, self).get_context_data(**kwargs)
 
+    def form_valid(self, form):
+        self.object.membru.clear_cache("asociere")
+        return super(AsociereUpdate, self).form_valid(form)
+
     def get_success_url(self):
         return reverse("structuri:membru_detail", kwargs={"pk": self.object.membru.id}) + "#afilieri"
 
@@ -2013,6 +2017,7 @@ class MembruDoAJAXWork(View):
     @allow_by_afiliere([("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
+        self.membru.clear_cache("cotizatie")
         return super(MembruDoAJAXWork, self).dispatch(request, *args, **kwargs)
 
     def do_work(self, request, *args, **kwargs):

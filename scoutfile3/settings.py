@@ -104,8 +104,17 @@ CACHES = {
         BACKEND='johnny.backends.memcached.MemcachedCache',
         LOCATION=['127.0.0.1:11211'],
         JOHNNY_CACHE=True,
-    )
+    ),
+
+    'redis': {
+        "BACKEND": "redis_cache.cache.RedisCache",
+        "LOCATION": "127.0.0.1:6379:1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "redis_cache.client.DefaultClient",
+        }
+    },
 }
+
 JOHNNY_MIDDLEWARE_KEY_PREFIX = 'jc_scoutfile3'
 
 ROOT_URLCONF = 'urls'
