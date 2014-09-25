@@ -138,12 +138,15 @@ class CotizatieMembruAdauga(CreateView):
         return data
 
     def form_valid(self, form):
+        self.target.clear_cache("cotizatie")
         self.object = form.save(commit=False)
         self.object.casier = self.request.user.get_profile().membru
         self.object.uploader = self.request.user
         self.object.data_inregistrare = datetime.date.today()
         self.object.titlu = u"Chitanță cotizație pentru %s" % self.target
         self.object.save()
+
+
 
         #   ataseaza platitorul ca asociere /
         AsociereDocument.inregistreaza(document=self.object,
@@ -223,6 +226,7 @@ class DeclaratieCotizatieSocialaAdauga(CreateView):
         if self.object.data_inregistrare is None:
             self.object.data_inregistrare = datetime.date.today()
 
+        self.target.clear_cache("cotizatie_sociala")
         self.object.save()
 
         responsabil = self.target.centru_local.ocupant_functie(u"Secretar Centru Local")
@@ -259,7 +263,7 @@ class DeclaratieCotizatieSocialaModifica(UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=True)
-
+        self.target.clear_cache("cotizatie_sociala")
         messages.success(self.request, u"Declarație salvată")
         return HttpResponseRedirect(self.get_success_url())
 
