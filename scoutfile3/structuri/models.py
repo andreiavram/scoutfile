@@ -789,7 +789,7 @@ class Membru(Utilizator):
         diferenta_trimestre -= trimestre_scutite
 
         return_value = diferenta_trimestre, trimestru_curent, ultimul_trimestru
-        self.save_to_cache("status_cotizatie", return_value, 60 * 60 * 2)
+        self.save_to_cache("status_cotizatie", return_value, 60 * 60 * 6)
         return return_value
 
     def status_cotizatie(self, for_diff=None):

@@ -513,7 +513,6 @@ class CentruLocalMembri(CentruLocalTabMembri):
                     unitate = membru.get_unitate()
                     if unitate and unitate.ramura_de_varsta.slug == self.rdv:
                         membri_final.append(membru)
-
                 qs = qs.filter(membru__in=membri_final)
             elif self.rdv in ("lideri", ):
                 membri_final = []
@@ -943,7 +942,20 @@ class MembruUpdate(UpdateView):
         return reverse("structuri:membru_detail", kwargs={"pk": self.object.id})
 
 
-class MembruEditProfilePicture(FileUploadMixin, UpdateView):
+class ProfilePictureUpdateView(FileUploadMixin, UpdateView):
+    def save_profile_photo(self, save=True):
+        profile_photo_kwargs = dict(form_field_name="poza_profil", object_field_name="poza_profil", image_class=ImagineProfil, folder_path="profil")
+        profile_photo_kwargs['save'] = save
+        self.save_photo(**profile_photo_kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=True)
+        self.save_profile_photo(save=True)
+        messages.success(self.request, u"Poza de profil a fost modificată cu success")
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class MembruEditProfilePicture(ProfilePictureUpdateView):
     form_class = UtilizatorProfilePictureForm
     template_name = "structuri/membru_edit_profile_picture.html"
     model = Membru
@@ -951,38 +963,6 @@ class MembruEditProfilePicture(FileUploadMixin, UpdateView):
     @allow_by_afiliere([("Membru, Unitate", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruEditProfilePicture, self).dispatch(request, *args, **kwargs)
-
-    def save_profile_photo(self, save=True):
-        profile_photo_kwargs = dict(form_field_name="poza_profil", object_field_name="poza_profil", image_class=ImagineProfil, folder_path="profil")
-        profile_photo_kwargs['save'] = save
-        self.save_photo(**profile_photo_kwargs)
-
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-
-        # try:
-        #     #    upload the file
-        #     uploaded_file = self.request.FILES['poza_profil']
-        #     with open('%sprofil/%d-%s' % (MEDIA_ROOT, self.object.id, uploaded_file.name), 'wb+') as destination:
-        #         for chunk in uploaded_file.chunks():
-        #             destination.write(chunk)
-        # except Exception, e:
-        #     logger.error(
-        #         u"%s: nu am putut să uploades poza. %s : %s" % (self.__class__.__name__, e, traceback.format_exc()))
-        #     messages.error(self.request, u"Nu am putut încărca poza (%s)" % e)
-        #     return HttpResponseRedirect(reverse("structuri:membru_edit_profile_picture"))
-        #
-        # #        if self.object.poza_profil != None:
-        # #            self.object.poza_profil.delete()
-        #
-        # poza_profil = ImagineProfil(image="profil/%d-%s" % (self.object.id, uploaded_file.name))
-        # poza_profil.save()
-        # self.object.poza_profil = poza_profil
-        self.object.save()
-        self.save_profile_photo(save=True)
-
-        messages.success(self.request, u"Poza de profil a fost modificată cu success")
-        return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         return reverse("structuri:membru_detail", kwargs={"pk": self.object.id})
@@ -1455,7 +1435,7 @@ class UtilizatorEditProfile(UpdateView):
         return reverse("structuri:membru_profil")
 
 
-class UtilizatorEditProfilePicture(UpdateView):
+class UtilizatorEditProfilePicture(ProfilePictureUpdateView):
     form_class = UtilizatorProfilePictureForm
     template_name = "structuri/utilizator_edit_profile_picture.html"
     model = Membru
@@ -1463,32 +1443,6 @@ class UtilizatorEditProfilePicture(UpdateView):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super(UtilizatorEditProfilePicture, self).dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-
-        try:
-            #    upload the file
-            uploaded_file = self.request.FILES['poza_profil']
-            with open('%sprofil/%d-%s' % (MEDIA_ROOT, self.object.id, uploaded_file.name), 'wb+') as destination:
-                for chunk in uploaded_file.chunks():
-                    destination.write(chunk)
-        except Exception, e:
-            logger.error(
-                u"%s: nu am putut să uploades poza. %s : %s" % (self.__class__.__name__, e, traceback.format_exc()))
-            messages.error(self.request, u"Nu am putut încărca poza (%s)" % e)
-            return HttpResponseRedirect(reverse("structuri:membru_edit_profile_picture"))
-
-        #        if self.object.poza_profil != None:
-        #            self.object.poza_profil.delete()
-
-        poza_profil = ImagineProfil(image="profil/%d-%s" % (self.object.id, uploaded_file.name))
-        poza_profil.save()
-        self.object.poza_profil = poza_profil
-        self.object.save()
-
-        messages.success(self.request, u"Poza de profil a fost modificată cu success")
-        return HttpResponseRedirect(self.get_success_url())
 
     def get_object(self, queryset=None):
         return self.request.user.get_profile().membru
