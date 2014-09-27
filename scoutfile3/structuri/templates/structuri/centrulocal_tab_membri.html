@@ -17,7 +17,9 @@
 	<tbody>
 		{% for object in object_list %}
 		<tr id = "row_{{ object.id }}">
-			<td>{{ forloop.counter }}</td>
+			<td>{% if object.membru.scout_id %}
+            <a href = "https://www.oncr.ro/{{ object.membru.scout_id }}"><img src = "{% static "images/oncr3.jpg" %}" style="width: 14px; height: 14px"> {{ object.membru.scout_id }}</a><br />
+            {% endif %}<img src = "{% static "images/bufnita.png" %}" style="width: 14px; height: 14px"> #{{ object.membru.id }}</td>
             <td>
                 {% with object.membru.status_cotizatie_numeric as status %}
                 {% if status <= 0 %}
