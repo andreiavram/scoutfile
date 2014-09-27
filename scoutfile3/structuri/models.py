@@ -307,6 +307,7 @@ class Membru(Utilizator):
     sex = models.CharField(max_length=1, choices=(("m", u"Masculin"), ("f", "Feminin")), null=True, blank=True)
 
     familie = models.ManyToManyField("self", through=AsociereMembruFamilie, symmetrical=False, null=True, blank=True)
+    scout_id = models.CharField(max_length=255, null=True, blank=True, verbose_name="ID ONCR")
 
     #TODO: find some smarter way to do this
     poza_profil = models.ForeignKey(ImagineProfil, null=True, blank=True)
