@@ -18,7 +18,7 @@
 		{% for object in object_list %}
 		<tr id = "row_{{ object.id }}">
 			<td>{% if object.membru.scout_id %}
-            <a href = "https://www.oncr.ro/{{ object.membru.scout_id }}"><img src = "{% static "images/oncr3.jpg" %}" style="width: 14px; height: 14px"> {{ object.membru.scout_id }}</a><br />
+            <a href = "https://www.oncr.ro/{{ object.membru.scout_id }}"><img src = "{% static "images/oncr3.jpg" %}" style="width: 14px; height: 14px"> {{ object.membru.scout_id }}</a> {% if object.membru.oncr_status %} {% if object.membru.oncr_status.0 %}<i class = "icon-ok"></i>{% else %}<i class = "icon-remove"></i>{% endif %}{% else %}<i class = 'icon-question'></i>{% endif %}<br />
             {% endif %}<img src = "{% static "images/bufnita.png" %}" style="width: 14px; height: 14px"> #{{ object.membru.id }}</td>
             <td>
                 {% with object.membru.status_cotizatie_numeric as status %}
