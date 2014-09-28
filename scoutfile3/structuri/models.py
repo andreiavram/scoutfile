@@ -929,6 +929,17 @@ class Membru(Utilizator):
 
         return True
 
+    @property
+    def oncr_status(self):
+        if self.scout_id is None:
+            return None
+
+        oncr_data = self.get_from_cache("oncr_feegood"), self.get_from_cache("oncr_lastpaidquarter")
+        print oncr_data
+        if not all(oncr_data):
+            return None
+
+        return oncr_data
 
 class TipAsociereMembruStructura(models.Model):
     """

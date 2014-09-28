@@ -59,10 +59,10 @@ class Command(BaseCommand):
         # r3 = s.get("https://www.oncr.ro/%s.json", scout_id)
 
         for membru in membri_oncr:
-            r3 = s.get("https://www.oncr.ro/%s.json", membru.scout_id)
+            r3 = s.get("https://www.oncr.ro/%s.json" % membru.scout_id)
             if r3.status_code != 200:
                 return
 
             jdict = r3.json()
-            membru.save("oncr_feegood", jdict["feeGood"], 24 * 60 * 60)
-            membru.save("oncr_lastpaidquarter", jdict["lastPaidQuarter"], 24 * 60 * 60)
+            membru.save_to_cache("oncr_feegood", jdict["feeGood"], 24 * 60 * 60)
+            membru.save_to_cache("oncr_lastpaidquarter", jdict["lastPaidQuarter"], 24 * 60 * 60)
