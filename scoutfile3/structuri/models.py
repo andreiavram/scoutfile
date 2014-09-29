@@ -615,7 +615,7 @@ class Membru(Utilizator):
         to_clear = mapping.get(index, None)
         if to_clear is not None:
             for idx in to_clear:
-                redis_cache.delete("m:%d:%s" % self.id, idx)
+                redis_cache.delete("m:%d:%s" % (self.id, idx))
 
     def get_from_cache(self, index):
         val = redis_cache.get("m:%d:%s" % (self.id, index))
