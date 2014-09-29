@@ -6,6 +6,7 @@ from scoutfile3.structuri.models import Membru, InformatieContact, TipInformatie
 import logging
 import datetime
 from django.core.management.base import BaseCommand
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    available_commands = ["update_adrese"]
+    available_commands = ["update_adrese", "oncr_sync"]
 
     def handle(self, *args, **options):
         if args[0] not in self.available_commands:
@@ -36,3 +37,32 @@ class Command(BaseCommand):
             total += 1
 
         self.stdout.write("total updates %d" % total)
+
+    def oncr_sync(self, *args, **options):
+        membri_oncr = Membru.objects.filter(scout_id__isnull=False)
+
+        import requests
+        import re
+
+        s = requests.session()
+        r1 = s.get("https://www.oncr.ro/login")
+        login_data = {"_username": settings.ONCR_USER, "_password": settings.ONCR_PASSWORD}
+        regex = 'name="_csrf_token" value="([a-f0-9]*)"'
+        csrf = re.findall(regex, r1.text)
+
+        if len(csrf) == 0:
+            self.stdout.write("ERROR connecting to ONCR.ro")
+
+        login_data['_csrf_token'] = csrf[0]
+
+        r2 = s.post("https://www.oncr.ro/login_check", login_data)
+        # r3 = s.get("https://www.oncr.ro/%s.json", scout_id)
+
+        for membru in membri_oncr:
+            r3 = s.get("https://www.oncr.ro/%s.json" % membru.scout_id)
+            if r3.status_code != 200:
+                return
+
+            jdict = r3.json()
+            membru.save_to_cache("oncr_feegood", jdict["feeGood"], 24 * 60 * 60)
+            membru.save_to_cache("oncr_lastpaidquarter", jdict["lastPaidQuarter"], 24 * 60 * 60)

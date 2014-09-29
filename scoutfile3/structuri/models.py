@@ -307,6 +307,7 @@ class Membru(Utilizator):
     sex = models.CharField(max_length=1, choices=(("m", u"Masculin"), ("f", "Feminin")), null=True, blank=True)
 
     familie = models.ManyToManyField("self", through=AsociereMembruFamilie, symmetrical=False, null=True, blank=True)
+    scout_id = models.CharField(max_length=255, null=True, blank=True, verbose_name="ID ONCR")
 
     #TODO: find some smarter way to do this
     poza_profil = models.ForeignKey(ImagineProfil, null=True, blank=True)
@@ -928,6 +929,17 @@ class Membru(Utilizator):
 
         return True
 
+    @property
+    def oncr_status(self):
+        if self.scout_id is None:
+            return None
+
+        oncr_data = self.get_from_cache("oncr_feegood"), self.get_from_cache("oncr_lastpaidquarter")
+        print oncr_data
+        if not all(oncr_data):
+            return None
+
+        return oncr_data
 
 class TipAsociereMembruStructura(models.Model):
     """
