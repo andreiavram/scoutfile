@@ -913,6 +913,7 @@ class PatrulaMembruAsociaza(CreateView):
         data['target_object'] = self.patrula
         return data
 
+
 class MembruUpdate(UpdateView):
     model = Membru
     form_class = MembruUpdateForm
