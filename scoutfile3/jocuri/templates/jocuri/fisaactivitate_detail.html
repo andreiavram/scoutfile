@@ -3,6 +3,7 @@
 {% load django_markdown %}
 {% load jocuri_utils %}
 {% load static %}
+{% load qr_tags %}
 
 {% block page_title %}
 	{{ object }} <span style = "font-weight: normal">| Joc / Activitate</span>
@@ -161,6 +162,8 @@
                 {% endfor %}
                 </ul>
             {% endif %}
+            <h3>Referință</h3>
+            {% qr_from_object object %}
         </div>
     </div>
 

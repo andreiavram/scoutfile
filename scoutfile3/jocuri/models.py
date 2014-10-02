@@ -1,4 +1,6 @@
 # coding: utf-8
+from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
 from django.db import models
 from taggit.managers import TaggableManager
 from documente.models import Document, TipDocument
@@ -37,3 +39,6 @@ class FisaActivitate(Document):
     def save(self, **kwargs):
         self.tip_document = TipDocument.obtine("fisa_activitate")
         return super(FisaActivitate, self).save(**kwargs)
+
+    def get_absolute_url(self):
+        return reverse("jocuri:activitate_detail", kwargs={"pk": self.id})

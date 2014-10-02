@@ -156,3 +156,11 @@ class FacebookUserConnectView(FacebookConnectView):
 
     def get_error_url(self):
         return reverse("index")
+
+
+class QRFactory(View):
+    def get(self, request, *args, **kwargs):
+        model = kwargs.pop("category")
+        data = kwargs.pop("id")
+
+
