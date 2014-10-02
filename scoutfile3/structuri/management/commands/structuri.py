@@ -14,11 +14,12 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    available_commands = ["update_adrese", "oncr_sync"]
+    available_commands = ["update_adrese", "oncr_sync", "oncr_sync_ids"]
 
     def handle(self, *args, **options):
         if args[0] not in self.available_commands:
             self.stderr.write(u"Command must be one of %s" % ",".join(self.available_commands))
+            return
 
         getattr(self, args[0])(*args[1:], **options)
 
@@ -37,6 +38,32 @@ class Command(BaseCommand):
             total += 1
 
         self.stdout.write("total updates %d" % total)
+
+    def oncr_sync_ids(self, *args, **options):
+        import os
+        file_name = os.path.join(settings.FILE_ROOT, "importdata", "oncr_ids.csv")
+        with open(file_name) as f:
+            lines = f.readlines()
+
+        nf = 0
+        for line in lines:
+            line = line.split(",")
+            # self.stdout.write(line[1] + "\n")
+            nume = line[1].split()[0]
+            prenume = " ".join(line[1].split()[1:])
+
+            membru = Membru.objects.filter(nume__iexact=nume, prenume__icontains=prenume)
+            if membru.count():
+                membru = membru[0]
+                membru.scout_id = line[0]
+                self.stdout.write("SCOUTID: %s\n" % membru.scout_id)
+                membru.save()
+            else:
+                self.stdout.write("NOT FOUNd: nume %s, prenume %s\n" % (nume, prenume))
+                nf += 1
+
+        self.stdout.write("%d not found\n" % nf)
+        return
 
     def oncr_sync(self, *args, **options):
         membri_oncr = Membru.objects.filter(scout_id__isnull=False)
