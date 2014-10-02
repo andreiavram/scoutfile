@@ -22,6 +22,18 @@
 
 
 {% block content %}
+    <div class = "alert alert-info">
+        <div class = "row-fluid">
+            <div class = "span1" style="text-align: center"><i style = "font-size: 42pt;" class = "icon-bullhorn"></i></div>
+            <div class = "span11">
+        Am început lucrul la colecția asta în dorința de a avea și o colecție scrisă, bine documentată și în care se pot găsi cu ușurință jocurile de care ai nevoie.
+
+                Interfața este gândită în primul rând pornind de la nevoile liderului de patrulă / unitate (plin sau în pregătire) care își pregătește activitățile pentru o acțiune concretă - în care știe în principiu câți cercetași are și cât să dureze jocurile.
+
+                Ne-am gândit în mod special la liderii în pregătire, mai ales pentru cei care n-au apucat jocurile astea ca cercetași, dar poate fi în mod egal utilă tuturor celorlalți. - <em>yeti</em>
+        </div></div>
+
+    </div>
 {% if categorie or tag or filtered %}
     <div class = "alert alert-info"><i class = "icon-search"></i> {% if filtered %}
         Avem <strong>{{ object_list.count }}</strong> activități care să corespundă criteriilor de căutare (care sunt afișate mai jos).

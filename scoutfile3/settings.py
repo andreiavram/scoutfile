@@ -171,7 +171,7 @@ INSTALLED_APPS = (
     'djangobower', 'longerusername', 'storages',
     'django_markdown',
 
-    'django_ace',
+    'django_ace', 'qrcode',
 )
 
 
