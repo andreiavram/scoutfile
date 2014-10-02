@@ -30,6 +30,7 @@ django-markdown==0.6.1
 django-pagedown==0.1.0
 django-pagination==1.0.7
 -e git+https://github.com/petry/django-photologue.git@c00fea5c83d733023787093b023bb2301eaf98e4#egg=django_photologue-master
+django-qrcode==0.3
 django-recaptcha==0.0.6
 django-redis==3.7.1
 django-storages==1.1.8
