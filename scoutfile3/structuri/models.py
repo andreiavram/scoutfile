@@ -941,6 +941,7 @@ class Membru(Utilizator):
 
         return oncr_data
 
+
 class TipAsociereMembruStructura(models.Model):
     """
     Tipuri asociere membru la structura. Spre exemplu, un cercetas intr-un centru local este membru,
