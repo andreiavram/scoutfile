@@ -66,7 +66,7 @@ class Command(BaseCommand):
         return
 
     def oncr_sync(self, *args, **options):
-        membri_oncr = Membru.objects.filter(scout_id__isnull=False)
+        membri_oncr = Membru.objects.filter(scout_id__isnull=False).exclude(scout_id="")
 
         import requests
         import re
