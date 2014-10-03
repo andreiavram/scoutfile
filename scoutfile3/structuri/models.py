@@ -935,8 +935,8 @@ class Membru(Utilizator):
             return None
 
         oncr_data = self.get_from_cache("oncr_feegood"), self.get_from_cache("oncr_lastpaidquarter")
-        print oncr_data
-        if not all(oncr_data):
+
+        if oncr_data[0] is None and oncr_data[1] is None:
             return None
 
         return oncr_data
