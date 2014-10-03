@@ -86,7 +86,6 @@ class Command(BaseCommand):
         # r3 = s.get("https://www.oncr.ro/%s.json", scout_id)
 
         for membru in membri_oncr:
-            print membru
             r3 = s.get("https://www.oncr.ro/%s.json" % membru.scout_id)
             if r3.status_code != 200:
                 self.stdout.write("Error getting %s (%s): %s" % (membru, membru.scout_id, r3.status_code))
