@@ -8,7 +8,7 @@ from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     RaportStatus, RaportActivitate, RaportCompletPentruExport, AsociereEvenimentStructuraCreate, EvenimentParticipanti, \
     EvenimentParticipantiCreate, EvenimentParticipantiUpdate, UnitateEvenimentCreate, PatrulaEvenimentCreate, \
     EvenimentCampuriArbitrare, EvenimentCampuriArbitrareCreate, EvenimentCampuriArbitrareUpdate, PozaUpdateTags, \
-    FlagImageAjax
+    FlagImageAjax, EvenimentUpdateCampuriAditionale
 from album.views import ChangeImagineVisibility
 
 
@@ -49,6 +49,7 @@ urlpatterns = patterns('album.views',
                        (r'eveniment/(?P<slug>\w+)/raport/edit/$', RaportEvenimentUpdate.as_view(), {}, "eveniment_raport_update"),
                        (r'eveniment/(?P<slug>\w+)/raport/history/$', RaportEvenimentHistory.as_view(), {}, "eveniment_raport_history"),
                        (r'eveniment/(?P<slug>\w+)/raport/final/$', RaportActivitate.as_view(), {}, "eveniment_raport_complet"),
+                       (r'eveniment/(?P<slug>\w+)/updatecampuri/$', EvenimentUpdateCampuriAditionale.as_view(), {}, "eveniment_camp_update"),
 
                        (r'set/(?P<pk>\d+)/$', SetPozeUpdate.as_view(), {}, "set_poze_edit"),
                        (r'set/(?P<pk>\d+)/delete/$', SetImaginiDeleteAjax.as_view(), {}, "set_poze_delete_ajax"),

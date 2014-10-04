@@ -60,6 +60,9 @@ class TipEveniment(models.Model):
 
 
 class Eveniment(models.Model):
+    CAMPURI_PERMISE = [("telefon", u"Telefon"), ("adresa", u"Adresa poștală"), ("scoutid", u"Scout ID"),
+                       ("email", u"Email"), ("status", u"Status"), ("cotizatie", u"Cotizație"), ("buletin", u"Buletin")]
+
     centru_local = models.ForeignKey("structuri.CentruLocal")
     nume = models.CharField(max_length=1024 , verbose_name=u"Titlu")
     descriere = models.TextField(null=True, blank=True)
@@ -90,6 +93,7 @@ class Eveniment(models.Model):
     organizator_cercetas = models.BooleanField(default=True, help_text=u"Dacă organizatorul este un centru local sau ONCR, bifează aici")
 
     proiect = models.ForeignKey("proiecte.Project", null=True, blank=True)
+    campuri_aditionale = models.CharField(max_length=1024, null=True, blank=True)
 
     class Meta:
         verbose_name = u"Eveniment"
@@ -98,6 +102,10 @@ class Eveniment(models.Model):
 
     def __unicode__(self):
         return u"%s" % self.nume
+
+    def get_campuri_aditionale(self):
+        vals = self.campuri_aditionale.strip(";").split(";")
+        return [v for v in self.CAMPURI_PERMISE if v[0] in vals]
 
     @property
     def get_ramuri_de_varsta(self):
@@ -384,8 +392,22 @@ class ParticipareEveniment(models.Model):
 
     @property
     def is_partiala(self):
-        return self.data_sosire > self.eveniment.start_date or self.data_plecare < self.eveniment.end_date
+        print self.data_sosire
+        print self.data_plecare
+        print self.eveniment.start_date
+        print self.eveniment.end_date
+        return (self.data_sosire > self.eveniment.start_date + datetime.timedelta(seconds=3600 * 4)) or (self.data_plecare < self.eveniment.end_date - datetime.timedelta(seconds=3600 * 4))
 
+    def process_camp_aditional(self, camp):
+        resolution = {"telefon": lambda o: o.membru.mobil,
+                      "adresa": lambda o: o.membru.adresa_postala,
+                      "scoutid": lambda o: o.membru.scout_id,
+                      "email": lambda o: o.membru.email,
+                      "status": lambda o: o.membru.status_cotizatie(),
+                      "cotizatie": lambda o: o.membru.calculeaza_necesar_cotizatie(),
+                      "buletin": lambda o: o.membru.get_contact(u"Buletin")}
+
+        return resolution.get(camp)(self)
 
 
 TIPURI_CAMP_PARTICIPARE = (("text", u"Text"), ("number", u"Număr"), ("bool", u"Bifă"), ("date", u"Dată"))
