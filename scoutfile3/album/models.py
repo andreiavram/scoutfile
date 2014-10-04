@@ -421,6 +421,7 @@ class CampArbitrarParticipareEveniment(models.Model):
     implicit = models.CharField(max_length=255, null=True, blank=True)
     optional = models.BooleanField(default=True)
     explicatii_suplimentare = models.CharField(max_length=255, null=True, blank=True, help_text=u"Instrucțiuni despre cum să fie completat acest câmp, format, ...")
+    afiseaza_sumar = models.BooleanField(default=False, verbose_name=u"Afișează sumar", help_text=u"Afișează totale la sfârșitul tabelului")
 
     tipuri_camp = {"text": forms.CharField,
                    "number": forms.FloatField,
@@ -436,11 +437,7 @@ class CampArbitrarParticipareEveniment(models.Model):
 
         try:
             instanta = self.instante.get(participare=participare)
-            if self.tip_camp == "date":
-                return datetime.datetime.strptime(instanta.valoare_text, "%d.%m.%Y").date()
-            if self.tip_camp == "bool":
-                return instanta.valoare_text == "True"
-            return instanta.valoare_text
+            return instanta.get_value()
         except InstantaCampArbitrarParticipareEveniment.DoesNotExist, e:
             return None
 
@@ -490,6 +487,13 @@ class InstantaCampArbitrarParticipareEveniment(models.Model):
 
     def process_date(self):
         return datetime.datetime.strptime(self.valoare_text, "%d.%M.%Y")
+
+    def get_value(self):
+        if self.camp.tip_camp == "date":
+            return datetime.datetime.strptime(self.valoare_text, "%d.%m.%Y").date()
+        if self.camp.tip_camp == "bool":
+            return self.valoare_text == "True"
+        return self.valoare_text
 
     
 @receiver(post_init, sender=InstantaCampArbitrarParticipareEveniment)

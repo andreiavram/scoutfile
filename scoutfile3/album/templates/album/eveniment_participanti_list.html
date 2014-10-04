@@ -76,6 +76,22 @@
                 {% endfor %}
             </tr>
         {% endfor %}
+        <tr class = "success">
+            <td><strong>Total</strong></td>
+            <td style="text-align: right"><strong>{{ object_list|length }}</strong></td>
+            {% for col in eveniment.get_campuri_aditionale %}
+                <td>&nbsp;</td>
+            {% endfor %}
+            <td>{% participare_breakdown "rol" %}</td>
+            <td>{% participare_breakdown "status_participare" %}</td>
+            <td>{% participare_breakdown "is_partial" %}</td>
+            <td>&nbsp;</td>
+            {% for camp in eveniment.camparbitrarparticipareeveniment_set.all %}
+                <td>{% participare_breakdown "camp" camp %}</td>
+            {% endfor %}
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
         </tbody>
 
 
