@@ -488,7 +488,7 @@ class Membru(Utilizator):
     @permalink
     def get_home_link(self):
         if self.is_lider():
-            unitate = self.get_unitate(rol=["Lider", "Lider asistent"])
+            unitate = self.get_unitate(rol=(u"Lider", u"Lider asistent"))
             if unitate:
                 return ("structuri:unitate_detail", [], {"pk": unitate.id})
             return ("structuri:cl_detail", [], {"pk": self.centru_local.id})

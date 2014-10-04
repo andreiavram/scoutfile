@@ -27,14 +27,15 @@ def participare_breakdown(context, tip, target=None):
         data = [getattr(a, "get_%s_display" % tip)() for a in eveniment.participareeveniment_set.all()]
 
     if tip in ("is_partial", ):
-        data = [a.is_partiala for a in eveniment.participareeveniment_set.all()]
+        data = len([a.is_partiala for a in eveniment.participareeveniment_set.all() if a.is_partiala is True])
+        is_countable = False
 
     if tip == "camp":
         if target is None or not target.afiseaza_sumar:
             return {}
 
         data = [float(a.get_value()) for a in target.instante.all()]
-        if target.tip_camp == "number":
+        if target.tip_camp in ("number", "bool"):
             data = sum(data)
             is_countable = False
 
