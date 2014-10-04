@@ -104,6 +104,9 @@ class Eveniment(models.Model):
         return u"%s" % self.nume
 
     def get_campuri_aditionale(self):
+        if self.campuri_aditionale is None:
+            return []
+
         vals = self.campuri_aditionale.strip(";").split(";")
         return [v for v in self.CAMPURI_PERMISE if v[0] in vals]
 
