@@ -1454,6 +1454,7 @@ class EvenimentCampuriArbitrare(ListView):
     def get_context_data(self, **kwargs):
         data = super(EvenimentCampuriArbitrare, self).get_context_data(**kwargs)
         data['eveniment'] = self.eveniment
+        data['coloane_permise'] = Eveniment.CAMPURI_PERMISE
         return data
 
 
@@ -1561,3 +1562,22 @@ class EvenimentCampuriArbitrareUpdate(EvenimentSlugMixin, UpdateView):
         data = super(EvenimentCampuriArbitrareUpdate, self).get_form_kwargs()
         data['eveniment'] = self.object.eveniment
         return data
+
+
+class EvenimentUpdateCampuriAditionale(View):
+
+
+    @allow_by_afiliere([("Eveniment, Centru Local", "Lider"), ("Eveniment, Centru Local", "Lider asistent")])
+    def dispatch(self, request, *args, **kwargs):
+        self.object = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+        return super(EvenimentUpdateCampuriAditionale, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        data = request.POST.get("campuri", "").strip(";").split(";")
+        data = [d for d in data if d in [c[0] for c in self.object.CAMPURI_PERMISE]]
+        data = ";".join(data)
+        if self.object.campuri_aditionale != data:
+            self.object.campuri_aditionale = data
+            self.object.save()
+
+        return HttpResponse(status=200)

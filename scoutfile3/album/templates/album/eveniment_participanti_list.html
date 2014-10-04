@@ -24,6 +24,9 @@
         <tr>
             <th>&nbsp;</th>
             <th>Cercetaș</th>
+            {% for col in eveniment.get_campuri_aditionale %}
+                <th>{{ col.1 }}</th>
+            {% endfor %}
             <th>Rol</th>
             <th>Status</th>
             <th>Parțial</th>
@@ -43,6 +46,11 @@
                             {% for badge in cercetas.get_extra_badges %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
                             <a href = "{% url structuri:membru_detail pk=cercetas.id %}">{{ cercetas }}</a></td>
                 {% endwith %}
+                {% for col in eveniment.get_campuri_aditionale %}
+                    <td>
+                        {% camp_special participare col.0 %}
+                    </td>
+                {% endfor %}
                 <td>{{ participare.get_rol_display }}</td>
                 <td>{{ participare.get_status_participare_display }}</td>
                 <td>{% if participare.is_partiala %}<i class = "icon-ok"></i>{% endif %}</td>

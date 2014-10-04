@@ -342,25 +342,24 @@ class Membru(Utilizator):
 
     @property
     def adresa_postala(self):
-        try:
-            return InformatieContact.objects.filter(content_type=ContentType.objects.get_for_model(self),
-                                                    object_id=self.id,
-                                                    tip_informatie__nume__iexact=u"Adresă corespondență",
-                                                    tip_informatie__relevanta="Membru")[0].valoare
-        except Exception, e:
-            return self.adresa
+        adresa = self.get_contact(u"Adresa")
+        return adresa if adresa is not None else self.adresa
 
     @property
     def mobil(self):
-        mobil_filters = dict(content_type=ContentType.objects.get_for_model(self),
-                             object_id=self.id,
-                             tip_informatie__nume__iexact=u"Mobil",
-                             tip_informatie__relevanta="Membru")
+        mobil = self.get_contact(u"Mobil")
+        return mobil if mobil is not None else self.telefon
 
-        try:
-            return InformatieContact.objects.filter(**mobil_filters)[0].valoare
-        except Exception, e:
-            return self.telefon
+    def get_contact(self, key, just_value=True):
+        key_filters = dict(content_type=ContentType.objects.get_for_model(self), object_id=self.id,
+                           tip_informatie__nume__iexact=key, tip_informatie__relevanta="Membru")
+
+        data = InformatieContact.objects.filter(**key_filters)
+        if data.count() == 0:
+            return None
+        if just_value:
+            return data[0].valoare
+        return data
 
     @property
     def centru_local(self):
@@ -509,7 +508,7 @@ class Membru(Utilizator):
         return qs
 
     def get_ramura_de_varsta(self):
-        if self.is_lider():
+        if self.is_lider_generic():
             return "Lider"
 
         unitate = self.get_unitate()
