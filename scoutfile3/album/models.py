@@ -370,7 +370,8 @@ class RaportEveniment(models.Model):
         self.is_locked = False
         self.save(*args, **kwargs)
 
-ROL_PARTICIPARE = (("participant", u"Participant"), ("coordonator", u"Coordonator"), ("staff", u"Membru staff"))
+ROL_PARTICIPARE = (("participant", u"Participant"), ("insotitor", u"Lider însoțitor"), ("invitat", u"Invitat"),
+                   ("coordonator", u"Coordonator"), ("staff", u"Membru staff"))
 
 
 STATUS_PARTICIPARE = ((1, u"Cu semnul întrebării"), (2, u"Confirmat"), (3, u"Avans plătit"), (4, u"Participare efectivă"),
