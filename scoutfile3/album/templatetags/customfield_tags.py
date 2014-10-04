@@ -37,6 +37,8 @@ def participare_breakdown(context, tip, target=None):
         data = [float(a.get_value()) for a in target.instante.all()]
         if target.tip_camp in ("number", "bool"):
             data = sum(data)
+            if target.tip_camp == 'bool':
+                data = int(data)
             is_countable = False
 
     if not is_countable:
