@@ -70,7 +70,15 @@
                     {% endif %}
                   </td>
               </tr>
-
+            {% if membru.scout_id %}
+            <tr>
+                <td>ONCR ID</td>
+                <td>
+                    <a href = "https://www.oncr.ro/{{ membru.scout_id }}"><img src = "{% static "images/oncr3.jpg" %}" style="width: 16px; height: 16px"> {{ membru.scout_id }}</a>
+                    {% if membru.oncr_status %} {% if membru.oncr_status.0 %}<i class = "icon-ok"></i>{% else %}<i class = "icon-remove"></i>{% endif %}  - <strong>{{ membru.oncr_status.1 }}</strong>{% else %}<i class = 'icon-question'></i>{% endif %}
+                </td>
+            </tr>
+            {% endif %}
 
         </tbody>
         </table>
