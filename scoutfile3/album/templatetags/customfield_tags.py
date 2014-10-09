@@ -34,8 +34,9 @@ def participare_breakdown(context, tip, target=None):
         if target is None or not target.afiseaza_sumar:
             return {}
 
-        data = [float(a.get_value()) for a in target.instante.all()]
+        data = [a.get_value() for a in target.instante.all()]
         if target.tip_camp in ("number", "bool"):
+            data = [float(a) for a in data]
             data = sum(data)
             if target.tip_camp == 'bool':
                 data = int(data)
