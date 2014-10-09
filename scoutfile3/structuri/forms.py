@@ -99,7 +99,7 @@ class LiderCreateForm(UnitateLiderCreateForm):
 class MembruUpdateForm(CrispyBaseModelForm):
     class Meta:
         model = Membru
-        fields = ["nume", "prenume", "cnp", "email", "scout_id"]
+        fields = ["nume", "prenume", "cnp", "email", "scout_id", "scor_credit"]
 
     email = forms.EmailField(label=u"Email", help_text=u"Schimbarea email-ului aici implicâ schimbarea utilizatorului!")
         
