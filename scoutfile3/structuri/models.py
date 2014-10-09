@@ -308,6 +308,7 @@ class Membru(Utilizator):
 
     familie = models.ManyToManyField("self", through=AsociereMembruFamilie, symmetrical=False, null=True, blank=True)
     scout_id = models.CharField(max_length=255, null=True, blank=True, verbose_name="ID ONCR")
+    scor_credit = models.IntegerField(default=2, choices=((0, u"Rău"), (1, u"Neutru"), (2, u"Bun")), verbose_name=u"Credit", help_text=u"Această valoare reprezintă încrederea Centrului Local într-un membru de a-și respecta angajamentele financiare (dacă Centrul are sau nu încredere să pună bani pentru el / ea)")
 
     #TODO: find some smarter way to do this
     poza_profil = models.ForeignKey(ImagineProfil, null=True, blank=True)

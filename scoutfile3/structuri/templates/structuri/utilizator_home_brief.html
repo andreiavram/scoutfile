@@ -79,7 +79,18 @@
                 </td>
             </tr>
             {% endif %}
-
+            <tr>
+                <td>Nivel încredere (credit) <a title = "Nivelul de încredere este folosit pentru a determina dacă Centrul Local va 'pune bani de la el' temporar pentru a
+                                plăti diferite lucruri (taxă de participare, cazare, transport) pentru tine, dacă nu ai reușit să plătești încă.
+                                Toată lumea pleacă de la 'bun' și poate scădea doar dacă se retrage dintr-o acțiune pentru care Centrul a consumat deja bani pe care nu îi mai poate recupera."><i class = "icon-question-sign"></i></a>
+                </td>
+                <td><span class = "label
+                    {% if object.scor_credit == 0 %}label-important
+                    {% elif object.scor_credit == 1 %}label-warning
+                    {% elif object.scor_credit == 2 %}label-success
+                    {% endif %}">{{ object.get_scor_credit_display }}</span>
+                </td>
+            </tr>
         </tbody>
         </table>
 	</div>
