@@ -379,6 +379,20 @@ STATUS_PARTICIPARE = ((1, u"Cu semnul întrebării"), (2, u"Confirmat"), (3, u"A
                       (5, u"Participare anulată"))
 
 
+class ParticipantEveniment(models.Model):
+    nume = models.CharField(max_length=255)
+    prenume = models.CharField(max_length=255)
+    email = models.EmailField(null=True, blank=True)
+    telefon = models.CharField(max_length=255, blank=True, null=True)
+    adresa_postala = models.CharField(max_length=255)
+
+    def get_full_name(self):
+        return "%s %s" % (self.prenume, self.nume.upper())
+
+    def __unicode__(self):
+        return self.get_full_name()
+    
+
 class ParticipareEveniment(models.Model):
     membru = models.ForeignKey("structuri.Membru")
     eveniment = models.ForeignKey(Eveniment)

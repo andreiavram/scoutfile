@@ -1346,15 +1346,26 @@ class EvenimentParticipanti(ListView):
 
     @allow_by_afiliere([("Eveniment, Centru Local", "Lider")], pkname="slug")
     def dispatch(self, request, *args, **kwargs):
+        self.cancelled = False
+        if "cancelled" in request.GET:
+            self.cancelled = True
+
         self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
         return super(EvenimentParticipanti, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.model.objects.filter(eveniment=self.eveniment)
+        qs = self.model.objects.filter(eveniment=self.eveniment)
+        if self.cancelled:
+            qs = qs.filter(status_participare=5)
+        else:
+            qs = qs.exclude(status_participare=5)
+
+        return qs
 
     def get_context_data(self, **kwargs):
         data = super(EvenimentParticipanti, self).get_context_data(**kwargs)
         data['eveniment'] = self.eveniment
+        data['cancelled'] = self.cancelled
         return data
 
 class EvenimentParticipantiCreate(CreateView):
