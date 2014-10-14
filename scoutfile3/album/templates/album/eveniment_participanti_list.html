@@ -85,7 +85,7 @@
                 {% endfor %}
             </tr>
         {% endfor %}
-        {% if object_list|length %}
+        {% if object_list|length and not cancelled %}
         <tr class = "success">
             <td><strong>Total</strong></td>
             <td style="text-align: right"><strong>{{ object_list|length }}</strong></td>

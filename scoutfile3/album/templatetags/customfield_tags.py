@@ -22,19 +22,22 @@ def camp_special(context, participare, camp):
 def participare_breakdown(context, tip, target=None):
     data = []
     is_countable = True
+
     eveniment = context.get("eveniment")
+    participari = eveniment.participareeveniment_set.exclude(status_participare=5)
+
     if tip in ("rol", "status_participare"):
-        data = [getattr(a, "get_%s_display" % tip)() for a in eveniment.participareeveniment_set.all()]
+        data = [getattr(a, "get_%s_display" % tip)() for a in participari]
 
     if tip in ("is_partial", ):
-        data = len([a.is_partiala for a in eveniment.participareeveniment_set.all() if a.is_partiala is True])
+        data = len([a.is_partiala for a in participari if a.is_partiala is True])
         is_countable = False
 
     if tip == "camp":
         if target is None or not target.afiseaza_sumar:
             return {}
 
-        data = [a.get_value() for a in target.instante.all()]
+        data = [a.get_value() for a in target.instante.all() if a.participare.status_participare < 5]
         if target.tip_camp in ("number", "bool"):
             data = [float(a) if a else 0 for a in data]
             data = sum(data)
