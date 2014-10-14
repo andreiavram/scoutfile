@@ -411,10 +411,6 @@ class ParticipareEveniment(models.Model):
 
     @property
     def is_partiala(self):
-        print self.data_sosire
-        print self.data_plecare
-        print self.eveniment.start_date
-        print self.eveniment.end_date
         return (self.data_sosire > self.eveniment.start_date + datetime.timedelta(seconds=3600 * 4)) or (self.data_plecare < self.eveniment.end_date - datetime.timedelta(seconds=3600 * 4))
 
     def process_camp_aditional(self, camp):
