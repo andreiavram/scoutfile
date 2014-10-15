@@ -6,7 +6,10 @@
     {{ eveniment }} <span style="font-weight: normal">| participanți {% if cancelled %}<small>care să fi renunțat</small>{% endif %}</span>
     <div class = "btn-toolbar pull-right">
     <div class = "btn-group">
-        <a class = "btn btn-primary" href = "{% url album:eveniment_participanti_adauga slug=eveniment.slug %}"><i class = "icon-plus"></i> Adaugă participant</a>
+        <a class = "btn disabled" href = "#"><i class = "icon-plus"></i> Adaugă </a>
+        <a class = "btn btn-primary" href = "{% url album:eveniment_participanti_adauga slug=eveniment.slug %}"> participant</a>
+        <a class = "btn btn-primary" href = "{% url album:eveniment_participanti_nonmembru_adauga slug=eveniment.slug %}"> nonmembru</a>
+
     </div>
     <div class = "btn-group">
         {% if cancelled %}
@@ -50,11 +53,17 @@
         {% for participare in object_list %}
             <tr>
                 <td>#{{ participare.id }}</td>
+                {% if participare.membru %}
                 {% with participare.membru as cercetas %}
                 <td>{% for badge in cercetas.get_badges_rdv %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
                             {% for badge in cercetas.get_extra_badges %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
                             <a href = "{% url structuri:membru_detail pk=cercetas.id %}">{{ cercetas }}</a></td>
                 {% endwith %}
+                {% else %}
+                    <td>
+                        {{ participare.nonmembru.get_full_name }}
+                    </td>
+                {% endif %}
                 {% for col in eveniment.get_campuri_aditionale %}
                     <td>
                         {% camp_special participare col.0 %}
@@ -69,7 +78,7 @@
                 {% endfor %}
                 <td>
                     <div class = "btn-group pull-right">
-                        <a href = "{% url album:eveniment_participanti_modifica pk=participare.id %}" class = "btn btn-mini"><i class = "icon-pencil"></i></a>
+                        <a href = "{% if participare.membru %}{% url album:eveniment_participanti_modifica pk=participare.id %}{% else %}{% url album:eveniment_participanti_nonmembru_modifica pk=participare.id %}{% endif %}" class = "btn btn-mini"><i class = "icon-pencil"></i></a>
                         <a href = "#" id="delete_{{ participare.id }}" class = "btn btn-mini"><i class = "icon-trash"></i></a>
                     </div>
                 </td>

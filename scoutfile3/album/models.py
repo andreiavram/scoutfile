@@ -394,7 +394,10 @@ class ParticipantEveniment(models.Model):
     
 
 class ParticipareEveniment(models.Model):
-    membru = models.ForeignKey("structuri.Membru")
+    #TODO: a better way to implement this relationship needs to exist
+    membru = models.ForeignKey("structuri.Membru", null=True, blank=True)
+    nonmembru = models.ForeignKey("album.ParticipantEveniment", null=True, blank=True)
+
     eveniment = models.ForeignKey(Eveniment)
     data_sosire = models.DateTimeField(null=True, blank=True)
     data_plecare = models.DateTimeField(null=True, blank=True)
@@ -414,7 +417,12 @@ class ParticipareEveniment(models.Model):
         return (self.data_sosire > self.eveniment.start_date + datetime.timedelta(seconds=3600 * 4)) or (self.data_plecare < self.eveniment.end_date - datetime.timedelta(seconds=3600 * 4))
 
     def process_camp_aditional(self, camp):
-        resolution = {"telefon": lambda o: o.membru.mobil,
+        if self.nonmembru_id:
+            resolution = {"telefon": lambda o: o.nonmembru.telefon,
+                          "adresa": lambda o: o.nonmembru.adresa_postala,
+                          "email": lambda o: o.nonmembru.email}
+        elif self.membru_id:
+            resolution = {"telefon": lambda o: o.membru.mobil,
                       "adresa": lambda o: o.membru.adresa_postala,
                       "scoutid": lambda o: o.membru.scout_id,
                       "email": lambda o: o.membru.email,
@@ -422,8 +430,16 @@ class ParticipareEveniment(models.Model):
                       "cotizatie": lambda o: o.membru.calculeaza_necesar_cotizatie(),
                       "buletin": lambda o: o.membru.get_contact(u"Buletin"),
                       "credit": lambda o: o.membru.get_scor_credit_display()}
+        else:
+            return "-"
 
-        return resolution.get(camp)(self)
+        val = resolution.get(camp, lambda o: "-")(self)
+        return val if val else "-"
+
+    def delete(self, **kwargs):
+        if self.nonmembru:
+            self.nonmembru.delete()
+        super(ParticipareEveniment, self).delete(**kwargs)
 
 
 TIPURI_CAMP_PARTICIPARE = (("text", u"Text"), ("number", u"Număr"), ("bool", u"Bifă"), ("date", u"Dată"))

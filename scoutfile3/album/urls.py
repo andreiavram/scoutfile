@@ -8,7 +8,8 @@ from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     RaportStatus, RaportActivitate, RaportCompletPentruExport, AsociereEvenimentStructuraCreate, EvenimentParticipanti, \
     EvenimentParticipantiCreate, EvenimentParticipantiUpdate, UnitateEvenimentCreate, PatrulaEvenimentCreate, \
     EvenimentCampuriArbitrare, EvenimentCampuriArbitrareCreate, EvenimentCampuriArbitrareUpdate, PozaUpdateTags, \
-    FlagImageAjax, EvenimentUpdateCampuriAditionale
+    FlagImageAjax, EvenimentUpdateCampuriAditionale, EvenimentParticipantNonMembruCreate, \
+    EvenimentParticipantNonMembruUpdate
 from album.views import ChangeImagineVisibility
 
 
@@ -40,6 +41,8 @@ urlpatterns = patterns('album.views',
                        (r'eveniment/(?P<slug>\w+)/participanti/list/$', EvenimentParticipanti.as_view(), {}, "eveniment_participanti_list"),
                        (r'eveniment/(?P<slug>\w+)/participanti/adauga/$', EvenimentParticipantiCreate.as_view(), {}, "eveniment_participanti_adauga"),
                        (r'eveniment/participanti/(?P<pk>\d+)/modifica/$', EvenimentParticipantiUpdate.as_view(), {}, "eveniment_participanti_modifica"),
+                       (r'eveniment/(?P<slug>\w+)/participanti/adauga/nonmembru/$', EvenimentParticipantNonMembruCreate.as_view(), {}, "eveniment_participanti_nonmembru_adauga"),
+                       (r'eveniment/participanti/(?P<pk>\d+)/modifica/nonmembru/$', EvenimentParticipantNonMembruUpdate.as_view(), {}, "eveniment_participanti_nonmembru_modifica"),
 
                        (r'eveniment/(?P<slug>\w+)/campuri/$', EvenimentCampuriArbitrare.as_view(), {}, "eveniment_campuri_list"),
                        (r'eveniment/(?P<slug>\w+)/campuri/adauga/$', EvenimentCampuriArbitrareCreate.as_view(), {}, "eveniment_campuri_create"),

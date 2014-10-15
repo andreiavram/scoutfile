@@ -116,19 +116,19 @@ class RaportEvenimentForm(CrispyBaseModelForm):
                   "promovare", "buget", "accept_publicare_raport_national"]
 
 
-class EvenimentParticipareForm(CrispyBaseModelForm):
+class EvenimentParticipareBaseForm(CrispyBaseModelForm):
     class Meta:
         model = ParticipareEveniment
-        exclude = ["eveniment", "user_modificare"]
+        exclude = ["eveniment", "user_modificare", "membru", "nonmembru"]
 
-    membru = AutoCompleteSelectField("membri", label=u"Cercetaș")
+
     data_sosire = forms.DateTimeField(widget=BootstrapDateTimeInput, label=u"Sosire")
     data_plecare = forms.DateTimeField(widget=BootstrapDateTimeInput, label=u"Plecare")
 
     def __init__(self, **kwargs):
         self.eveniment = kwargs.pop("eveniment")
         self.request = kwargs.pop("request")
-        super(EvenimentParticipareForm, self).__init__(**kwargs)
+        super(EvenimentParticipareBaseForm, self).__init__(**kwargs)
 
         campuri = self.eveniment.camparbitrarparticipareeveniment_set.all()
 
@@ -150,7 +150,35 @@ class EvenimentParticipareForm(CrispyBaseModelForm):
         return field_args
 
 
-class EvenimentParticipareUpdateForm(EvenimentParticipareForm):
+class EvenimentParticipareForm(EvenimentParticipareBaseForm):
+    class Meta:
+        model = ParticipareEveniment
+        exclude = ["eveniment", "user_modificare", "nonmembru"]
+
+    membru = AutoCompleteSelectField("membri", label=u"Cercetaș")
+
+    def __init__(self, **kwargs):
+        super(EvenimentParticipareForm, self).__init__(**kwargs)
+
+    def clean_membru(self):
+        membru = self.cleaned_data.get("membru")
+        if self.eveniment.participareeveniment_set.filter(membru=membru).count() > 0:
+            raise ValidationError(u"Membrul există deja în lista de participanți (eventual verificați membrii care au anulat participarea?)")
+        return membru
+
+
+class EvenimentParticipareNonMembruForm(EvenimentParticipareBaseForm):
+    nume = forms.CharField(required=True, label=u"Nume")
+    prenume = forms.CharField(required=True, label=u"Prenume")
+    email = forms.EmailField(required=False, label=u"Email")
+    telefon = forms.CharField(required=False, label=u"Telefon")
+    adresa_postala = forms.CharField(required=False, label=u"Adresă poștală", widget=Textarea)
+
+    def __init__(self, **kwargs):
+        super(EvenimentParticipareNonMembruForm, self).__init__(**kwargs)
+
+
+class EvenimentParticipareUpdateMixin(object):
     def get_field_args(self, camp):
         field_args = dict(required=not camp.optional,
                           label=camp.nume,
@@ -166,6 +194,15 @@ class EvenimentParticipareUpdateForm(EvenimentParticipareForm):
             field_args['initial'] = camp.implicit
 
         return field_args
+
+
+class EvenimentParticipareUpdateForm(EvenimentParticipareUpdateMixin, EvenimentParticipareForm):
+    def clean_membru(self):
+        return self.cleaned_data.get("membru", None)
+
+
+class EvenimentParticipareNonmembruUpdateForm(EvenimentParticipareUpdateMixin, EvenimentParticipareNonMembruForm):
+    pass
 
 
 class CampArbitrarForm(CrispyBaseModelForm):
