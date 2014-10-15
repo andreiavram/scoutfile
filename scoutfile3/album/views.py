@@ -26,10 +26,10 @@ from django.core.files.base import File
 
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment, \
     ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT, SetPoze, IMAGINE_PUBLISHED_STATUS, \
-    CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment, FLAG_MOTIVES
+    CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment, FLAG_MOTIVES, ParticipantEveniment
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm, \
     EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm, CampArbitrarForm, EvenimentParticipareUpdateForm, \
-    ReportFormNoButtons
+    ReportFormNoButtons, EvenimentParticipareNonMembruForm, EvenimentParticipareNonmembruUpdateForm
 from settings import MEDIA_ROOT
 from structuri.forms import AsociereEvenimentStructuraForm
 from structuri.models import Membru, RamuraDeVarsta, CentruLocal, Unitate, Patrula, TipAsociereMembruStructura
@@ -1368,6 +1368,7 @@ class EvenimentParticipanti(ListView):
         data['cancelled'] = self.cancelled
         return data
 
+
 class EvenimentParticipantiCreate(CreateView):
     model = ParticipareEveniment
     template_name = "album/eveniment_participanti_form.html"
@@ -1390,10 +1391,13 @@ class EvenimentParticipantiCreate(CreateView):
         data['request'] = self.request
         return data
 
-    def form_valid(self, form):
+    def _process_object_from_form(self, form):
         self.object = form.save(commit=False)
         self.object.eveniment = self.eveniment
         self.object.user_modificare = self.request.user.get_profile().membru
+
+    def form_valid(self, form):
+        self._process_object_from_form(form)
         self.object.save()
 
         for camp in self.eveniment.camparbitrarparticipareeveniment_set.all():
@@ -1408,6 +1412,16 @@ class EvenimentParticipantiCreate(CreateView):
         data = super(EvenimentParticipantiCreate, self).get_context_data(**kwargs)
         data['eveniment'] = self.eveniment
         return data
+
+
+class EvenimentParticipantNonMembruCreate(EvenimentParticipantiCreate):
+    form_class = EvenimentParticipareNonMembruForm
+
+    def _process_object_from_form(self, form):
+        super(EvenimentParticipantNonMembruCreate, self)._process_object_from_form(form)
+        pe_kwargs = {n: form.cleaned_data.get(n, None) for n in ["nume", "prenume", "email", "telefon", "adresa_postala"]}
+        pe, created = ParticipantEveniment.objects.get_or_create(**pe_kwargs)
+        self.object.nonmembru = pe
 
 
 class EvenimentParticipantiUpdate(UpdateView):
@@ -1437,9 +1451,12 @@ class EvenimentParticipantiUpdate(UpdateView):
 
         return data
 
-    def form_valid(self, form):
+    def _process_object_from_form(self, form):
         self.object = form.save(commit=False)
         self.object.user_modificare = self.request.user.get_profile().membru
+
+    def form_valid(self, form):
+        self._process_object_from_form(form)
         self.object.save()
 
         for camp in self.object.eveniment.camparbitrarparticipareeveniment_set.all():
@@ -1449,6 +1466,22 @@ class EvenimentParticipantiUpdate(UpdateView):
 
     def get_success_url(self):
         return reverse("album:eveniment_participanti_list", kwargs={"slug": self.object.eveniment.slug})
+
+
+class EvenimentParticipantNonMembruUpdate(EvenimentParticipantiUpdate):
+    form_class = EvenimentParticipareNonmembruUpdateForm
+
+    def get_initial(self):
+        data = super(EvenimentParticipantNonMembruUpdate, self).get_initial()
+        nonmembru = {n: getattr(self.object.nonmembru, n, None) for n in ["nume", "prenume", "email", "telefon", "adresa_postala"]}
+        data.update(nonmembru)
+        return data
+
+    def _process_object_from_form(self, form):
+        super(EvenimentParticipantNonMembruUpdate, self)._process_object_from_form(form)
+        for key in ["nume", "prenume", "email", "telefon", "adresa_postala"]:
+            setattr(self.object.nonmembru, key, form.cleaned_data.get(key, None))
+        self.object.nonmembru.save()
 
 
 class EvenimentCampuriArbitrare(ListView):
