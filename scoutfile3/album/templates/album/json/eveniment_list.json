@@ -12,7 +12,8 @@
             "nume": "{{ event.nume }}",
             "urls": {
                 "detail": "{% url album:eveniment_detail slug=event.slug %}",
-                "stats": "{% url album:eveniment_stats pk=event.id %}"
+                "stats": "{% url album:eveniment_stats pk=event.id %}",
+                "participanti": "{% url album:eveniment_participanti_list slug=event.slug %}"
             },
             "descriere" : "{{ event.descriere|newlines }}",
             "descriere_truncated": "{{ event.descriere|newlines|truncatewords:50 }}",
