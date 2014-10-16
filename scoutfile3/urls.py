@@ -27,6 +27,7 @@ urlpatterns = patterns('',
                        (r'^utils/', include('utils.urls', namespace='utils')),
                        (r'^cantece/', include('cantece.urls', namespace='cantece')),
                        (r'^jocuri/', include('jocuri.urls', namespace='jocuri')),
+                       (r'^badge/', include('badge.urls', namespace='badge')),
 
                        (r'issues/$', Issues.as_view(), {}, "issues"),
                        (r'issues/create/$', CreateIssue.as_view(), {}, "create_issue"),

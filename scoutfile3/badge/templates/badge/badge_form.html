@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block extrahead %}
+    {{ form.media }}
+{% endblock %}
+
+{% block page_title %}
+    {% if object %}{{ object.nume }} <span style = "font-weight: normal">| editează</span>{% else %}Adaugă badge nou{% endif %}
+{% endblock %}
+
+{% block content %}
+    {% crispy form form.helper %}
+{% endblock %}
+
+{% block context_menu %}
+    {% include 'badge/badge_top_menu.html' %}
+{% endblock %}
