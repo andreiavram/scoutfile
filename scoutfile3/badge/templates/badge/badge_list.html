@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}
+    Arhiva de badge-uri
+{% endblock %}
+
+{% block context_menu %}
+    {% include 'badge/badge_top_menu.html' %}
+{% endblock %}
+
+{% block extrahead %}
+    <script type="text/javascript" src="{% url goodies:js_delete app_label='badge' model='Badge' %}"></script>
+{% endblock %}
+
+
+{% block content %}
+    <div class = "row-fluid">
+        {% for badge in object_list %}
+            <div class = "span4">
+                <div class = "thumbnail">
+                    {% if badge.poza_badge %}
+                        <img src = "{{ badge.poza_badge.get_thumbnail_url }}" />
+                    {% else %}
+                        <img src = "{% static "badge/img/badge_default.jpg" %}">
+                    {% endif %}
+                    <h1>{{ badge.nume }}, {{ badge.data_productie|date:"Y" }} <small>{{ badge.get_tip_display }}</small></h1>
+                    {% if badge.descriere %}{{ badge.descriere|linebreaks }}{% endif %}
+                    <strong>Tiraj: </strong> {% if not badge.tiraj_exact %}aproximativ{% endif %} {{ badge.tiraj }}
+                    <strong>Credit: </strong> {% if badge.designer_membru %}
+                                {% with participare.membru as cercetas %}
+                                {% for mbadge in cercetas.get_badges_rdv %} <img src = "{{ STATIC_URL }}images/icon-{{ mbadge }}.png" />{% endfor %}
+                                            {% for mbadge in cercetas.get_extra_badges %} <img src = "{{ STATIC_URL }}images/icon-{{ mbadge }}.png" />{% endfor %}
+                                            <a href = "{% url structuri:membru_detail pk=cercetas.id %}">{{ cercetas }}</a>
+                                {% endwith %}{% else %}{{ badge.designer }}{% endif %}{% if badge.producator %} / {{ badge.producator }}{% endif %}
+                </div>
+            </div>
+            {% if forloop.counter|divisibleby:3 %}
+                </div><div class = "row-fluid">
+            {% endif %}
+        {% empty %}
+            <div class = "alert alert-info">Nu există badge-uri.</div>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -187,24 +187,24 @@ div.document-list {
 
 }
 
-form.jocuri-form {
+form.scoutfile-form {
 
 }
 
-form.jocuri-form p.help-block {
+form.scoutfile-form p.help-block {
     font-style: italic;
     color: #999;
 }
 
-form.jocuri-form label.control-label {
+form.scoutfile-form label.control-label {
     font-weight: bold;
 }
 
-form.jocuri-form .markItUp {
+form.scoutfile-form .markItUp {
     width: 100%;
 }
 
-form.jocuri-form .markItUpEditor {
+form.scoutfile-form .markItUpEditor {
     width: 100%;
     font-size: 14px;
     font-family: monospace;
