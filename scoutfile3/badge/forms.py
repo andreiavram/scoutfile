@@ -1,7 +1,7 @@
 #coding: utf-8
 from ajax_select.fields import AutoCompleteSelectField
-from crispy_forms.layout import Layout, Field, Div
-from django.forms.widgets import Textarea
+from crispy_forms.layout import Layout, Field, Div, Fieldset, HTML
+from django.forms.widgets import Textarea, TextInput
 from goodies.forms import CrispyBaseModelForm
 from badge.models import Badge
 from django import forms
@@ -15,22 +15,19 @@ class BadgeForm(CrispyBaseModelForm):
         model = Badge
         exclude = ("owner", "status", "poza_badge")
 
+    nume = forms.CharField(required=True, label=u"Nume", widget=TextInput(attrs={"style": "width: 100%; font-size: 24px; line-height: 28px; padding: 10px 5px"}))
+    descriere = forms.CharField(required=False, label=u"Descriere", widget=Textarea(attrs={"style": "width: 100%; height: 80px"}))
     designer_membru = AutoCompleteSelectField("membri", label=u"Designer cercetaș", help_text=u"Dacă designerul este un membru, căutați-l aici", required=False)
-    data_productie = forms.DateField(label=u"Data producție", widget=BootstrapDateInput)
-    descriere = forms.CharField(required=False, widget=Textarea, label=u"Descriere")
+    data_productie = forms.DateField(label=u"Data producție", help_text=u"Anul e important, dacă nu se știe data exactă", widget=BootstrapDateInput)
+    poza = forms.FileField(label=u"Poză", required=False)
 
-    def __init__(self, **kwargs):
-        super(BadgeForm, self).__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super(BadgeForm, self).__init__(*args, **kwargs)
 
         self.helper.form_class = "scoutfile-form"
-        self.helper.layout = Layout(Field("nume", css_class="input-xlarge"), Field("descriere"))
-
-
-            # (Field("titlu", css_class="input-xlarge"), Field("descriere"), Field("descriere_joc"),
-            #                         Field("obiective_educative"), Field("materiale_necesare"),
-            #                         Div(
-            #                             Div(Field("min_durata_string"), Field("max_durata_string"), Field("sursa"), css_class="span4"),
-            #                             Div(Field("categorie"), Field("min_participanti"), Field("max_participanti"), Field("is_draft"),  css_class="span4"),
-            #                             Div( Field("ramuri_de_varsta"), Field("tags"), css_class="span4"),
-            #                             css_class="row-fluid"),
-            #                         )
+        self.helper.layout = Layout(Field("nume", css_class="input-xlarge"), Field("descriere"),
+                                    Div(
+                                        Fieldset(u"Tiraj & tip", Field("tip"), Field("tiraj"), Field("tiraj_exact"), Field("data_productie"), Field("disponibil_in"), css_class="span4"),
+                                        Fieldset(u"Credite", Field("producator"), Field("designer"), Field("designer_membru"), css_class="span4"),
+                                        Fieldset(u"Altele", Field("poza"), HTML("<img src = '%s' class = 'thumbnail'>" % self.instance.poza_badge.get_thumbnail_url() if self.instance.poza_badge else ""), css_class="span4"),
+                                        css_class="row-fluid"), )

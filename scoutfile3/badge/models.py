@@ -23,6 +23,8 @@ class Badge(models.Model):
     data_productie = models.DateField()
     status = models.CharField(max_length=255, default="produs")
 
+    disponibil_in = models.TextField(null=True, blank=True, verbose_name=u"Unde se poate găsi", help_text=u"Unde poate fi găsit badge-ul, câte o locație pe linie")
+
     poza_badge = models.ForeignKey("album.Imagine", null=True, blank=True)
     owner = models.ForeignKey("structuri.Membru", related_name="badgeuri")
     timestamp = models.DateTimeField(auto_now=True)
