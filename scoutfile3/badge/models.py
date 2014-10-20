@@ -9,6 +9,9 @@ STATUS_BADGE = (("produs", u"Produs"), ("propus", u"Propus"))
 
 
 class Badge(models.Model):
+    class Meta:
+        ordering = ["-data_productie"]
+
     nume = models.CharField(max_length=255)
     descriere = models.CharField(max_length=2048, null=True, blank=True)
     tip = models.CharField(max_length=255, choices=TIPURI_BADGE)
