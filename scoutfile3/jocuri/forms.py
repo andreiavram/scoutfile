@@ -59,7 +59,7 @@ class FisaActivitateForm(CrispyBaseModelForm):
 
     def __init__(self, **kwargs):
         super(FisaActivitateForm, self).__init__(**kwargs)
-        self.helper.form_class = "jocuri-form"
+        self.helper.form_class = "scoutfile-form"
         self.helper.layout = Layout(Field("titlu", css_class="input-xlarge"), Field("descriere"), Field("descriere_joc"),
                                     Field("obiective_educative"), Field("materiale_necesare"),
                                     Div(
