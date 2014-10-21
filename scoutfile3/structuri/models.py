@@ -343,7 +343,7 @@ class Membru(Utilizator):
 
     @property
     def adresa_postala(self):
-        adresa = self.get_contact(u"Adresa")
+        adresa = self.get_contact(u"Adresa corespondență")
         return adresa if adresa is not None else self.adresa
 
     @property
