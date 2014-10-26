@@ -18,6 +18,14 @@
     {% include 'badge/badge_top_menu.html' %}
 {% endblock %}
 
+{% block meta %}
+    <meta property="og:title" content="{{ object.nume }}" />
+    <meta property="og:type" content="object" />
+    <meta property="og:image" content="{{ url_root }}{% if object.poza_badge %}{{ object.poza_badge.get_large_url }}{% else %}{% static "badge/img/badge_default.jpg" %}{% endif %}">
+    <meta property="og:url" content="{{ url_root }}{% url badge:badge_detail pk=object.id %}" />
+    <meta property="og:description" content="{{ object.descriere }}" />
+{% endblock %}
+
 {% block content %}
     <div class = "row-fluid">
         <div class = 'span3'>

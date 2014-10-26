@@ -1056,6 +1056,8 @@ class InformatieContact(models.Model):
     data_start = models.DateTimeField(null=True, blank=True)
     data_end = models.DateTimeField(null=True, blank=True)
 
+    implicita = models.BooleanField(default=True)
+
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
