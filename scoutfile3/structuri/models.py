@@ -1090,6 +1090,7 @@ class InformatieContact(models.Model):
                     return adresa.cod
 
                 adresa.determine_cod()
+
                 if adresa.are_cod():
                     return adresa.cod
         except Exception, e:
