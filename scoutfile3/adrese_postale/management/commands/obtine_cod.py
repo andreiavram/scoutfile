@@ -19,10 +19,14 @@ class Command(BaseCommand):
         #     return
 
         cod = CodPostal.get_cod_pentru_adresa(u"Str. Cornișei, bl. GA9, Slatina, jud. Olt")
-        adrs = ["Str. Principala, nr. 25, sat teleac, com. ciugud, jud. alba",
-                "B-dul. Transilvaniei, nr. 25, bl. 3CD, sc. 1, ap. 22, Alba Iulia, jud. Alba",
-                "Str. Octavian Goga, nr. 12, Alba Iulia, jud. Alba",
-                "Str. Traian, Nr. 27C, Alba Iulia, jud. Alba"]
+        adrs = [#"Str. Principala, nr. 25, sat teleac, com. ciugud, jud. alba",
+                #"B-dul. Transilvaniei, nr. 25, bl. 3CD, sc. 1, ap. 22, Alba Iulia, jud. Alba",
+                #"Str. Octavian Goga, nr. 12, Alba Iulia, jud. Alba",
+                #"Str. Traian, Nr. 27C, Alba Iulia, jud. Alba",
+                #"Str. Alexandru Ioan Cuza, Nr. 6A, Alba Iulia, jud. Alba",
+                "Sat Drâmbar, Nr. 106, comuna Ciugud, jud. Alba",
+                "Str. Republicii, Nr. 22A, Ap. 5, Cluj-Napoca, jud. Cluj",
+                u"Calea Moţilor, Nr. 99, Bl. M2, Sc. C, Ap. 17, Alba Iulia"]
         for a in adrs:
             adr = AdresaPostala.parse_address(a)
             adr.set_cod(CodPostal.get_cod_pentru_adresa(adr).cod_postal)

@@ -10,7 +10,7 @@ class AdresaPostalaException(Exception):
 
 
 class AdresaPostala(object):
-    REGEX = r"(B-dul\.|Str\.|P-ța\.|Piața|Calea|Intr.|Comuna|Sat) ([\w \.]+?), (((?:Nr|Bl|Sc|Ap|Et)\.? ?[\w\d]+, )+) ?(?:(\d{6}), +)?([\w ]+)(:?, (:?Comuna|Com\.) ([\w ]+))?(:?, (Jud\.?[\w ]+))?"
+    REGEX = r"(B-dul\.|Str\.|P-ța\.|Piața|Calea|Intr.|Comuna|Sat) ([\w \. \-]+?), (((?:Nr|Bl|Sc|Ap|Et)\.? ?[\w\d]+, )+) ?(?:(\d{6}), +)?([\w \-]+)(:?, (:?Comuna|Com\.) ([\w \-]+))?(:?, (Jud\.?[\w \-]+))?"
     DATA_HEADINGS = {
         "tip_strada": u"Tip stradă",
         "nume_strada": u"Nume stradă",
@@ -52,12 +52,16 @@ class AdresaPostala(object):
             if kwargs.get("tip_strada").lower() == "comuna":
                 kwargs['comuna'] = kwargs['nume_strada']
             else:
-                kwargs['comuna'] = kwargs['localitate'].strip("Comuna").strip("Com.").strip("comuna").strip("com.")
+                kwargs['comuna'] = re.findall(r"(?:comuna|com\.) ([\w ]+)", kwargs['localitate'], re.UNICODE | re.IGNORECASE)[0]
             kwargs['localitate'] = kwargs['nume_strada']
         if kwargs.get("judet", "") != "":
-            kwargs['judet'] = kwargs.get("judet").strip("Jud.").strip("jud.").strip("Jud").strip("jud")
+            # kwargs['judet'] = kwargs.get("judet")
+            # print kwargs
+            kwargs['judet'] = re.findall(r"jud\.? ([\w ]+)", kwargs.get("judet"), re.IGNORECASE | re.UNICODE)[0]
 
-        self.available_data  = []
+            #    .strip("Jud.").strip("jud.").strip("Jud").strip("jud")
+
+        self.available_data = []
         for k, v in kwargs.items():
             if len(v.strip()) == 0:
                 continue
@@ -98,7 +102,9 @@ class AdresaPostala(object):
                 continue
             kwargs_detaliu[parts[0]] = parts[1]
 
-        judet = m[10] if len(m[10].strip()) != 0 else "Alba"
+        # print m[10]
+        # print m
+        judet = m[10] if len(m[10].strip()) != 0 else "jud. Alba"
         adresa_obj = cls(tip_strada=m[0], nume_strada=m[1], cod=m[4], localitate=m[5], comuna=m[8], judet=judet, **kwargs_detaliu)
 
         try:
