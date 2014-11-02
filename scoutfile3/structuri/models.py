@@ -13,6 +13,7 @@ from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 import unidecode
+from adrese_postale.adrese import AdresaPostala
 from album.models import Imagine
 from documente.models import PlataCotizatieTrimestru, AsociereDocument, Trimestru, ChitantaCotizatie
 from utils.models import FacebookSession
@@ -1075,6 +1076,11 @@ class InformatieContact(models.Model):
     def __unicode__(self):
         return "%s: %s" % (self.tip_informatie.nume, self.valoare)
 
+    def process_adresa(self):
+        try:
+            return AdresaPostala.parse_address(self.valoare), None
+        except Exception, e:
+            return None, e
 
 DOMENII_DEZVOLTARE = (("intelectual", "Intelectual"),
                       ("fizic", "Fizic"),
