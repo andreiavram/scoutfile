@@ -33,8 +33,11 @@ class Command(BaseCommand):
 
                 if adresa.are_cod():
                     info.valoare = adresa.__unicode__()
-                    self.stdout.write(u"info to save: %s\n" % info.valoare)
+                    # self.stdout.write(u"info to save: %s\n" % info.valoare)
                     new_codes += 1
                 else:
                     self.stdout.write("could not determine code\n")
+
+
+        self.stdout.write("%d new codes\n" % new_codes)
 
