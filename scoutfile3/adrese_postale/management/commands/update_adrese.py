@@ -28,7 +28,7 @@ class Command(BaseCommand):
             try:
                 adresa = AdresaPostala.parse_address(info.valoare, fail_silently=False)
             except Exception, e:
-                self.stdout.write(u"%s" % unicode(e).encode('utf-8', 'ignore') + u"\n")
+                # self.stdout.write(u"%s" % unicode(e).encode('utf-8', 'ignore') + u"\n")
                 continue
 
             if not adresa.are_cod():
@@ -40,7 +40,7 @@ class Command(BaseCommand):
 
                 if adresa.are_cod():
                     info.valoare = adresa.__unicode__()
-                    self.stdout.write(u"info to save: %s\n" % unicode(info.valoare).encode("utf-8"))
+                    # self.stdout.write(u"info to save: %s\n" % unicode(info.valoare).encode("utf-8"))
                     new_codes += 1
                 else:
                     self.stdout.write("could not determine code\n")
