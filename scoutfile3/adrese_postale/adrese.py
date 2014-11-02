@@ -99,7 +99,6 @@ class AdresaPostala(object):
             kwargs_detaliu[parts[0]] = parts[1]
 
         judet = m[10] if len(m[10].strip()) != 0 else "Alba"
-        print m
         adresa_obj = cls(tip_strada=m[0], nume_strada=m[1], cod=m[4], localitate=m[5], comuna=m[8], judet=judet, **kwargs_detaliu)
 
         try:
@@ -217,5 +216,4 @@ if __name__ == "__main__":
             print "Eroare validare la %s" % a
             cnt += 1
             adresa.print_details()
-
     print cnt
