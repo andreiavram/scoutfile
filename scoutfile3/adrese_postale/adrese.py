@@ -62,7 +62,7 @@ class AdresaPostala(object):
             if len(v.strip()) == 0:
                 continue
             setattr(self, k.lower(), v.strip())
-            self.available_data.append(k)
+            self.available_data.append(k.lower())
 
     @classmethod
     def parse_address(cls, str_address, fail_silently=True):
@@ -168,7 +168,7 @@ class AdresaPostala(object):
         if "judet" not in self.available_data:
             raise ValueError(u"Trebuie să existe județul")
         if "nr" not in self.available_data and "bl" not in self.available_data:
-            raise ValueError(u"Trebuie să existe măcar număr sau bloc")
+            raise ValueError(u"Trebuie să existe măcar număr sau bloc %s" % self.available_data)
 
     def print_details(self):
         for k in self.available_data:
