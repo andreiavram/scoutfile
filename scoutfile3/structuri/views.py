@@ -2026,7 +2026,7 @@ class MembruAdreseStatus(ListView):
         except Exception, e:
             return False
 
-        if adr.__unicode__() == value and adr.are_cod():
+        if adr is not None and adr.__unicode__() == value and adr.are_cod():
             return True
 
         return False
