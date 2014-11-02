@@ -2019,4 +2019,6 @@ class MembruAdreseStatus(ListView):
         return super(MembruAdreseStatus, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        return InformatieContact.objects.filter(tip_informatie__nume__iexact=u"Adresa corespondență")
+        qs = InformatieContact.objects.filter(tip_informatie__nume__iexact=u"Adresa corespondență")
+        qs = [a for a in qs if hasattr(a.content_object, "centru_local") and a.content_object.centru_local and a.content_object.centru_local.id == 1]
+        return qs
