@@ -1082,6 +1082,22 @@ class InformatieContact(models.Model):
         except Exception, e:
             return None, e
 
+    def get_cod_postal(self):
+        try:
+            adresa, err = self.process_adresa()
+            if adresa:
+                if adresa.are_cod():
+                    return adresa.cod
+
+                adresa.determine_cod()
+                if adresa.are_cod():
+                    return adresa.cod
+        except Exception, e:
+            return e
+
+        return None
+
+
 DOMENII_DEZVOLTARE = (("intelectual", "Intelectual"),
                       ("fizic", "Fizic"),
                       ("afectiv", "Afectiv"),
