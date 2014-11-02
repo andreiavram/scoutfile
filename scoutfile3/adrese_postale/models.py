@@ -21,6 +21,10 @@ class CodPostal(models.Model):
         r"^([a-zA-Z])*([a-zA-Z])$": 4
     }
 
+    @staticmethod
+    def cuvinte_nume_strada(nume_strada):
+        return [i for i in nume_strada.strip().split(" ") if i.title() == i]
+
     @classmethod
     def get_cod_pentru_adresa(cls, adresa):
         """
@@ -54,17 +58,23 @@ class CodPostal(models.Model):
 
         #   there is more than one code
         # codes = codes.filter(tip_strada=a.tip_strada_title)
-        words = [i for i in a.nume_strada.strip().split(" ") if i.title() == i]
+        words = cls.cuvinte_nume_strada(a.nume_strada)
 
         for s in words:
             codes = codes.filter(strada__icontains=s)
 
         #   cazul in care ai strada Traian, si strada Traian Vuia
 
-
-
         if codes.count() == 0:
-            raise ValueError(u"Could not identify any codes matching %s" % strada_words)
+            raise ValueError(u"Could not identify any codes matching %s" % words)
+
+        id_exclude = []
+        for code in codes:
+            nwords = len(cls.cuvinte_nume_strada(code.strada))
+            if nwords > len(words):
+                id_exclude.append(code.id)
+
+        codes = codes.exclude(id__in=id_exclude)
 
         if codes.count() == 1:
             return codes[0]
