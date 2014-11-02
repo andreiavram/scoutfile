@@ -20,8 +20,8 @@
 			<th>#</th>
 			<th>Valoare</th>
 			<th>Valoare procesata</th>
-            <th>Cod</th>
 			<th>Eroare</th>
+            <th>Cod</th>
 			<th>&nbsp;</th>
 		</tr>
 	</thead>
@@ -33,7 +33,7 @@
                 <td>{{ object.process_adresa.0 }}</td>
                 <td style="color: #F00">{% if object.process_adresa.1 %}{{ object.process_adresa.1 }}{% endif %}</td>
                 <td>{% if object.get_cod_postal %}{{ object.get_cod_postal }}{% endif %}</td>
-                <th>{{ object.content_object }}</th>
+                <th><a href = "{% url structuri:membru_detail pk=object.content_object.id %}">{{ object.content_object }}</a></th>
                 <td>&nbsp;</td>
 		    </tr>
 		{% empty %}
