@@ -195,10 +195,12 @@ class AdresaPostala(object):
             adresa += e + ". " + getattr(self, e.lower()) + ", "
 
         if self.tip_strada.lower() != "comuna" and self.is_adresa_sat():
-            adresa += u"%s" % self.localitate.title() + ", "
             if self.are_cod():
                 adresa += self.cod + ", "
+
+            adresa += u"%s" % self.localitate.title() + ", "
             adresa += u"Comuna %s" % self.comuna
+
         else:
             if self.are_cod():
                 adresa += self.cod + ", "
