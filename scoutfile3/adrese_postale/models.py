@@ -57,11 +57,6 @@ class CodPostal(models.Model):
         strada_filter = {"strada__icontains": str for str in a.nume_strada.strip().split(" ")}
         codes = codes.filter(**strada_filter)
 
-        #   here we should only have
-        # print "TOTAL %s codes found" % codes.count()
-        # for code in codes:
-        #     print code, code.strada, code.localitate, code.descriptor
-
         if codes.count() == 0:
             raise ValueError(u"Could not identify any codes matching %s" % strada_filter)
 
@@ -72,9 +67,6 @@ class CodPostal(models.Model):
             raise ValueError(u"More than one code returned, no descriptors on codes, unclear address")
 
         for code in codes:
-            print code.descriptor.lower()
-            print "here"
-
             if code.descriptor is None:
                 continue
 
@@ -89,19 +81,15 @@ class CodPostal(models.Model):
                     parts = [re.findall("\d+", p)[0] if p != "T" else "T" for p in parts]
                     if len(parts) == 2:
                         #   two cases: two numbers or one number and T
-                        print "TWO PARTS NR."
                         if int(parts[0]) % 2 == a.nr_numeric % 2:
                             #   if the parity is right
                             if parts[1] == "T":
                                 if a.nr_numeric >= int(parts[0]):
-                                    print "GREATER THAN END"
                                     return code
                             else:
                                 if int(parts[0]) <= int(a.nr_numeric) <= int(parts[1]):
-                                    print "IN BETWEEN %d %d" % (int(parts[0]), int(parts[1]))
                                     return code
                     elif len(parts) == 1 and a.nr_numeric == int(parts[0]):
-                        print "ONE PART NR WITH EXACT MATCH"
                         return code
                 elif code.descriptor.lower().startswith("bl.") and a.bl:
                     # toate variantele aici sunt cu nume individuale de blocuri
@@ -158,13 +146,12 @@ class CodPostal(models.Model):
 
     @classmethod
     def value_in_sequence(cls, sequence, value):
-        print "EVALUATING SEQUENCE TYPE %d" % sequence[0][0]
         if sequence[0][0] == 1:
             return int(sequence[0][1]) <= int(value) <= int(sequence[1][1])
         if sequence[0][0] == 2:
             return value.upper() in [(sequence[0][1][0] + str(v)).upper() for v in range(int(sequence[0][1][1]), int(sequence[1][1][1]) + 1)]
         if sequence[0][0] == 3:
-            prefix = sequence[0][1][0] + sequence[0][1][1]
+                prefix = sequence[0][1][0] + sequence[0][1][1]
             return value.upper() in cls.char_range(sequence[0][1][2], sequence[1][1][2], prefix=prefix)
         if sequence[0][0] == 4:
             return value.upper() in cls.char_range(sequence[0][1][1], sequence[1][1][1], prefix=sequence[0][1][0])
