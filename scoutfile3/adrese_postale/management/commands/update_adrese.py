@@ -28,7 +28,10 @@ class Command(BaseCommand):
                 continue
 
             if not adresa.are_cod():
-                adresa.determine_cod()
+                try:
+                    adresa.determine_cod()
+                except ValueError, e:
+                    continue
 
                 if adresa.are_cod():
                     info.valoare = adresa.__unicode__()
