@@ -24,9 +24,10 @@ class Command(BaseCommand):
                 #"Str. Octavian Goga, nr. 12, Alba Iulia, jud. Alba",
                 #"Str. Traian, Nr. 27C, Alba Iulia, jud. Alba",
                 #"Str. Alexandru Ioan Cuza, Nr. 6A, Alba Iulia, jud. Alba",
-                "Sat Drâmbar, Nr. 106, comuna Ciugud, jud. Alba",
-                "Str. Republicii, Nr. 22A, Ap. 5, Cluj-Napoca, jud. Cluj",
-                u"Calea Moţilor, Nr. 99, Bl. M2, Sc. C, Ap. 17, Alba Iulia"]
+                #"Sat Drâmbar, Nr. 106, comuna Ciugud, jud. Alba",
+                #"Str. Republicii, Nr. 22A, Ap. 5, Cluj-Napoca, jud. Cluj",
+                #u"Calea Moţilor, Nr. 99, Bl. M2, Sc. C, Ap. 17, Alba Iulia",
+                "Str. Deal, Nr. 84, Sat Limba, Comuna Ciugud, 517240, jud. Alba"]
         for a in adrs:
             adr = AdresaPostala.parse_address(a)
             adr.set_cod(CodPostal.get_cod_pentru_adresa(adr).cod_postal)
