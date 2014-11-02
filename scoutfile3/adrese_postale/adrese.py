@@ -167,6 +167,8 @@ class AdresaPostala(object):
             raise ValueError(u"Trebuie să existe localitatea")
         if "judet" not in self.available_data:
             raise ValueError(u"Trebuie să existe județul")
+        if "nr" not in self.available_data and "bl" not in self.available_data:
+            raise ValueError(u"Trebuie să existe măcar număr sau bloc")
 
     def print_details(self):
         for k in self.available_data:
@@ -177,7 +179,7 @@ class AdresaPostala(object):
     def __unicode__(self):
         if self.is_adresa_sat():
             pass
-        adresa = ""
+        adresa = u""
         elms = [self.tip_strada, self.nume_strada]
 
         adresa += self.tip_strada + " "

@@ -23,7 +23,7 @@ class Command(BaseCommand):
 
         for info in infos:
             try:
-                adresa = AdresaPostala.parse_address(info.value, fail_silently=False)
+                adresa = AdresaPostala.parse_address(info.valoare, fail_silently=False)
             except Exception, e:
                 self.stdout.write(str(e) + "\n")
                 continue
@@ -32,8 +32,8 @@ class Command(BaseCommand):
                 adresa.determine_cod()
 
                 if adresa.are_cod():
-                    info.value = adresa.__unicode__()
-                    self.stdout.write("info to save: %s\n" % info.value)
+                    info.valoare = adresa.__unicode__()
+                    self.stdout.write(u"info to save: %s\n" % info.valoare)
                     new_codes += 1
                 else:
                     self.stdout.write("could not determine code\n")
