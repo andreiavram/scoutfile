@@ -40,6 +40,7 @@ class Command(BaseCommand):
 
                 if adresa.are_cod():
                     info.valoare = adresa.__unicode__()
+                    info.save()
                     # self.stdout.write(u"info to save: %s\n" % unicode(info.valoare).encode("utf-8"))
                     new_codes += 1
                 else:
