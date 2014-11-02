@@ -2,11 +2,7 @@
 __author__ = 'yeti'
 
 
-
 import re
-
-with open("adrese.txt") as f:
-    adrese = f.readlines()
 
 
 class AdresaPostalaException(Exception):
@@ -14,7 +10,7 @@ class AdresaPostalaException(Exception):
 
 
 class AdresaPostala(object):
-    REGEX = r"(B-dul\.|Str\.|P-ța\.|Piața|Calea|Comuna|Sat){1} ([\w \.]+?), (((?:Nr|Bl|Sc|Ap|Et)\.? ?[\w\d]+, )+) ?(?:(\d{6}), +)?([\w ]+)(:?, (:?Comuna|Com\.) ([\w ]+))?(:?, (Jud\.?[\w ]+))?"
+    REGEX = r"(B-dul\.|Str\.|P-ța\.|Piața|Calea|Intr.|Comuna|Sat) ([\w \.]+?), (((?:Nr|Bl|Sc|Ap|Et)\.? ?[\w\d]+, )+) ?(?:(\d{6}), +)?([\w ]+)(:?, (:?Comuna|Com\.) ([\w ]+))?(:?, (Jud\.?[\w ]+))?"
     DATA_HEADINGS = {
         "tip_strada": u"Tip stradă",
         "nume_strada": u"Nume stradă",
@@ -45,7 +41,7 @@ class AdresaPostala(object):
 
     DATA_DEPENDENCY = {
         "Nr" : [],
-        "Bl": ["Ap", ],
+        "Bl": ["Ap"],
         "Sc": ["Nr|Bl", "Ap"],
         "Et": ["Nr|Bl", "Ap"],
         "Ap": [],
@@ -65,13 +61,22 @@ class AdresaPostala(object):
         for k, v in kwargs.items():
             if len(v.strip()) == 0:
                 continue
-            setattr(self, k, v.strip())
+            setattr(self, k.lower(), v.strip())
             self.available_data.append(k)
 
     @classmethod
-    def parse_address(cls, str):
-        matches = re.findall(cls.REGEX, unicode(str, "utf-8"), re.IGNORECASE | re.UNICODE)
+    def parse_address(cls, str_address, fail_silently=True):
+        if isinstance(str_address, str):
+            ustr = unicode(str_address, "utf-8")
+        elif isinstance(str_address, unicode):
+            ustr = str_address
+        else:
+            raise ValueError("Address needs to be string")
+
+        matches = re.findall(cls.REGEX, ustr, re.IGNORECASE | re.UNICODE)
         if len(matches) == 0:
+            if not fail_silently:
+                raise AdresaPostalaException(u"REGEX mismatch %s" % ustr)
             return None
 
         m = matches[0]
@@ -88,16 +93,53 @@ class AdresaPostala(object):
                 if len(parts) == 2:
                     break
             if len(parts) < 2:
-                print "ERROR"
-                print e
+                if not fail_silently:
+                    raise AdresaPostalaException(u"Element invalid, nu e de forma nume. valoare sau nume valoare")
                 continue
             kwargs_detaliu[parts[0]] = parts[1]
-        adresa = cls(tip_strada=m[0], nume_strada=m[1], cod=m[4], localitate=m[5], comuna=m[8], judet=m[10], **kwargs_detaliu)
-        adresa.validate_address()
-        return adresa
+
+        judet = m[10] if len(m[10].strip()) != 0 else "Alba"
+        print m
+        adresa_obj = cls(tip_strada=m[0], nume_strada=m[1], cod=m[4], localitate=m[5], comuna=m[8], judet=judet, **kwargs_detaliu)
+
+        try:
+            adresa_obj.validate_address()
+        except AdresaPostalaException, e:
+            if not fail_silently:
+                raise e
+            return None
+
+        return adresa_obj
 
     def is_adresa_sat(self):
         return "comuna" in self.available_data
+
+    def are_cod(self):
+        return "cod" in self.available_data
+
+    def set_cod(self, cod):
+        self.cod = cod
+        if not "cod" in self.available_data:
+            self.available_data.append("cod")
+
+    def determine_cod(self):
+        from adrese_postale.models import CodPostal
+        cod = CodPostal.get_cod_pentru_adresa(self)
+        if cod:
+            self.set_cod(cod.cod_postal)
+
+    @property
+    def nr_numeric(self):
+        try:
+            a_nr = re.findall(r"\d+", self.nr)[0]
+            a_nr = int(a_nr)
+        except Exception, e:
+            a_nr = None
+        return a_nr
+
+    @property
+    def tip_strada_title(self):
+        return self.STRADA_HEADINGS.get(self.tip_strada, u"Strada")
 
     def validate_address(self):
         for data in [d for d in self.DATA_DEPENDENCY.keys() if d in self.available_data]:
@@ -107,23 +149,62 @@ class AdresaPostala(object):
                 d = item.split("|")
                 if len(d) > 1:
                     #	optional arg - one or another
-                    valid = False
+                    valid_opt = False
                     for d_item in d:
                         if d_item in self.available_data:
-                            valid = True
+                            valid_opt = True
 
+                    if not valid_opt:
+                        exception_msg = u"Lipseste unul din elementele din %s, cerut de %s" % (d, data)
+                        raise AdresaPostalaException(exception_msg)
                 elif item not in self.available_data:
-                    exception_msg = u"Elementul %s nu este în adresă, deși este cerut de %s" % (item, data)
-                    print exception_msg
+                    exception_msg = u"Elementul %s nu este în adres, desi este cerut de %s" % (item, data)
                     raise AdresaPostalaException(exception_msg)
+
+        #   daca e sat trebuie sa aiba strada, sat, comuna
+        #   daca nu e sat trebuie sa aiba strada
+        #   indiferent ce e trebuie sa aiba localitate si judet
+        if "localitate" not in self.available_data:
+            raise ValueError(u"Trebuie să existe localitatea")
+        if "judet" not in self.available_data:
+            raise ValueError(u"Trebuie să existe județul")
 
     def print_details(self):
         for k in self.available_data:
-            print "%s: %s" % (self.DATA_HEADINGS.get(k, "ERROR"), getattr(self, k))
+            print "%s: %s" % (self.DATA_HEADINGS.get(k, "ERROR"), getattr(self, k.lower()))
         print "Is sat: %s" % self.is_adresa_sat()
         print "\n\n"
 
+    def __unicode__(self):
+        if self.is_adresa_sat():
+            pass
+        adresa = ""
+        elms = [self.tip_strada, self.nume_strada]
+
+        adresa += self.tip_strada + " "
+        adresa += self.nume_strada + ", "
+
+        for e in [a for a in self.DEFAULT_DATA_ORDER if a.lower() in self.available_data]:
+            adresa += e + ". " + getattr(self, e.lower()) + ", "
+
+        if self.tip_strada.lower() != "comuna" and self.is_adresa_sat():
+            adresa += u"%s" % self.localitate.title() + ", "
+            if self.are_cod():
+                adresa += self.cod + ", "
+            adresa += u"Comuna %s" % self.comuna
+        else:
+            if self.are_cod():
+                adresa += self.cod + ", "
+            adresa += self.localitate
+
+        adresa += ", jud. %s" % self.judet
+        return adresa
+
+
 if __name__ == "__main__":
+    with open("adrese.txt") as f:
+        adrese = f.readlines()
+
     cnt = 0
     for a in adrese:
         if len(a) < 15:
