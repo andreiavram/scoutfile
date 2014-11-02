@@ -151,7 +151,7 @@ class CodPostal(models.Model):
         if sequence[0][0] == 2:
             return value.upper() in [(sequence[0][1][0] + str(v)).upper() for v in range(int(sequence[0][1][1]), int(sequence[1][1][1]) + 1)]
         if sequence[0][0] == 3:
-                prefix = sequence[0][1][0] + sequence[0][1][1]
+            prefix = sequence[0][1][0] + sequence[0][1][1]
             return value.upper() in cls.char_range(sequence[0][1][2], sequence[1][1][2], prefix=prefix)
         if sequence[0][0] == 4:
             return value.upper() in cls.char_range(sequence[0][1][1], sequence[1][1][1], prefix=sequence[0][1][0])
