@@ -2009,3 +2009,14 @@ class MembruStergeAcoperire(MembruDoAJAXWork):
 
     def get_error_message(self, e=""):
         return u"Eroare ștergere acoperire cotizație (%s)" % e
+
+
+class MembruAdreseStatus(ListView):
+    model = InformatieContact
+    template_name = "structuri/adrese_status.html"
+    
+    def dispatch(self, request, *args, **kwargs):
+        return super(MembruAdreseStatus, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return InformatieContact.objects.filter(tip_informatie__nume__iexact=u"Adresa corespondență")

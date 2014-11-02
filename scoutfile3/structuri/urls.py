@@ -24,7 +24,8 @@ from structuri.views import CentruLocalCreate, CentruLocalUpdate,\
     MembriForPatrocle, MembruDestinatarRepr, PersoanaContactDestinatarRepr,\
     MembriFaraAfilieri, GetSpeedList, MembruTabDocumente, SetariSpecialeCentruLocal, MembruConfirmaFacebook, \
     UnitateTabMembriFaraPatrula, MembruTabActivitati, MembruRecalculeazaAcoperire, UnitateTabPatruleInactive, \
-    UtilizatorHomeTabsDocumente, UtilizatorHomeTabsActivitati, MembruStergeAcoperire, CentruLocalTabMembriDeSuspendat
+    UtilizatorHomeTabsDocumente, UtilizatorHomeTabsActivitati, MembruStergeAcoperire, CentruLocalTabMembriDeSuspendat, \
+    MembruAdreseStatus
 
 urlpatterns = patterns('structuri.views',
     (r'centrulocal/adauga/$', CentruLocalCreate.as_view(), {}, "cl_add"),
@@ -141,5 +142,7 @@ urlpatterns = patterns('structuri.views',
     
     (r'membru/list/lost/$', MembriFaraAfilieri.as_view(), {}, "membri_pierduti_list"),
     (r'ajax/speeddial/$', GetSpeedList.as_view(), {}, "speedlist"),
+
+    (r'adrese/status/$', MembruAdreseStatus.as_view(), {}, "membru_adrese_status"),
     
 )
