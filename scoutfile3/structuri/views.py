@@ -24,6 +24,7 @@ import hashlib
 import logging
 import traceback
 from unidecode import unidecode
+from adrese_postale.adrese import AdresaPostala
 from album.models import ParticipareEveniment
 from album.views import FileUploadMixin
 
@@ -2018,7 +2019,21 @@ class MembruAdreseStatus(ListView):
     def dispatch(self, request, *args, **kwargs):
         return super(MembruAdreseStatus, self).dispatch(request, *args, **kwargs)
 
+    @staticmethod
+    def check_valid(value):
+        try:
+            adr = AdresaPostala.parse_address(value)
+        except Exception, e:
+            return False
+
+        if adr.__unicode__() == value and adr.are_cod():
+            return True
+
+        return False
+
+
     def get_queryset(self):
         qs = InformatieContact.objects.filter(tip_informatie__nume__iexact=u"Adresa corespondență")
         qs = [a for a in qs if hasattr(a.content_object, "centru_local") and a.content_object.centru_local and a.content_object.centru_local.id == 1]
+        qs = [a for a in qs if not self.check_valid(a.valoare)]
         return qs
