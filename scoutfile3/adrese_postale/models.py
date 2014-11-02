@@ -54,11 +54,17 @@ class CodPostal(models.Model):
 
         #   there is more than one code
         # codes = codes.filter(tip_strada=a.tip_strada_title)
-        strada_filter = {"strada__icontains": str for str in a.nume_strada.strip().split(" ")}
-        codes = codes.filter(**strada_filter)
+        words = [i for i in a.nume_strada.strip().split(" ") if i.title() == i]
+
+        for s in words:
+            codes = codes.filter(strada__icontains=s)
+
+        #   cazul in care ai strada Traian, si strada Traian Vuia
+
+
 
         if codes.count() == 0:
-            raise ValueError(u"Could not identify any codes matching %s" % strada_filter)
+            raise ValueError(u"Could not identify any codes matching %s" % strada_words)
 
         if codes.count() == 1:
             return codes[0]
