@@ -25,7 +25,6 @@ class Command(BaseCommand):
             try:
                 adresa = AdresaPostala.parse_address(info.valoare, fail_silently=False)
             except Exception, e:
-                self.stdout.write(str(e) + "\n")
                 continue
 
             if not adresa.are_cod():
