@@ -1037,6 +1037,8 @@ class TipInformatieContact(models.Model):
     descriere = models.CharField(max_length=255, null=True, blank=True)
     relevanta = models.CharField(max_length=255, null=True, blank=True)
 
+    adresa = models.BooleanField(default=False)
+
     is_sms_capable = models.BooleanField()
 
     def __unicode__(self):
