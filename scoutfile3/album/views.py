@@ -2,7 +2,7 @@
 from django.db.models.aggregates import Count
 from django.db.models.query_utils import Q
 from django.utils.simplejson import dumps
-from django.views.generic.edit import UpdateView, CreateView
+from django.views.generic.edit import UpdateView, CreateView, FormView
 from django.views.generic.detail import DetailView
 from django.views.generic.base import View, TemplateView
 from django.shortcuts import get_object_or_404
@@ -23,13 +23,15 @@ from taggit.utils import parse_tags
 from goodies.views import GenericDeleteView, CalendarViewMixin
 from goodies.views import JSONView
 from django.core.files.base import File
+from album.exporters.envelopes import C5Envelopes
 
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment, \
     ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT, SetPoze, IMAGINE_PUBLISHED_STATUS, \
     CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment, FLAG_MOTIVES, ParticipantEveniment
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm, \
     EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm, CampArbitrarForm, EvenimentParticipareUpdateForm, \
-    ReportFormNoButtons, EvenimentParticipareNonMembruForm, EvenimentParticipareNonmembruUpdateForm
+    ReportFormNoButtons, EvenimentParticipareNonMembruForm, EvenimentParticipareNonmembruUpdateForm, \
+    EvenimentParticipantFilterForm
 from settings import MEDIA_ROOT
 from structuri.forms import AsociereEvenimentStructuraForm
 from structuri.models import Membru, RamuraDeVarsta, CentruLocal, Unitate, Patrula, TipAsociereMembruStructura
@@ -1369,6 +1371,53 @@ class EvenimentParticipanti(ListView):
         return data
 
 
+class EvenimentParticipantiExport(FormView):
+    form_class = EvenimentParticipantFilterForm
+    template_name = "album/eveniment_participanti_options.html"
+
+    EXPORT_OPTIONS = (("plicuri_c5", u"Plicuri C5", u"Export PDF cu plicuri C5 pentru printare"), )
+
+    @allow_by_afiliere([("Eveniment, Centru Local", "Lider")], pkname="slug")
+    def dispatch(self, request, *args, **kwargs):
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+        return super(EvenimentParticipantiExport, self).dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        data = super(EvenimentParticipantiExport, self).get_form_kwargs()
+        data['export_options'] = self.EXPORT_OPTIONS
+        return data
+
+    def get_queryset(self, filters=None):
+        qs = self.eveniment.participareeveniment_set.all()
+        cond = {}
+        if filters:
+            for i in filters.split(","):
+                parts = i.split("=")
+                if len(parts) != 2:
+                    logger.error("%s: wrong syntax for filtering condition" % self.__class__.__name__)
+                    continue
+                cond[parts[0].strip()] = parts[1].strip()
+
+        if len(cond.keys()) == 0:
+            return qs
+
+
+
+        return qs
+
+    def plicuri_c5(self, qs):
+        return C5Envelopes.generate_envelopes(qs)
+
+    def form_valid(self, form):
+        qs = self.get_queryset(filter=form.cleaned_data.get("filter_expression", None))
+        return getattr(self, form.cleaned_data.get("tip_export"))(qs)
+
+    def get_context_data(self, **kwargs):
+        data = super(EvenimentParticipantiExport, self).get_context_data(**kwargs)
+        data['eveniment'] = self.eveniment
+        return data
+
+
 class EvenimentParticipantiCreate(CreateView):
     model = ParticipareEveniment
     template_name = "album/eveniment_participanti_form.html"
@@ -1609,8 +1658,6 @@ class EvenimentCampuriArbitrareUpdate(EvenimentSlugMixin, UpdateView):
 
 
 class EvenimentUpdateCampuriAditionale(View):
-
-
     @allow_by_afiliere([("Eveniment, Centru Local", "Lider"), ("Eveniment, Centru Local", "Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         self.object = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))

@@ -9,7 +9,7 @@ from crispy_forms.layout import Fieldset, Layout, Field
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 from taggit.forms import TagField
-from goodies.forms import CrispyBaseModelForm
+from goodies.forms import CrispyBaseModelForm, CrispyBaseForm
 from django import forms
 from django.forms.widgets import RadioSelect, Textarea
 from django.core.exceptions import ValidationError
@@ -225,3 +225,15 @@ class CampArbitrarForm(CrispyBaseModelForm):
             #   daca se adauga un camp nou, obligatoriu dar care nu are valoare implicita e o problema
 
         return self.cleaned_data
+
+
+class EvenimentParticipantFilterForm(CrispyBaseForm):
+    tip_export = forms.ChoiceField(choices=(), label=u"Export")
+    filter_expression = forms.CharField(required=False, label=u"Filtru", help_text=u"Expresie python pentru filtrarea participantilor")
+
+    def __init__(self, *args, **kwargs):
+        self.export_options = kwargs.pop("export_options", ())
+        super(EvenimentParticipantFilterForm, self).__init__(*args, **kwargs)
+
+        self.fields['tip_export'].choices = ((a[0], a[1]) for a in self.export_options)
+

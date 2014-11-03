@@ -182,7 +182,7 @@ class AdresaPostala(object):
         print "Is sat: %s" % self.is_adresa_sat()
         print "\n\n"
 
-    def __unicode__(self):
+    def __unicode__(self, short=False):
         if self.is_adresa_sat():
             pass
         adresa = u""
@@ -193,6 +193,9 @@ class AdresaPostala(object):
 
         for e in [a for a in self.DEFAULT_DATA_ORDER if a.lower() in self.available_data]:
             adresa += e + ". " + getattr(self, e.lower()) + ", "
+
+        if short:
+            return adresa
 
         if self.tip_strada.lower() != "comuna" and self.is_adresa_sat():
             if self.are_cod():
