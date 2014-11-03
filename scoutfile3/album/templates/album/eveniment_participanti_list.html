@@ -18,6 +18,10 @@
             <a class = "btn btn-danger" href = "{% url album:eveniment_participanti_list slug=eveniment.slug %}?cancelled"><i class = "icon-eye-close"></i> Participări anulate</a>
         {% endif %}
     </div>
+
+    <div class = "btn-group">
+        <a class = "btn btn-warning" href="{% url album:eveniment_participanti_export slug=eveniment.slug %}"><i class = "icon-upload"></i> Export</a>
+    </div>
     </div>
 {% endblock %}
 

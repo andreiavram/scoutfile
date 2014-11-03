@@ -9,7 +9,7 @@ from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     EvenimentParticipantiCreate, EvenimentParticipantiUpdate, UnitateEvenimentCreate, PatrulaEvenimentCreate, \
     EvenimentCampuriArbitrare, EvenimentCampuriArbitrareCreate, EvenimentCampuriArbitrareUpdate, PozaUpdateTags, \
     FlagImageAjax, EvenimentUpdateCampuriAditionale, EvenimentParticipantNonMembruCreate, \
-    EvenimentParticipantNonMembruUpdate
+    EvenimentParticipantNonMembruUpdate, EvenimentParticipantiExport
 from album.views import ChangeImagineVisibility
 
 
@@ -47,6 +47,8 @@ urlpatterns = patterns('album.views',
                        (r'eveniment/(?P<slug>\w+)/campuri/$', EvenimentCampuriArbitrare.as_view(), {}, "eveniment_campuri_list"),
                        (r'eveniment/(?P<slug>\w+)/campuri/adauga/$', EvenimentCampuriArbitrareCreate.as_view(), {}, "eveniment_campuri_create"),
                        (r'eveniment/campuri/(?P<pk>\d+)/modifica/$', EvenimentCampuriArbitrareUpdate.as_view(), {}, "eveniment_campuri_update"),
+
+                       (r'eveniment/(?P<slug>\w+)/participanti/export/$', EvenimentParticipantiExport.as_view(), {}, "eveniment_participanti_export"),
 
                        (r'eveniment/(?P<slug>\w+)/raport/$', RaportEvenimentDetail.as_view(), {}, "eveniment_raport_detail"),
                        (r'eveniment/(?P<slug>\w+)/raport/edit/$', RaportEvenimentUpdate.as_view(), {}, "eveniment_raport_update"),
