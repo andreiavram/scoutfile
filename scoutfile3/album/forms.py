@@ -11,12 +11,12 @@ from django.template.defaultfilters import slugify
 from taggit.forms import TagField
 from goodies.forms import CrispyBaseModelForm, CrispyBaseForm
 from django import forms
-from django.forms.widgets import RadioSelect, Textarea
+from django.forms.widgets import RadioSelect, Textarea, CheckboxSelectMultiple
 from django.core.exceptions import ValidationError
 
 from goodies.widgets import BootstrapDateTimeInput, GeoCoordinatesInput, FacebookLinkWidget, TaggitTagsInput
 from album.models import FlagReport, FLAG_MOTIVES, RaportEveniment, ParticipareEveniment, \
-    CampArbitrarParticipareEveniment
+    CampArbitrarParticipareEveniment, STATUS_PARTICIPARE
 from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
 from generic.widgets import BootstrapDateTimeInput, BootstrapDateInput
 
@@ -229,11 +229,40 @@ class CampArbitrarForm(CrispyBaseModelForm):
 
 class EvenimentParticipantFilterForm(CrispyBaseForm):
     tip_export = forms.ChoiceField(choices=(), label=u"Export")
-    filter_expression = forms.CharField(required=False, label=u"Filtru", help_text=u"Expresie python pentru filtrarea participantilor")
+    filter_expression = forms.CharField(required=False, label=u"Filtru", help_text=u"Expresie pentru filtrarea participantilor, cu sintaxa camp1=valoare_camp1,camp2=valoare_camp2")
+    status_participare = forms.MultipleChoiceField(choices=STATUS_PARTICIPARE, widget=CheckboxSelectMultiple())
+
+    VALORI_BOOL = {"da": True, "nu": False}
 
     def __init__(self, *args, **kwargs):
         self.export_options = kwargs.pop("export_options", ())
+        self.eveniment = kwargs.pop("eveniment")
         super(EvenimentParticipantFilterForm, self).__init__(*args, **kwargs)
 
         self.fields['tip_export'].choices = ((a[0], a[1]) for a in self.export_options)
 
+    def clean_filter_expression(self):
+        filters = self.cleaned_data.get('filter_expression')
+        cond = {}
+        if filters:
+            for i in filters.split(","):
+                parts = i.split("=")
+                if len(parts) != 2:
+                    raise ValidationError(u"Sintaxă greșită, folosește camp=val,camp2=val!")
+                cond[parts[0].strip()] = parts[1].strip()
+
+        cond_parsed = {}
+        for camp, valoare in cond.items():
+            try:
+                camp_arbitrar = self.eveniment.camparbitrarparticipareeveniment_set.get(slug__iexact=camp)
+                if camp_arbitrar.tip_camp != "bool":
+                    raise ValidationError(u"Pentru moment, nu sunt suportate alte câmpuri decât cele de tip bifă! (%s)" % camp_arbitrar.nume)
+
+                if self.VALORI_BOOL.get(valoare.lower(), None) is None:
+                    raise ValidationError(u"Valorile câmpurilor pot fi doar 'da' sau 'nu'")
+
+                cond_parsed[camp_arbitrar] = self.VALORI_BOOL.get(valoare, False)
+            except CampArbitrarParticipareEveniment.DoesNotExist:
+                raise ValidationError(u"Nu există niciun câmp %s!" % camp)
+
+        return cond_parsed

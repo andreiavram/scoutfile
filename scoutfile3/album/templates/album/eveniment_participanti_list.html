@@ -48,7 +48,7 @@
             <th>Parțial</th>
             <th>Detalii</th>
             {% for camp in eveniment.camparbitrarparticipareeveniment_set.all %}
-                <th>{{ camp.nume }}</th>
+                <th>{{ camp.nume }}<br/><small style="color: #999999">{{ camp.slug }}</small></th>
             {% endfor %}
             <th>&nbsp;</th>
         </tr>
