@@ -1385,23 +1385,16 @@ class EvenimentParticipantiExport(FormView):
     def get_form_kwargs(self):
         data = super(EvenimentParticipantiExport, self).get_form_kwargs()
         data['export_options'] = self.EXPORT_OPTIONS
+        data['eveniment'] = self.eveniment
         return data
 
-    def get_queryset(self, filters=None):
-        qs = self.eveniment.participareeveniment_set.all()
-        cond = {}
-        if filters:
-            for i in filters.split(","):
-                parts = i.split("=")
-                if len(parts) != 2:
-                    logger.error("%s: wrong syntax for filtering condition" % self.__class__.__name__)
-                    continue
-                cond[parts[0].strip()] = parts[1].strip()
+    def get_queryset(self, filters=None, status_list=()):
+        qs = self.eveniment.participareeveniment_set.filter(status_participare__in=status_list)
 
-        if len(cond.keys()) == 0:
-            return qs
-
-
+        for camp, valoare in filters.items():
+            instante_filters = dict(camp=camp, valoare_text="%s" % valoare)
+            instante = InstantaCampArbitrarParticipareEveniment.objects.filter(**instante_filters)
+            qs = qs.filter(id__in=instante.values_list("participare_id", flat=True))
 
         return qs
 
@@ -1409,7 +1402,9 @@ class EvenimentParticipantiExport(FormView):
         return C5Envelopes.generate_envelopes(qs)
 
     def form_valid(self, form):
-        qs = self.get_queryset(filter=form.cleaned_data.get("filter_expression", None))
+        qs = self.get_queryset(filters=form.cleaned_data.get("filter_expression", None),
+                               status_list=form.cleaned_data.get("status_participare"))
+
         return getattr(self, form.cleaned_data.get("tip_export"))(qs)
 
     def get_context_data(self, **kwargs):

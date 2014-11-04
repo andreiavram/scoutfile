@@ -107,7 +107,7 @@ class C5Envelopes(object):
                 Story.append(Paragraph(u"Județ %s" % judet, styles['Justify']))
             Story.append(PageBreak())
 
-        raport = u"<b>Total participanti: </b> %d<br /><b>Total erori:</b> %d<br /><b>Total succes:</b> %d<br />" % (len(qs), error_count, len(qs) - error_count)
+        raport = u"<b>Total participanti: </b> %d<br /><b>Total erori:</b> %d<br /><b>Total OK:</b> %d<br />" % (len(qs), error_count, len(qs) - error_count)
         Story.append(Paragraph(raport, styles['Justify']))
         Story.append(PageBreak())
 
