@@ -215,7 +215,7 @@ class CampArbitrarForm(CrispyBaseModelForm):
         super(CampArbitrarForm, self).__init__(*args, **kwargs)
 
     def clean(self):
-        if len(self.cleaned_data.get('implicit', "")) > 0 and self.cleaned_data['optional'] is False:
+        if len(self.cleaned_data.get('implicit', "")) > 0 and self.cleaned_data['optional'] is True:
             raise ValidationError(u"Un câmp opțional nu poate avea valoare implicită!")
 
         cnt = self.eveniment.participareeveniment_set.all().count()
