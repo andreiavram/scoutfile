@@ -137,7 +137,7 @@ class EvenimentParticipareBaseForm(CrispyBaseModelForm):
             self.fields[camp.slug] = camp.get_form_field_class()(**field_args)
 
     def get_field_args(self, camp):
-        field_args = dict(required=not camp.optional,
+        field_args = dict(required=(not camp.optional) if camp.tip_camp != "bool" else False,
                           label=camp.nume,
                           help_text=camp.explicatii_suplimentare)
 
@@ -180,7 +180,7 @@ class EvenimentParticipareNonMembruForm(EvenimentParticipareBaseForm):
 
 class EvenimentParticipareUpdateMixin(object):
     def get_field_args(self, camp):
-        field_args = dict(required=not camp.optional,
+        field_args = dict(required=(not camp.optional) if camp.tip_camp != "bool" else False,
                           label=camp.nume,
                           help_text=camp.explicatii_suplimentare)
 
