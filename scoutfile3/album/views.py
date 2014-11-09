@@ -1362,12 +1362,15 @@ class EvenimentParticipanti(ListView):
         else:
             qs = qs.exclude(status_participare=5)
 
+        qs = qs.select_related("membru", "nonmembru", "eveniment")
+
         return qs
 
     def get_context_data(self, **kwargs):
         data = super(EvenimentParticipanti, self).get_context_data(**kwargs)
         data['eveniment'] = self.eveniment
         data['cancelled'] = self.cancelled
+        data['campuri_arbitrare'] = self.eveniment.camparbitrarparticipareeveniment_set.all().prefetch_related("instante")
         return data
 
 

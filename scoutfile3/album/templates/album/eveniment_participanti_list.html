@@ -34,7 +34,6 @@
 {% endblock %}
 
 {% block content %}
-
     <table class="table table-striped">
         <thead>
         <tr>
@@ -47,7 +46,7 @@
             <th>Status</th>
             <th>Parțial</th>
             <th>Detalii</th>
-            {% for camp in eveniment.camparbitrarparticipareeveniment_set.all %}
+            {% for camp in campuri_arbitrare %}
                 <th>{{ camp.nume }}<br/><small style="color: #999999">{{ camp.slug }}</small></th>
             {% endfor %}
             <th>&nbsp;</th>
@@ -55,10 +54,11 @@
         </thead>
         <tbody>
         {% autopaginate object_list 50 %}
+
         {% for participare in object_list %}
             <tr>
                 <td>#{{ participare.id }}</td>
-                {% if participare.membru %}
+                {% if participare.membru_id %}
                 {% with participare.membru as cercetas %}
                 <td>{% for badge in cercetas.get_badges_rdv %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
                             {% for badge in cercetas.get_extra_badges %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
@@ -78,12 +78,12 @@
                 <td>{{ participare.get_status_participare_display }}</td>
                 <td>{% if participare.is_partiala %}<i class = "icon-ok"></i>{% endif %}</td>
                 <td>{% if participare.detalii %}{{ participare.detalii|linebreaksbr }}{% endif %}</td>
-                {% for camp in eveniment.camparbitrarparticipareeveniment_set.all %}
+                {% for camp in campuri_arbitrare %}
                     <td>{% valoare_camp camp participare %}</td>
                 {% endfor %}
                 <td>
                     <div class = "btn-group pull-right">
-                        <a href = "{% if participare.membru %}{% url album:eveniment_participanti_modifica pk=participare.id %}{% else %}{% url album:eveniment_participanti_nonmembru_modifica pk=participare.id %}{% endif %}" class = "btn btn-mini"><i class = "icon-pencil"></i></a>
+                        <a href = "{% if participare.membru_id %}{% url album:eveniment_participanti_modifica pk=participare.id %}{% else %}{% url album:eveniment_participanti_nonmembru_modifica pk=participare.id %}{% endif %}" class = "btn btn-mini"><i class = "icon-pencil"></i></a>
                         <a href = "#" id="delete_{{ participare.id }}" class = "btn btn-mini"><i class = "icon-trash"></i></a>
                     </div>
                 </td>
@@ -99,6 +99,7 @@
                 {% endfor %}
             </tr>
         {% endfor %}
+
         {% if object_list|length and not cancelled %}
         <tr class = "success">
             <td><strong>Total</strong></td>

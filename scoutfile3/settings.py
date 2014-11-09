@@ -2,6 +2,10 @@
 import os.path
 from utils.mdextend import iconfonts
 
+DEBUG = True
+TEMPLATE_DEBUG = DEBUG
+
+
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
     ("Andrei AVRAM", "andrei.avram@albascout.ro")
@@ -86,6 +90,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'johnny.middleware.LocalStoreClearMiddleware',
     'johnny.middleware.QueryCacheMiddleware',
     # 'raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware',
@@ -140,10 +145,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'context_processors.url_root',
 )
 
-#if DEVELOPMENT:
-#    MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware', )
-
-INTERNAL_IPS = ('127.0.0.1',)
+INTERNAL_IPS = ("192.168.33.1", "127.0.0.1", "95.77.249.243")
+#SHOW_TOOLBAR_CALLBACK = lambda r: not r.is_ajax()
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -155,7 +158,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.markup',
-    'django.contrib.markup',
+
+    'debug_toolbar',
 
     'south', 'photologue',
     'dajax', 'dajaxice',
@@ -173,6 +177,7 @@ INSTALLED_APPS = (
     'django_markdown',
 
     'django_ace', 'qrcode',
+
 )
 
 
