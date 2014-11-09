@@ -463,12 +463,22 @@ class CampArbitrarParticipareEveniment(models.Model):
     def get_form_field_class(self):
         return self.tipuri_camp[self.tip_camp]
 
+    def _cache_instances(self):
+        if hasattr(self, "_instante") and self._instante:
+            return
+
+        self._instante = list(self.instante.all())
+
+    def get_instanta(self, participare):
+        self._cache_instances()
+        return next((a for a in self._instante if a.participare_id == participare.id), None)
+
     def get_value(self, participare=None):
         if participare is None:
             return None
 
         try:
-            instanta = self.instante.get(participare=participare)
+            instanta = self.get_instanta(participare=participare)
             return instanta.get_value()
         except InstantaCampArbitrarParticipareEveniment.DoesNotExist, e:
             return None
@@ -484,7 +494,7 @@ class CampArbitrarParticipareEveniment(models.Model):
             return
 
         try:
-            instanta = self.instante.get(participare=participare)
+            instanta = self.get_instanta(participare=participare)
         except InstantaCampArbitrarParticipareEveniment.DoesNotExist:
             instanta_args = dict(participare=participare, camp=self)
             instanta = InstantaCampArbitrarParticipareEveniment.objects.create(**instanta_args)
