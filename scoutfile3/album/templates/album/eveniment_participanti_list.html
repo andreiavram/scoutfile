@@ -109,7 +109,7 @@
             <td>{% participare_breakdown "status_participare" %}</td>
             <td>{% participare_breakdown "is_partial" %}</td>
             <td>&nbsp;</td>
-            {% for camp in eveniment.camparbitrarparticipareeveniment_set.all %}
+            {% for camp in campuri_arbitrare %}
                 <td>{% participare_breakdown "camp" camp %}</td>
             {% endfor %}
             <td>&nbsp;</td>

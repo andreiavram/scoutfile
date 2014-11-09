@@ -536,21 +536,34 @@ class Membru(Utilizator):
         return asociere
 
     def get_badges_rdv(self):
+        import json
+        badges = json.loads(self.get_from_cache("badges_rdv"))
+        if badges:
+            return badges
         badges = []
+
         if self.is_lider_generic():
             badges.append("lider")
         else:
             unitate = self.get_unitate()
             if unitate:
                 badges.append(unidecode.unidecode(unitate.ramura_de_varsta.nume.lower()))
+        self.save_to_cache("badges_rdv", json.dumps(badges))
         return badges
 
     def get_extra_badges(self):
+        import json
+        badges = json.loads(self.get_from_cache("badges_extra"))
+        if badges:
+            return badges
+
         badges = []
         if self.is_sef_centru():
             badges.append("sef-centru")
         if self.is_membru_ccl():
             badges.append("membru-ccl")
+
+        self.save_to_cache("badges_rdv", json.dumps(badges))
         return badges
 
     @models.permalink
@@ -611,9 +624,9 @@ class Membru(Utilizator):
         return data
 
     def clear_cache(self, index):
-        mapping = {"asociere": ["trimestru_initial", "proprietati"],
+        mapping = {"asociere": ["trimestru_initial", "proprietati", "badges_rdv"],
                    "cotizatie_sociala": ["are_cotizatie_sociala", "status_cotizatie"],
-                   "cotizatie": ["status_cotizatie", ]}
+                   "cotizatie": ["status_cotizatie", ],}
         to_clear = mapping.get(index, None)
         if to_clear is not None:
             for idx in to_clear:
