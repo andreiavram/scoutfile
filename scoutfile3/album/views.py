@@ -1370,7 +1370,7 @@ class EvenimentParticipanti(ListView):
         data = super(EvenimentParticipanti, self).get_context_data(**kwargs)
         data['eveniment'] = self.eveniment
         data['cancelled'] = self.cancelled
-        data['campuri_arbitrare'] = self.eveniment.camparbitrarparticipareeveniment_set.all().prefetch_related("instante")
+        data['campuri_arbitrare'] = self.eveniment.camparbitrarparticipareeveniment_set.all().prefetch_related("instante")[0:]
         return data
 
 
