@@ -1352,6 +1352,10 @@ class EvenimentParticipanti(ListView):
         if "cancelled" in request.GET:
             self.cancelled = True
 
+        self.pagesize = None
+        if "pagesize" in request.GET:
+            self.pagesize = int(request.GET.get("pagesize", 0))
+
         self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
         return super(EvenimentParticipanti, self).dispatch(request, *args, **kwargs)
 
@@ -1371,6 +1375,7 @@ class EvenimentParticipanti(ListView):
         data['eveniment'] = self.eveniment
         data['cancelled'] = self.cancelled
         data['campuri_arbitrare'] = self.eveniment.camparbitrarparticipareeveniment_set.all().prefetch_related("instante")[0:]
+        data['pagesize'] = self.pagesize
         return data
 
 
