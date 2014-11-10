@@ -1376,6 +1376,7 @@ class EvenimentParticipanti(ListView):
         data['cancelled'] = self.cancelled
         data['campuri_arbitrare'] = self.eveniment.camparbitrarparticipareeveniment_set.all().prefetch_related("instante")[0:]
         data['pagesize'] = self.pagesize
+        data['full_count'] = self.object_list.count()
         return data
 
 
