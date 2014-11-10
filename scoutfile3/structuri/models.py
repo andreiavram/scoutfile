@@ -537,7 +537,9 @@ class Membru(Utilizator):
 
     def get_badges_rdv(self):
         import json
-        badges = json.loads(self.get_from_cache("badges_rdv"))
+        badges = self.get_from_cache("badges_rdv")
+        badges = json.loads(badges if badges else "[]")
+
         if badges:
             return badges
         badges = []
@@ -549,21 +551,24 @@ class Membru(Utilizator):
             if unitate:
                 badges.append(unidecode.unidecode(unitate.ramura_de_varsta.nume.lower()))
         self.save_to_cache("badges_rdv", json.dumps(badges))
+        print "SAED TO CACHE %s" % badges
         return badges
 
     def get_extra_badges(self):
         import json
-        badges = json.loads(self.get_from_cache("badges_extra"))
+        badges = self.get_from_cache("badges_extra")
+        badges = json.loads(badges if badges else "[]")
+
         if badges:
             return badges
-
         badges = []
+
         if self.is_sef_centru():
             badges.append("sef-centru")
         if self.is_membru_ccl():
             badges.append("membru-ccl")
 
-        self.save_to_cache("badges_rdv", json.dumps(badges))
+        self.save_to_cache("badges_extra", json.dumps(badges))
         return badges
 
     @models.permalink
