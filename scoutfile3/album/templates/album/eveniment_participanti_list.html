@@ -111,7 +111,7 @@
         {% if object_list|length and not cancelled %}
         <tr class = "success">
             <td><strong>Total</strong></td>
-            <td style="text-align: right"><strong>{{ object_list.count }}</strong></td>
+            <td style="text-align: right"><strong>{{ full_count }}</strong></td>
             {% for col in eveniment.get_campuri_aditionale %}
                 <td>&nbsp;</td>
             {% endfor %}
