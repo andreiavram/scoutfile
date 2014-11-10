@@ -60,8 +60,8 @@
         </tr>
         </thead>
         <tbody>
-        {% if page_size %}
-            {% autopaginate object_list page_size %}
+        {% if pagesize %}
+            {% autopaginate object_list pagesize %}
         {% endif %}
         {% for participare in object_list %}
             <tr>
@@ -129,7 +129,7 @@
 
 
     </table>
-    {% if page_size %}
+    {% if pagesize %}
         {% paginate %}
     {% endif %}
 {% endblock %}
