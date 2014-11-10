@@ -541,7 +541,8 @@ class InstantaCampArbitrarParticipareEveniment(models.Model):
 @receiver(post_init, sender=InstantaCampArbitrarParticipareEveniment)
 def update_value(sender, instance, **kwargs):
     try:
-        instance.valoare = getattr(instance, "process_{0}".format(instance.camp.tip_camp))
+        tip_camp = instance._tip_camp if hasattr("_tip_camp", instance) else instance.camp.tip_camp
+        instance.valoare = getattr(instance, "process_{0}".format(tip_camp))
     except Exception, e:
         instance.valoare = None
 
