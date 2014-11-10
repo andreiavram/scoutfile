@@ -34,6 +34,13 @@
 {% endblock %}
 
 {% block content %}
+    <div class = "pull-right btn-group">
+        <a class = "btn disabled" href = "#">Participanți pe pagină </a>
+        <a class = "btn {% if pagesize and pagesize == 25 %}disabled{% endif %}" href = "?pagesize=25">25</a>
+        <a class = "btn {% if pagesize and pagesize == 50 %}disabled{% endif %}" href = "?pagesize=50">50</a>
+        <a class = "btn {% if pagesize and pagesize == 100 %}disabled{% endif %}" href = "?pagesize=100">100</a>
+        <a class = "btn {% if not pagesize %}disabled{% endif %}" href = "?">Toți</a>
+    </div>
     <table class="table table-striped">
         <thead>
         <tr>
@@ -53,7 +60,9 @@
         </tr>
         </thead>
         <tbody>
-
+        {% if page_size %}
+            {% autopaginate object_list page_size %}
+        {% endif %}
         {% for participare in object_list %}
             <tr>
                 <td>#{{ participare.id }}</td>
@@ -120,4 +129,7 @@
 
 
     </table>
+    {% if page_size %}
+        {% paginate %}
+    {% endif %}
 {% endblock %}
