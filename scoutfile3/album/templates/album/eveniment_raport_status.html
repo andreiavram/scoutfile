@@ -51,7 +51,7 @@
                     {{ eveniment.total_poze }}
                 </td>
                 <td>
-                    {{ eveniment.responsabil_raport }}
+                    {% if eveniment.responsabil_raport %}{{ eveniment.responsabil_raport }}{% endif %}<span style="color: #990000">Nu avem</span>
                 </td>
                 <td>
                     <div class="btn-group">
