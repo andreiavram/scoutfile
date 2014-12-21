@@ -1233,16 +1233,21 @@ class RaportStatus(ListView):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         self.cl = request.user.get_profile().membru.get_centru_local()
+        date_now = datetime.datetime.now()
+        year = date_now.year
+        if date_now.day < 15 and date_now.month < 2:
+            year -= 1
+        self.an = request.GET.get("an", year)
         return super(RaportStatus, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        self.an = datetime.datetime.now().year - 1
         return self.model.objects.filter(start_date__year=self.an, centru_local=self.cl).order_by("start_date")
 
     def get_context_data(self, **kwargs):
         data = super(RaportStatus, self).get_context_data(**kwargs)
         data['scor_anual'] = sum(e.scor_calitate() for e in self.object_list)
         data['an'] = self.an
+        data['ani'] = range(self.an - 1, self.an + 2)
         return data
 
 
