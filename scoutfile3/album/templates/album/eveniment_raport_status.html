@@ -6,6 +6,10 @@
 
 {% block context_menu %}
     {% include "album/main_context_menu.html" %}
+    <li class = "nav-header">Ani</li>
+    {% for an in ani %}
+        <li><a href = "{% url album:raport_status %}?an={{ an }}">{{ an }}</a></li>
+    {% endfor %}
 {% endblock %}
 
 {% block content %}
@@ -17,6 +21,8 @@
             <th>Perioada</th>
             <th>Participanti</th>
             <th>Scor*</th>
+            <th>Poze</th>
+            <th>Responsabil</th>
             <th>&nbsp;</th>
         </tr>
         </thead>
@@ -39,6 +45,12 @@
                     </ul>
                 </td>
                 <td><span class = "label label-{% if eveniment.scor_calitate < 0 %}important{% else %}{% if eveniment.scor_calitate == 0 %}warning{% else %}success{% endif %}{% endif %}">{{ eveniment.scor_calitate }}</span></td>
+                <td>
+                    {{ object.total_poze }}
+                </td>
+                <td>
+                    {{ object.responsabil_raport }}
+                </td>
                 <td>
                     <div class="btn-group">
                         <a href = "{% url album:eveniment_detail slug=eveniment.slug %}" class = "btn btn-mini"><i class = "icon-file"></i></a>
