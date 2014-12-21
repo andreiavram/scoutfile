@@ -6,10 +6,12 @@
 
 {% block context_menu %}
     {% include "album/main_context_menu.html" %}
+    <ul class = "nav nav-list">
     <li class = "nav-header">Ani</li>
     {% for an in ani %}
         <li><a href = "{% url album:raport_status %}?an={{ an }}">{{ an }}</a></li>
     {% endfor %}
+    </ul>
 {% endblock %}
 
 {% block content %}

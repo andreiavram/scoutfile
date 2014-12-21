@@ -1237,7 +1237,7 @@ class RaportStatus(ListView):
         year = date_now.year
         if date_now.day < 15 and date_now.month < 2:
             year -= 1
-        self.an = request.GET.get("an", year)
+        self.an = int(request.GET.get("an", year))
         return super(RaportStatus, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
