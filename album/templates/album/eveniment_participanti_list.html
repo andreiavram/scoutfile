@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load pagination_tags %}
+{% load customfield_tags %}
+
+{% block page_title %}
+    {{ eveniment }} <span style="font-weight: normal">| participanți {% if cancelled %}<small>care să fi renunțat</small>{% endif %}</span>
+    <div class = "btn-toolbar pull-right">
+    <div class = "btn-group">
+        <a class = "btn disabled" href = "#"><i class = "icon-plus"></i> Adaugă </a>
+        <a class = "btn btn-primary" href = "{% url "album:eveniment_participanti_adauga"  slug=eveniment.slug %}"> participant</a>
+        <a class = "btn btn-primary" href = "{% url "album:eveniment_participanti_nonmembru_adauga"  slug=eveniment.slug %}"> nonmembru</a>
+
+    </div>
+    <div class = "btn-group">
+        {% if cancelled %}
+            <a class = "btn btn-success" href = "{% url "album:eveniment_participanti_list"  slug=eveniment.slug %}"><i class = "icon-eye-open"></i> Participări active</a>
+        {% else %}
+            <a class = "btn btn-danger" href = "{% url "album:eveniment_participanti_list"  slug=eveniment.slug %}?cancelled"><i class = "icon-eye-close"></i> Participări anulate</a>
+        {% endif %}
+    </div>
+
+    <div class = "btn-group">
+        <a class = "btn btn-warning" href="{% url "album:eveniment_participanti_export"  slug=eveniment.slug %}"><i class = "icon-upload"></i> Export</a>
+    </div>
+    </div>
+{% endblock %}
+
+{% block context_menu %}
+    {% include "album/eveniment_context_menu.html" %}
+{% endblock %}
+
+{% block extrahead %}
+    <script type="text/javascript" src="{% url goodies:js_delete app_label='album' model='ParticipareEveniment' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class = "pull-right btn-group">
+        <a class = "btn disabled" href = "#">Participanți pe pagină </a>
+        <a class = "btn {% if pagesize and pagesize == 25 %}disabled{% endif %}" href = "?pagesize=25">25</a>
+        <a class = "btn {% if pagesize and pagesize == 50 %}disabled{% endif %}" href = "?pagesize=50">50</a>
+        <a class = "btn {% if pagesize and pagesize == 100 %}disabled{% endif %}" href = "?pagesize=100">100</a>
+        <a class = "btn {% if not pagesize %}disabled{% endif %}" href = "?">Toți</a>
+    </div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>&nbsp;</th>
+            <th>Cercetaș</th>
+            {% for col in eveniment.get_campuri_aditionale %}
+                <th>{{ col.1 }}</th>
+            {% endfor %}
+            <th>Rol</th>
+            <th>Status</th>
+            <th>Parțial</th>
+            <th>Detalii</th>
+            {% for camp in campuri_arbitrare %}
+                <th>{{ camp.nume }}<br/><small style="color: #999999">{{ camp.slug }}</small></th>
+            {% endfor %}
+            <th>&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if pagesize %}
+            {% autopaginate object_list pagesize %}
+        {% endif %}
+        {% for participare in object_list %}
+            <tr>
+                <td>#{{ participare.id }}</td>
+                {% if participare.membru_id %}
+                {% with participare.membru as cercetas %}
+                <td>{% for badge in cercetas.get_badges_rdv %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
+                            {% for badge in cercetas.get_extra_badges %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
+                            <a href = "{% url "structuri:membru_detail"  pk=cercetas.id %}">{{ cercetas }}</a></td>
+                {% endwith %}
+                {% else %}
+                    <td>
+                        {{ participare.nonmembru.get_full_name }}
+                    </td>
+                {% endif %}
+                {% for col in eveniment.get_campuri_aditionale %}
+                    <td>
+                        {% camp_special participare col.0 %}
+                    </td>
+                {% endfor %}
+                <td>{{ participare.get_rol_display }}</td>
+                <td>{{ participare.get_status_participare_display }}</td>
+                <td>{% if participare.is_partiala %}<i class = "icon-ok"></i>{% endif %}</td>
+                <td>{% if participare.detalii %}{{ participare.detalii|linebreaksbr }}{% endif %}</td>
+                {% for camp in campuri_arbitrare %}
+                    <td>{% valoare_camp camp participare %}</td>
+                {% endfor %}
+                <td>
+                    <div class = "btn-group pull-right">
+                        <a href = "{% if participare.membru_id %}{% url "album:eveniment_participanti_modifica"  pk=participare.id %}{% else %}{% url "album:eveniment_participanti_nonmembru_modifica"  pk=participare.id %}{% endif %}" class = "btn btn-mini"><i class = "icon-pencil"></i></a>
+                        <a href = "#" id="delete_{{ participare.id }}" class = "btn btn-mini"><i class = "icon-trash"></i></a>
+                    </div>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td>&nbsp;</td>
+                <td colspan="{{ eveniment.get_campuri_aditionale|length|add:eveniment.camparbitrarparticipareeveniment_set.all.count|add:7 }}">
+                    <em>Nu există participanți</em>
+                </td>
+                {% for camp in eveniment.camparbitrarparticipareeveniment_set.all %}
+                    <td>&nbsp;</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+
+        {% if object_list|length and not cancelled %}
+        <tr class = "success">
+            <td><strong>Total</strong></td>
+            <td style="text-align: right"><strong>{{ full_count }}</strong></td>
+            {% for col in eveniment.get_campuri_aditionale %}
+                <td>&nbsp;</td>
+            {% endfor %}
+            <td>{% participare_breakdown "rol" %}</td>
+            <td>{% participare_breakdown "status_participare" %}</td>
+            <td>{% participare_breakdown "is_partial" %}</td>
+            <td>&nbsp;</td>
+            {% for camp in campuri_arbitrare %}
+                <td>{% participare_breakdown "camp" camp %}</td>
+            {% endfor %}
+            <td>&nbsp;</td>
+        </tr>
+        {% endif %}
+        </tbody>
+
+
+    </table>
+    {% if pagesize %}
+        {% paginate %}
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load pagination_tags %}
+
+{% block page_title %}
+    Seturi poze {% if eveniment %} - {{ eveniment }} {% endif %} {% if user_only %} pentru
+    {{ request.user.get_profile }}{% endif %}
+{% endblock %}
+
+{% block context_menu %}
+    {% include "album/main_context_menu.html" %}
+{% endblock %}
+
+{% block content %}
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>&nbsp;</th>
+            <th>Autor (declarat)</th>
+            <th>Uploader</th>
+            <th>Eveniment</th>
+            <th>Status</th>
+            <th>Poze</th>
+            <th>&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% autopaginate object_list 10 as object_list %}
+        {% for set_poze in object_list %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ set_poze.autor }}</td>
+                <td>{{ set_poze.autor_user }}</td>
+                <td><a href="{% url "album:eveniment_detail"  slug=set_poze.eveniment.slug %}">{{ set_poze.eveniment }}</a>
+                </td>
+                <td>{{ set_poze.get_status_display }} {% if set_poze.status == 2 or set_poze.status == 4 %}
+                    <br />
+                    <em>{%  if set_poze.status == 2 %}Procesare {% else %}Eroare la procesare la {%  endif %} - {{ set_poze.procent_procesat }}%</em>{% endif %}</td>
+                <td>{{ set_poze.imagine_set.all.count }}</td>
+                <td>
+                    <div class="btn-group">
+                        {% if media_manager or user.is_superuser %}
+                        <a href="{% url "album:set_poze_delete_ajax"  pk=set_poze.id %}" class="btn btn-mini delete"><i
+                                class="icon-trash"></i></a>
+                        <a href="{% url "album:set_poze_edit"  pk=set_poze.id %}" class="btn btn-mini"><i
+                                class="icon-pencil"></i></a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td>&nbsp;</td>
+                <td colspan="6">
+                    <em>Nu există seturi</em>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+
+
+    </table>
+    {% paginate %}
+{% endblock %}
+
+
+{% block extrajs %}
+    <script>
+        $("document").ready(function () {
+            $("a.delete").click(function (e) {
+                if (confirm("Vrei să ștergi setul ăsta de poze și toate datele asociate lui?")) {
+                    var that = this;
+                    $.post($(this).attr("href"), {"csrfmiddlewaretoken": "{{ csrf_token }}"}, function (data) {
+                        $(that).closest("tr").fadeOut("200");
+                    });
+                }
+                e.preventDefault();
+                return false;
+            });
+        });
+    </script>
+{% endblock %}

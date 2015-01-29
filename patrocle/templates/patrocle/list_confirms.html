@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load pagination_tags %}
+
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Locații</li>
+		<li><a href = "{% url "patrocle:send_sms"  %}"><i class = "icon-phone"></i> Trimite SMS</a></li>
+		{% if user.is_superuser %}
+		<li><a href = "{% url "patrocle:system_stats"  %}"><i class = "icon-cog"></i> Statistici</a></li>
+		<li><a href = "{% url "patrocle:credit_lista"  %}"><i class = "icon-list"></i> Credite</a></li>
+		{% endif %}
+	</ul>
+{% endblock %}
+
+{% block page_title %}
+	Patrocle
+{% endblock %}
+
+{% block content %}
+	{% autopaginate object_list 10 %}
+	<a href = "{% url "patrocle:send_sms"  %}" class = "btn btn-primary"><i class = "icon-white icon-phone"></i> Trimite SMS</a>
+	<br /><br />
+	
+	<table class = "table table-striped">
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>&nbsp;</th>
+				<th>Destinatar</th>
+				<th>Data</th>
+				<th>&nbsp;</th>
+				<th>&nbsp;</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for sms in object_list %}
+			<tr>
+				<td style = "width: 20px">{{ forloop.counter }}</td>
+				<td style = "width: 75px;">
+					{% if sms.resolve_destinatar %}
+						{% if sms.resolve_destinatar.poza_profil %}
+							<img class = "thumbnail" src = "{{ sms.resolve_destinatar.poza_profil.get_profil_mic_url }}" />
+						{% else %}
+							&nbsp;
+						{% endif %}
+					{% endif %}
+				</td>
+				<td>{% if sms.resolve_destinatar %}<a href = "{{ sms.resolve_destinatar.get_absolute_url }}"><i class = "icon-user"></i>&nbsp;{{ sms.resolve_destinatar }}</a>{% else %} {{ sms.destinatar }}{% endif %}<br />
+				<span style = "font-size: 10px">{{ sms.mesaj }}</span></td>
+				<td>acum {{ sms.timestamp_trimitere|timesince }}<br />
+					<span style = "font-size: 10px">{{ sms.timestamp_trimitere|date:"l, j F Y H:i" }}</span><br />
+					{% if sms.cod_grup %}<span style = "font-size: 10px"><a href = "{% url "patrocle:grup_sms"  cod=sms.cod_grup %}"><i class = "icon-envelope small"></i>&nbsp; Vezi overview multi-SMS</a></span>{% endif %}
+				</td>
+				<td>{% if sms.confirmat %}<i class = "icon-ok"></i>{% else %}<i class = "icon-remove"></i>{% endif %}</td>
+				<td>{% if eroare_trimitere or eroare_confirmare %}
+						{% if eroare_trimitere %}
+							{{ sms.get_err_data.1 }}
+						{% else %}
+							SMS-ul a primit o confirmare negativă (a fost respins după trimitere)
+						{% endif %}
+					{% endif %}</td>
+			</tr>
+			{% empty %}
+			<tr>
+				<td>&nbsp;</td>
+				<td><em>Nu ai trimis încă niciun mesaj. Patrocle dă din coadă nerăbdător să te ajute!</em></td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	{% paginate %}
+{% endblock %}

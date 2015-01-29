@@ -1,0 +1,100 @@
+{% load static %}
+{% load cotizatie_tags %}
+
+{% with request.user.get_profile.membru as object %}
+{%  with object as membru %}
+
+
+<div>
+	<div class = "span3">
+	{% if object.poza_profil %}
+		<img class = "thumbnail" src = "{{ object.poza_profil.get_profile_picture_url }}" />
+	{% else %}
+		<img class = "thumbnail" src = "{% static 'images/240x320.gif' %}" />
+	{% endif %}
+	</div>
+	<div class = "span9">
+        <table class = "table table-striped">
+        <tbody>
+{#            <tr>#}
+{#                <td>Nume</td>#}
+{#                <td>{{ object.nume_complet }}</td>#}
+{#            </tr>#}
+            <tr>
+                <td>Status</td>
+                <td>
+                    {% if membru.is_aspirant %}
+                        <span style = "color: #6699CC"><i class = "icon-warning-sign"></i> Membru aspirant</span>
+                    {% else %}
+                        {% if membru.is_suspendat %}
+                            <span style="color: red"><i class = "icon-remove"></i> Membru suspendat</span>
+                        {% else %}
+                            Membru cu drepturi depline
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+{#            <tr>#}
+{#                <td>E-mail</td>#}
+{#                <td><a href = "mailto:{{ object.email }}"><i class = "icon-envelope"></i> {{ object.email }}</a></td>#}
+{#            </tr>#}
+{#            <tr>#}
+{#                <td>Telefon</td>#}
+{#                <td>{{ object.mobil }}</td>#}
+{#            </tr>#}
+{#            <tr>#}
+{#                <td>Adresa</td>#}
+{#                <td>{{ object.adresa_postala }}</td>#}
+{#            </tr>#}
+            <tr>
+                <td>Ramura de vârstă</td>
+                <td><img src="{{ STATIC_URL }}images/icon-{{ object.get_ramura_de_varsta|slugify }}.png" /> {{ object.get_ramura_de_varsta }}</td>
+            </tr>
+{#            <tr>#}
+{#                <td>Data nașterii</td>#}
+{#                <td>{{ object.data_nasterii|date:"l, d F Y" }} / {{ object.data_nasterii|timesince }}</td>#}
+{#            </tr>#}
+{#            <tr>#}
+{#                <td>Centrul Local</td>#}
+{#                <td><a href = "{% url "structuri:cl_detail"  pk=object.centru_local.id %}"><i class = "icon-home"></i> {{ object.centru_local }}</a></td>#}
+{#            </tr>#}
+              <tr class = "{{ membru.status_cotizatie_numeric|cotizatie_level }}">
+                  <td>Cotizație</td>
+                  <td class = "{{ membru.status_cotizatie_numeric|cotizatie_level }}">
+                    {% if membru.is_suspendat %}
+                        <strong><i class = "icon-remove"></i> SUSPENDAT</strong> |
+                    {% endif %}
+                    Stare cotizație: <strong>{{ membru.status_cotizatie_numeric|cotizatie_description }}</strong>.
+                    {% if membru.status_cotizatie_numeric > 0 %}
+                        Mai trebuie să plătești {{ membru.calculeaza_necesar_cotizatie }} RON pentru a ajunge la zi.
+                    {% endif %}
+                  </td>
+              </tr>
+            {% if membru.scout_id %}
+            <tr>
+                <td>ONCR ID</td>
+                <td>
+                    <a href = "https://www.oncr.ro/{{ membru.scout_id }}"><img src = "{% static "images/oncr3.jpg" %}" style="width: 16px; height: 16px"> {{ membru.scout_id }}</a>
+                    {% if membru.oncr_status %} {% if membru.oncr_status.0 %}<i class = "icon-ok"></i>{% else %}<i class = "icon-remove"></i>{% endif %}  - <strong>{{ membru.oncr_status.1 }}</strong>{% else %}<i class = 'icon-question'></i>{% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td>Nivel încredere (credit) <a title = "Nivelul de încredere este folosit pentru a determina dacă Centrul Local va 'pune bani de la el' temporar pentru a
+                                plăti diferite lucruri (taxă de participare, cazare, transport) pentru tine, dacă nu ai reușit să plătești încă.
+                                Toată lumea pleacă de la 'bun' și poate scădea doar dacă se retrage dintr-o acțiune pentru care Centrul a consumat deja bani pe care nu îi mai poate recupera."><i class = "icon-question-sign"></i></a>
+                </td>
+                <td><span class = "label
+                    {% if object.scor_credit == 0 %}label-important
+                    {% elif object.scor_credit == 1 %}label-warning
+                    {% elif object.scor_credit == 2 %}label-success
+                    {% endif %}">{{ object.get_scor_credit_display }}</span>
+                </td>
+            </tr>
+        </tbody>
+        </table>
+	</div>
+
+</div>
+{% endwith %}
+{% endwith %}

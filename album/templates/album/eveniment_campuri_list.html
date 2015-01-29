@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load pagination_tags %}
+
+{% block page_title %}
+    {{ eveniment }} <span style="font-weight: normal">| câmpuri speciale</span>
+    <div class = "btn-group pull-right">
+        <a class = "btn btn-primary" href = "{% url "album:eveniment_campuri_create"  slug=eveniment.slug %}"><i class = "icon-plus"></i> Adaugă câmp</a>
+    </div>
+{% endblock %}
+
+{% block context_menu %}
+    {% include "album/eveniment_context_menu.html" %}
+{% endblock %}
+
+{% block extrahead %}
+    <script type="text/javascript" src="{% url goodies:js_delete app_label='album' model='CampArbitrarParticipareEveniment' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>&nbsp;</th>
+            <th>Nume</th>
+            <th>Tip</th>
+            <th>Valoare implicită</th>
+            <th>Opțional</th>
+            <th>&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for camp in object_list %}
+            <tr>
+                <td>#{{ camp.id }}</td>
+                <td>{{ camp.nume }}<br /><span style = "font-size: 10px; color: #999999">{{ camp.slug }}</span></td>
+                <td>{{ camp.get_tip_camp_display }}</td>
+                <td>{{ camp.implicit }}</td>
+                <td>{% if camp.optional %}<i class = 'icon-ok'></i>{% endif %}</td>
+                <td>
+                    <div class = "btn-group pull-right">
+                        <a href = "{% url "album:eveniment_campuri_update"  pk=camp.id %}" class = "btn btn-mini"><i class = "icon-pencil"></i></a>
+                        <a href = "#" id="delete_{{ camp.id }}" class = "btn btn-mini"><i class = "icon-trash"></i></a>
+                    </div>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td>&nbsp;</td>
+                <td colspan="7">
+                    <em>Nu există câmpuri</em>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+
+
+    </table>
+
+    <h2>Alte coloane disponibile</h2>
+    <ul class="unstyled">
+    {% for col in coloane_permise %}
+        <li><label for = "id_{{ col.0 }}"><input class = "camp-aditional" data-slug="{{ col.0 }}" type="checkbox" id = "id_{{ col.0 }}"> {{ col.1 }}</label></li>
+    {% endfor %}
+    </ul>
+    <input type = "hidden" value = "{{ eveniment.campuri_aditionale }}" id = "campuri_aditionale">
+{% endblock %}
+
+{% block extrajs %}
+    <script>
+    $("document").ready(function () {
+        var campuri = $("#campuri_aditionale").val().split(";");
+        _.each(campuri, function (e) {
+           $("#id_" + e).prop("checked", true);
+        });
+        $(".camp-aditional").change(function (e) {
+            var index = _.indexOf(campuri, $(this).data("slug"));
+            if ($(this).is(":checked")) {
+                if (index < 0) {
+                    campuri.push($(this).data("slug"));
+                    $.post("{% url "album:eveniment_camp_update"  slug=eveniment.slug %}", {"campuri": campuri.join(";"), "csrfmiddlewaretoken": "{{ csrf_token }}"}, function (data) {});
+                }
+            } else {
+                if (index > 0) {
+                    campuri.splice(index, 1);
+                    $.post("{% url "album:eveniment_camp_update"  slug=eveniment.slug %}", {"campuri": campuri.join(";"), "csrfmiddlewaretoken": "{{ csrf_token }}"}, function (data) {});
+                }
+            }
+        });
+    });
+
+    </script>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load tab_tags %}
+
+{% block page_title %}
+    {{ object.nume }} <span style = "font-weight: normal">| Raport</span>
+{% endblock %}
+
+{% block context_menu %}
+    {% with object as eveniment %}
+        {% include 'album/eveniment_context_menu.html' %}
+    {% endwith %}
+{% endblock %}
+
+{% block extrajs %}
+{% endblock %}
+
+{% block content %}
+    {% if raport %}
+    {% if raport.accept_publicare_raport_national %}<p class = "alert alert-success"><i class = 'icon-ok'></i> Raportul a fost propus pentru includere în raportul anual al ONCR</p>{% endif %}
+
+    {% if raport.parteneri %}
+    <h2>Parteneri</h2>
+    {{ raport.parteneri|linebreaks }}
+    {% endif %}
+
+    {% if raport.obiective %}
+    <h2>Obiective</h2>
+    {{ raport.obiective|linebreaks }}
+    {% endif %}
+
+    {% if raport.grupa_tinta %}
+    <h2>Grup țintă</h2>
+    {{ raport.grup_tinta|linebreaks }}
+    {% endif %}
+
+    {% if raport.alti_beneficiari %}
+    <h3>Alți beneficiari</h3>
+    {{ raport.alti_beneficiari|linebreaks }}
+    {% endif %}
+
+    {% if raport.promovare %}
+    <h2>Promovare</h2>
+    {{ raport.promovare|linebreaks }}
+    {% endif %}
+
+    {% if raport.buget %}
+    <h2>Buget (aproximativ)</h2>
+    {{ raport.buget }} RON
+    {% endif %}
+    {% else %}
+        <em>Nu a fost creat încă raportul. Crează <a href = "{% url "album:eveniment_raport_update"  slug=object.slug %}">aici</a>.</em>
+    {% endif %}
+{% endblock %}

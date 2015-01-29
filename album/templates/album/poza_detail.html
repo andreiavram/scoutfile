@@ -1,0 +1,165 @@
+{% extends 'album/poza_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    {{ block.super }}
+	<div class = "btn-toolbar">
+		<div class = "btn-group">
+			<a id = 'flag-button' class = "btn {% if object.has_flags %}btn-warning{% endif %}" href = "#flag_modal" data-toggle="modal"><i class = "icon-flag"></i></a>
+            {% if media_manager %}<a class = "btn make_cover" href = "javascript:void()" data-image = "{{ object.id }}"><i class = "icon-picture"></i></a>{% endif %}
+		</div>
+		<div class = "btn-group">
+			<a href = "javascript:void()" class = "btn thumbs_up" data-image = "{{ object.id }}"><i class = "icon-thumbs-up"></i></a>
+			<a href = "javascript:void()" class = "btn disabled" id = "score_{{ object.id }}">{{ object.score }}</a>
+			<a href = "javascript:void()" class = "btn thumbs_down" data-image = "{{ object.id }}"><i class = "icon-thumbs-down"></i></a>
+		</div>
+        {% if media_manager %}
+		<div class = "btn-group">
+			<a href = "{% url "album:poza_rotate"  pk=object.id %}?direction=ccw" class = "btn"><i class = "icon-rotate-left"></i></a>
+			<a href = "{% url "album:poza_rotate"  pk=object.id %}?direction=cw" class = "btn"><i class = "icon-rotate-right"></i></a>
+		</div>
+        {% endif %}
+		<div class = "btn-group">
+			<a href = "{{ object.image.url }}" class = "btn"><i class = "icon-picture"></i> Original</a>
+			<a href = "{{ object.get_profile_url }}" class = "btn"><i class = "icon-picture"></i> Profil</a>
+		</div>
+
+        {% if media_manager or request.user.is_superuser %}
+        <div class = 'btn-group'>
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class = "icon-eye-open"> </i> <span id = "current_visibility">{{ object.get_published_status_display }}</span>
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                {% for state in visibility_states %}
+                    <li><a href = "#" data-value = "{{ state.0 }}" class = "visibility_action">{{ state.1 }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        <div class = "btn-group pull-right">
+            {% if prev_photo %}
+                    <a class = "btn" href="{% url "album:poza_detail"  pk=prev_photo.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i
+                            class="icon-chevron-left icon-white"></i></a>
+            {% endif %}
+                <a href = "{% url "album:zi_detail"  pk=object.get_day.id %}" class = "btn"><i class = "icon-chevron-up"></i></a>
+            {% if next_photo %}
+                    <a class = "btn" href="{% url "album:poza_detail"  pk=next_photo.id %}{% if autor %}?autor={{ autor }}{% endif %}"><i
+                            class="icon-chevron-right icon-white"></i></a>
+            {% endif %}
+
+        </div>
+
+	</div>
+    {#	<div class = "well">{% if object.is_face_processed %}Face processed {{ object.detectedface_set.all.count }} faces found {% else %}not processed{% endif %}</div>#}
+    {% if object.flagreport_set.all.count %}
+        <div class="alert alert-warning"><i class="icon-flag"></i>
+            {% if media_manager %}
+
+                Există sesizări pentru această poză: <ul class="unstyled">
+                {% for report in object.flagreport_set.all %}
+                    <li>{{ report.timestamp|date:"l, d F Y H:i" }}: <strong>{{ report.get_motiv_display }}</strong> {% if report.motiv == 'altul' %} - {{ report.alt_motiv|linebreaksbr }}{% endif %}</li>
+                {% endfor %}
+                </ul>
+                {% else %}
+                Această poză a fost marcată de {% if object.flagreport_set.all.count > 1 %}mai mulți
+            utilizatori{% else %}un utilizator{% endif %} ca nepotrivită pentru acest album, și urmează să fie analizată
+            de un lider sau de fotograf.
+            {% endif %}
+        </div>{% endif %}
+    <div class="row-fluid">
+        <div style="position: relative; margin-left: 0; margin-right: auto; background-color: black; padding: 5px;" id="bigimage_container">
+            {#            <div style="float: left; height: 0;">#}
+            {#        #}
+            {#		{% for face in object.detectedface_set.all %}#}
+            {#			<div class = "face" style = "display: none; position: absolute; left: {% widthratio face.x object.resolution_x 960 %}px; top: {% widthratio face.y object.resolution_x 960 %}px; width: {% widthratio face.width object.resolution_x 960 %}px; height: {% widthratio face.height object.resolution_x 960 %}px; border: 3px dashed #3c3f41;"></div>#}
+            {#		{% endfor %}#}
+            {#            </div>#}
+            <img id = "bigimage" src="{{ object.get_large_url }}?{{ random_value }}" style=""/>
+            <div style="bottom: 10px; right: 10px; position: absolute; background: #000; color: #fff; border: 1px solid #666; opacity: 0.7; padding: 5px 10px;">&copy; {{ object.data|date:"Y" }}, {{ object.set_poze.autor }}</div>
+            {% if object.published_status == 4 %}
+                <div class="fb-like" style="position: absolute; bottom: 10px; left: 10px;"
+                     data-href="{{ url_root }}{% url "album:poza_detail"  pk=object.id %}" data-action="like"
+                     data-layout="box_count" data-width="150" data-show-faces="false" data-share="true"></div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if not object.titlu|lower|slice:"-4:" == ".jpg" %}<h1>{{ object.titlu }}</h1>{% endif %}
+    {% if object.descriere %}<p>{{ object.descriere|linebreaksbr }}</p>{% endif %}
+
+    <div id = "flag_modal" tabindex = "-1" role = "dialog" aria-hidden = "true" aria-labelledby="flag_modal_head" class="modal hide fade">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3 id = "flag_modal_head">Raportează poza</h3>
+      </div>
+      <div class="modal-body">
+            <div id = "modal-success" style="display: none" class = "alert-success alert">Raportul a fost trimis către administratori!</div>
+            <div id = "modal-error" style="display: none" class = "alert alert-danger">A apărut o eroare în salvarea raportului!</div>
+            <div id = "modal-content" class = "row-fluid">
+                <div class = "span4 thumbnail" style = "position: relative; max-width: 960px;">
+                    <img src = "{{ object.get_thumbnail_url }}?{{ random_value }}" style = "width: 100%;" />
+                </div>
+                <div class = "span8">
+                    {% crispy report_form report_form.helper %}
+                </div>
+            </div>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal" class = "close">Închide</a>
+          <a href="#" class="btn btn-primary" id = "submit-report">Salvează</a>
+      </div>
+    </div>
+    <script type = "text/javascript">
+        $(document).ready(function() {
+            $("#bigimage").load(function() {
+                $("#bigimage_container").css("width", $(this).width());
+            });
+
+
+            $("#submit-report").click(function (e) {
+                if (($('#raport_form input[type=radio]:checked').val() == "altul") && ($("#id_alt_motiv").val().length == 0)) {
+                    $("#modal-error").html("Ați ales 'alt motiv', spuneți și care este acesta").show("fast");
+                    return false;
+                }
+                if ($('#raport_form input[type=radio]:checked').val() === null) {
+                    $("#modal-error").html("Alegeți un motiv pentru care raportați poza").show("fast");
+                    return false;
+                }
+
+                $.post("{% url "album:poza_flag_ajax"  %}", {"csrfmiddlewaretoken" : "{{ csrf_token }}",
+                    "imagine": {{ object.id }},
+                    "motiv": $('#raport_form input[type=radio]:checked').val(),
+                    "motiv_altul": $("#id_alt_motiv").val()},
+                    function (data) {
+                        $("#flag-button").addClass("btn-warning");
+                        $("#modal-content").hide();
+                        $("#modal-error").hide();
+                        $("#modal-success").show();
+                        setTimeout(function () {
+                            $("#flag_modal").modal("hide");
+                            setTimeout(function () {
+                                $("modal-success").hide();
+                                $("#modal-content").show();
+                            }, 500);
+
+                        }, 1000);
+                    });
+                e.preventDefault();
+            })
+
+			jQuery("#div_id_alt_motiv").hide();
+
+			jQuery("input[id^='id_motiv_']").change(function () {
+				if (jQuery(this).is(":checked")) {
+                    if ($(this).attr("id") == "id_motiv_5") {
+                        jQuery("#div_id_alt_motiv").show("fast");
+                    } else {
+                        jQuery("#div_id_alt_motiv").hide("fast");
+                    }
+                }
+
+			});
+		});
+	</script>
+{% endblock %}

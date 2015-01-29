@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+	{% if object %}Modifică {{ object }}{% else %}Adaugă joc / activitate{% endif %}
+{% endblock %}
+
+{% block extrahead %}
+    {{ form.media }}
+    <style>
+        .markItUpPreviewFrame {
+            border: 0;
+        }
+    </style>
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Locații</li>
+		{% if object %}
+		<li><a href = "{% url "jocuri:activitate_detail"  pk=object.id %}"><i class = "icon-home"></i> {{ object }}</a></li>
+		{% endif %}
+		{% if user.is_staff %}
+		<li><a href = "{% url "jocuri:activitate_search"  %}"><i class = "icon-search"></i> Căutare jocuri</a>
+		{% endif %}
+	</ul>
+
+    {% if object and object.fisiere.count > 0 %}
+    <ul class = "nav-list nav" style="margin-top: 20px;">
+        <li class = "nav-header">Atașamente</li>
+    {% for doc in object.fisiere.all %}
+        <li>
+            <a class = "doc-link" data-shortcode="{{ doc.shortcode_reference }}" href = "#">
+                {% if doc.image_storage %}
+                    <img src = "{{ doc.image_storage.get_thumbnail_url }}" class = "thumbnail" style="width: 100%">
+                {% endif %}
+            {{ doc.titlu }}<i class = "icon-chevron-right pull-right"></i></a>
+        </li>
+    {% endfor %}
+    </ul>
+        <div style="margin: 15px; font-size: 10px">
+    <em >click pe un atașament pentru a-l adăuga în text sau <a href = "{% url "jocuri:activitate_document_create"  pk=object.id %}" target="_blank">adaugă</a></em></div>
+    {% endif %}
+{% endblock %}
+
+
+{% block content %}
+	{% crispy form form.helper %}
+{% endblock %}
+
+{% block extrajs %}
+    <script>
+    $("document").ready(function () {
+        $("a.doc-link").click(function (e) {
+            var cursorPosition = $("#id_descriere_joc").prop("selectionStart");
+            var currentText = $("#id_descriere_joc").val();
+            $("#id_descriere_joc").val(currentText.substring(0, cursorPosition) + $(this).data("shortcode") + currentText.substring(cursorPosition, currentText.length));
+            $("#id_descriere_joc").prop("selectionStart", cursorPosition + $(this).data("shortcode").length);
+            $("#id_descriere_joc").focus();
+            e.preventDefault();
+        });
+    });
+    </script>
+{% endblock %}

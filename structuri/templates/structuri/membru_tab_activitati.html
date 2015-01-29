@@ -1,0 +1,38 @@
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>&nbsp;</th>
+        <th>Eveniment</th>
+        <th>Rol</th>
+        <th>Status</th>
+        <th>Parțial</th>
+        <th>Perioada</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for participare in object_list %}
+        <tr>
+            <td>#{{ participare.id }}</td>
+            <td><a href="{% url "album:eveniment_detail"  slug=participare.eveniment.slug %}">{{ participare.eveniment }}</a></td>
+            <td>{{ participare.get_rol_display }}</td>
+            <td>{{ participare.get_status_participare_display }}</td>
+            <td>{% if participare.is_partiala %}<i class = "icon-ok"></i>{% endif %}</td>
+            <td>{% if participare.data_sosire.date == participare.data_plecare.date %}
+                    {{ participare.data_sosire|date:"l, d F Y" }}, între {{ participare.data_sosire|date:"H:i" }} - {{ participare.data_plecare|date:"H:i" }}
+                {% else %}
+                    {{ participare.data_sosire|date:"l, d F Y H:i" }} - {{ participare.data_plecare|date:"l, d F Y H:i" }}
+                {% endif %}</td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td>&nbsp;</td>
+            <td colspan="6">
+                <em>Nu există participanți</em>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+
+
+</table>

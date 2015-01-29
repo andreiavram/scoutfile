@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+    Adaugă decizie de stabilire a cuantumului cotizației
+{% endblock %}
+
+{% block extrahead %}
+    {{ form.media }}
+    <script>
+        function handle_numar_inregistrare() {
+            if (/\(auto\)$/.test($("#id_registru option:selected").text())) {
+                $("#id_numar_inregistrare").closest("div.control-group").hide();
+            } else {
+                $("#id_numar_inregistrare").closest("div.control-group").show();
+            }
+        }
+        $("document").ready(function () {
+            handle_numar_inregistrare();
+            $("#id_registru").change(function (e) {
+                handle_numar_inregistrare();
+            })
+        });
+    </script>
+
+{% endblock %}
+
+
+{% block context_menu %}
+    <ul class="nav nav-list">
+        <li class="nav-header">Acțiuni</li>
+        <li><a href="{% url "documente:selectie_document"  pk=centru_local.id %}"><i class="icon-chevron-left"> Adaugă alt
+            document</i></a></li>
+    </ul>
+{% endblock %}
+
+{% block content %}
+    {% crispy form form.helper %}
+{% endblock %}

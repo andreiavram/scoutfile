@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+	{% if object %}Modifică {% else %}Adaugă {% endif %} afiliere pentru {{ membru }}
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Locații</li>
+		<li><a href = "{% url "structuri:membru_detail"  pk=membru.id %}"><i class = "icon-user"></i> {{ membru }}</a></li>
+	</ul>
+{% endblock %}
+
+{% block extrahead %}
+	<link type = "text/css" href = "{{ STATIC_URL }}css/datepicker.css" rel = "stylesheet"/>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-datepicker.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-datepicker-activate.js"></script>
+	
+	<script type = "text/javascript">
+		function after_update_content_objects(data) {
+			values_html = "";
+			for (var i = 0; i < data.objects.length; i++) {
+				values_html += "<option ";
+				if (("{{ object_id }}" != "") && (data.objects[i][0] == "{{ object_id }}")) {
+					values_html += "selected = 'selected'"
+				}
+				values_html += " value = '" + data.objects[i][0] + "'>" + data.objects[i][1] + "</option>";
+			}
+			
+			$("#id_object_id").html(values_html);
+			$("#div_id_object_id").show("fast");
+			
+			tip_asocieri_html = "";
+			for (i = 0; i < data.types.length; i++) {
+				tip_asocieri_html += "<option ";
+				if (("{{ tip_asociere }}" != "") && (data.types[i][0] == "{{ tip_asociere }}")) {
+					tip_asocieri_html += "selected = 'selected'"
+				}
+				tip_asocieri_html += "value = '" + data.types[i][0] + "'>" + data.types[i][1] + "</option>";
+				
+			}
+			
+			$("#id_tip_asociere").html(tip_asocieri_html);
+			$("#div_id_tip_asociere").show("fast");
+		}
+	
+		jQuery(document).ready(function () {
+			$("#div_id_object_id").hide();
+			$("#div_id_tip_asociere").hide();
+			
+			$("#id_content_type").change(function () {
+				if ($(this).val() == "") {
+					$("#div_id_object_id").hide("fast");
+					$("#id_object_id").val("");
+					$("#div_id_tip_asociere").hide("fast");
+					$("#id_tip_asociere").val("");
+				} else {
+					Dajaxice.structuri.update_content_objects(Dajax.process, {"ctype_id" : $(this).val()});
+				}
+			});
+			
+			if ($("#id_content_type").val() != "") {
+				Dajaxice.structuri.update_content_objects(Dajax.process, {"ctype_id" : $("#id_content_type").val()});
+			}
+		});
+	</script>
+{% endblock %}
+
+{% block content %}
+	{% crispy form form.helper %}
+{% endblock %}

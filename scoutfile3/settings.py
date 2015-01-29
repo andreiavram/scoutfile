@@ -1,21 +1,29 @@
 # coding: utf-8
-import os.path
+"""
+Django settings for here project.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/1.6/topics/settings/
+
+For the full list of settings and their values, see
+https://docs.djangoproject.com/en/1.6/ref/settings/
+"""
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import os
 from utils.mdextend import iconfonts
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+ALLOWED_HOSTS = []
 
 ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
     ("Andrei AVRAM", "andrei.avram@albascout.ro")
 )
 
 MANAGERS = ADMINS
-
-
-components = os.path.abspath(__file__).split(os.sep)[:-2]
-FILE_ROOT = str.join(os.sep, components)
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -40,9 +48,10 @@ USE_I18N = True
 # calendars according to the current locale
 USE_L10N = True
 
+
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = '%s/media/' % FILE_ROOT
+MEDIA_ROOT = os.path.join(BASE_DIR, "media") # '%s/media/' % BASE_DIR
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -53,7 +62,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = os.path.join(FILE_ROOT, "static")
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -61,11 +70,11 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    ("js", "%s/js" % STATIC_ROOT),
-    ("images", "%s/images" % STATIC_ROOT),
-    ("css", "%s/css" % STATIC_ROOT),
-    ("font", "%s/font" % STATIC_ROOT),
-    ("jquery_upload", "%s/jquery_upload" % STATIC_ROOT),
+    ("js", os.path.join(STATIC_ROOT, "js")),
+    ("images", os.path.join(STATIC_ROOT, "images")),
+    ("css", os.path.join(STATIC_ROOT, "css")),
+    ("font", os.path.join(STATIC_ROOT, "font")),
+    ("jquery_upload", os.path.join(STATIC_ROOT, "jquery_upload")),
     ("gallery", os.path.join(STATIC_ROOT, "gallery")),
     ("bootstrap-calendar", os.path.join(STATIC_ROOT, "bootstrap-calendar")),
 )
@@ -128,7 +137,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    ("%s/templates" % FILE_ROOT),
+    (os.path.join(BASE_DIR, "scoutfile3", "templates")),
 )
 
 
@@ -157,7 +166,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
-    'django.contrib.markup',
 
     'debug_toolbar',
 
@@ -165,7 +173,7 @@ INSTALLED_APPS = (
     'dajax', 'dajaxice',
     'crispy_forms', 'djangorestframework', 'captcha',
     'ajax_select', "taggit", 'pagination', 'less',
-    
+
     'structuri', 'generic', 'album',
     'patrocle', 'documente', 'extra',
     'utils', 'proiecte', 'cantece', 'jocuri',
@@ -180,6 +188,7 @@ INSTALLED_APPS = (
 
 )
 
+WSGI_APPLICATION = 'scoutfile3.wsgi.application'
 
 AJAX_LOOKUP_CHANNELS = {
     #   pass a dict with the model and the field to search against
@@ -209,22 +218,28 @@ LOGGING = {
         'simple': {
             'format': '%(levelname)s %(message)s'
         },
-    },    
+    },
+    'filters': {
+         'require_debug_false': {
+             '()': 'django.utils.log.RequireDebugFalse'
+         }
+     },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
+            'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
         'default': {
             'level' : 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename' : "%s/logs/debug.log" % FILE_ROOT,
+            'filename' : "%s/logs/debug.log" % BASE_DIR,
             'formatter' : 'verbose',
         },
         'error' : {
             'level' : 'ERROR',
             'class' : 'logging.FileHandler',
-            'filename' : '%s/logs/error.log' % FILE_ROOT,
+            'filename' : '%s/logs/error.log' % BASE_DIR,
             'formatter' : 'verbose',
         },
         'null': {
@@ -273,7 +288,7 @@ LOGGING = {
 
 PHOTOLOGUE_DIR = "poze"
 PHOTOLOGUE_IMAGE_FIELD_MAX_LENGTH = 1024
-FIXTURE_DIRS = ["%s/fixtures" % FILE_ROOT, ]
+FIXTURE_DIRS = ["%s/fixtures" % BASE_DIR, ]
 
 #HAYSTACK_CONNECTIONS = {
 #    'default': {r
@@ -283,7 +298,7 @@ FIXTURE_DIRS = ["%s/fixtures" % FILE_ROOT, ]
 #    },
 #}
 
-AUTH_PROFILE_MODULE = 'structuri.Utilizator'
+
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/edit/"
 
@@ -347,7 +362,7 @@ AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',
                            'utils.auth_backends.FacebookBackend',)
 
 CRISPY_TEMPLATE_PACK = "bootstrap"
-BOWER_COMPONENTS_ROOT = os.path.join(FILE_ROOT, "components")
+BOWER_COMPONENTS_ROOT = os.path.join(BASE_DIR, "components")
 BOWER_PATH = '/usr/bin/bower'
 
 BOWER_INSTALLED_APPS = (
@@ -361,7 +376,7 @@ CENTRU_LOCAL_IMPLICIT = 1
 REDMINE_APY_KEY = ""
 
 DEFAULT_FILE_STORAGE = 's3utils.MediaS3BotoStorage'
-LOCAL_MEDIA_ROOT = os.path.join(FILE_ROOT, "media")
+LOCAL_MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 LOCAL_MEDIA_URL = "/media/"
 
 from pyembed.markdown import PyEmbedMarkdown
@@ -370,5 +385,7 @@ MARKDOWN_EXTENSIONS = ['extra', PyEmbedMarkdown(), scoutfile_markdown.makeExtens
 
 MARKDOWN_STYLE = os.path.join(STATIC_ROOT, "css", "markdown-preview.css")
 MARKDOWN_EDITOR_SKIN = 'simple'
+
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 from local_settings import *

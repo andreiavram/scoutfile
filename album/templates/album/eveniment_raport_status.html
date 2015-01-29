@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block page_title %}
+    Raport <span style="font-weight: normal">| {{ an }}</span><span class = "pull-right label label-{% if scor_anual < 0 %}important{% else %}{% if scor_anual == 0 %}warning{% else %}success{% endif %}{% endif %}">Scor total raport: {{ scor_anual }}</span>
+{% endblock %}
+
+{% block context_menu %}
+    {% include "album/main_context_menu.html" %}
+    <ul class = "nav nav-list">
+    <li class = "nav-header">Ani</li>
+    {% for an in ani %}
+        <li><a href = "{% url "album:raport_status"  %}?an={{ an }}">{{ an }}</a></li>
+    {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block content %}
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>&nbsp;</th>
+            <th>Eveniment</th>
+            <th>Perioada</th>
+            <th>Participanti</th>
+            <th>Scor*</th>
+            <th>Poze</th>
+            <th>Responsabil</th>
+            <th>&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for eveniment in object_list %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td><a href = "{% url "album:eveniment_detail"  slug=eveniment.slug %}">{{ eveniment }}</a><br /><span class = "small">{% if eveniment.tip_eveniment %}{{ eveniment.tip_eveniment }}</span>{% else %}<em>Lipsă!{% endif %}</em></td>
+                <td>
+                    {% if eveniment.is_one_day %}{{ eveniment.start_date|date:"l, d F Y" }}, între {{ eveniment.start_date|date:"H:i" }} și {{ eveniment.end_date|date:"H:i"}}
+                    {% else %}{{ eveniment.start_date|date:"l, d F Y" }} - {{ eveniment.end_date|date:"l, d F Y" }}{% endif %}
+                </td>
+                <td>
+                    <ul class = "unstyled" style="font-size:10px; text-align: left">
+                    {% for rdv, data in eveniment.get_ramuri_de_varsta.items %}
+                        {% if data.0 != 0 %}
+                        <li style = "display: inline"><strong>{{ data.0 }}</strong> <img src = "{{ STATIC_URL }}images/icon-{{ rdv }}.png"> </li>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                </td>
+                <td><span class = "label label-{% if eveniment.scor_calitate < 0 %}important{% else %}{% if eveniment.scor_calitate == 0 %}warning{% else %}success{% endif %}{% endif %}">{{ eveniment.scor_calitate }}</span></td>
+                <td>
+                    {{ eveniment.total_poze }}
+                </td>
+                <td>
+                    {% if eveniment.responsabil_raport %}{{ eveniment.responsabil_raport }}{% else %}<span style="color: #990000">Nu avem</span>{% endif %}
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <a href = "{% url "album:eveniment_detail"  slug=eveniment.slug %}" class = "btn btn-mini"><i class = "icon-file"></i></a>
+                    </div>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td>&nbsp;</td>
+                <td colspan="5">
+                    <em>Nu există evenimente pentru {{ an }}</em>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+
+
+    </table>
+    <p class = "small">*scorul se calculeaza astfel: daca evenimentul are vreunul din elementele minime ale raportului lipsa (tip, numar participanti, locatie, raportul "birocratic"
+        pentru ONCR lipsa, scorul va fi negativ, egal cu numărul de lipsuri, indiferent de alte criterii. Dacă sunt îndeplinite criteriile minime, scorul crește dacă evenimentul are și localizarea
+        geografică, are poze, are mai mult de 100 de poze, are link-uri către articolul de pe site și / sau evenimentul de pe Facebook</p>
+{% endblock %}
+
