@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load tab_tags %}
+{% load pagination_tags %}
+{% load static %}
+
+{% block page_title %}
+	Membri pierduți
+{% endblock %}
+
+{% block extrahead %}
+	{% tab_js %}
+	<script type = "text/javascript">
+		jQuery(document).ready(function () {
+			jQuery(".tooltip-target").tooltip();
+		});
+	</script>
+{% endblock %}
+
+
+{% block content %}
+	{% autopaginate object_list 10 %}	
+	
+	<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+			<th>Nume</th>
+			<th>Conexiuni</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for object in object_list %}
+		<tr id = "row_{{ object.id }}">
+			<td>{{ forloop.counter }}</td>
+			<td><ul class = "unstyled">{% for badge in object.get_badges_rdv %}
+				<li><img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" /></li>
+				
+				{% endfor %}</ul></td>
+			<td><img class = "thumbnail" src = "{% if object.poza_profil %}{{ object.poza_profil.get_profil_mic_url }}{% else %}{% static 'images/50x50.gif' %}'{% endif %}" /></td>
+			<td><a href = "{% url "structuri:membru_detail"  pk=object.id %}">{{ object }}</a> {% for badge in object.get_extra_badges %}<img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}</td>
+			
+			<td>
+				<ul class = "unstyled">
+				{% for afiliere in object.afilieri_curente %}
+						<li>
+						 {{ afiliere.tip_asociere }} {% if afiliere.content_type.name != "Centru Local" %}({{ afiliere.content_object }}){% endif %}</li>
+				 {% empty %}
+				 	<li><em>Nu are</em></li>
+				{% endfor %}
+				</ul>
+			</td>
+			<td>    
+				<div class="btn-group pull-right">
+					<a href = "{% url "structuri:membru_detail"  pk=object.id %}" class = "btn btn-mini"><i class = "icon-user"></i></a>
+			    </div>
+			</td>
+		</tr>
+		{% empty %}
+		<tr>
+			<td>&nbsp;</td>
+			<td><em>Nu sunt membri deconectați.</em></td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+
+</table>	
+	
+	{% paginate %}
+{% endblock %}

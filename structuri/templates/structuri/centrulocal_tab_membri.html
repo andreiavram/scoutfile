@@ -1,0 +1,124 @@
+{% load static %}
+{% block content %}
+	<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>&nbsp;</th>
+            <th>&nbsp;</th>
+			<th>&nbsp;</th>
+            <th>&nbsp;</th>
+			<th>Nume</th>
+			<th>Vechime</th>
+			<th>Conexiuni</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for object in object_list %}
+		<tr id = "row_{{ object.id }}">
+			<td>{% if object.membru.scout_id %}
+            <a {% if object.membru.oncr_status %}class = "popover_target"{% endif %} data-content = "Ultimul trimestru confirmat ONCR: <br /><strong>{{ object.membru.oncr_status.1 }}</strong>" data-html = "true" data-trigger = "hover" data-title = "ONCR ID: {{ object.membru.scout_id }}" href = "https://www.oncr.ro/{{ object.membru.scout_id }}"><img src = "{% static "images/oncr3.jpg" %}" style="width: 14px; height: 14px"> {{ object.membru.scout_id }}</a> {% if object.membru.oncr_status %} {% if object.membru.oncr_status.0 %}<i class = "icon-ok"></i>{% else %}<i class = "icon-remove"></i>{% endif %}{% else %}<i class = 'icon-question'></i>{% endif %}<br />
+            {% endif %}<img src = "{% static "images/bufnita.png" %}" style="width: 14px; height: 14px"> #{{ object.membru.id }}</td>
+            <td>
+                {% with object.membru.status_cotizatie_numeric as status %}
+                {% if status <= 0 %}
+                    <i class = "icon-ok" style = "color:green"></i>
+                {% else %}
+                    {% if status > 1 %}
+                        <i class = "icon-remove" style = "color:red"></i>
+                        <br /><span style = "font-size: 10px; color: red">{{ object.membru.calculeaza_necesar_cotizatie }}</span>
+                     {% else %}
+                        <i class = "icon-warning-sign" style="color:#ffaf24"></i>
+                        <br /><span style = "font-size: 10px; color:#ffaf24">{{ object.membru.calculeaza_necesar_cotizatie }}</span>
+                    {% endif %}
+
+
+            {% endif %}{% endwith %}
+            </td>
+            <td>
+                {% if object.membru.is_adult %}
+                    <i style = "color:#336699" class = "icon-certificate"></i>
+                {% endif %}
+                {% if object.membru.is_inactiv %}
+                    <i style = "color: #333333" class = "icon-arrow-down"></i>
+                {% endif %}
+                {% if object.membru.is_aspirant %}
+                    <i style = "color: #ffaf24" class  ="icon-warning-sign"></i>
+                {% endif %}
+                {% if object.membru.is_suspendat %}
+                    <i style = "color: red" class = "icon-exclamation-sign"></i>
+                {% endif %}
+            </td>
+			<td><ul class = "unstyled" style="{% if object.membru.is_aspirant %}opacity: 0.3{% endif %}">{% for badge in object.membru.get_badges_rdv %}
+				<li><img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" /></li>
+				{% endfor %}</ul>
+            </td>
+			<td><img class = "thumbnail" src = "{% if object.membru.poza_profil %}{{ object.membru.poza_profil.get_profil_mic_url }}{% else %}{% static 'images/50x50.gif' %}{% endif %}" /></td>
+			<td><a href = "{% url "structuri:membru_detail"  pk=object.membru.id %}" {% if object.membru.is_suspendat %}style="text-decoration: line-through"{% endif %}{% if object.membru.is_inactiv %}style="color: #666"{% endif %}>{{ object.membru }}</a>
+                {% for badge in object.membru.get_extra_badges %}<img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
+                {% if request.user.get_profile.membru.is_membru_ccl %}<br /><span style = "font-size: 10px">{{ object.membru.cnp }}</span>{% endif %}</td>
+			<td>{{ object.moment_inceput|timesince }}<br /><span style="font-size: 10px; color: #999">{{ object.moment_inceput|date:"F Y" }}</span></td>
+			<td>
+            {% if object.membru.is_lider %}
+                {% for patrula in object.membru.get_patrule %}
+                    <img src = "{{ STATIC_URL }}images/icon-{{ patrula.unitate.ramura_de_varsta.slug }}.png" /> <a href = "{{ patrula.get_absolute_url }}">{{ patrula }}</a><br />
+                {% endfor %}
+                {% for unitate in object.membru.get_unitati %}
+                    <img src = "{{ STATIC_URL }}images/icon-{{ unitate.ramura_de_varsta.slug }}.png" /> <a href = "{{ unitate.get_absolute_url }}">{{ unitate }}</a><br />
+                {% endfor %}
+            {% else %}
+                {% with object.membru.get_patrula as patrula %}
+                    {% if patrula %}
+                        <img src = "{{ STATIC_URL }}images/icon-{{ patrula.unitate.ramura_de_varsta.slug }}.png" /> <a href = "{{ patrula.get_absolute_url }}">{{ patrula }}</a><br />
+                    {% endif %}
+                {% endwith %}
+                {% with object.membru.get_unitate as unitate %}
+                {% if unitate %}
+                    <img src = "{{ STATIC_URL }}images/icon-{{ unitate.ramura_de_varsta.slug }}.png" /> <a href = "{{ unitate.get_absolute_url }}">{{ unitate }}</a><br />
+                {% endif %}
+                {% endwith %}
+            {% endif %}
+{#				<ul class = "unstyled">#}
+{#				{% for afiliere in object.membru.afilieri_curente %}#}
+{#					{% if not afiliere.tip_asociere.nume == "Membru" or not afiliere.content_type.name == "Centru Local" %}#}
+{#						<li>#}
+{#							<!-- {% if afiliere.tip_asociere.nume = 'Lider' %}<img src = "{{ STATIC_URL }}images/icon-lider.png" />{% endif %} -->#}
+{#						 {{ afiliere.tip_asociere }} {% if afiliere.content_type.name != "Centru Local" %}({{ afiliere.content_object }}){% endif %}</li>#}
+{#					{% endif %}#}
+{#				{% endfor %}#}
+
+                {% if not object.membru.are_adeziune %}
+                    <a style="color: red" href = "{% url "documente:adeziune_add"  pk=object.membru.id %}"><i class = "icon-warning-sign"></i> Nu are adeziune</a>
+                {% endif %}
+				</ul>
+			</td>
+			<td>    
+				<div class="btn-group pull-right">
+					<a href = "{% url "structuri:membru_detail"  pk=object.membru.id %}" class = "btn btn-mini"><i class = "icon-user"></i></a>
+					<a href = "{% url "structuri:membru_afiliere_edit"  pk=object.id %}" class = "btn btn-mini"><i class = "icon-pencil"></i></a>
+                    {% if request.user.is_superuser %}
+                        <a href = "{% url "index"  %}?impersonate__id={{ object.membru.user.id }}" class = "btn btn-mini btn-warning"><i class = "icon-user"></i></a>
+                    {% endif %}
+			    </div>
+			</td>
+		</tr>
+		{% empty %}
+		<tr>
+			<td>&nbsp;</td>
+			<td colspan="7"><em>Nu sunt înregistrați membri. Adăugați un membru nou <a href = "">aici</a>.</em></td>
+
+		</tr>
+		{% endfor %}
+	</tbody>
+
+</table>
+{% endblock %}
+
+{% block extrajs %}
+    <script>
+    $("document").ready(function () {
+        $(".popover_target").popover();
+    })
+    </script>
+{% endblock %}

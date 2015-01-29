@@ -1,0 +1,37 @@
+{% extends 'album/eveniment_detail_base.html' %}
+
+{% block eveniment_content %}
+        <div class="row-fluid">
+        {% if autor %}
+            <div class="alert alert-success">Arăt doar pozele de la <strong>{{ autor }}</strong></div>{% endif %}
+
+    </div>
+
+
+    {% if object.poze_out_of_bounds %}
+        <div class = "alert alert-warning">Există <span class = "badge badge-warning">{{ object.poze_out_of_bounds }}</span> fotografii care au data curentă înafara limitelor evenimentului!</div>
+    {% endif %}
+
+    {% for zi, zi_photos in zile %}
+        {% if not object.is_one_day %}
+        <h2><a href="{% url "album:zi_detail"  pk=zi.id %}{% if autor %}?autor={{ autor }}{% endif %}">Ziua
+            {{ zi.index }}{% if zi.titlu %} - {{ zi.titlu }}{% endif %} <i class="icon-chevron-right"
+                                                                           style="margin-top: 10px"></i></a>
+        </h2>
+        {% if zi.descriere %}{{ zi.descriere|linebreaks|truncatewords:50 }}{% endif %}
+        <p style="font-weight: bold"><i
+                class="icon-star-empty"></i> {{ zi.date|date:"l, d F Y" }}, {{ zi.filter_photos.count }} fotografii, din care {{ zi.filter_public_photos.count }} publice.</p>
+
+        {% endif %}
+        <ul class="thumbnails">
+            {% for image in zi_photos|slice:":4" %}
+                <li class="span3">
+                    <a href="{% url "album:zi_detail"  pk=zi.id %}{% if autor %}?autor={{ autor }}{% endif %}"
+                       class="thumbnail">
+                        <img src="{{ image.get_thumbnail_url }}"/>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+{% endblock %}

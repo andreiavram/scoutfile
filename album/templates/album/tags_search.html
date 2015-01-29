@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load pagination_tags %}
+{% load staticfiles %}
+{% block page_title %}
+    Căutare după tag-uri
+{% endblock %}
+
+{% block context_menu %}
+    {% include "album/main_context_menu.html" %}
+{% endblock %}
+
+{% block extrahead %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}goodies/css/tagmanager.css"/>
+    <link rel="stylesheet" href="{% static 'gallery/css/blueimp-gallery.min.css' %}">
+    <style>
+        .blueimp-gallery > .description {
+            position: absolute;
+            top: 50px;
+            left: 15px;
+            color: #ddd;
+            display: none;
+        }
+
+        .blueimp-gallery-controls > .description {
+            display: block;
+        }
+
+        .blueimp-gallery > .sfcontrols {
+            position: absolute;
+            bottom: 45px;
+            left: 15px;
+            display: none;
+        }
+
+        .blueimp-gallery-controls > .sfcontrols {
+            display: block;
+        }
+
+        .blueimp-gallery > .tags {
+            position: absolute;
+            bottom: 95px;
+            left: 15px;
+            display: none;
+            color: #DDD;
+        }
+
+        .blueimp-gallery-controls > .tags {
+            display: block;
+        }
+
+    </style>
+{% endblock %}
+
+{% block extrajs %}
+    <script src="{% static "js/underscore-min.js" %}"></script>
+    <script src="{{ STATIC_URL }}goodies/js/typeahead.js"></script>
+    <script src="{{ STATIC_URL }}goodies/js/tagmanager.js"></script>
+    <script src="{% static 'gallery/js/blueimp-gallery.js' %}"></script>
+    <script src="{% static 'gallery/js/blueimp-gallery-fullscreen.js' %}"></script>
+    <script src="{% static 'gallery/js/blueimp-gallery-indicator.js' %}"></script>
+
+    <script>
+        var gallery = null;
+        var gallery_enabled = true;
+        var gallery_data = [];
+
+    </script>
+    {% include "album/imagine_handlers.html" %}
+    <script>
+        $(document).ready(function () {
+            $("#id_tags").focus();
+            $(".loading").hide();
+            $(".tm-input").each(function (index) {
+                var field_name = $(this).data("field-name");
+                var ajax_url = $(this).data("ajax-url");
+
+
+                var tagApi = $(this).tagsManager({
+                    hiddenTagListName: field_name,
+                    tagsContainer: "#" + field_name + "_tag_container",
+
+                });
+
+                $(this).typeahead({
+                    name: 'tags',
+                    limit: 20,
+                    remote: ajax_url + "?q=%QUERY"
+                }).on('typeahead:selected', function (e, d) {
+                            tagApi.tagsManager("pushTag", d.value);
+                        });
+            });
+
+            $(".tm-existing-item").click(function (e) {
+                $($(this).data("target")).tagsManager("pushTag", $(this).text());
+                e.preventDefault();
+                return false;
+            })
+
+            $("#tags-search-form").submit(function () {
+                offset = 0;
+                $("#rezultate-list").html("");
+                stop_flag = false;
+                gallery_data = [];
+                get_photos();
+                return false;
+            });
+
+            $(window).scroll(function () {
+                if (($(window).scrollTop() >= $(document).height() - $(window).height() * 1.5) && !(stop_flag)) {
+                    get_photos();
+                }
+            });
+
+        });
+
+        var offset = 0;
+        var limit = 9;
+        var stop_flag = true;
+        var crt_cnt = 0;
+
+        function on_data_return(data) {
+            var arr = $("[name='tags']").val().split(",");
+            console.log(arr);
+            var joined_text = $.grep(arr, function(n) { if (n != "") return(n) }).join(", ");
+
+            $("#msg").html("<i class = 'icon-search'></i> Am găsit " + data.total_count + " imagini tag-uite cu <strong>" + joined_text + "</strong> (cele mai recente mai sus)");
+        }
+
+
+        function get_request_data() {
+            return {"offset": offset,
+                "limit": limit,
+                "tags": $("[name='tags']").val(),
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+                "ordering": "desc"};
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+
+    <form class="form-inline" id="tags-search-form">
+        <fieldset>
+            <div class = "row-fluid">
+            <div class = "span4">
+            <input id="id_tags"
+                   data-field-name="tags" data-ajax-url="{% url "goodies:tag_list"  %}" type="text" name="tags_edit"
+                   placeholder="scrie tag-uri aici" class="tm-input" style="margin-bottom: 0px;"/>
+            <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i> Caută</button>
+            </div>
+                <div class = "span8">
+                     <div id="tags_tag_container">
+                    </div>
+                </div>
+            </div>
+            {% if tags %}
+                <div class="tag_suggestions" style = "margin-top: 10px">
+                    <strong>Tag-uri existente: </strong>
+                    {% for tag in tags %}
+                        <span class="tm-existing tm-tag tm-tag-small">
+                <a class="tm-existing-item" href="#" data-target="#id_tags">{{ tag }}</a>
+            </span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </fieldset>
+    </form>
+    <h2>Rezultate</h2>
+    <p id="msg" class = "alert alert-info">Scrie câteva tag-uri și apasă pe <i class="icon-search"></i> Caută în formularul de deasupra.</p>
+
+    <div id="rezultate">
+        <ul id="rezultate-list" class="thumbnails">
+
+        </ul>
+    </div>
+
+        <!-- The Gallery as lightbox dialog, should be a child element of the document body -->
+    <div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
+        <div class="slides"></div>
+        <h3 class="title"></h3>
+
+        <p class="description"></p>
+        <div class="sfcontrols">
+
+        </div>
+        <div class = "tags">
+
+        </div>
+        <a class="prev">‹</a>
+        <a class="next">›</a>
+        <a class="close">×</a>
+        <a class="play-pause"></a>
+        <ol class="indicator"></ol>
+    </div>
+    <div class="loading"></div>
+    {% include 'album/flag_modal.html' %}
+{% endblock %}

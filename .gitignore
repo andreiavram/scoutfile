@@ -12,3 +12,6 @@ components/*
 scoutfile3/local_settings.local.py
 scoutfile3/local_settings.py
 scoutfile3_production.sql
+.vagrant
+importdata
+node_modules

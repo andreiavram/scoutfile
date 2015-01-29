@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block page_title %}
+	Patrocle
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Locații</li>
+		<li><a href = "{% url "patrocle:send_sms"  %}"><i class = "icon-phone"></i> Trimite SMS</a></li>
+	</ul>
+{% endblock %}
+
+{% block content %}
+
+<table class = "table table-striped">
+	<tbody>
+		<tr>
+			<td><strong>Credit curent</strong></td>
+			<td>{{ current_credit }} SMS-uri</td>
+		</tr>
+		<tr>
+			<td><strong>Total transmise (cu succes)</strong></td>
+			<td>{{ total_transmise.count }}</td>
+		</tr>
+	</tbody>
+</table>
+
+{% endblock %}

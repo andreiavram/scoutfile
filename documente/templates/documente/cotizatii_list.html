@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load pagination_tags %}
+
+{% block page_title %}
+	Încasări cotizații             {% if trezorier and lider %}
+                <a href = "{% url "documente:transfer_cotizatii"  pk=lider.id %}" class = "pull-right btn btn-primary"><i class = "icon-upload"></i> Preia bani de la acest lider</a>
+            {% endif %}
+
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Locații</li>
+		<li><a href = "{% url "documente:cotizatii_centru_local"  pk=centru_local.id %}"><i class = "icon-list"></i> Toate cotizațiile</a></li>
+        <li><a href = "{% url "documente:cotizatii_lider"  pk=request.user.get_profile.membru.id %}"><i class = "icon-list"></i> Încasările mele</a></li>
+        <li><a href = "{% url "structuri:cl_detail"  pk=centru_local.id %}"><i class = "icon-chevron-left"></i> Înapoi la centrul local</a></li>
+        {% if casieri %}
+            <li class = "nav-header">Casieri</li>
+            {% for casier in casieri %}
+                <li><a href = "{% url "documente:cotizatii_lider"  pk=casier.id %}"><i class = "icon-user"></i> {{ casier }}</a></li>
+            {% endfor %}
+        {% endif %}
+	</ul>
+{% endblock %}
+
+{% block content %}
+    {% if lider and suma_casa %}
+        <p class = "alert alert-warning">
+            <i class = "icon-exclamation-sign"></i> {% if lider == request.user.get_profile.membru %}Ai{% else %}Are{% endif %} <strong>{{ suma_casa }} RON</strong> de predat la trezorerie {% if trezorier %}(vorbește cu <a href = "{% url "structuri:membru_detail"  pk=trezorier.id %}">{{ trezorier }}</a>){% endif %}
+        </p>
+    {% endif %}
+
+    {% autopaginate object_list 10 %}
+
+    <table class = "table table-striped">
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>Membru</th>
+				<th>Acoperă</th>
+                <th>Suma</th>
+                <th>Data</th>
+                <th>Casier</th>
+                <th>Predați</th>
+                <th>&nbsp;</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for object in object_list %}
+				<tr>
+					<td>#{{ object.numar_inregistrare }}</td>
+					<td>{{ object.platitor }}</td>
+					<td>{% for ptc in object.platacotizatietrimestru_set.all %}
+                            {{ ptc.trimestru }} {% if ptc.partial %}(partial){% endif %}{% if ptc.final %}(final){% endif %}<br />
+                        {% endfor %}</td>
+                    <td>{{ object.suma }}</td>
+                    <td>{{ object.data_inregistrare|date:"d.m.Y" }}</td>
+                    <td><a href = "{% url "documente:cotizatii_lider"  pk=object.casier.id %}">{{ object.casier }}</a></td>
+                    <td>{% if object.predat %}<i class = "icon-ok"></i>{% else %}<i class = "icon-remove"></i>{% endif %}</td>
+                    <td><div class= ="btn-group">
+                        <a href = "{% url "documente:chitanta_print"  pk=object.id %}" class = "btn btn-mini"><i class = "icon-print"></i></a>
+                    </div>
+                        </td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	{% paginate %}
+		
+	
+{% endblock %}

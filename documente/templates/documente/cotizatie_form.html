@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load cotizatie_tags %}
+
+{% block page_title %}
+    Adaugă cotizație
+{% endblock %}
+
+{% block extrahead %}
+    <link type="text/css" href="{{ STATIC_URL }}css/datepicker.css" rel="stylesheet"/>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-datepicker.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-datepicker-activate.js"></script>
+
+    <script>
+        function handle_numar_inregistrare() {
+            if (/\(auto\)$/.test($("#id_registru option:selected").text())) {
+                $("#id_numar_inregistrare").closest("div.control-group").hide();
+            } else {
+                $("#id_numar_inregistrare").closest("div.control-group").show();
+            }
+        }
+        $("document").ready(function () {
+            handle_numar_inregistrare();
+            $("#id_registru").change(function (e) {
+                handle_numar_inregistrare();
+            })
+
+
+            $("#id_suma").keyup(function (e) {
+                if ($("#id_suma").val().length == 0) {
+                    return false;
+                }
+
+                $.post("{% url "documente:cotizatie_calculeaza_acoperire"  %}",
+                        {"membru": {{ object.id }},
+                            "suma": $("#id_suma").val(),
+                            "csrfmiddlewaretoken" : "{{ csrf_token }}"},
+                        function (data) {
+                            try {
+                                $("#id_suma").popover("destroy");
+                            } catch (e) {
+                                console.log(e);
+                            }
+
+
+                            var final_text = ""
+                            final_text += "<p>Situație cotizație după plată: <strong>" + data.status + "</strong></p>";
+                            if (data.diff < -4) {
+                                final_text += "<p style = 'color: red'>Nu se pot face plăți în avans mai mult de 4 trimestre</p>"
+                            }
+
+
+
+                            $.each(data.plati, function (index, value) {
+                                var text = "<li>" + data.plati[index].suma + " RON, " + data.plati[index].trimestru.text;
+                                if (data.plati[index].partial && !data.plati[index].final) {
+                                    text += " (parțial, rest " + (data.rest * -1) + " RON)";
+                                }
+                                text +=  "</li>";
+                                final_text += text;
+                            });
+
+                            $("#id_suma").popover({"html" : true, "placement" : "right", "trigger" : "focus", "title" : "Acoperire sumă", "content" : final_text});
+                            $("#id_suma").popover("show");
+                        },
+                        "json");
+            });
+        });
+
+    </script>
+    <style>
+        .popover {
+            max-width: 350px;
+            width: 350px;
+        }
+    </style>
+{% endblock %}
+
+
+{% block context_menu %}
+    <ul class="nav nav-list">
+        <li class="nav-header">Acțiuni</li>
+        <li><a href="{% url "structuri:membru_detail"  pk=object.id %}#documente"><i class="icon-chevron-left"> Lista de documente</i></a></li>
+    </ul>
+{% endblock %}
+
+{% block content %}
+{#    <p class="alert alert-info">Cotizație pentru <strong>{{ object }}</strong>, {{ object.status_cotizatie }}</p>#}
+
+    <p class = "alert alert-{{ object.status_cotizatie_numeric|cotizatie_level }}">Stare cotizație: <strong>{{ object.status_cotizatie_numeric|cotizatie_description }}</strong>. {% if object.status_cotizatie_numeric > 0 %}Mai trebuie plătiți {{ object.calculeaza_necesar_cotizatie }} RON pentru a ajunge la zi.{% endif %}</p>
+    {% crispy form form.helper %}
+{% endblock %}

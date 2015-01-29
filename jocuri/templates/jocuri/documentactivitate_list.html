@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load jocuri_utils %}
+{% load pagination_tags %}
+
+{% block page_title %}
+	{{ activitate }} | <span style = "font-weight: normal">atașamente</span>
+{% endblock %}
+
+{% block extrahead %}
+	<script type = "text/javascript" src = "{% url goodies:js_delete app_label='documente' model='document' %}"></script>
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+        <li class = "nav-header">Locații</li>
+        <li><a href = "{% url "jocuri:activitate_detail"  pk=activitate.id %}"><i class = 'icon-home'></i> {{ activitate }}</a></li>
+		<li class = "nav-header">Acțiuni</li>
+		<li><a href = "{% url "jocuri:activitate_document_create"  pk=activitate.id %}"><i class = "icon-plus-sign"></i> Adaugă atașament</a>
+	</ul>
+{% endblock %}
+
+
+{% block content %}
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th class="span1">#</th>
+            <th class="span2">&nbsp;</th>
+			<th>Titlu</th>
+			<th>Tip</th>
+            <th>Shortcode</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+        {% autopaginate object_list 20 %}
+		{% for object in object_list %}
+		<tr id = "row_{{ object.id }}">
+			<td>#{{ object.id }}</td>
+            <td>{% if object.source_type.0 == 'imagine' %}
+                <img class = 'thumbnail' style = "width: 100px" src = "{{ object.image_storage.get_thumbnail_url }}" />
+            {% else %}&nbsp;{% endif %}</td>
+			<td><strong>{{ object.titlu }}</strong><br />
+            <em>{{ object.descriere|truncatewords:100 }}</em></td>
+            <td>{{ object.source_type.1 }}</td>
+            <td>{{ object.shortcode_reference }}</td>
+            <td>
+                <div class = "btn-group pull-right">
+                    <a href = "{{ object.get_download_url  }}" class = "btn btn-mini"><i class = "icon-download"></i></a>
+{#                    <a href = "{% url "jocuri:activitate_edit"  pk=object.id %}" class = "btn btn-mini"><i class = "icon-edit"></i></a>#}
+                    <a href = "javascript:void();" class = "btn btn-mini" id = "delete_{{ object.id }}"><i class = "icon-trash"></i></a>
+                </div>
+            </td>
+		</tr>
+		{% empty %}
+		<tr>
+			<td>&nbsp;</td>
+			<td colspan="7"><em>Această activitate nu are documente atașate. Poți adăuga documente noi de <a href = "{% url "jocuri:activitate_document_create"  pk=activitate.id %}"><i class = "icon-plus-sign"></i> aici</a>.</em></td>
+		</tr>
+		{% endfor %}
+	</tbody>
+
+</table>
+    {% paginate %}
+{% endblock %}
