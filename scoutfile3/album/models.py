@@ -482,6 +482,8 @@ class CampArbitrarParticipareEveniment(models.Model):
             return instanta.get_value()
         except InstantaCampArbitrarParticipareEveniment.DoesNotExist, e:
             return None
+        except Exception, e:
+            return None
 
     def get_translated_value(self, value):
         if self.tip_camp == "bool":
