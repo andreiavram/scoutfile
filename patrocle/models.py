@@ -5,8 +5,7 @@ import datetime
 from django.db.models.query_utils import Q
 import logging
 from django.contrib.contenttypes.generic import GenericForeignKey
-from settings import SMSLINK_CONNID, SMSLINK_PASSWORD, SMSLINK_URL,\
-    DEBUG
+from django.conf import settings
 import urllib
 import urllib2
 from django.dispatch.dispatcher import receiver
@@ -90,10 +89,10 @@ class SMSMessage(models.Model):
             raise ValueError(u"%s: Parametrul mode trebuie sa fie 'credit' sau 'sms'" % cls.__name__)
         if mode in ("sms", ) and any(x == None for x in (expeditor, destinatar, mesaj_text)):
             raise ValueError(u"%s: Parametrii expeditor, destinatar si mesaj sunt obligatorii in modul 'sms'" % cls.__name__)
-            
-        values =  {"connection_id" :  SMSLINK_CONNID,
-                "password" : SMSLINK_PASSWORD }
-        
+
+        values = {"connection_id":  settings.SMSLINK_CONNID,
+                  "password": settings.SMSLINK_PASSWORD}
+
         if mode == "sms":
             values.update({"message" : mesaj_text,
                 "to" : destinatar})
@@ -101,11 +100,11 @@ class SMSMessage(models.Model):
         if mode == "credit":
             values.update({"mode" : "credit"})
             
-        if DEBUG:
+        if settings.DEBUG:
             values.update({"test" : "1"})
         
         data = urllib.urlencode(values)
-        url_to_send = SMSLINK_URL + "?" + data
+        url_to_send = settings.SMSLINK_URL + "?" + data
         #logger.debug("%s: url: %s" % (cls.__name__, url_to_send))
         
         try:
