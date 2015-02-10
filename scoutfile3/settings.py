@@ -142,7 +142,6 @@ TEMPLATE_DIRS = (
 
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-#    'django.core.context_processors.debug',
     'django.core.context_processors.request',
     'django.core.context_processors.i18n',
     'django.core.context_processors.media',
@@ -387,5 +386,6 @@ MARKDOWN_STYLE = os.path.join(STATIC_ROOT, "css", "markdown-preview.css")
 MARKDOWN_EDITOR_SKIN = 'simple'
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 from local_settings import *
