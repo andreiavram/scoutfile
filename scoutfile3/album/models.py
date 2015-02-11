@@ -500,6 +500,10 @@ class CampArbitrarParticipareEveniment(models.Model):
         except InstantaCampArbitrarParticipareEveniment.DoesNotExist:
             instanta_args = dict(participare=participare, camp=self)
             instanta = InstantaCampArbitrarParticipareEveniment.objects.create(**instanta_args)
+        except Exception, e:
+            logger.error(u"Exceptie la setarea de valoare pe instanta camp arbitrar %s %s" % (e, participare))
+            return
+
 
         if self.tip_camp == "date":
             valoare_string = valoare.strftime("%d.%m.%Y")
