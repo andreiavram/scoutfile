@@ -131,7 +131,7 @@ CACHES = {
 
 JOHNNY_MIDDLEWARE_KEY_PREFIX = 'jc_scoutfile3'
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'scoutfile3.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -148,9 +148,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
     'django.contrib.auth.context_processors.auth',
     'django.contrib.messages.context_processors.messages',
-    'context_processors.product_version',
-    'context_processors.api_keys',
-    'context_processors.url_root',
+    'scoutfile3.context_processors.product_version',
+    'scoutfile3.context_processors.api_keys',
+    'scoutfile3.context_processors.url_root',
 )
 
 INTERNAL_IPS = ("192.168.33.1", "127.0.0.1", "95.77.249.243")
@@ -321,7 +321,7 @@ VALOARE_IMPLICITA_COTIZATIE_NATIONAL_SOCIAL = 12
 SCOUTFILE_ALBUM_STORAGE_ROOT = "album"
 PHOTOLOGUE_PATH = lambda instance, filename: os.path.join(SCOUTFILE_ALBUM_STORAGE_ROOT, filename)
 
-from version import *
+from scoutfile3.version import *
 
 DATE_INPUT_FORMATS = (
     '%d.%m.%Y',
