@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 # from utils.mdextend import iconfonts
-BASE_DIR = os.path.dirname(__file__)
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+print BASE_DIR
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -321,7 +322,7 @@ VALOARE_IMPLICITA_COTIZATIE_NATIONAL_SOCIAL = 12
 SCOUTFILE_ALBUM_STORAGE_ROOT = "album"
 PHOTOLOGUE_PATH = lambda instance, filename: os.path.join(SCOUTFILE_ALBUM_STORAGE_ROOT, filename)
 
-from scoutfile3version import *
+from scoutfile3.version import *
 
 DATE_INPUT_FORMATS = (
     '%d.%m.%Y',
