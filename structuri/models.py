@@ -107,13 +107,21 @@ STATUT_DREPTURI_CENTRU_LOCAL = (
 TIPURI_CORESPONDENTA_CENTRU_LOCAL = (("email", "Email"), ("posta", u"Poștă"))
 
 
+def upload_to_centru_local_logo(instance, filename):
+    return "cl/logo-{0}-{1}".format(instance.id, filename)
+
+
+def upload_to_centru_local_antent(instance, filename):
+    return "cl/antet-{0}-{1}".format(instance.id, filename)
+
+
 class CentruLocal(Structura):
     class Meta:
         verbose_name = u"Centru Local"
         verbose_name_plural = u"Centre Locale"
 
         permissions = (
-            ("list_centrulocal", u"Poate vedea o listă cu Centrele lui Locale")
+            ("list_centrulocal", u"Poate vedea o listă cu Centrele lui Locale"),
         )
 
     asocieri_membru = [u"Membru",]
@@ -129,8 +137,8 @@ class CentruLocal(Structura):
                                                 help_text=u"Asigurați-vă că ați adăugat informațiile relevante de contact pentru tipul de corespondență ales.")
 
     moment_initial_cotizatie = models.ForeignKey("documente.Trimestru", null=True, blank=True)
-    logo = models.ImageField(null=True, blank=True, upload_to=lambda instance, filename : "cl/logo-{0}-{1}".format(instance.id, filename))
-    antet = models.ImageField(null=True, blank=True, upload_to=lambda instance, filename : "cl/antet-{0}-{1}".format(instance.id, filename))
+    logo = models.ImageField(null=True, blank=True, upload_to=upload_to_centru_local_logo)
+    antet = models.ImageField(null=True, blank=True, upload_to=upload_to_centru_local_antent)
 
     def nume_complet(self):
         if self.denumire is not None and self.denumire != "":

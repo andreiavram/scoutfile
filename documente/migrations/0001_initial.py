@@ -1,131 +1,189 @@
-# encoding: utf-8
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
-class Migration(SchemaMigration):
-
-    def forwards(self, orm):
-        
-        # Adding model 'Document'
-        db.create_table('documente_document', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('date_created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('date_modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-            ('titlu', self.gf('django.db.models.fields.CharField')(max_length=1024)),
-            ('descriere', self.gf('django.db.models.fields.CharField')(max_length=2048, null=True, blank=True)),
-            ('fisier', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
-            ('url', self.gf('django.db.models.fields.URLField')(max_length=2048, null=True, blank=True)),
-            ('version_number', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('root_document', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='versions', null=True, to=orm['documente.Document'])),
-            ('folder', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='folder_parinte', null=True, to=orm['documente.Document'])),
-            ('locked', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('is_folder', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('uploader', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-        ))
-        db.send_create_signal('documente', ['Document'])
-
-        # Adding model 'TipAsociereDocument'
-        db.create_table('documente_tipasocieredocument', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('nume', self.gf('django.db.models.fields.CharField')(max_length=255)),
-        ))
-        db.send_create_signal('documente', ['TipAsociereDocument'])
-
-        # Adding model 'AsociereDocument'
-        db.create_table('documente_asocieredocument', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('document', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['documente.Document'])),
-            ('content_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'])),
-            ('object_id', self.gf('django.db.models.fields.PositiveIntegerField')()),
-            ('tip_asociere', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['documente.TipAsociereDocument'], null=True, blank=True)),
-            ('moment_asociere', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('responsabil', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-        ))
-        db.send_create_signal('documente', ['AsociereDocument'])
+from django.db import models, migrations
+import django.core.files.storage
+import documente.models
 
 
-    def backwards(self, orm):
-        
-        # Deleting model 'Document'
-        db.delete_table('documente_document')
+class Migration(migrations.Migration):
 
-        # Deleting model 'TipAsociereDocument'
-        db.delete_table('documente_tipasocieredocument')
+    dependencies = [
+    ]
 
-        # Deleting model 'AsociereDocument'
-        db.delete_table('documente_asocieredocument')
-
-
-    models = {
-        'auth.group': {
-            'Meta': {'object_name': 'Group'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        'auth.permission': {
-            'Meta': {'ordering': "('content_type__app_label', 'content_type__model', 'codename')", 'unique_together': "(('content_type', 'codename'),)", 'object_name': 'Permission'},
-            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        'auth.user': {
-            'Meta': {'object_name': 'User'},
-            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
-        },
-        'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        'documente.asocieredocument': {
-            'Meta': {'object_name': 'AsociereDocument'},
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
-            'document': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['documente.Document']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'moment_asociere': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'object_id': ('django.db.models.fields.PositiveIntegerField', [], {}),
-            'responsabil': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
-            'tip_asociere': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['documente.TipAsociereDocument']", 'null': 'True', 'blank': 'True'})
-        },
-        'documente.document': {
-            'Meta': {'object_name': 'Document'},
-            'date_created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'date_modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'descriere': ('django.db.models.fields.CharField', [], {'max_length': '2048', 'null': 'True', 'blank': 'True'}),
-            'fisier': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'folder': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'folder_parinte'", 'null': 'True', 'to': "orm['documente.Document']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_folder': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'locked': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'root_document': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'versions'", 'null': 'True', 'to': "orm['documente.Document']"}),
-            'titlu': ('django.db.models.fields.CharField', [], {'max_length': '1024'}),
-            'uploader': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
-            'url': ('django.db.models.fields.URLField', [], {'max_length': '2048', 'null': 'True', 'blank': 'True'}),
-            'version_number': ('django.db.models.fields.IntegerField', [], {'default': '0'})
-        },
-        'documente.tipasocieredocument': {
-            'Meta': {'object_name': 'TipAsociereDocument'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'nume': ('django.db.models.fields.CharField', [], {'max_length': '255'})
-        }
-    }
-
-    complete_apps = ['documente']
+    operations = [
+        migrations.CreateModel(
+            name='AsociereDocument',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('object_id', models.PositiveIntegerField()),
+                ('moment_asociere', models.DateTimeField(auto_now_add=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Document',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('date_created', models.DateTimeField(auto_now_add=True)),
+                ('date_modified', models.DateTimeField(auto_now=True)),
+                ('data_inregistrare', models.DateField(null=True, blank=True)),
+                ('titlu', models.CharField(max_length=1024)),
+                ('descriere', models.CharField(max_length=2048, null=True, blank=True)),
+                ('fisier', models.FileField(storage=django.core.files.storage.FileSystemStorage(base_url=b'/media/', location=b'/vagrant/media'), null=True, upload_to=documente.models.upload_to_document_fisier, blank=True)),
+                ('url', models.URLField(max_length=2048, null=True, blank=True)),
+                ('version_number', models.IntegerField(default=0)),
+                ('locked', models.BooleanField(default=False)),
+                ('is_folder', models.BooleanField(default=False)),
+                ('fragment', models.IntegerField(default=0)),
+                ('numar_inregistrare', models.PositiveIntegerField(null=True, blank=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Decizie',
+            fields=[
+                ('document_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Document')),
+                ('continut', models.TextField(null=True, blank=True)),
+            ],
+            options={
+            },
+            bases=('documente.document',),
+        ),
+        migrations.CreateModel(
+            name='DecizieRezervareNumere',
+            fields=[
+                ('decizie_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Decizie')),
+                ('tip_rezervare', models.CharField(max_length=255, choices=[(b'chitantier', 'Chitan\u021bier'), (b'facturier', 'Facturier'), (b'io', 'Registru intr\u0103ri / ie\u0219iri'), (b'intern', 'Registru intern')])),
+                ('automat', models.BooleanField(default=True)),
+                ('numar_inceput', models.IntegerField()),
+                ('numar_sfarsit', models.IntegerField(null=True, blank=True)),
+                ('serie', models.CharField(max_length=255)),
+            ],
+            options={
+            },
+            bases=('documente.decizie',),
+        ),
+        migrations.CreateModel(
+            name='DecizieCotizatie',
+            fields=[
+                ('decizie_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Decizie')),
+                ('cuantum', models.FloatField(help_text='Valoare exprimat\u0103 \xeen RON pentru un an calendaristic (4 trimestre)')),
+                ('categorie', models.CharField(default=b'normal', max_length=255, choices=[(b'local', 'Local'), (b'national', 'Na\u021bional'), (b'local-social', 'Local (social)'), (b'national-social', 'Na\u021bional (social)')])),
+                ('data_inceput', models.DateField()),
+                ('data_sfarsit', models.DateField(null=True, blank=True)),
+            ],
+            options={
+            },
+            bases=('documente.decizie',),
+        ),
+        migrations.CreateModel(
+            name='Chitanta',
+            fields=[
+                ('document_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Document')),
+                ('suma', models.FloatField(default=0)),
+                ('printata', models.BooleanField(default=False)),
+            ],
+            options={
+            },
+            bases=('documente.document',),
+        ),
+        migrations.CreateModel(
+            name='ChitantaCotizatie',
+            fields=[
+                ('chitanta_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Chitanta')),
+                ('predat', models.BooleanField(default=False)),
+                ('blocat', models.BooleanField(default=False)),
+            ],
+            options={
+            },
+            bases=('documente.chitanta',),
+        ),
+        migrations.CreateModel(
+            name='DocumentCotizatieSociala',
+            fields=[
+                ('document_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Document')),
+                ('nume_parinte', models.CharField(help_text='Las\u0103 gol pentru cerceta\u0219i adul\u021bi', max_length=255, null=True, verbose_name='Nume p\u0103rinte', blank=True)),
+                ('motiv', models.CharField(max_length=2048, null=True, blank=True)),
+                ('este_valabil', models.BooleanField(default=False, help_text='Bifeaz\u0103 doar dac\u0103 cererea a fost aprobat\u0103 de Consiliu', verbose_name='Cerere aprobat\u0103?')),
+                ('valabilitate_start', models.DateField()),
+                ('valabilitate_end', models.DateField(null=True, blank=True)),
+            ],
+            options={
+            },
+            bases=('documente.document',),
+        ),
+        migrations.CreateModel(
+            name='PlataCotizatieTrimestru',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('partial', models.BooleanField(default=False)),
+                ('final', models.BooleanField(default=False)),
+                ('suma', models.FloatField()),
+                ('index', models.IntegerField()),
+                ('tip_inregistrare', models.CharField(default=b'normal', max_length=255, choices=[(b'normal', 'Plat\u0103 normal\u0103'), (b'inactiv', b'Inactiv')])),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Registru',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('mod_functionare', models.CharField(default=b'auto', help_text='Registrul cu numerotare automat\u0103 \xee\u0219i gestioneaz\u0103 singur numerele de \xeenregistrare', max_length=255, verbose_name='Tip numerotare', choices=[(b'auto', 'Automat'), (b'manual', 'Manual')])),
+                ('tip_registru', models.CharField(max_length=255, choices=[(b'chitantier', 'Chitan\u021bier'), (b'facturier', 'Facturier'), (b'io', 'Registru intr\u0103ri / ie\u0219iri'), (b'intern', 'Registru intern')])),
+                ('serie', models.CharField(max_length=255, null=True, blank=True)),
+                ('numar_inceput', models.IntegerField(default=1)),
+                ('numar_sfarsit', models.IntegerField(null=True, blank=True)),
+                ('numar_curent', models.IntegerField()),
+                ('valabil', models.BooleanField(default=True)),
+                ('editabil', models.BooleanField(default=True)),
+                ('data_inceput', models.DateTimeField(auto_now_add=True)),
+                ('descriere', models.TextField(help_text='Un scurt text de descriere pentru registru', null=True, blank=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='TipAsociereDocument',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('nume', models.CharField(max_length=255)),
+                ('slug', models.CharField(unique=True, max_length=255)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='TipDocument',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('slug', models.CharField(max_length=255)),
+                ('nume', models.CharField(max_length=255)),
+                ('descriere', models.TextField(null=True, blank=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Trimestru',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('data_inceput', models.DateField()),
+                ('data_sfarsit', models.DateField()),
+                ('ordine_locala', models.PositiveSmallIntegerField()),
+                ('ordine_globala', models.PositiveIntegerField()),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+    ]

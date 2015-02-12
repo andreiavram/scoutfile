@@ -1,100 +1,66 @@
-# encoding: utf-8
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
-class Migration(SchemaMigration):
-
-    def forwards(self, orm):
-        
-        # Adding model 'SMSMessage'
-        db.create_table('patrocle_smsmessage', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('expeditor', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['structuri.Utilizator'])),
-            ('destinatar', self.gf('django.db.models.fields.CharField')(max_length=1024)),
-            ('mesaj', self.gf('django.db.models.fields.CharField')(max_length=1024, null=True, blank=True)),
-            ('cod_referinta_smslink', self.gf('django.db.models.fields.IntegerField')()),
-            ('timestamp_trimitere', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('timestamp_confirmare', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('confirmat', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('eroare_trimitere', self.gf('django.db.models.fields.CharField')(max_length=1024, null=True, blank=True)),
-            ('eroare_confirmare', self.gf('django.db.models.fields.CharField')(max_length=1024, null=True, blank=True)),
-            ('sender', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-        ))
-        db.send_create_signal('patrocle', ['SMSMessage'])
+from django.db import models, migrations
 
 
-    def backwards(self, orm):
-        
-        # Deleting model 'SMSMessage'
-        db.delete_table('patrocle_smsmessage')
+class Migration(migrations.Migration):
 
+    dependencies = [
+        ('structuri', '0001_initial'),
+        ('contenttypes', '0001_initial'),
+    ]
 
-    models = {
-        'auth.group': {
-            'Meta': {'object_name': 'Group'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        'auth.permission': {
-            'Meta': {'ordering': "('content_type__app_label', 'content_type__model', 'codename')", 'unique_together': "(('content_type', 'codename'),)", 'object_name': 'Permission'},
-            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        'auth.user': {
-            'Meta': {'object_name': 'User'},
-            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
-        },
-        'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        'patrocle.smsmessage': {
-            'Meta': {'object_name': 'SMSMessage'},
-            'cod_referinta_smslink': ('django.db.models.fields.IntegerField', [], {}),
-            'confirmat': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'destinatar': ('django.db.models.fields.CharField', [], {'max_length': '1024'}),
-            'eroare_confirmare': ('django.db.models.fields.CharField', [], {'max_length': '1024', 'null': 'True', 'blank': 'True'}),
-            'eroare_trimitere': ('django.db.models.fields.CharField', [], {'max_length': '1024', 'null': 'True', 'blank': 'True'}),
-            'expeditor': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['structuri.Utilizator']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'mesaj': ('django.db.models.fields.CharField', [], {'max_length': '1024', 'null': 'True', 'blank': 'True'}),
-            'sender': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'timestamp_confirmare': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'timestamp_trimitere': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'})
-        },
-        'structuri.utilizator': {
-            'Meta': {'object_name': 'Utilizator'},
-            'email': ('django.db.models.fields.EmailField', [], {'unique': 'True', 'max_length': '75'}),
-            'hash': ('django.db.models.fields.CharField', [], {'max_length': '32', 'unique': 'True', 'null': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'nume': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'prenume': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'requested_password_reset': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'timestamp_accepted': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'timestamp_confirmed': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'timestamp_registered': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['auth.User']", 'unique': 'True', 'null': 'True', 'blank': 'True'})
-        }
-    }
-
-    complete_apps = ['patrocle']
+    operations = [
+        migrations.CreateModel(
+            name='Credit',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('object_id', models.PositiveIntegerField()),
+                ('credit', models.IntegerField()),
+                ('epuizat', models.BooleanField(default=False)),
+                ('timestamp', models.DateTimeField(auto_now_add=True)),
+                ('comentarii', models.TextField(null=True, blank=True)),
+                ('tip', models.CharField(max_length=2, choices=[(1, b'Real'), (2, b'Intern')])),
+                ('content_type', models.ForeignKey(verbose_name=b'Clas\xc4\x83', blank=True, to='contenttypes.ContentType', null=True)),
+                ('creat_de', models.ForeignKey(blank=True, to='structuri.Utilizator', null=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='RezervareCredit',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('object_id', models.PositiveIntegerField()),
+                ('timestamp', models.DateTimeField(auto_now_add=True)),
+                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
+                ('credit', models.ForeignKey(to='patrocle.Credit')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='SMSMessage',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('destinatar', models.CharField(max_length=1024)),
+                ('mesaj', models.CharField(max_length=1024, null=True, blank=True)),
+                ('cod_referinta_smslink', models.IntegerField()),
+                ('timestamp_trimitere', models.DateTimeField(null=True, blank=True)),
+                ('timestamp_confirmare', models.DateTimeField(null=True, blank=True)),
+                ('confirmat', models.BooleanField(default=False)),
+                ('eroare_trimitere', models.CharField(max_length=1024, null=True, blank=True)),
+                ('eroare_confirmare', models.CharField(max_length=1024, null=True, blank=True)),
+                ('sender', models.CharField(max_length=255, null=True, blank=True)),
+                ('cod_grup', models.CharField(max_length=255, null=True, blank=True)),
+                ('credit', models.ForeignKey(blank=True, to='patrocle.Credit', null=True)),
+                ('expeditor', models.ForeignKey(to='structuri.Utilizator')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+    ]
