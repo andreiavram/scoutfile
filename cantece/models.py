@@ -8,12 +8,17 @@ import os
 from django.conf import settings
 
 
+def upload_to_cover_photo(instance, fn):
+    return os.path.join("cartecantece", "cover", fn)
+
+
 class Cantec(models.Model):
     nume_fisier = models.FilePathField(os.path.join(settings.LOCAL_MEDIA_ROOT, "cartecantece", "cantece"))
     titlu = models.CharField(max_length=255)
     artist = models.CharField(max_length=1024)
+
     #   TODO: create a better filename
-    cover_photo = models.ImageField(upload_to=lambda instance, fn: os.path.join("cartecantece", "cover", fn), null=True, blank=True)
+    cover_photo = models.ImageField(upload_to=upload_to_cover_photo, null=True, blank=True)
     album = models.CharField(max_length=255, null=True, blank=True)
     tags = TaggableManager(blank=True)
 
@@ -32,9 +37,13 @@ class OptiuniTemplateCarteCantece(models.Model):
     template = models.ForeignKey("TemplateCarteCantece")
 
 
+def upload_to_template_carte_cantece(instance, fn):
+    return os.path.join("cartecantece", "templates", fn)
+
+
 class TemplateCarteCantece(models.Model):
     nume = models.CharField(max_length=255)
-    template_file = models.FileField(upload_to=lambda instance, fn: os.path.join("cartecantece", "templates", fn), storage=LocalStorage())
+    template_file = models.FileField(upload_to=upload_to_template_carte_cantece, storage=LocalStorage)
 
     def __unicode__(self):
         return self.nume

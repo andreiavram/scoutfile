@@ -16,6 +16,10 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 
+def upload_to_document_fisier(instance, file_name):
+    return "declaratii/%s" % file_name
+
+
 class Document(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
@@ -24,7 +28,7 @@ class Document(models.Model):
     titlu = models.CharField(max_length=1024)
     descriere = models.CharField(max_length=2048, null=True, blank=True)
 
-    fisier = models.FileField(upload_to=lambda instance, file_name: "declaratii/%s" % file_name, null=True, blank=True, storage=LocalStorage())
+    fisier = models.FileField(upload_to=upload_to_document_fisier, null=True, blank=True, storage=LocalStorage)
     url = models.URLField(max_length=2048, null=True, blank=True)
 
     version_number = models.IntegerField(default=0)

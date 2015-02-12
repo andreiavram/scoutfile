@@ -131,7 +131,6 @@ INSTALLED_APPS = (
 
     #   third party pluggables
     'debug_toolbar',
-    'south',
     'photologue',
 
     #   TODO: get these out
