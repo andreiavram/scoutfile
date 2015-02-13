@@ -1,8 +1,12 @@
 # coding: utf-8
+from json import dumps
+import datetime
+import json
+import logging
+
 from django.contrib.sites.models import Site
 from django.db.models.aggregates import Count
 from django.db.models.query_utils import Q
-from json import dumps
 from django.views.generic.edit import UpdateView, CreateView, FormView
 from django.views.generic.detail import DetailView
 from django.views.generic.base import View, TemplateView
@@ -11,11 +15,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import Http404, HttpResponseRedirect, HttpResponse, \
     HttpResponseForbidden, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.core.urlresolvers import reverse
-import datetime
 from django.contrib import messages
 from django.views.generic.list import ListView
-import json
-import logging
 import os
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
@@ -24,8 +25,9 @@ from taggit.utils import parse_tags
 from goodies.views import GenericDeleteView, CalendarViewMixin
 from goodies.views import JSONView
 from django.core.files.base import File
-from album.exporters.envelopes import C5Envelopes
+from django.conf import settings
 
+from album.exporters.envelopes import C5Envelopes
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment, \
     ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT, SetPoze, IMAGINE_PUBLISHED_STATUS, \
     CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment, FLAG_MOTIVES, ParticipantEveniment
@@ -33,12 +35,10 @@ from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, Po
     EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm, CampArbitrarForm, EvenimentParticipareUpdateForm, \
     ReportFormNoButtons, EvenimentParticipareNonMembruForm, EvenimentParticipareNonmembruUpdateForm, \
     EvenimentParticipantFilterForm
-from settings import MEDIA_ROOT
 from structuri.forms import AsociereEvenimentStructuraForm
 from structuri.models import Membru, RamuraDeVarsta, CentruLocal, Unitate, Patrula, TipAsociereMembruStructura
 from generic.views import ScoutFileAjaxException
 from structuri.decorators import allow_by_afiliere
-import settings
 
 
 logger = logging.getLogger(__name__)
