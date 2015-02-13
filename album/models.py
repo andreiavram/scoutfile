@@ -1,4 +1,12 @@
 #coding: utf-8
+from PIL import Image
+import datetime
+from zipfile import ZipFile
+import logging
+import traceback
+import shutil
+from io import BytesIO
+
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -7,26 +15,17 @@ from django.db.models.query_utils import Q
 from django.db.models.signals import post_init
 from django.dispatch.dispatcher import receiver
 from photologue.models import ImageModel, PhotoSizeCache
-from PIL import Image
-import datetime
 import os
-from photologue.processors import PhotologueSpec
+# from photologue.processors import PhotologueSpec
 from unidecode import unidecode
-from zipfile import ZipFile
-import logging
-import traceback
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-import shutil
 from django.core.files.base import File, ContentFile
-from io import BytesIO
-from album.managers import RaportEvenimentManager
 from django import forms
-from generic.widgets import BootstrapDateInput
-
-# from settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT, MEDIA_ROOT
 from taggit.managers import TaggableManager
 from django.conf import settings
+
+from album.managers import RaportEvenimentManager
 
 
 logger = logging.getLogger(__name__)
@@ -731,10 +730,10 @@ class Imagine(ImageModel):
         ordering = ["date_taken", ]
 
     #   override for the original method of getting the filename
-    def _get_SIZE_filename(self, size):
-        photosize = PhotoSizeCache().sizes.get(size)
-        generator = PhotologueSpec(photo=self, photosize=photosize)
-        return generator.cachefile_name
+    # def _get_SIZE_filename(self, size):
+    #     photosize = PhotoSizeCache().sizes.get(size)
+    #     generator = PhotologueSpec(photo=self, photosize=photosize)
+    #     return generator.cachefile_name
 
     def rotate(self, direction="cw"):
         try:

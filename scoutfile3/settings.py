@@ -23,7 +23,7 @@ SITE_ID = 1
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = '/media/'
-DEFAULT_FILE_STORAGE = 's3utils.MediaS3BotoStorage'
+DEFAULT_FILE_STORAGE = 'scoutfile3.s3utils.MediaS3BotoStorage'
 LOCAL_MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 LOCAL_MEDIA_URL = "/media/"
 
@@ -138,7 +138,7 @@ INSTALLED_APPS = (
     'dajaxice',
 
     'crispy_forms',
-    'djangorestframework',
+    'rest_framework',
     'captcha',
     'ajax_select',
     "taggit",
@@ -337,5 +337,12 @@ MARKDOWN_EDITOR_SKIN = 'simple'
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
 
 from local_settings import *

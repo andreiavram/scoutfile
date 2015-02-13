@@ -1,4 +1,5 @@
 # coding: utf-8
+from django.contrib.sites.models import Site
 from django.db.models.aggregates import Count
 from django.db.models.query_utils import Q
 from json import dumps
@@ -153,8 +154,8 @@ class EvenimentList(EvenimentFiltruMixin, ListView):
 
     def dispatch(self, request, *args, **kwargs):
         if request.is_ajax():
-            self.per_page = int(request.body.get("per_page", 5))
-            self.offset = int(request.body.get("offset", 0))
+            self.per_page = int(request.POST.get("per_page", 5))
+            self.offset = int(request.POST.get("offset", 0))
 
         if request.user.is_authenticated():
             self.centru_local = request.user.utilizator.membru.centru_local
@@ -516,10 +517,9 @@ class SetImaginiUpload(CreateView):
         logger.debug("%s - form valid" % self.__class__.__name__)
 
         import re
-
         byte_ranges = re.findall(r"bytes (\d+)-(\d+)/(\d+)", self.request.META['HTTP_CONTENT_RANGE'])
         logger.debug("%s - byte ranges %s to %s out of %s" % (
-        self.__class__.__name__, byte_ranges[0][0], byte_ranges[0][1], byte_ranges[0][2]))
+            self.__class__.__name__, byte_ranges[0][0], byte_ranges[0][1], byte_ranges[0][2]))
         f = self.request.FILES.get('zip_file')
 
         session_key = "{0}-{1}".format(self.request.user.id, f.name.replace("-", "+"))
@@ -559,11 +559,11 @@ class SetImaginiUpload(CreateView):
                            'size': int(byte_ranges[0][2]),
                            'type': "application/zip",
                            #'descriere' : self.object.descriere,
-                           'delete_url': settings.URL_ROOT + reverse("album:set_poze_delete_ajax",
+                           'delete_url': "http://" + Site.objects.get_current().domain + reverse("album:set_poze_delete_ajax",
                                                                      kwargs={"pk": self.object.id}),
                            'delete_type': "DELETE"}]}
 
-        response = HttpResponse(json.dumps(data), mimetype=self.response_mimetype())
+        response = HttpResponse(json.dumps(data), content_type=self.response_mimetype())
         return response
 
     def form_invalid(self, form):
@@ -574,7 +574,7 @@ class SetImaginiUpload(CreateView):
         f = self.request.FILES.get('zip_file')
         data = {"files": [{"name": f.name, "error": u"Cannot upload"}]}
 
-        response = HttpResponse(json.dumps(data), mimetype=self.response_mimetype())
+        response = HttpResponse(json.dumps(data), content_type=self.response_mimetype())
         return response
 
     def get_context_data(self, **kwargs):
