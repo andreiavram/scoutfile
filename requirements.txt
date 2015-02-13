@@ -44,7 +44,6 @@ oauthlib==0.7.2
 pilkit==1.1.9
 Pillow==2.7.0
 plasTeX==1.0
-pycharm===debug
 pyembed==1.1.2
 pyembed-markdown==1.1.0
 python-memcached==1.53
