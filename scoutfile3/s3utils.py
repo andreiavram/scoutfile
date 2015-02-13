@@ -4,18 +4,21 @@ from storages.backends.s3boto import S3BotoStorage
 from django.conf import settings
 
 @deconstructible
-class DeconstructableS3BotoStorage(S3BotoStorage):
+class DeconstructibleS3BotoStorage(S3BotoStorage):
     pass
 
-MediaS3BotoStorage = DeconstructableS3BotoStorage(location='media')
 
-ProtectedS3BotoStorage = DeconstructableS3BotoStorage(
-    acl='private',
-    querystring_auth=True,
-    querystring_expire=120,     # 10 minutes, try to ensure people won't/can't share
-)
+class MediaS3BotoStorage(DeconstructibleS3BotoStorage):
+    def __init__(self, **kwargs):
+        super(MediaS3BotoStorage, self).__init__(location="media", **kwargs)
 
-LocalStorage = FileSystemStorage(
-    location=settings.LOCAL_MEDIA_ROOT,
-    base_url=settings.LOCAL_MEDIA_URL,
-)
+
+class ProtectedS3BotoStorage(DeconstructibleS3BotoStorage):
+    def __init__(self, **kwargs):
+        super(ProtectedS3BotoStorage, self).__init__(acl='private', querystring_auth=True, querystring_expire=120,
+                                                     **kwargs)
+
+
+class LocalStorage(FileSystemStorage):
+    def __init__(self, **kwargs):
+        super(LocalStorage, self).__init__(location=settings.LOCAL_MEDIA_ROOT, base_url=settings.LOCAL_MEDIA_URL)

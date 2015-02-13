@@ -1,4 +1,4 @@
-#coding: utf-8
+#   coding: utf-8
 
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
@@ -61,7 +61,7 @@ class Structura(models.Model):
 
         return None
 
-    def cercetasi(self, qs=False, tip_asociere=[u"Membru", u"Membru aspirant", u"Membru suspendat"]):
+    def cercetasi(self, qs=False, tip_asociere=(u"Membru", u"Membru aspirant", u"Membru suspendat")):
         asociere = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(self),
                                                           object_id=self.id,
                                                           moment_incheiere__isnull=True)
