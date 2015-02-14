@@ -328,7 +328,7 @@ class Membru(Utilizator):
         Asigură menținerea centrulu local corect
         """
 
-        if self.data_nasterii == None:
+        if self.data_nasterii is None:
             sufix_an = self.cnp[1:3]
             luna = self.cnp[3:5]
             ziua = self.cnp[5:7]
@@ -342,7 +342,7 @@ class Membru(Utilizator):
 
             self.data_nasterii = datetime.date(year=int("%s%s" % (prefix_an, sufix_an)), month=int(luna), day=int(ziua))
 
-        if self.sex == None:
+        if self.sex is None:
             if int(self.cnp[0]) % 2 == 0:
                 self.sex = "f"
             else:

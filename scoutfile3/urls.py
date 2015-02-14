@@ -16,6 +16,8 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = patterns('',
                        url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
+                       url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+                       url(r'^admin/', include(admin.site.urls)),
 
                        (r'^structuri/', include('structuri.urls', namespace='structuri')),
                        (r'^album/', include('album.urls', namespace='album')),
@@ -42,8 +44,6 @@ urlpatterns = patterns('',
                        (r'logout/$', Logout.as_view(), {}, "logout"),
 
                        url('^markdown/', include('django_markdown.urls')),
-                       url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-                       url(r'^admin/', include(admin.site.urls)),
                        url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 )
 
