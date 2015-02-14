@@ -9,7 +9,7 @@ from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     EvenimentParticipantiCreate, EvenimentParticipantiUpdate, UnitateEvenimentCreate, PatrulaEvenimentCreate, \
     EvenimentCampuriArbitrare, EvenimentCampuriArbitrareCreate, EvenimentCampuriArbitrareUpdate, PozaUpdateTags, \
     FlagImageAjax, EvenimentUpdateCampuriAditionale, EvenimentParticipantNonMembruCreate, \
-    EvenimentParticipantNonMembruUpdate, EvenimentParticipantiExport
+    EvenimentParticipantNonMembruUpdate, EvenimentParticipantiExport, PozaVot, PozaMakeCover
 from album.views import ChangeImagineVisibility
 
 
@@ -69,6 +69,8 @@ urlpatterns = patterns('album.views',
                        (r'poza/(?P<pk>\d+)/edit/$', PozaUpdate.as_view(), {}, "poza_edit"),
                        (r'poza/(?P<pk>\d+)/delete/$', PozaDelete.as_view(), {}, "poza_delete"),
                        (r'poza/(?P<pk>\d+)/update_tags/$', PozaUpdateTags.as_view(), {}, "poza_update_tags"),
+                       (r'poza/vote/$', PozaVot.as_view(), {}, "poza_vot"),
+                       (r'poza/make_cover/$', PozaMakeCover.as_view(), {}, "poza_make_cover"),
 
                        (r'tag/search/$', ImagineTagSearch.as_view(), {}, "tag_search"),
                        (r'search/$', ImagineSearchJSON.as_view(), {}, "imagine_search_json"),

@@ -14,19 +14,19 @@
 	
 		jQuery(document).ready(function () {
 			jQuery(".thumbs_up").click(function (event) {
-				Dajaxice.album.vote_picture(Dajax.process, {"picture_id" : jQuery(this).data("image"), "score" : 1});
+				$.post("{% url "album:poza_vot" %}", {"picture_id": $(this).data("image"), "score": 1}, after_vote);
 				event.preventDefault();
 				return false;
 			});
 			
 			jQuery(".thumbs_down").click(function (event) {
-				Dajaxice.album.vote_picture(Dajax.process, {"picture_id" : jQuery(this).data("image"), "score" : -1});
+				$.post("{% url "album:poza_vot" %}", {"picture_id": $(this).data("image"), "score": -1}, after_vote);
 				event.preventDefault();
 				return false;
 			});
 
             jQuery(".make_cover").click(function (event) {
-                Dajaxice.album.make_cover(Dajax.process, {"picture_id" : jQuery(this).data("image")});
+                $.post("{% url "album:poza_make_cover" %}", {"picture_id": $(this).data("image")}, update_message);
                 event.preventDefault();
                 return false;
             });
@@ -53,13 +53,13 @@
 			    
 			    if (e.keyCode == 76) {
 			    	//	l key was pressed = like
-					Dajaxice.album.vote_picture(Dajax.process, {"picture_id" : {{ object.id }}, "score" : 1});
+					$.post("{% url "album:poza_vot" %}", {"picture_id": $(this).data("image"), "score": 1}, after_vote);
 			    	return false;
 			    }
 			    
 			    if (e.keyCode == 72) {
 			    	//	h key was pressed = hate
-			    	Dajaxice.album.vote_picture(Dajax.process, {"picture_id" : {{ object.id }}, "score" : -1});
+			    	$.post("{% url "album:poza_vot" %}", {"picture_id": $(this).data("image"), "score": -1}, after_vote);
 			    	return false;
 			    }
 

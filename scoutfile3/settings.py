@@ -319,12 +319,13 @@ CRISPY_TEMPLATE_PACK = "bootstrap"
 BOWER_COMPONENTS_ROOT = os.path.join(BASE_DIR, "components")
 BOWER_PATH = '/usr/bin/bower'
 
-BOWER_INSTALLED_APPS = (
-    "jquery#1.9",
-    'underscore',
-    'bootstrap-calendar',
-    'lodash',
-)
+BOWER_INSTALLED_APPS = ('lodash#3.2.0',
+ 'underscore#1.7.0',
+ 'bootstrap#2.3.2',
+ 'jquery#1.10.2',
+ 'moment#2.0.0',
+ 'bootstrap-calendar#0.2.4',
+ 'jquery-cookie#1.4.1')
 
 CENTRU_LOCAL_IMPLICIT = 1
 REDMINE_APY_KEY = ""

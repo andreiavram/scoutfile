@@ -37,6 +37,11 @@
     <link href="{%  static "css/social-buttons.css" %}" rel="stylesheet"/>
     <script src="{{ STATIC_URL }}/js/bootstrap.min.js"></script>
     <script src = "{% static "lodash/lodash.js" %}"></script>
+    <script src = "{% static "jquery-cookie/jquery.cookie.js" %}"></script>
+    <script src = "{% static "js/csrf_protect.js" %}"></script>
+    <script>
+        var csrftoken = "{{ csrf_token }}";
+    </script>
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>

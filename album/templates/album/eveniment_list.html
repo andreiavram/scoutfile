@@ -218,10 +218,13 @@
                 $(current_view.target).append(current_view.no_results);
             }
 
+
             $.each(data.evenimente, function (index, element) {
                 evenimente.push(element);
                 element.position = _.indexOf(evenimente, element);
-                $(current_view.target).append(_.template(current_view.template, {"eveniment": element}));
+
+                var compiled = _.template(current_view.template);
+                $(current_view.target).append(compiled({"eveniment": element}));
                 current_view.post_render(element);
 
             });
@@ -235,7 +238,6 @@
         }
 
         function update_view(new_view) {
-            console.log("here", new_view);
             current_view = views[new_view];
             $(".template-switcher").removeClass("disabled");
             $("*[data-view='" + current_view.name + "'").addClass("disabled");

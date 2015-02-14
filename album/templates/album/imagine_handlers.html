@@ -8,14 +8,14 @@
         var popover = !(no_popover || false);
         jQuery(".thumbs_up", element).unbind("click");
         jQuery(".thumbs_up", element).click(function (event) {
-            Dajaxice.album.vote_picture(Dajax.process, {"picture_id": jQuery(this).data("image"), "score": 1});
+            $.post("{% url "album:poza_vot" %}", {"picture_id": $(this).data("image"), "score": 1}, after_vote);
             event.preventDefault();
             return false;
         });
 
         jQuery(".thumbs_down", element).unbind("click");
         jQuery(".thumbs_down", element).click(function (event) {
-            Dajaxice.album.vote_picture(Dajax.process, {"picture_id": jQuery(this).data("image"), "score": -1});
+            $.post("{% url "album:poza_vot" %}", {"picture_id": $(this).data("image"), "score": -1}, after_vote);
             event.preventDefault();
             return false;
         });

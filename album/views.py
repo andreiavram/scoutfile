@@ -17,15 +17,19 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse, \
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.views.generic.list import ListView
+# from djangorestframework.response import Response
 import os
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from taggit.models import Tag
 from taggit.utils import parse_tags
 from goodies.views import GenericDeleteView, CalendarViewMixin
 from goodies.views import JSONView
 from django.core.files.base import File
 from django.conf import settings
+from rest_framework import permissions
 
 from album.exporters.envelopes import C5Envelopes
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment, \
@@ -80,7 +84,6 @@ class EvenimentFiltruMixin(object):
         self.patrula = None
         if "patrula" in request.session and request.session["patrula"] != 0:
             self.patrula = Patrula.objects.get(id=request.session["patrula"])
-
 
         if "view" not in request.session:
             request.session["view"] = "list_detail"
@@ -322,7 +325,7 @@ class PozaDetail(DetailView):
         calitate = TipAsociereMembruStructura.objects.get(nume__iexact=u"Păstrător al amintirilor", content_types__in=[
             ContentType.objects.get_for_model(centru_local)])
         if self.request.user.is_authenticated() and (self.request.user.utilizator.membru.are_calitate(calitate,
-                                                                                                         centru_local) or self.request.user.is_superuser):
+                                                                                                      centru_local) or self.request.user.is_superuser):
             current.update({"media_manager": True})
 
         current["report_form"] = ReportFormNoButtons()
@@ -1682,3 +1685,37 @@ class EvenimentUpdateCampuriAditionale(View):
             self.object.save()
 
         return HttpResponse(status=200)
+
+
+class PozaVot(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request, format=None):
+        img_id = int(request.data.get("picture_id"))
+        img = get_object_or_404(Imagine, id=img_id)
+
+        if "has_voted_%d" % img.id in request.session:
+            json_data = {}
+            return Response(json_data)
+
+        request.session["has_voted_%d" % img.id] = True
+
+        score = int(request.data.get("score"))
+        score = score / abs(score)
+
+        img.vote_photo(score)
+        json_data = {"picture_id": img.id, "current_score": img.score}
+
+        return Response(json_data)
+
+
+class PozaMakeCover(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request, format=None):
+        img_id = int(request.data.get('picture_id'))
+        img = get_object_or_404(Imagine, id=img_id)
+        img.set_poze.eveniment.custom_cover_photo = img
+        img.set_poze.eveniment.save()
+
+        return Response({"message": u"Imaginea a fost setată ca poza de copertă pentru album"})
