@@ -320,7 +320,6 @@ BOWER_COMPONENTS_ROOT = os.path.join(BASE_DIR, "components")
 BOWER_PATH = '/usr/bin/bower'
 
 BOWER_INSTALLED_APPS = ('lodash#3.2.0',
- 'underscore#1.7.0',
  'bootstrap#2.3.2',
  'jquery#1.10.2',
  'moment#2.0.0',
