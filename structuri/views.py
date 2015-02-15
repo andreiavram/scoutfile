@@ -25,6 +25,9 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.views.generic.list import ListView
 from goodies.views import TabbedViewMixin, GenericDeleteView
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import permissions
 
 from adrese_postale.adrese import AdresaPostala
 from album.models import ParticipareEveniment
@@ -2033,3 +2036,37 @@ class MembruAdreseStatus(ListView):
         qs = [a for a in qs if hasattr(a.content_object, "centru_local") and a.content_object.centru_local and a.content_object.centru_local.id == 1]
         qs = [a for a in qs if not self.check_valid(a.valoare)]
         return qs
+
+
+class UnitatiListAPI(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request, format=None):
+        centru_local = get_object_or_404(CentruLocal, id=int(request.data.get("id_centru_local")))
+        unitati = []
+        for unitate in centru_local.unitate_set.all():
+            unitati.append({"id" : unitate.id, "nume_complet" : unitate.nume})
+
+        return Response({"unitati": unitati})
+
+    # update_unitati
+
+
+class UpdateContentObjects(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request, format=True):
+        ctype = ContentType.objects.get(id=int(request.data.get("ctype_id")))
+
+        centre_locale_permise = request.user.utilizator.membru.get_centre_locale_permise()
+        objects_filters = {u"Centru Local": {"id__in": (centru.id for centru in centre_locale_permise)},
+                           u"Unitate": {"centru_local__in": centre_locale_permise},
+                           u"Patrulă": {"unitate__centru_local__in": centre_locale_permise}}
+
+        filters = objects_filters.get(ctype.name)
+        objects = [(obj.id, "%s" % obj) for obj in ctype.model_class().objects.filter(**filters)]
+        object_types = TipAsociereMembruStructura.objects.filter(content_types__in=(ctype, ))
+        return Response({"objects": objects, "types": [(obj.id, "%s" % obj) for obj in object_types]})
+
+
+    # after_update_content_objects

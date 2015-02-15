@@ -24,16 +24,15 @@
 			jQuery("#div_id_unitate").hide();
 			
 			jQuery("#id_centrul_local").change(function() {
-				console.log(jQuery(this).val());
 				if (jQuery(this).val() != "") {
-					Dajaxice.structuri.get_unitati(Dajax.process, {"id_centru_local" : jQuery(this).val()});
+                    $.post("{% url "structuri:get_unitati" %}", {"id_centru_local": jQuery(this).val()}, update_unitati);
 				} else {
 					jQuery("#div_id_unitate").hide("fast");
 				}
 			});
 
 			if (jQuery("#id_centrul_local").val() != "") {
-				Dajaxice.structuri.get_unitati(Dajax.process, {"id_centru_local" : jQuery("#id_centrul_local").val()})
+                $.post("{% url "structuri:get_unitati" %}", {"id_centru_local" : jQuery("#id_centrul_local").val()});)
 			}
 			
 		});

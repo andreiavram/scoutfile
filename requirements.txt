@@ -19,7 +19,7 @@ django-localflavor==1.1
 django-markdown==0.8.4
 django-model-utils==2.2
 django-pagedown==0.1.0
-django-pagination==1.0.7
+django-pagination-bootstrap==1.0.7
 django-photologue==3.1.1
 django-qrcode==0.3
 django-recaptcha==1.0.3
@@ -44,6 +44,7 @@ oauthlib==0.7.2
 pilkit==1.1.9
 Pillow==2.7.0
 plasTeX==1.0
+# pycharm===debug
 pyembed==1.1.2
 pyembed-markdown==1.1.0
 python-memcached==1.53

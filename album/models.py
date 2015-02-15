@@ -559,7 +559,7 @@ class ZiEveniment(models.Model):
         ordering = ["index", "date"]
 
     def __unicode__(self):
-        if self.titlu != None and self.titlu != "":
+        if self.titlu is not None and self.titlu != "":
             return self.titlu
         return u"Ziua %d" % self.index
 

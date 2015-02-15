@@ -1,7 +1,7 @@
 	<ul class="nav pull-left">
 		{% if request.user.is_authenticated %}
-			{% if request.user.get_profile.membru.centru_local %}
-                {% with request.user.get_profile.membru.centru_local.id  as cl_id %}
+			{% if request.user.utilizator.membru.centru_local %}
+                {% with request.user.utilizator.membru.centru_local.id  as cl_id %}
     				<li><a href = "{% url "structuri:cl_detail"  pk=cl_id %}"><i class = "icon-th"></i> Centru Local</a></li>
                     <li><a href = "{% url "structuri:cl_membri"  pk=cl_id %}"><i class = "icon-user"></i> Cercetași</a></li>
                 {% endwith %}
@@ -32,7 +32,7 @@
 				<li><a href = "{% url "structuri:membru_profil"  %}"><i class = "icon-user"></i> Profil</a></li>
 				<li><a href = "{% url "structuri:membru_change_password"  %}"><i class = "icon-wrench"></i> Schimbă parola</a></li>
                      <li><a href = "{% url "structuri:membru_confirma_facebook"  %}"><i class = 'icon-facebook'></i>
-                {% if user.get_profile.facebook_connected %}
+                {% if user.utilizator.facebook_connected %}
                    Setări Facebook
                 {% else %}
                    <em>Conectează-te cu Facebook</em>

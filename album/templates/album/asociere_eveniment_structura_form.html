@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block extrahead %}
-    <script type="text/javascript" src="{% url goodies:js_delete app_label='album' model='AsociereEvenimentStructura' %}"></script>
+    <script type="text/javascript" src="{% url "goodies:js_delete" app_label='album' model='AsociereEvenimentStructura' %}"></script>
 	<script type = "text/javascript">
 		function after_update_content_objects(data) {
 			values_html = "";
@@ -47,12 +47,12 @@
 					$("#div_id_object_id").hide("fast");
 					$("#id_object_id").val("");
 				} else {
-					Dajaxice.structuri.update_content_objects(Dajax.process, {"ctype_id" : $(this).val()});
+                    $.post("{% url "structuri:update_content_objects" %}", {"ctype_id" : $(this).val()}, after_update_content_objects);
 				}
 			});
 			
 			if ($("#id_content_type").val() != "") {
-				Dajaxice.structuri.update_content_objects(Dajax.process, {"ctype_id" : $("#id_content_type").val()});
+                $.post("{% url "structuri:update_content_objects" %}", {"ctype_id" : $("#id_content_type").val()}, after_update_content_objects);
 			}
 		});
 	</script>

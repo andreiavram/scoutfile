@@ -3,7 +3,7 @@
 
 {% block page_title %}
     Seturi poze {% if eveniment %} - {{ eveniment }} {% endif %} {% if user_only %} pentru
-    {{ request.user.get_profile }}{% endif %}
+    {{ request.user.utilizator }}{% endif %}
 {% endblock %}
 
 {% block context_menu %}
@@ -59,7 +59,7 @@
 
 
     </table>
-    {% paginate %}
+    {% paginate_bs2 %}
 {% endblock %}
 
 

@@ -72,7 +72,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'pagination.middleware.PaginationMiddleware',
+    'pagination_bootstrap.middleware.PaginationMiddleware',
     'scoutfile3.middleware.ImpersonateUserMiddleware',
 )
 
@@ -142,7 +142,7 @@ INSTALLED_APPS = (
     'captcha',
     'ajax_select',
     "taggit",
-    'pagination',
+    'pagination_bootstrap',
     'less',
     'raven.contrib.django.raven_compat',
     'django_extensions',

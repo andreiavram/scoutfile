@@ -30,7 +30,7 @@
 {% endblock %}
 
 {% block extrahead %}
-    <script type="text/javascript" src="{% url goodies:js_delete app_label='album' model='ParticipareEveniment' %}"></script>
+    <script type="text/javascript" src="{% url "goodies:js_delete" app_label='album' model='ParticipareEveniment' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -130,6 +130,6 @@
 
     </table>
     {% if pagesize %}
-        {% paginate %}
+        {% paginate_bs2 %}
     {% endif %}
 {% endblock %}
