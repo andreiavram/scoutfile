@@ -1,4 +1,4 @@
-{% with request.user.get_profile.membru as object %}
+{% with request.user.utilizator.membru as object %}
 	<h4>În prezent</h4>
 	<ul class = "unstyled">
 	{% for 	afiliere in object.afilieri_curente %}

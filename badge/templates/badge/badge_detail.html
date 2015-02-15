@@ -4,7 +4,7 @@
 
 {% block page_title %}
     {{ object.nume }} <small>Badge {{ object.get_tip_display }}</small>
-    {% if user.get_profile.membru.is_lider %}
+    {% if user.utilizator.membru.is_lider %}
     <div class = "pull-right btn-group">
         <a href = "{% url "badge:badge_edit"  pk=object.id %}" class = "btn"><i class = "icon-pencil"></i> Modifică</a>
     </div>

@@ -20,7 +20,7 @@
         <tbody>
             <tr>
                 <td>Nume</td>
-                <td>{{ object.nume_complet }}{% if request.user.get_profile.membru.is_membru_ccl %}<br /><span style = "font-size: 10px">{{ object.membru.cnp }}</span>{% endif %}</td>
+                <td>{{ object.nume_complet }}{% if request.user.utilizator.membru.is_membru_ccl %}<br /><span style = "font-size: 10px">{{ object.membru.cnp }}</span>{% endif %}</td>
             </tr>
             <tr>
                 <td>Status</td>

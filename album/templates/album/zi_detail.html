@@ -53,7 +53,7 @@
         <div class="alert alert-success">Arăt doar pozele de la <strong>{{ autor }}</strong></div>{% endif %}
     {% if object.descriere %}{{ object.descriere|linebreaks }}{% endif %}
 
-    {% paginate %}
+    {% paginate_bs2 %}
 
     <div class="thumbnails">
         {% for image in object_list %}
@@ -120,7 +120,7 @@
         {% endif %}
         {% endfor %}
     </div>
-    {% paginate %}
+    {% paginate_bs2 %}
 {% endblock %}
 
 {% block extrajs %}

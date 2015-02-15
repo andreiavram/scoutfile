@@ -12,7 +12,7 @@
 	<ul class = "nav nav-list">
 		<li class = "nav-header">Locații</li>
 		<li><a href = "{% url "documente:cotizatii_centru_local"  pk=centru_local.id %}"><i class = "icon-list"></i> Toate cotizațiile</a></li>
-        <li><a href = "{% url "documente:cotizatii_lider"  pk=request.user.get_profile.membru.id %}"><i class = "icon-list"></i> Încasările mele</a></li>
+        <li><a href = "{% url "documente:cotizatii_lider"  pk=request.user.utilizator.membru.id %}"><i class = "icon-list"></i> Încasările mele</a></li>
         <li><a href = "{% url "structuri:cl_detail"  pk=centru_local.id %}"><i class = "icon-chevron-left"></i> Înapoi la centrul local</a></li>
         {% if casieri %}
             <li class = "nav-header">Casieri</li>
@@ -26,7 +26,7 @@
 {% block content %}
     {% if lider and suma_casa %}
         <p class = "alert alert-warning">
-            <i class = "icon-exclamation-sign"></i> {% if lider == request.user.get_profile.membru %}Ai{% else %}Are{% endif %} <strong>{{ suma_casa }} RON</strong> de predat la trezorerie {% if trezorier %}(vorbește cu <a href = "{% url "structuri:membru_detail"  pk=trezorier.id %}">{{ trezorier }}</a>){% endif %}
+            <i class = "icon-exclamation-sign"></i> {% if lider == request.user.utilizator.membru %}Ai{% else %}Are{% endif %} <strong>{{ suma_casa }} RON</strong> de predat la trezorerie {% if trezorier %}(vorbește cu <a href = "{% url "structuri:membru_detail"  pk=trezorier.id %}">{{ trezorier }}</a>){% endif %}
         </p>
     {% endif %}
 
@@ -65,7 +65,7 @@
 			{% endfor %}
 		</tbody>
 	</table>
-	{% paginate %}
+	{% paginate_bs2 %}
 		
 	
 {% endblock %}

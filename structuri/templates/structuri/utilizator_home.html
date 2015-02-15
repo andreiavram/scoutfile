@@ -3,7 +3,7 @@
 {% load cotizatie_tags %}
 
 {% block page_title %}
-	{% with user.get_profile.membru as membru %}{{ membru }} <span style="font-weight: normal">| dashboard</span>
+	{% with user.utilizator.membru as membru %}{{ membru }} <span style="font-weight: normal">| dashboard</span>
 
     <p style = "font-size: 12px; font-weight: normal" class = "pull-right label label-{{ membru.status_cotizatie_numeric|cotizatie_level_label }}">
     {% if membru.is_suspendat %}<strong><i class = "icon-remove"></i> SUSPENDAT</strong> | {% endif %}
@@ -20,7 +20,7 @@
 
 {% block context_menu %}
 	<ul class = "nav nav-list">
-		{% with user.get_profile.membru as membru %}
+		{% with user.utilizator.membru as membru %}
         <li class = "nav-header">Acțiuni</li>
 		<li><a href = "{% url "structuri:membru_edit_profile"  %}"><i class = "icon-pencil"></i> Editează profilul</a></li>
 		<li><a href = "{% url "structuri:membru_edit_profile_picture"  %}"><i class = "icon-picture"></i> Schimbă poza de profil</a></li>
@@ -46,6 +46,6 @@
 
 
 {% block content %}
-    {% if not user.get_profile.facebook_connected %}<div class = "alert alert-info"><button type="button" class="close" data-dismiss="alert">&times;</button><i class = 'icon-facebook'></i> Nu uita să-ți <a href "{% url "structuri:membru_confirma_facebook"  %}">conectezi profilul</a> cu contul tău de Facebook, ca să nu mai trebuiească să ții mine useri și parole :)</div>{% endif %}
+    {% if not user.utilizator.facebook_connected %}<div class = "alert alert-info"><button type="button" class="close" data-dismiss="alert">&times;</button><i class = 'icon-facebook'></i> Nu uita să-ți <a href "{% url "structuri:membru_confirma_facebook"  %}">conectezi profilul</a> cu contul tău de Facebook, ca să nu mai trebuiească să ții mine useri și parole :)</div>{% endif %}
 	{% print_tabs tabs active_tab %}
 {% endblock %}

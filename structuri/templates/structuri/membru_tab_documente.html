@@ -1,4 +1,4 @@
-<script type="text/javascript" src="{% url goodies:js_delete app_label='documente' model='AsociereDocument' %}"></script>
+<script type="text/javascript" src="{% url "goodies:js_delete" app_label='documente' model='AsociereDocument' %}"></script>
 <script type="text/javascript">
     $(document).ready(function() {
         $(".recompute").click(function (e) {
@@ -10,7 +10,7 @@
         });
 
         $(".switch-blocat").click(function (e) {
-            Dajaxice.documente.toggle_blocat_cotizatie(Dajax.process, {"document": $(this).data("document")})
+            $.post("{% url "documente:toggle_document_blocat" %}", {document: $(this).data("document")}, after_toggle_blocat)
             e.preventDefault();
         });
     });
@@ -36,7 +36,7 @@
     <div class = "btn-group">
         <a href = "{% url "structuri:membru_alte_documente"  pk=object.id %}" class = "btn"><i class = "icon-file-alt"></i> Adaugă alte documente</a>
     </div>
-    {% if request.user.get_profile.membru.is_membru_ccl %}
+    {% if request.user.utilizator.membru.is_membru_ccl %}
     <div class = "btn-group">
         <a href = "{% url "structuri:membru_recalculeaza_acoperire"  pk=object.id %}" class = "btn btn-danger recompute"><i class = "icon-refresh"></i> Recalculează</a>
         <a href = "{% url "structuri:membru_reseteaza_acoperire"  pk=object.id %}" class = "btn btn-danger recompute"><i class = "icon-remove"></i> Resetează</a>
@@ -65,7 +65,7 @@
                 {{ afiliere.moment_asociere }}
 			</td>
             <td>{% if afiliere.document.fisier %}<a href = "{{ afiliere.document.fisier.url }}"><i class = "icon-paper-clip"></i> Document</a>{% endif %}</td>
-            <td>{% if request.user.get_profile.membru.is_membru_ccl %}
+            <td>{% if request.user.utilizator.membru.is_membru_ccl %}
                     <a href = "#" data-document="{{ afiliere.document.chitanta.chitantacotizatie.id }}" class = "switch-blocat btn btn-mini btn-{% if afiliere.document.chitanta.chitantacotizatie.blocat %}danger{% else %}success{% endif %}"><i class = "icon-{% if afiliere.document.chitanta.chitantacotizatie.blocat %}remove{% else %}ok{% endif %}"></i>
                 {% else %}
                     <i class = "icon-{% if afiliere.document.chitanta.chitantacotizatie.blocat %}remove{% else %}ok{% endif %}">

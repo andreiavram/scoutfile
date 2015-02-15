@@ -1,10 +1,14 @@
-#coding=utf8
+#   coding=utf8
 import datetime
-from django.db.models.aggregates import Sum
 from json import dumps
+import logging
+from django.contrib.auth.decorators import login_required
+
+from django.db.models.aggregates import Sum
+from django.utils.decorators import method_decorator
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
-from django.views.generic.edit import CreateView, UpdateView, FormView, DeleteView, FormMixin
+from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.shortcuts import get_object_or_404
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.pagesizes import A4
@@ -13,24 +17,25 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen.canvas import Canvas
 from django.core.exceptions import ImproperlyConfigured
-import logging
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.views.generic.base import TemplateView
 from goodies.views import JSONView, ContextMenuMixin
 from django.contrib import messages
-import traceback
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import permissions
+from settings import MEDIA_ROOT
 
-from documente.forms import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm, DecizieCuantumCotizatieForm, TransferIncasariForm, AdeziuneUpdateForm, AdeziuneCreateForm, \
+from documente.forms import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm, \
+    DecizieCuantumCotizatieForm, TransferIncasariForm, AdeziuneUpdateForm, AdeziuneCreateForm, \
     DecizieGeneralaForm, DecizieGeneralaUpdateForm
 from documente.menus import DecizieContextMenu
-from documente.models import DocumentCotizatieSociala, AsociereDocument, Registru, REGISTRU_TIPURI, DecizieCotizatie, PlataCotizatieTrimestru, ChitantaCotizatie, Adeziune, Chitanta, \
-    Decizie
+from documente.models import DocumentCotizatieSociala, AsociereDocument, Registru, REGISTRU_TIPURI, DecizieCotizatie, \
+    PlataCotizatieTrimestru, ChitantaCotizatie, Adeziune, Chitanta, Decizie
 from documente.models import Document
-from documente.forms import DocumentCreateForm, FolderCreateForm, \
-    CotizatieMembruForm
+from documente.forms import DocumentCreateForm, FolderCreateForm, CotizatieMembruForm
 from generic.views import ScoutFileAjaxException
-from settings import MEDIA_ROOT
 from structuri.models import Membru, CentruLocal
 from utils.fiscal import suma2text
 
@@ -374,7 +379,7 @@ class RegistruDetail(DetailView):
     template_name = "documente/registru_detail.html"
     model = Registru
 
-    # TODO: add permissions check for this
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super(RegistruDetail, self).dispatch(request, *args, **kwargs)
 
@@ -799,3 +804,14 @@ class ChitantaPrintMultiple(ListView):
 #
 # class StergeChitantaCotizatie(DeleteView, FormMixin):
 #     template_name = "documente/delet"
+
+
+class ToggleBlocatCotizatie(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request, format=None):
+        document = get_object_or_404(ChitantaCotizatie, id=int(request.data.get("document")))
+        document.blocat = not document.blocat
+        document.save()
+
+        return Response({"document": document.id, "blocat": document.blocat})

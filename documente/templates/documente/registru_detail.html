@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block extrahead %}
-    <script type="text/javascript" src="{% url goodies:js_delete app_label='documente' model='Document' %}"></script>
+    <script type="text/javascript" src="{% url "goodies:js_delete" app_label='documente' model='Document' %}"></script>
 {% endblock %}
 
 
@@ -55,5 +55,5 @@
             </tr>
         {% endfor %}
     </table>
-    {% paginate %}
+    {% paginate_bs2 %}
 {% endblock %}
