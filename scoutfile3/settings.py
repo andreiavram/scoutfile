@@ -46,7 +46,6 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'dajaxice.finders.DajaxiceFinder',
     'djangobower.finders.BowerFinder',
 )
 
@@ -132,11 +131,6 @@ INSTALLED_APPS = (
     #   third party pluggables
     'debug_toolbar',
     'photologue',
-
-    #   TODO: get these out
-    'dajax',
-    'dajaxice',
-
     'crispy_forms',
     'rest_framework',
     'captcha',
