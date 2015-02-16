@@ -17,7 +17,7 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse, \
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.views.generic.list import ListView
-# from djangorestframework.response import Response
+
 import os
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
