@@ -8,7 +8,8 @@ from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     RaportStatus, RaportActivitate, RaportCompletPentruExport, AsociereEvenimentStructuraCreate, EvenimentParticipanti, \
     EvenimentParticipantiCreate, EvenimentParticipantiUpdate, UnitateEvenimentCreate, PatrulaEvenimentCreate, \
     EvenimentCampuriArbitrare, EvenimentCampuriArbitrareCreate, EvenimentCampuriArbitrareUpdate, PozaUpdateTags, \
-    FlagImageAjax
+    FlagImageAjax, EvenimentUpdateCampuriAditionale, EvenimentParticipantNonMembruCreate, \
+    EvenimentParticipantNonMembruUpdate, EvenimentParticipantiExport
 from album.views import ChangeImagineVisibility
 
 
@@ -40,15 +41,20 @@ urlpatterns = patterns('album.views',
                        (r'eveniment/(?P<slug>\w+)/participanti/list/$', EvenimentParticipanti.as_view(), {}, "eveniment_participanti_list"),
                        (r'eveniment/(?P<slug>\w+)/participanti/adauga/$', EvenimentParticipantiCreate.as_view(), {}, "eveniment_participanti_adauga"),
                        (r'eveniment/participanti/(?P<pk>\d+)/modifica/$', EvenimentParticipantiUpdate.as_view(), {}, "eveniment_participanti_modifica"),
+                       (r'eveniment/(?P<slug>\w+)/participanti/adauga/nonmembru/$', EvenimentParticipantNonMembruCreate.as_view(), {}, "eveniment_participanti_nonmembru_adauga"),
+                       (r'eveniment/participanti/(?P<pk>\d+)/modifica/nonmembru/$', EvenimentParticipantNonMembruUpdate.as_view(), {}, "eveniment_participanti_nonmembru_modifica"),
 
                        (r'eveniment/(?P<slug>\w+)/campuri/$', EvenimentCampuriArbitrare.as_view(), {}, "eveniment_campuri_list"),
                        (r'eveniment/(?P<slug>\w+)/campuri/adauga/$', EvenimentCampuriArbitrareCreate.as_view(), {}, "eveniment_campuri_create"),
                        (r'eveniment/campuri/(?P<pk>\d+)/modifica/$', EvenimentCampuriArbitrareUpdate.as_view(), {}, "eveniment_campuri_update"),
 
+                       (r'eveniment/(?P<slug>\w+)/participanti/export/$', EvenimentParticipantiExport.as_view(), {}, "eveniment_participanti_export"),
+
                        (r'eveniment/(?P<slug>\w+)/raport/$', RaportEvenimentDetail.as_view(), {}, "eveniment_raport_detail"),
                        (r'eveniment/(?P<slug>\w+)/raport/edit/$', RaportEvenimentUpdate.as_view(), {}, "eveniment_raport_update"),
                        (r'eveniment/(?P<slug>\w+)/raport/history/$', RaportEvenimentHistory.as_view(), {}, "eveniment_raport_history"),
                        (r'eveniment/(?P<slug>\w+)/raport/final/$', RaportActivitate.as_view(), {}, "eveniment_raport_complet"),
+                       (r'eveniment/(?P<slug>\w+)/updatecampuri/$', EvenimentUpdateCampuriAditionale.as_view(), {}, "eveniment_camp_update"),
 
                        (r'set/(?P<pk>\d+)/$', SetPozeUpdate.as_view(), {}, "set_poze_edit"),
                        (r'set/(?P<pk>\d+)/delete/$', SetImaginiDeleteAjax.as_view(), {}, "set_poze_delete_ajax"),

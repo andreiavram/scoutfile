@@ -11,7 +11,7 @@ from django.forms.widgets import PasswordInput, Textarea
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 from goodies.forms import CrispyBaseForm
-from settings import REDMINE_API_KEY
+from django.conf import settings
 import logging
 from django.utils import simplejson
 import urllib
@@ -51,7 +51,7 @@ class IssueCreateForm(CrispyBaseForm):
     def __init__(self, *args, **kwargs):
         super(IssueCreateForm, self).__init__(*args, **kwargs)
 
-        values = {"key" : REDMINE_API_KEY}
+        values = {"key" : settings.REDMINE_API_KEY}
         data = urllib.urlencode(values)
         url_to_send = "http://yeti.albascout.ro/redmine/projects/1/issue_categories.json" + "?" + data
         try:

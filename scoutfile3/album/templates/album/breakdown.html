@@ -1,0 +1,6 @@
+{#{% for key, value in breakdown.items %}#}
+{#    {{ key }}: <strong>{{ value }}</strong>{% if not forloop.last %}<br>{% endif %}#}
+{#{% endfor %}#}
+{% for data in breakdown.items %}
+    {% if data.0 != "Total" %}{{ data.0 }}: {% endif %}<strong>{{ data.1 }}</strong>{% if not forloop.last %}<br>{% endif %}
+{% endfor %}

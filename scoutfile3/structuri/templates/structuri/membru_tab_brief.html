@@ -60,6 +60,26 @@
                 <td>Centrul Local</td>
                 <td><a href = "{% url structuri:cl_detail pk=object.centru_local.id %}"><i class = "icon-home"></i> {{ object.centru_local }}</a></td>
             </tr>
+            {% if object.scout_id %}
+            <tr>
+                <td>ONCR ID</td>
+                <td>
+                    <a href = "https://www.oncr.ro/{{ object.scout_id }}"><img src = "{% static "images/oncr3.jpg" %}" style="width: 16px; height: 16px"> {{ object.scout_id }}</a>
+                    {% if object.membru.oncr_status %} {% if object.membru.oncr_status.0 %}<i class = "icon-ok"></i>{% else %}<i class = "icon-remove"></i>{% endif %}  - <strong>{{ membru.oncr_status.1 }}</strong>{% else %}<i class = 'icon-question'></i>{% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td>Nivel încredere (credit)                     <a title = "Nivelul de încredere este folosit pentru a determina dacă Centrul Local va 'pune bani de la el' temporar pentru a
+                                plăti diferite lucruri (taxă de participare, cazare, transport) pentru tine, dacă nu ai reușit să plătești încă.
+                                Toată lumea pleacă de la 'bun' și poate scădea doar dacă se retrage dintr-o acțiune pentru care Centrul a consumat deja bani pe care nu îi mai poate recupera."><i class = "icon-question-sign"></i></a></td>
+                <td><span class = "label
+                    {% if object.membru.scor_credit == 0 %}label-important
+                    {% elif object.membru.scor_credit == 1 %}label-warning
+                    {% elif object.membru.scor_credit == 2 %}label-success
+                    {% endif %}">{{ object.membru.get_scor_credit_display }}</span>
+                </td>
+            </tr>
         </tbody>
         </table>
 	</div>

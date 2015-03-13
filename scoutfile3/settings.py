@@ -1,5 +1,10 @@
 # coding: utf-8
 import os.path
+from utils.mdextend import iconfonts
+
+DEBUG = True
+TEMPLATE_DEBUG = DEBUG
+
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -85,10 +90,11 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'johnny.middleware.LocalStoreClearMiddleware',
     'johnny.middleware.QueryCacheMiddleware',
-    #'raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware',
-    #'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
+    # 'raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware',
+    # 'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -103,8 +109,17 @@ CACHES = {
         BACKEND='johnny.backends.memcached.MemcachedCache',
         LOCATION=['127.0.0.1:11211'],
         JOHNNY_CACHE=True,
-    )
+    ),
+
+    'redis': {
+        "BACKEND": "redis_cache.cache.RedisCache",
+        "LOCATION": "127.0.0.1:6379:1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "redis_cache.client.DefaultClient",
+        }
+    },
 }
+
 JOHNNY_MIDDLEWARE_KEY_PREFIX = 'jc_scoutfile3'
 
 ROOT_URLCONF = 'urls'
@@ -130,10 +145,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'context_processors.url_root',
 )
 
-#if DEVELOPMENT:
-#    MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware', )
-
-INTERNAL_IPS = ('127.0.0.1',)
+INTERNAL_IPS = ("192.168.33.1", "127.0.0.1", "95.77.249.243")
+#SHOW_TOOLBAR_CALLBACK = lambda r: not r.is_ajax()
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -144,7 +157,10 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
-    
+    'django.contrib.markup',
+
+    'debug_toolbar',
+
     'south', 'photologue',
     'dajax', 'dajaxice',
     'crispy_forms', 'djangorestframework', 'captcha',
@@ -152,11 +168,16 @@ INSTALLED_APPS = (
     
     'structuri', 'generic', 'album',
     'patrocle', 'documente', 'extra',
-    "utils",
+    'utils', 'proiecte', 'cantece', 'jocuri',
+    'badge', 'adrese_postale',
     
-    #'raven.contrib.django.raven_compat',
+    'raven.contrib.django.raven_compat',
     'django_extensions', 'gunicorn', 'goodies',
     'djangobower', 'longerusername', 'storages',
+    'django_markdown',
+
+    'django_ace', 'qrcode',
+
 )
 
 
@@ -177,10 +198,10 @@ AJAX_SELECT_INLINES = False
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    # 'root' : {
-    #   'level' : 'WARNING',
-    #   'handlers' : ['sentry'],
-    # },
+    'root' : {
+      'level' : 'DEBUG',
+      'handlers' : ['sentry'],
+    },
     'formatters': {
         'verbose': {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
@@ -210,10 +231,10 @@ LOGGING = {
             'level':'DEBUG',
             'class':'django.utils.log.NullHandler',
         },
-        # 'sentry' : {
-        #     'level' : 'ERROR',
-        #     'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-        # },
+        'sentry' : {
+            'level' : 'ERROR',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+        },
     },
     'loggers': {
         'django.request': {
@@ -228,11 +249,11 @@ LOGGING = {
             'level':'DEBUG',
         },
 
-        # 'sentry.errors': {
-        #     'level': 'DEBUG',
-        #     'handlers': ['default'],
-        #     'propagate': False,
-        # },
+        'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['default'],
+            'propagate': False,
+        },
 
         'django.db.backends' : {
             'handlers' : ['null', ], 
@@ -240,11 +261,11 @@ LOGGING = {
             'level': 'DEBUG',
         },
 
-       # 'raven': {
-       #      'level': 'DEBUG',
-       #      'handlers': ['default'],
-       #      'propagate': False,
-       #  },
+       'raven': {
+            'level': 'DEBUG',
+            'handlers': ['default'],
+            'propagate': False,
+       },
             
     }
 }
@@ -255,7 +276,7 @@ PHOTOLOGUE_IMAGE_FIELD_MAX_LENGTH = 1024
 FIXTURE_DIRS = ["%s/fixtures" % FILE_ROOT, ]
 
 #HAYSTACK_CONNECTIONS = {
-#    'default': {
+#    'default': {r
 #        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
 #        'URL': 'http://127.0.0.1:9200/',
 #        'INDEX_NAME': 'haystack',
@@ -277,12 +298,6 @@ EMAIL_USE_TLS = True
 
 LESS_OUTPUT_DIR = "less_cache"
 
-SMSLINK_URL = "http://www.smslink.ro/sms/gateway/communicate/"
-SMSLINK_CONNID = "A196357A18017C10"
-SMSLINK_PASSWORD = "yetiRulz1_"
-
-REDMINE_API_KEY = "f393aac0746069a9de25eb251b0171b1ff1ed793"
-
 VALOARE_IMPLICITA_COTIZATIE_LOCAL = 0
 VALOARE_IMPLICITA_COTIZATIE_NATIONAL = 50
 VALOARE_IMPLICITA_COTIZATIE_LOCAL_SOCIAL = 0
@@ -290,6 +305,7 @@ VALOARE_IMPLICITA_COTIZATIE_NATIONAL_SOCIAL = 12
 
 
 SCOUTFILE_ALBUM_STORAGE_ROOT = "album"
+PHOTOLOGUE_PATH = lambda instance, filename: os.path.join(SCOUTFILE_ALBUM_STORAGE_ROOT, filename)
 
 from version import *
 
@@ -332,16 +348,27 @@ AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',
 
 CRISPY_TEMPLATE_PACK = "bootstrap"
 BOWER_COMPONENTS_ROOT = os.path.join(FILE_ROOT, "components")
-BOWER_PATH = '/usr/local/bin/bower'
+BOWER_PATH = '/usr/bin/bower'
 
 BOWER_INSTALLED_APPS = (
     'jquery#1.9',
     'underscore',
     'bootstrap-calendar',
+    'lodash',
 )
 
 CENTRU_LOCAL_IMPLICIT = 1
+REDMINE_APY_KEY = ""
 
 DEFAULT_FILE_STORAGE = 's3utils.MediaS3BotoStorage'
+LOCAL_MEDIA_ROOT = os.path.join(FILE_ROOT, "media")
+LOCAL_MEDIA_URL = "/media/"
+
+from pyembed.markdown import PyEmbedMarkdown
+from utils.mdextend import scoutfile as scoutfile_markdown
+MARKDOWN_EXTENSIONS = ['extra', PyEmbedMarkdown(), scoutfile_markdown.makeExtension()] #iconfonts.makeExtension()]
+
+MARKDOWN_STYLE = os.path.join(STATIC_ROOT, "css", "markdown-preview.css")
+MARKDOWN_EDITOR_SKIN = 'simple'
 
 from local_settings import *

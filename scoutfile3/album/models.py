@@ -6,23 +6,27 @@ from django.db.models.aggregates import Sum
 from django.db.models.query_utils import Q
 from django.db.models.signals import post_init
 from django.dispatch.dispatcher import receiver
-from photologue.models import ImageModel
+from photologue.models import ImageModel, PhotoSizeCache
 from PIL import Image
 import datetime
 import os
+from photologue.processors import PhotologueSpec
 from unidecode import unidecode
 from zipfile import ZipFile
 import logging
 import traceback
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+import shutil
+from django.core.files.base import File, ContentFile
+from io import BytesIO
 from album.managers import RaportEvenimentManager
 from django import forms
 from generic.widgets import BootstrapDateInput
 
-from settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT, MEDIA_ROOT
+# from settings import SCOUTFILE_ALBUM_STORAGE_ROOT, STATIC_ROOT, MEDIA_ROOT
 from taggit.managers import TaggableManager
-import settings
+from django.conf import settings
 
 
 logger = logging.getLogger(__name__)
@@ -56,6 +60,10 @@ class TipEveniment(models.Model):
 
 
 class Eveniment(models.Model):
+    CAMPURI_PERMISE = [("telefon", u"Telefon"), ("adresa", u"Adresa poștală"), ("scoutid", u"Scout ID"),
+                       ("email", u"Email"), ("status", u"Status"), ("cotizatie", u"Cotizație"), ("buletin", u"Buletin"),
+                       ("credit", u"Credit")]
+
     centru_local = models.ForeignKey("structuri.CentruLocal")
     nume = models.CharField(max_length=1024 , verbose_name=u"Titlu")
     descriere = models.TextField(null=True, blank=True)
@@ -85,6 +93,9 @@ class Eveniment(models.Model):
     organizator = models.CharField(max_length=255, null=True, blank=True, help_text=u"Dacă organizatorul este altul decât Centrul Local, notați-l aici")
     organizator_cercetas = models.BooleanField(default=True, help_text=u"Dacă organizatorul este un centru local sau ONCR, bifează aici")
 
+    proiect = models.ForeignKey("proiecte.Project", null=True, blank=True)
+    campuri_aditionale = models.CharField(max_length=1024, null=True, blank=True)
+
     class Meta:
         verbose_name = u"Eveniment"
         verbose_name_plural = u"Evenimente"
@@ -92,6 +103,13 @@ class Eveniment(models.Model):
 
     def __unicode__(self):
         return u"%s" % self.nume
+
+    def get_campuri_aditionale(self):
+        if self.campuri_aditionale is None:
+            return []
+
+        vals = self.campuri_aditionale.strip(";").split(";")
+        return [v for v in self.CAMPURI_PERMISE if v[0] in vals]
 
     @property
     def get_ramuri_de_varsta(self):
@@ -353,15 +371,33 @@ class RaportEveniment(models.Model):
         self.is_locked = False
         self.save(*args, **kwargs)
 
-ROL_PARTICIPARE = (("participant", u"Participant"), ("coordonator", u"Coordonator"), ("staff", u"Membru staff"))
+ROL_PARTICIPARE = (("participant", u"Participant"), ("insotitor", u"Lider însoțitor"), ("invitat", u"Invitat"),
+                   ("coordonator", u"Coordonator"), ("staff", u"Membru staff"))
 
 
 STATUS_PARTICIPARE = ((1, u"Cu semnul întrebării"), (2, u"Confirmat"), (3, u"Avans plătit"), (4, u"Participare efectivă"),
                       (5, u"Participare anulată"))
 
 
+class ParticipantEveniment(models.Model):
+    nume = models.CharField(max_length=255)
+    prenume = models.CharField(max_length=255)
+    email = models.EmailField(null=True, blank=True)
+    telefon = models.CharField(max_length=255, blank=True, null=True)
+    adresa_postala = models.CharField(max_length=255)
+
+    def get_full_name(self):
+        return "%s %s" % (self.prenume, self.nume.upper())
+
+    def __unicode__(self):
+        return self.get_full_name()
+    
+
 class ParticipareEveniment(models.Model):
-    membru = models.ForeignKey("structuri.Membru")
+    #TODO: a better way to implement this relationship needs to exist
+    membru = models.ForeignKey("structuri.Membru", null=True, blank=True)
+    nonmembru = models.ForeignKey("album.ParticipantEveniment", null=True, blank=True)
+
     eveniment = models.ForeignKey(Eveniment)
     data_sosire = models.DateTimeField(null=True, blank=True)
     data_plecare = models.DateTimeField(null=True, blank=True)
@@ -378,8 +414,32 @@ class ParticipareEveniment(models.Model):
 
     @property
     def is_partiala(self):
-        return self.data_sosire > self.eveniment.start_date or self.data_plecare < self.eveniment.end_date
+        return (self.data_sosire > self.eveniment.start_date + datetime.timedelta(seconds=3600 * 4)) or (self.data_plecare < self.eveniment.end_date - datetime.timedelta(seconds=3600 * 4))
 
+    def process_camp_aditional(self, camp):
+        if self.nonmembru_id:
+            resolution = {"telefon": lambda o: o.nonmembru.telefon,
+                          "adresa": lambda o: o.nonmembru.adresa_postala,
+                          "email": lambda o: o.nonmembru.email}
+        elif self.membru_id:
+            resolution = {"telefon": lambda o: o.membru.mobil,
+                      "adresa": lambda o: o.membru.adresa_postala,
+                      "scoutid": lambda o: o.membru.scout_id,
+                      "email": lambda o: o.membru.email,
+                      "status": lambda o: o.membru.status_cotizatie(),
+                      "cotizatie": lambda o: o.membru.calculeaza_necesar_cotizatie(),
+                      "buletin": lambda o: o.membru.get_contact(u"Buletin"),
+                      "credit": lambda o: o.membru.get_scor_credit_display()}
+        else:
+            return "-"
+
+        val = resolution.get(camp, lambda o: "-")(self)
+        return val if val else "-"
+
+    def delete(self, **kwargs):
+        if self.nonmembru:
+            self.nonmembru.delete()
+        super(ParticipareEveniment, self).delete(**kwargs)
 
 
 TIPURI_CAMP_PARTICIPARE = (("text", u"Text"), ("number", u"Număr"), ("bool", u"Bifă"), ("date", u"Dată"))
@@ -393,6 +453,7 @@ class CampArbitrarParticipareEveniment(models.Model):
     implicit = models.CharField(max_length=255, null=True, blank=True)
     optional = models.BooleanField(default=True)
     explicatii_suplimentare = models.CharField(max_length=255, null=True, blank=True, help_text=u"Instrucțiuni despre cum să fie completat acest câmp, format, ...")
+    afiseaza_sumar = models.BooleanField(default=False, verbose_name=u"Afișează sumar", help_text=u"Afișează totale la sfârșitul tabelului")
 
     tipuri_camp = {"text": forms.CharField,
                    "number": forms.FloatField,
@@ -402,18 +463,26 @@ class CampArbitrarParticipareEveniment(models.Model):
     def get_form_field_class(self):
         return self.tipuri_camp[self.tip_camp]
 
+    def _cache_instances(self):
+        if hasattr(self, "_instante") and self._instante:
+            return
+
+        self._instante = list(self.instante.all())
+
+    def get_instanta(self, participare):
+        self._cache_instances()
+        return next((a for a in self._instante if a.participare_id == participare.id), None)
+
     def get_value(self, participare=None):
         if participare is None:
             return None
 
         try:
-            instanta = self.instante.get(participare=participare)
-            if self.tip_camp == "date":
-                return datetime.datetime.strptime(instanta.valoare_text, "%d.%m.%Y").date()
-            if self.tip_camp == "bool":
-                return instanta.valoare_text == "True"
-            return instanta.valoare_text
+            instanta = self.get_instanta(participare=participare)
+            return instanta.get_value()
         except InstantaCampArbitrarParticipareEveniment.DoesNotExist, e:
+            return None
+        except Exception, e:
             return None
 
     def get_translated_value(self, value):
@@ -426,9 +495,8 @@ class CampArbitrarParticipareEveniment(models.Model):
         if participare is None:
             return
 
-        try:
-            instanta = self.instante.get(participare=participare)
-        except InstantaCampArbitrarParticipareEveniment.DoesNotExist:
+        instanta = self.get_instanta(participare=participare)
+        if instanta is None:
             instanta_args = dict(participare=participare, camp=self)
             instanta = InstantaCampArbitrarParticipareEveniment.objects.create(**instanta_args)
 
@@ -463,11 +531,19 @@ class InstantaCampArbitrarParticipareEveniment(models.Model):
     def process_date(self):
         return datetime.datetime.strptime(self.valoare_text, "%d.%M.%Y")
 
+    def get_value(self):
+        if self.camp.tip_camp == "date":
+            return datetime.datetime.strptime(self.valoare_text, "%d.%m.%Y").date()
+        if self.camp.tip_camp == "bool":
+            return self.valoare_text == "True"
+        return self.valoare_text
+
     
 @receiver(post_init, sender=InstantaCampArbitrarParticipareEveniment)
 def update_value(sender, instance, **kwargs):
     try:
-        instance.valoare = getattr(instance, "process_{0}".format(instance.camp.tip_camp))
+        tip_camp = instance._tip_camp if hasattr("_tip_camp", instance) else instance.camp.tip_camp
+        instance.valoare = getattr(instance, "process_{0}".format(tip_camp))
     except Exception, e:
         instance.valoare = None
 
@@ -535,7 +611,7 @@ class SetPoze(models.Model):
     date_uploaded = models.DateTimeField(auto_now=True)
     offset_secunde = models.IntegerField(default=0,
                                          help_text="Numărul de secunde cu care ceasul camerei voastre a fost decalat față de ceasul corect (poate fi și negativ). Foarte util pentru sincronizarea pozelor de la mai mulți fotografi")
-    offset_changed = models.BooleanField(default = False, verbose_name = u"Offset-ul a fost modificat")
+    offset_changed = models.BooleanField(default=False, verbose_name = u"Offset-ul a fost modificat")
 
     class Meta:
         verbose_name = u"Set poze"
@@ -555,30 +631,51 @@ class SetPoze(models.Model):
         self.save()
 
         try:
-            event_path_no_root = os.path.join(SCOUTFILE_ALBUM_STORAGE_ROOT, unicode(self.eveniment.centru_local.id),
+            #   folder creation is not required on AWS
+            event_path_no_root = os.path.join(settings.SCOUTFILE_ALBUM_STORAGE_ROOT, unicode(self.eveniment.centru_local.id),
                                               unicode(self.eveniment.id), unidecode(self.autor.replace(" ", "_")))
-            event_path = os.path.join(MEDIA_ROOT, event_path_no_root)
-            if not os.path.exists(os.path.join(MEDIA_ROOT, event_path)):
-                os.makedirs(os.path.join(MEDIA_ROOT, event_path))
+
+            # event_path = os.path.join(settings.MEDIA_DIRECTORY, event_path_no_root)
+            # path creation is not a thing with S3
+            # if not os.path.exists(os.path.join(settings.LOCAL_MEDIA_ROOT, event_path)):
+            #     # TODO: create folders on AWS
+            #     os.makedirs(os.path.join(settings.LOCAL_MEDIA_ROOT, event_path))
+
+            #   setup temp path to unzip in
+            import hashlib
+            tmp_album_path = hashlib.sha224(event_path_no_root).hexdigest()
+            tmp_album_path = os.path.join("/tmp", tmp_album_path)
+            if os.path.exists(tmp_album_path):
+                shutil.rmtree(tmp_album_path)
+            os.makedirs(tmp_album_path)
 
             with ZipFile(self.zip_file) as zf:
                 total_count = len(zf.infolist())
                 current_count = 0
                 for f in zf.infolist():
                     logger.debug("SetPoze: fisier extras %s" % f)
+
                     f.external_attr = 0777 << 16L
-                    if f.filename.endswith("/") or os.path.splitext(f.filename)[1].lower() not in (".jpg", ".jpeg", ".png"):
+                    if f.filename.endswith("/") or os.path.splitext(f.filename)[1].lower() not in (".jpg", ".jpeg", ".png") or os.path.basename(f.filename).startswith(".") or f.filename.startswith("__"):
                         logger.debug("SetPoze skipping %s %s %s" % (f, f.filename, os.path.splitext(f.filename)[1].lower()))
                         continue
-                    logger.debug("SetPoze: extracting file %s to %s" % (f.filename, event_path))
-                    zf.extract(f, event_path)
-                    im = Imagine(set_poze=self, titlu=os.path.basename(f.filename),
-                                 image=os.path.join(event_path_no_root, f.filename))
-                    logger.debug("SetPoze: poza: %s" % im.image)
+
+                    logger.debug("SetPoze: extracting file %s to S3:%s" % (f.filename, event_path_no_root))
+                    zf.extract(f, tmp_album_path)
+
+                    im = Imagine(set_poze=self, titlu=os.path.basename(f.filename))
+                    file_handler = open(os.path.join(tmp_album_path, f.filename))
+                    im.image.save(os.path.join(event_path_no_root, f.filename), File(file_handler), save=False)
+
                     try:
-                        im.save()
+                        im.save(file_handler=file_handler, local_file_name=os.path.join(tmp_album_path, f.filename))
                     except Exception, e:
                         logger.error("eroare: %s %s" % (e, traceback.format_exc()))
+
+                    #   Creating thumbnail and large urls without setting the actual flag on photosize
+                    im.get_thumbnail_url()
+                    im.get_large_url()
+
                     current_count += 1
                     current_percent = current_count * 100. / total_count
                     if current_percent - 5 > self.procent_procesat:
@@ -594,6 +691,7 @@ class SetPoze(models.Model):
                       [self.autor_user.email, ])
             self.save()
             os.unlink(self.zip_file)
+            shutil.rmtree(tmp_album_path)
             logger.error(
                 "SetPoze: error extracting files: %s (%s), deleting uploaded file" % (e, traceback.format_exc()))
             return
@@ -608,6 +706,7 @@ class SetPoze(models.Model):
                   settings.SYSTEM_EMAIL,
                   [self.autor_user.email, ])
         os.unlink(self.zip_file)
+        shutil.rmtree(tmp_album_path)
 
 
 class Imagine(ImageModel):
@@ -632,24 +731,36 @@ class Imagine(ImageModel):
         verbose_name_plural = u"Imagini"
         ordering = ["date_taken", ]
 
-    def rotate(self, direction="cw"):
-        im = Image.open(self.image)
+    #   override for the original method of getting the filename
+    def _get_SIZE_filename(self, size):
+        photosize = PhotoSizeCache().sizes.get(size)
+        generator = PhotologueSpec(photo=self, photosize=photosize)
+        return generator.cachefile_name
 
-        angle = -90
+    def rotate(self, direction="cw"):
+        try:
+            im = Image.open(self.image.storage.open(self.image.name))
+        except IOError:
+            return
+
+        im_format = im.format
+
         if direction == "cw":
             angle = -90
         else:
             angle = 90
 
         im = im.rotate(angle)
-        im.save("%s%s" % (MEDIA_ROOT, self.image))
+        im_buffer = BytesIO()
+        im.save(im_buffer, im_format)
+        buffer_contents = ContentFile(im_buffer.getvalue())
+        self.image.storage.delete(self.image.name)
+        self.image.storage.save(self.image.name, buffer_contents)
 
-        if os.path.exists(self.get_large_filename()):
-            os.unlink(self.get_large_filename())
-        if os.path.exists(self.get_thumbnail_filename()):
-            os.unlink(self.get_thumbnail_filename())
-        if os.path.exists(self.get_profile_filename()):
-            os.unlink(self.get_profile_filename())
+        try:
+            self.clear_cache()
+        except Exception, e:
+            logger.debug("%s: deleted cached sizes (does this even work on S3?): %s, %s" % (self.__class__.__name__, e, traceback.format_exc()))
 
         return
 
@@ -693,23 +804,25 @@ class Imagine(ImageModel):
     def interesting_exifdata(self):
         return self.exifdata_set.filter(key__in=("Model", ))
 
-    def save(self, *args, **kwargs):
+    def save(self, file_handler=None, local_file_name=None, *args, **kwargs):
+        logger.debug("Calling Image.save with fh %s and lfn %s" % (file_handler, local_file_name))
         im = None
-        if self.resolution_x is None or self.resolution_y is None:
-            logger.debug("Imagine.save: opening file: %s" % os.path.join(MEDIA_ROOT, "%s" % self.image))
-            im = Image.open(os.path.join(MEDIA_ROOT, "%s" % self.image))
+        if (self.resolution_x is None or self.resolution_y is None) and local_file_name is not None:
+            logger.debug("Imagine.save: opening file: %s" % local_file_name)
+            im = Image.open(local_file_name)
             self.resolution_x, self.resolution_y = im.size
+            logger.debug("Imagine resolution: %d, %d" % (self.resolution_x, self.resolution_y))
 
         on_create = False
         if self.id is None:
             on_create = True
-            if im is None:
-                im = Image.open(self.image)
             try:
+                if im is None:
+                    im = Image.open(local_file_name)
                 info = im._getexif()
             except Exception, e:
+                logger.debug("%s: %s, %s" % (self.__class__.__name__, e, traceback.format_exc()))
                 info = None
-
 
             exif_data = {}
 
@@ -727,6 +840,7 @@ class Imagine(ImageModel):
 
                     exif_data[decoded] = value
 
+            # logger.debug("exifdata %s" % exif_data)
         retval = super(Imagine, self).save(*args, **kwargs)
 
         if not self.is_face_processed:
@@ -734,7 +848,7 @@ class Imagine(ImageModel):
                 #    delete any existing faces, thus allowing detected face reset by
                 #    switching the is_face_processed flag
                 self.detectedface_set.all().delete()
-            self.find_faces()
+            self.find_faces(local_file_name)
             self.is_face_processed = True
 
         if on_create:
@@ -748,19 +862,29 @@ class Imagine(ImageModel):
                 except Exception, e:
                     continue
 
+        if im is not None:
+            del im
         return retval
 
     def vote_photo(self, score):
         self.score += score
         self.save()
 
-    def find_faces(self):
-        import cv
+    def find_faces(self, file_name=None):
+        try:
+            import cv
+        except ImportError:
+            return
 
-        imcolor = cv.LoadImage("%s/%s" % (MEDIA_ROOT, self.image)) #@UndefinedVariable
+        if file_name is None:
+            return
+
+        logger.debug("%s: %s" % (self.__class__.__name__, file_name))
+
+        imcolor = cv.LoadImage(file_name) #@UndefinedVariable
         detectors = ["haarcascade_frontalface_default.xml", "haarcascade_profileface.xml"]
         for detector in detectors:
-            haarFace = cv.Load(os.path.join(STATIC_ROOT, detector))  # @UndefinedVariable
+            haarFace = cv.Load(os.path.join(settings.STATIC_ROOT, detector))  # @UndefinedVariable
             storage = cv.CreateMemStorage() #@UndefinedVariable
             detectedFaces = cv.HaarDetectObjects(imcolor, haarFace, storage, min_size=(200, 200)) #@UndefinedVariable
             if detectedFaces:
@@ -798,7 +922,7 @@ class Imagine(ImageModel):
             "titlu": u"%s - %s" % (self.set_poze.eveniment.nume, self.titlu),
             "descriere": self.descriere or "",
             "autor": self.set_poze.get_autor(),
-            "data": self.data.strftime("%d %B %Y %H:%M:%S"),
+            "data": self.data.strftime("%d %B %Y %H:%M:%S") if self.data else datetime.datetime.now().strftime("%d %B %Y %H:%M:%S"),
             "tags": [t for t in self.tags.names()[:10]],
             "rotate_url": reverse("album:poza_rotate", kwargs={"pk": self.id}),
             "published_status_display": self.get_published_status_display(),

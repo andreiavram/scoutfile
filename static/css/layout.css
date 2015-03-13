@@ -10,6 +10,10 @@
     text-align: center;
 }
 
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+
 #menu {
     /*border-right: 2px #CCC solid; */
     /*background-color: rgba(245, 245, 245, 0.7);*/
@@ -181,4 +185,29 @@ div.document-list {
         transform: rotate(359deg);
     }
 
+}
+
+form.scoutfile-form {
+
+}
+
+form.scoutfile-form p.help-block {
+    font-style: italic;
+    color: #999;
+}
+
+form.scoutfile-form label.control-label {
+    font-weight: bold;
+}
+
+form.scoutfile-form .markItUp {
+    width: 100%;
+}
+
+form.scoutfile-form .markItUpEditor {
+    width: 100%;
+    font-size: 14px;
+    font-family: monospace;
+    line-height: 24px;
+    height: 500px;
 }

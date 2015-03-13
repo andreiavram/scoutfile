@@ -2,7 +2,7 @@
 from django.db.models.aggregates import Count
 from django.db.models.query_utils import Q
 from django.utils.simplejson import dumps
-from django.views.generic.edit import UpdateView, CreateView
+from django.views.generic.edit import UpdateView, CreateView, FormView
 from django.views.generic.detail import DetailView
 from django.views.generic.base import View, TemplateView
 from django.shortcuts import get_object_or_404
@@ -22,13 +22,16 @@ from taggit.models import Tag
 from taggit.utils import parse_tags
 from goodies.views import GenericDeleteView, CalendarViewMixin
 from goodies.views import JSONView
+from django.core.files.base import File
+from album.exporters.envelopes import C5Envelopes
 
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment, \
     ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT, SetPoze, IMAGINE_PUBLISHED_STATUS, \
-    CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment, FLAG_MOTIVES
+    CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment, FLAG_MOTIVES, ParticipantEveniment
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm, \
     EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm, CampArbitrarForm, EvenimentParticipareUpdateForm, \
-    ReportFormNoButtons
+    ReportFormNoButtons, EvenimentParticipareNonMembruForm, EvenimentParticipareNonmembruUpdateForm, \
+    EvenimentParticipantFilterForm
 from settings import MEDIA_ROOT
 from structuri.forms import AsociereEvenimentStructuraForm
 from structuri.models import Membru, RamuraDeVarsta, CentruLocal, Unitate, Patrula, TipAsociereMembruStructura
@@ -219,6 +222,7 @@ class AlbumEvenimentDetail(DetailView):
             zile.append((zi_eveniment, zi_eveniment.filter_photos(autor=self.autor, user=self.request.user)))
 
         current.update({"zile": zile, "autor": self.autor})
+        current["visibility_states"] = IMAGINE_PUBLISHED_STATUS
 
         return current
 
@@ -729,8 +733,58 @@ class ChangeImagineVisibility(JSONView):
         return simplejson.dumps(json_dict)
 
 
-class EvenimentEditMixin(object):
+class FileUploadMixin(object):
+    def handle_uploaded_file(self, f):
+        fname = f.name
+        if hasattr(self, 'object') and self.object is not None and self.object.id is not None:
+            fname += str(self.object.id) + "-" + fname
+
+        path = os.path.join("/tmp", fname)
+        #path = os.path.join(MEDIA_ROOT, base_path)
+        with open(path, 'wb+') as destination:
+            for chunk in f.chunks():
+                destination.write(chunk)
+
+        return path
+
+    def get_save_kwargs(self, file_handler, local_file_name):
+        return {}
+
+    def save_photo(self, form_field_name="cover_photo", object_field_name="custom_cover_photo", image_class=Imagine, folder_path="covers", save=True):
+        return self.save_file(form_field_name, object_field_name, image_class, folder_path, save)
+
+    def get_target_object(self):
+        return self.object
+
+    def save_file(self, form_field_name="cover_photo", object_field_name='custom_cover_photo', image_class=Imagine, folder_path="covers", save=True):
+        if form_field_name in self.request.FILES:
+            try:
+                path = self.handle_uploaded_file(self.request.FILES[form_field_name])
+            except Exception, e:
+                return
+
+            target_object = self.get_target_object()
+            if getattr(target_object, object_field_name):
+                try:
+                    getattr(target_object, object_field_name).image.delete()
+                    getattr(target_object, object_field_name).delete()
+                except Exception, e:
+                    logger.error("%s: Could not delete photo %s" % (self.__class__.__name__, e))
+            filehandler = open(path, "r")
+            cover_photo = image_class()
+            cover_photo.image.save(os.path.join(settings.PHOTOLOGUE_DIR, folder_path, self.request.FILES[form_field_name].name), File(filehandler), save=False)
+            cover_photo.save(**self.get_save_kwargs(file_handler=filehandler, local_file_name=path))
+            setattr(target_object, object_field_name, cover_photo)
+
+            if save:
+                target_object.save()
+
+
+class EvenimentEditMixin(FileUploadMixin):
     participanti = ["lupisori", "temerari", "seniori", "exploratori", "adulti", "lideri"]
+
+    def get_save_kwargs(self, file_handler, local_file_name):
+        return {"file_handler": file_handler, "local_file_name": local_file_name}
 
     def update_counts(self, form):
         counts = ParticipantiEveniment.objects.filter(eveniment=self.object)
@@ -771,18 +825,40 @@ class EvenimentEditMixin(object):
                 totals[c.alta_categorie] = c.numar
         return totals
 
-    def handle_uploaded_file(self, f):
-        fname = f.name
-        if hasattr(self, 'object') and self.object is not None and self.object.id is not None:
-            fname += str(self.object.id) + "-" + fname
+    # def handle_uploaded_file(self, f):
+    #     fname = f.name
+    #     if hasattr(self, 'object') and self.object is not None and self.object.id is not None:
+    #         fname += str(self.object.id) + "-" + fname
+    #
+    #     path = os.path.join("/tmp", fname)
+    #     #path = os.path.join(MEDIA_ROOT, base_path)
+    #     with open(path, 'wb+') as destination:
+    #         for chunk in f.chunks():
+    #             destination.write(chunk)
+    #
+    #     return path
 
-        base_path = os.path.join("album", fname)
-        path = os.path.join(MEDIA_ROOT, base_path)
-        with open(path, 'wb+') as destination:
-            for chunk in f.chunks():
-                destination.write(chunk)
-
-        return base_path
+    def save_cover_photo(self, save=True):
+        cover_photo_args = dict(form_field_name="cover_photo", object_field_name="custom_cover_photo", image_class=Imagine, folder_path="covers")
+        cover_photo_args['save'] = save
+        self.save_photo(**cover_photo_args)
+        # if "cover_photo" in self.request.FILES:
+        #     try:
+        #         path = self.handle_uploaded_file(self.request.FILES['cover_photo'])
+        #     except Exception, e:
+        #         return
+        #
+        #     if self.object.custom_cover_photo:
+        #         self.object.custom_cover_photo.image.delete()
+        #         self.object.custom_cover_photo.delete()
+        #     filehandler = open(path, "r")
+        #     cover_photo = Imagine()
+        #     cover_photo.image.save(os.path.join(settings.PHOTOLOGUE_DIR, "covers", self.request.FILES['cover_photo'].name), File(filehandler), save=False)
+        #     cover_photo.save(file_handler=filehandler, local_file_name=path)
+        #     self.object.custom_cover_photo = cover_photo
+        #
+        #     if save:
+        #         self.object.save()
 
 
 class EvenimentCreate(CreateView, EvenimentEditMixin):
@@ -809,14 +885,10 @@ class EvenimentCreate(CreateView, EvenimentEditMixin):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.centru_local = self.centru_local
-
-        if "cover_photo" in self.request.FILES:
-            path = self.handle_uploaded_file(self.request.FILES['cover_photo'])
-            cover_photo = Imagine(image=path)
-            cover_photo.save()
-            self.object.custom_cover_photo = cover_photo
-
         self.object.save()
+
+        self.save_cover_photo()
+
         self.create_connections()
         self.update_counts(form)
 
@@ -854,11 +926,12 @@ class EvenimentUpdate(UpdateView, EvenimentEditMixin):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        if "cover_photo" in self.request.FILES:
-            path = self.handle_uploaded_file(self.request.FILES['cover_photo'])
-            cover_photo = Imagine(image=path)
-            cover_photo.save()
-            self.object.custom_cover_photo = cover_photo
+        # if "cover_photo" in self.request.FILES:
+        #     path = self.handle_uploaded_file(self.request.FILES['cover_photo'])
+        #     cover_photo = Imagine(image=path)
+        #     cover_photo.save()
+        #     self.object.custom_cover_photo = cover_photo
+        self.save_cover_photo(save=False)
         self.object.save()
         self.update_counts(form)
 
@@ -887,6 +960,7 @@ class EvenimentDetail(DetailView):
     def get_context_data(self, **kwargs):
         data = super(EvenimentDetail, self).get_context_data(**kwargs)
         data['report_form'] = ReportFormNoButtons()
+        data['visibility_states'] = IMAGINE_PUBLISHED_STATUS
         return data
 
 
@@ -1159,16 +1233,21 @@ class RaportStatus(ListView):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         self.cl = request.user.get_profile().membru.get_centru_local()
+        date_now = datetime.datetime.now()
+        year = date_now.year
+        if date_now.day < 15 and date_now.month < 2:
+            year -= 1
+        self.an = int(request.GET.get("an", year))
         return super(RaportStatus, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        self.an = datetime.datetime.now().year - 1
         return self.model.objects.filter(start_date__year=self.an, centru_local=self.cl).order_by("start_date")
 
     def get_context_data(self, **kwargs):
         data = super(RaportStatus, self).get_context_data(**kwargs)
         data['scor_anual'] = sum(e.scor_calitate() for e in self.object_list)
         data['an'] = self.an
+        data['ani'] = range(self.an - 1, self.an + 2)
         return data
 
 
@@ -1274,16 +1353,79 @@ class EvenimentParticipanti(ListView):
 
     @allow_by_afiliere([("Eveniment, Centru Local", "Lider")], pkname="slug")
     def dispatch(self, request, *args, **kwargs):
+        self.cancelled = False
+        if "cancelled" in request.GET:
+            self.cancelled = True
+
+        self.pagesize = None
+        if "pagesize" in request.GET:
+            self.pagesize = int(request.GET.get("pagesize", 0))
+
         self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
         return super(EvenimentParticipanti, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.model.objects.filter(eveniment=self.eveniment)
+        qs = self.model.objects.filter(eveniment=self.eveniment)
+        if self.cancelled:
+            qs = qs.filter(status_participare=5)
+        else:
+            qs = qs.exclude(status_participare=5)
+
+        qs = qs.select_related("membru", "nonmembru", "eveniment")
+
+        return qs
 
     def get_context_data(self, **kwargs):
         data = super(EvenimentParticipanti, self).get_context_data(**kwargs)
         data['eveniment'] = self.eveniment
+        data['cancelled'] = self.cancelled
+        data['campuri_arbitrare'] = self.eveniment.camparbitrarparticipareeveniment_set.all().prefetch_related("instante")[0:]
+        data['pagesize'] = self.pagesize
+        data['full_count'] = self.object_list.count()
         return data
+
+
+class EvenimentParticipantiExport(FormView):
+    form_class = EvenimentParticipantFilterForm
+    template_name = "album/eveniment_participanti_options.html"
+
+    EXPORT_OPTIONS = (("plicuri_c5", u"Plicuri C5", u"Export PDF cu plicuri C5 pentru printare"), )
+
+    @allow_by_afiliere([("Eveniment, Centru Local", "Lider")], pkname="slug")
+    def dispatch(self, request, *args, **kwargs):
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+        return super(EvenimentParticipantiExport, self).dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        data = super(EvenimentParticipantiExport, self).get_form_kwargs()
+        data['export_options'] = self.EXPORT_OPTIONS
+        data['eveniment'] = self.eveniment
+        return data
+
+    def get_queryset(self, filters=None, status_list=()):
+        qs = self.eveniment.participareeveniment_set.filter(status_participare__in=status_list)
+
+        for camp, valoare in filters.items():
+            instante_filters = dict(camp=camp, valoare_text="%s" % valoare)
+            instante = InstantaCampArbitrarParticipareEveniment.objects.filter(**instante_filters)
+            qs = qs.filter(id__in=instante.values_list("participare_id", flat=True))
+
+        return qs
+
+    def plicuri_c5(self, qs):
+        return C5Envelopes.generate_envelopes(qs)
+
+    def form_valid(self, form):
+        qs = self.get_queryset(filters=form.cleaned_data.get("filter_expression", None),
+                               status_list=form.cleaned_data.get("status_participare"))
+
+        return getattr(self, form.cleaned_data.get("tip_export"))(qs)
+
+    def get_context_data(self, **kwargs):
+        data = super(EvenimentParticipantiExport, self).get_context_data(**kwargs)
+        data['eveniment'] = self.eveniment
+        return data
+
 
 class EvenimentParticipantiCreate(CreateView):
     model = ParticipareEveniment
@@ -1307,10 +1449,13 @@ class EvenimentParticipantiCreate(CreateView):
         data['request'] = self.request
         return data
 
-    def form_valid(self, form):
+    def _process_object_from_form(self, form):
         self.object = form.save(commit=False)
         self.object.eveniment = self.eveniment
         self.object.user_modificare = self.request.user.get_profile().membru
+
+    def form_valid(self, form):
+        self._process_object_from_form(form)
         self.object.save()
 
         for camp in self.eveniment.camparbitrarparticipareeveniment_set.all():
@@ -1325,6 +1470,16 @@ class EvenimentParticipantiCreate(CreateView):
         data = super(EvenimentParticipantiCreate, self).get_context_data(**kwargs)
         data['eveniment'] = self.eveniment
         return data
+
+
+class EvenimentParticipantNonMembruCreate(EvenimentParticipantiCreate):
+    form_class = EvenimentParticipareNonMembruForm
+
+    def _process_object_from_form(self, form):
+        super(EvenimentParticipantNonMembruCreate, self)._process_object_from_form(form)
+        pe_kwargs = {n: form.cleaned_data.get(n, None) for n in ["nume", "prenume", "email", "telefon", "adresa_postala"]}
+        pe, created = ParticipantEveniment.objects.get_or_create(**pe_kwargs)
+        self.object.nonmembru = pe
 
 
 class EvenimentParticipantiUpdate(UpdateView):
@@ -1354,9 +1509,12 @@ class EvenimentParticipantiUpdate(UpdateView):
 
         return data
 
-    def form_valid(self, form):
+    def _process_object_from_form(self, form):
         self.object = form.save(commit=False)
         self.object.user_modificare = self.request.user.get_profile().membru
+
+    def form_valid(self, form):
+        self._process_object_from_form(form)
         self.object.save()
 
         for camp in self.object.eveniment.camparbitrarparticipareeveniment_set.all():
@@ -1366,6 +1524,22 @@ class EvenimentParticipantiUpdate(UpdateView):
 
     def get_success_url(self):
         return reverse("album:eveniment_participanti_list", kwargs={"slug": self.object.eveniment.slug})
+
+
+class EvenimentParticipantNonMembruUpdate(EvenimentParticipantiUpdate):
+    form_class = EvenimentParticipareNonmembruUpdateForm
+
+    def get_initial(self):
+        data = super(EvenimentParticipantNonMembruUpdate, self).get_initial()
+        nonmembru = {n: getattr(self.object.nonmembru, n, None) for n in ["nume", "prenume", "email", "telefon", "adresa_postala"]}
+        data.update(nonmembru)
+        return data
+
+    def _process_object_from_form(self, form):
+        super(EvenimentParticipantNonMembruUpdate, self)._process_object_from_form(form)
+        for key in ["nume", "prenume", "email", "telefon", "adresa_postala"]:
+            setattr(self.object.nonmembru, key, form.cleaned_data.get(key, None))
+        self.object.nonmembru.save()
 
 
 class EvenimentCampuriArbitrare(ListView):
@@ -1382,6 +1556,7 @@ class EvenimentCampuriArbitrare(ListView):
     def get_context_data(self, **kwargs):
         data = super(EvenimentCampuriArbitrare, self).get_context_data(**kwargs)
         data['eveniment'] = self.eveniment
+        data['coloane_permise'] = Eveniment.CAMPURI_PERMISE
         return data
 
 
@@ -1489,3 +1664,20 @@ class EvenimentCampuriArbitrareUpdate(EvenimentSlugMixin, UpdateView):
         data = super(EvenimentCampuriArbitrareUpdate, self).get_form_kwargs()
         data['eveniment'] = self.object.eveniment
         return data
+
+
+class EvenimentUpdateCampuriAditionale(View):
+    @allow_by_afiliere([("Eveniment, Centru Local", "Lider"), ("Eveniment, Centru Local", "Lider asistent")])
+    def dispatch(self, request, *args, **kwargs):
+        self.object = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
+        return super(EvenimentUpdateCampuriAditionale, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        data = request.POST.get("campuri", "").strip(";").split(";")
+        data = [d for d in data if d in [c[0] for c in self.object.CAMPURI_PERMISE]]
+        data = ";".join(data)
+        if self.object.campuri_aditionale != data:
+            self.object.campuri_aditionale = data
+            self.object.save()
+
+        return HttpResponse(status=200)
