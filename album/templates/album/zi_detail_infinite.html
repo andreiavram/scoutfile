@@ -1,0 +1,121 @@
+{% extends 'album/zi_base.html' %}
+{% load staticfiles %}
+{% load pagination_tags %}
+
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'goodies/css/tagmanager.css' %}"/>
+    <link rel="stylesheet" href="{% static 'gallery/css/blueimp-gallery.min.css' %}">
+    <style>
+        .blueimp-gallery > .description {
+            position: absolute;
+            top: 50px;
+            left: 15px;
+            color: #ddd;
+            display: none;
+        }
+
+        .blueimp-gallery-controls > .description {
+            display: block;
+        }
+
+        .blueimp-gallery > .sfcontrols {
+            position: absolute;
+            bottom: 45px;
+            left: 15px;
+            display: none;
+        }
+
+        .blueimp-gallery-controls > .sfcontrols {
+            display: block;
+        }
+
+        .blueimp-gallery > .tags {
+            position: absolute;
+            bottom: 95px;
+            left: 15px;
+            display: none;
+            color: #DDD;
+        }
+
+        .blueimp-gallery-controls > .tags {
+            display: block;
+        }
+
+    </style>
+{% endblock %}
+
+{% block extrajs %}
+    <script src="{% static 'gallery/js/blueimp-gallery.js' %}"></script>
+    <script src="{% static 'gallery/js/blueimp-gallery-fullscreen.js' %}"></script>
+    <script src="{% static 'gallery/js/blueimp-gallery-indicator.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            $(window).scroll(function () {
+                if (($(window).scrollTop() >= $(document).height() - $(window).height() * 1.5) && !(stop_flag)) {
+                    get_photos();
+                }
+            });
+            get_photos();
+        });
+
+        function get_request_data() {
+            return {"offset": offset,
+                "limit": limit,
+                "zi": {{ object.id }},
+                "csrfmiddlewaretoken": "{{ csrf_token }}"
+                ,
+                "eveniment": "{{ object.eveniment.id }}",
+                "ordering": "asc"
+                {% if "autor" in request.GET %},"authors": "{{ request.GET.autor }}"{% endif %}}
+        }
+    </script>
+    <script>
+        var gallery = null;
+        var gallery_enabled = true;
+        var gallery_data = [];
+
+    </script>
+    {% include "album/imagine_handlers.html" %}
+
+
+    <!-- The Gallery as lightbox dialog, should be a child element of the document body -->
+    <div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
+        <div class="slides"></div>
+        <h3 class="title"></h3>
+
+        <p class="description"></p>
+        <div class="sfcontrols">
+
+        </div>
+        <div class = "tags">
+
+        </div>
+        <a class="prev">‹</a>
+        <a class="next">›</a>
+        <a class="close">×</a>
+        <a class="play-pause"></a>
+        <ol class="indicator"></ol>
+    </div>
+
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="alert alert-info">Albumul pentru <a href="
+            {% url "album:eveniment_detail"  slug=object.eveniment.slug %}{% if autor %}?autor={{ autor }}{% endif %}"><i
+            class="icon-list"></i> {{ object.eveniment }}</a>, <strong>{{ object.filter_photos.count }}</strong>
+        fotografii pentru {{ object.date|date:"l, d F Y" }}</div>
+    <div class="alert">Folosești varianta nouă de album, compatibilă cu dipozitive mobile și ceva mai arătoasă. Dacă ai probleme sau vrei să te întorci la cea clasică, e <a href="{% url "album:zi_detail_old"  pk=object.id %}">aici</a>.
+    </div>
+    {% if autor %}
+        <div class="alert alert-success">Arăt doar pozele de la <strong>{{ autor }}</strong></div>{% endif %}
+    {% if object.descriere %}{{ object.descriere|linebreaks }}{% endif %}
+
+
+    <div class="thumbnails" id="rezultate-list">
+    </div>
+    <div class="loading"></div>
+    {% include 'album/flag_modal.html' %}
+
+{% endblock %}

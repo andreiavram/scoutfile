@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+    {{ object.titlu }}
+    <div class = "pull-right btn-group">
+        <a href = "{% url "cantece:cantec_edit"  pk=object.id %}" class = "btn"><i class = "icon-pencil"></i> Modifică</a>
+        <a href = "#" class = "btn btn-primary" id="save-song"><i class = 'icon-save'></i> Salvează</a>
+    </div>
+
+    <span style = "font-size: 50%; font-weight: normal">{{ object.artist }} - {{ object.album }}</span>
+{% endblock %}
+
+{% block extrahead %}
+    {{ form.media }}
+{% endblock %}
+
+{% block context_menu %}
+    {% include 'cantece/cantec_top_menu.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class = "row-fluid">
+        <div class = "span6">
+{#            {% crispy form form.helper %}#}
+            <form action = "" method="POST" id="song-content-form">
+                {{ form.song_content }}
+                {% csrf_token %}
+            </form>
+        </div>
+        <div class = "span6">
+            test2
+        </div>
+    </div>
+{% endblock %}
+
+{% block extrajs %}
+    <script>
+        $("document").ready(function () {
+            $("#save-song").click(function (e) {
+                $("#song-content-form").submit();
+                e.preventDefault();
+            })
+        })
+    </script>
+{% endblock %}

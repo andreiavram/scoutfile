@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block page_title %}
+    Raport (export) <span style="font-weight: normal">| {{ an }}</span>
+{% endblock %}
+
+{% block extrahead %}
+    <script>
+        (function ($) {
+            $(document).ready(function () {
+                $(".toggler").click(function (e) {
+                    $("a.edit").toggle();
+                    e.preventDefault();
+                })
+
+                $("a.toggledata").click(function (e) {
+                    $($(this).attr("href")).toggle();
+                    e.preventDefault();
+                })
+
+            })
+        })(jQuery)
+    </script>
+{% endblock %}
+
+{% block context_menu %}
+    {% include "album/main_context_menu.html" %}
+{% endblock %}
+
+{% block content %}
+    <h2>Tabel activități <a class = "toggledata btn btn-mini" href="#tabel-activitati"><i class = "icon-eye-open"></i></a></h2>
+    <div id = "tabel-activitati">
+    <table class = "table table-striped">
+        <tr>
+            <th>Nr. crt.</th>
+            <th>Denumire</th>
+            <th>Perioada</th>
+            <th>Ramura de vârstă</th>
+            <th>Participanți</th>
+        </tr>
+        {% for object in object_list %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ object }}</td>
+                <td>{% if object.is_one_day %} {{ object.start_date|date:"l, d F Y" }}, între {{ object.start_date|date:"H:i" }} - {{ object.end_date|date:"H:i"}}
+                {% else %}{{ object.start_date|date:"l, d F Y" }} - {{ object.end_date|date:"l, d F Y" }}{% endif %}</td>
+                <td>
+                    {% for rdv, total in object.get_ramuri_de_varsta.items %}
+                        {% if rdv != "lideri" and total.0 != 0 %}
+                            {{ rdv }}<br />
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                <td>{{ object.total_participanti }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    </div>
+
+    <h2>Descriere activități <a class = "toggledata btn btn-mini" href="#tabel-descrieri"> <i class = "icon-eye-open"></i></a> <a href = "#" class = "btn btn-mini btn-primary toggler">Arată / ascunde butoane edit</a></h2>
+    <div id = "tabel-descrieri">
+    {% for object in object_list %}
+        <h3>{{ object }}</h3>
+        {% include "album/eveniment_raport_part.html" %}
+    <a class = "btn btn-mini edit" href = "{% url "album:eveniment_update"  slug=object.slug %}"><i class = "icon-pencil"></i> Modifică <strong>{{ object }}</strong></a>
+    {% endfor %}
+    </div>
+
+{% endblock %}
+
+

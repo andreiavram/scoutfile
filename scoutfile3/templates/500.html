@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block page_title %}
+	500 - Probleme? ...
+{% endblock %}
+
+{% block content %}
+	<div class = 'row'>
+	<div class = 'span4'>
+		<img src = "{{ STATIC_URL }}images/bufnita.png" />
+	</div>
+	<div class = 'span8'>
+			<p>Ups ... Se pare ca radiații din spațiu ne-au dat sistemul peste cap. Mesajul de eroare va fi folosit de administratori pentru a remedia problemele. 
+			Poți începe să cauți iar pe <a href = "{% url "index"  %}"><i class = "icon-home"></i> prima pagină</a>.</p>
+			
+		</div>
+	</div>
+{% endblock %}

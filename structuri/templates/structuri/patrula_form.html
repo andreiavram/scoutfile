@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+	{% if object %}Modifică patrula {{ object }}{% else %}Adaugă patrulă la unitatea {{ unitate }}{% endif %}
+{% endblock %}
+
+{% block extrahead %}
+    {{ form.media }}
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Locații</li>
+		<li><a href = "{% url "structuri:unitate_detail"  pk=unitate.id %}"><i class = "icon-file"></i> {{ unitate }}</a></li>
+		
+	</ul>
+{% endblock %}
+
+
+{% block content %}
+	{% crispy form form.helper %}
+{% endblock %}

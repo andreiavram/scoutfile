@@ -1,0 +1,30 @@
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>Nume</th>
+            <td>Inactivă din</td>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for object in unitate.patrule_inactive %}
+		<tr id = "row_{{ object.id }}">
+			<td>{{ forloop.counter }}</td>
+			<td><a href = "{% url "structuri:patrula_detail"  pk=object.id %}">{{ object }}</a></td>
+            <td>{{ object.moment_inchidere|date:"F Y" }}</td>
+			<td>
+				<div class="btn-group pull-right">
+				    <a class = "btn btn-mini" href = "{% url "structuri:patrula_edit"  pk=object.id %}"><i class = "icon-pencil"></i></a>
+				    <a href = "{% url "structuri:patrula_delete"  pk=object.id %}" class = "btn btn-mini" id = "delete_{{ object.id }}"><i class = "icon-trash"></i></a>
+			    </div>
+			</td>
+		</tr>
+		{% empty %}
+		<tr>
+			<td>&nbsp;</td>
+			<td colspan="4"><em>Unitatea nu are patrule inactive. </td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>

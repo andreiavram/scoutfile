@@ -1,0 +1,370 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block page_title %}
+	{% if album %}Album foto{% else %}Activități{% endif %} <div class = "btn-toolbar pull-right">
+        <div class = "btn-group">
+            <a class = "btn template-switcher" data-view = "grid" href = "#"><i class = "icon-th"></i></a>
+            <a class = "btn template-switcher" data-view = "list" href = "#"><i class = "icon-list"></i></a>
+            <a class = "btn template-switcher" data-view = "list_detail" href = "#"><i class = "icon-list-alt"></i></a>
+        </div>
+
+        <div class = "btn-group">
+            <a class = "btn" href = "{% url "album:calendar_centru_local"  pk=centru_local.id %}"><i class = "icon-calendar"></i> Calendar</a>
+            <a class = "btn disabled" href = "{% url "album:index"  %}"><i class = "icon-list"></i> Listă</a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block context_menu %}
+	{% include "album/main_context_menu.html" %}
+{% endblock %}
+
+{% block extrahead %}
+    <script id = "eveniment_list" type = "text/template">
+        <tr>
+            <td>
+                <a href = "<%= eveniment.urls.detail %>"><%= eveniment.nume %></a><br />
+                <span style = "font-size: 10px;"><% if (eveniment.is_one_day) { %>
+                        <%= eveniment.dates.start.date_string %>, <%= eveniment.dates.start.hour_string %> - <%= eveniment.dates.end.hour_string %>
+                    <% } else { %>
+                        <%= eveniment.dates.start.date_string %> - <%= eveniment.dates.end.date_string %>
+                    <% } %>
+                </span>
+            </td>
+            <td>
+                <% if (eveniment.tip_eveniment.nume) { %>
+                    <%= eveniment.tip_eveniment.nume %><br />
+                 <% } %>
+                 <% if (eveniment.international) { %>
+                    <span class = "label label-info">Internațional</span><% } %>
+                <% if ((eveniment.organizator.nume.length > 0) && (eveniment.organizator.extern)) { %>
+                    <span class = "label label-info">Extern</span>
+                <% } %>
+            </td>
+            <td>
+                <% if (eveniment.structuri.length) { %>
+                    <% for (j = 0; j < eveniment.structuri.length; j++) { %>
+                        <strong>
+                            <% if (eveniment.structuri[j].ramura_de_varsta) { %>
+                                <img src = "{{ STATIC_URL }}images/icon-<%= eveniment.structuri[j].ramura_de_varsta_slugified %>.png" />
+                            <% } %>
+                            <a href = "<%= eveniment.structuri[j].urls.detail %>"><%= eveniment.structuri[j].nume %></a>
+                        </strong>
+                        <% if (j < eveniment.structuri.length - 1) { %><br /><% } %>
+                    <% } %>
+                <% } %>
+             </td>
+             <td>
+
+
+                    <% _.each(eveniment.ramuri_de_varsta, function (e, i) { %>
+                        <% if (e.count != 0) { %>
+                           <strong><%= e.count %></strong> <img src = "{{ STATIC_URL }}images/icon-<%= e.ramura_de_varsta %>.png">
+                        <% } %>
+                    <% }); %>
+
+            </td>
+            <td><%= eveniment.total_poze %> poze</td>
+            <td><% if (eveniment.locatie_text) { %><%= eveniment.locatie_text %><% } %></td>
+            <td><div class = 'btn-group'><a href = '<%= eveniment.urls.detail %>' class = 'btn btn-primary btn-mini'><i class = "icon-home"></i></a></div></td>
+        </tr>
+    </script>
+    <script id = "eveniment_list_detail" type = "text/template">
+		<div class = "row-fluid" style = "margin-bottom: 20px">
+			<div class = "" style = "position:relative;">
+				<div class = "span3">
+					<a href = "<%= eveniment.urls.detail %>">
+						<img class = "thumbnail" src = "<% if (eveniment.cover_photo.thumbnail_url) { %><%= eveniment.cover_photo.thumbnail_url %><% } else { %>{% static 'images/event_placeholder.jpg' %}<% } %>" />
+					</a>
+				</div>
+				<div class = "span9" style = "position: relative">
+					<h2><a href = "<%= eveniment.urls.detail %>"><%= eveniment.nume %></a></h2>
+                <p>
+                    <% if (eveniment.structuri.length) { %>
+                        Eveniment pentru <% for (j = 0; j < eveniment.structuri.length; j++) { %>
+                            <strong>
+                                <% if (eveniment.structuri[j].ramura_de_varsta) { %>
+                                    <img src = "{{ STATIC_URL }}images/icon-<%= eveniment.structuri[j].ramura_de_varsta_slugified %>.png" />
+                                <% } %>
+                                <a href = "<%= eveniment.structuri[j].urls.detail %>"><%= eveniment.structuri[j].nume %></a>
+                            </strong>
+                            <% if (j < eveniment.structuri.length - 1) { %>,<% } %>
+                        <% } %>.
+                    <% } %>
+                </p>
+                <% if (eveniment.descriere) { %><p><%= eveniment.descriere_truncated %></p><% } %>
+                <p><strong>
+                <% if (eveniment.tip_eveniment.nume) { %>
+                    <span class = "label label-info"><%= eveniment.tip_eveniment.nume %></span> <i class = "icon-star"></i>
+                 <% } %>
+                  <% if (eveniment.international) { %>
+                    <span class = "label label-info">Internațional</span> <i class = "icon-star"></i>
+                <% } %>
+                <% if ((eveniment.organizator.nume.length > 0) && (eveniment.organizator.extern)) { %>
+                    <span class = "label label-info">Extern</span> <i class = "icon-star"></i>
+                <% } %>
+                    <% if (eveniment.total_poze != 0) { %>
+                        Conține <%= eveniment.total_poze %> fotografii de la <%= eveniment.autori.length %> fotografi <i class = "icon-star"></i>
+                    <% } %>
+                    <% if (eveniment.is_one_day) { %>
+                        A avut loc <%= eveniment.dates.start.date_string %>, între <%= eveniment.dates.start.hour_string %> și <%= eveniment.dates.end.hour_string %>
+                    <% } else { %>
+                        A început <%= eveniment.dates.start.date_string %> și a ținut până <%= eveniment.dates.end.date_string %>
+                    <% } %>
+
+                    <i class = "icon-star"></i>
+                    <% for (k = 0; k < eveniment.autori.length; k++) { %>
+                        <a href = "<%= eveniment.urls.detail %>?autor=<%= eveniment.autori[k].nume %>"><%= eveniment.autori[k].nume %></a> <i class = 'icon-star'></i>
+                    <% } %>
+                    </strong>
+                    <span class = "label label-<% if (eveniment.scor_calitate < 0) { %>important<% } else { %><% if (eveniment.scor_calitate == 0) { %>warning<% } else { %>success<% }} %>">
+                        Scor: <%= eveniment.scor_calitate %>
+                    </span>
+                </p>
+                <div class = "btn-toolbar">
+					<div class = "btn-group">
+						<a href = "<%= eveniment.urls.detail %>" class = "btn btn-primary"><i class = "icon-white icon-picture"></i> Deschide</a>
+						<a href = "<%= eveniment.urls.participanti %>" class = "btn"><i class = "icon-th"></i> Participanți</a>
+					</div>
+                    <div class = "btn-group pull-right">
+                        <% if (eveniment.locatie_text) { %><a href ="<%= eveniment.urls.detail %>" class = "btn disabled"><i class = "icon-map-marker"></i> <%= eveniment.locatie_text %></a><% } %>
+                        <% if (eveniment.facebook_event_link) { %><a href ="<%= eveniment.facebook_event_link %>" class = "btn"><i class = "icon-facebook"></i> Eveniment Facebook</a><% } %>
+                    </div>
+                    </div>
+				</div>
+			</div>
+		</div>
+    </script>
+    <script id = "eveniment_grid" type = "text/template">
+        <div class = "span3 thumbnail" style = "min-height: 300px; margin-bottom: 10px;">
+            <a href = "<%= eveniment.urls.detail %>"><img src = "<% if (eveniment.cover_photo.thumbnail_url) { %><%= eveniment.cover_photo.thumbnail_url %><% } else { %>{% static 'images/event_placeholder.jpg' %}<% } %>" /></a>
+            <h2 style = "text-align: center; font-size: 14px;"><a href = "<%= eveniment.urls.detail %>"><%= eveniment.nume %></a></h2>
+            <% if (eveniment.descriere) { %><p style = "text-align: center; font-size: 10px;"><%= eveniment.descriere_truncated %></p><% } %>
+            <p style = "text-align: center; font-weight: bold;">
+                <% if (eveniment.is_one_day) { %>
+                        <%= eveniment.dates.start.date_string %>, <%= eveniment.dates.start.hour_string %> - <%= eveniment.dates.end.hour_string %>
+                    <% } else { %>
+                        <%= eveniment.dates.start.date_string %> - <%= eveniment.dates.end.date_string %>
+                    <% } %><% if (eveniment.locatie_text) { %>, <%= eveniment.locatie_text %><% } %>
+            </p>
+            <p style = "text-align: center"><% if (eveniment.structuri.length) { %>
+                    Pentru <% for (j = 0; j < eveniment.structuri.length; j++) { %>
+                        <strong>
+                            <% if (eveniment.structuri[j].ramura_de_varsta) { %>
+                                <img src = "{{ STATIC_URL }}images/icon-<%= eveniment.structuri[j].ramura_de_varsta_slugified %>.png" />
+                            <% } %>
+                            <a href = "<%= eveniment.structuri[j].urls.detail %>"><%= eveniment.structuri[j].nume %></a>
+                        </strong>
+                    <% } %>,
+                <% } %>participanți
+                    <% _.each(eveniment.ramuri_de_varsta, function (e, i) { %>
+                        <% if (e.count != 0) { %>
+                           <strong><%= e.count %></strong> <img src = "{{ STATIC_URL }}images/icon-<%= e.ramura_de_varsta %>.png">
+                        <% } %>
+                    <% }); %></p>
+            <p style = "text-align: center"><span class = "label label-<% if (eveniment.scor_calitate < 0) { %>important<% } else { %><% if (eveniment.scor_calitate == 0) { %>warning<% } else { %>success<% }} %>">
+                        Scor: <%= eveniment.scor_calitate %>
+                    </span>
+                    <% if (eveniment.total_poze > 0) { %><span class = "label label-info">Poze: <%= eveniment.total_poze %></span><% } %>
+                    <% if (eveniment.tip_eveniment.nume) { %>
+                    <span class = "label label-info"><%= eveniment.tip_eveniment.nume %></span>
+                 <% } %>
+                              <% if (eveniment.international) { %>
+                    <span class = "label label-info">Internațional</span>
+                <% } %>
+                <% if ((eveniment.organizator.nume.length > 0) && (eveniment.organizator.extern)) { %>
+                    <span class = "label label-info">Extern</span>
+                <% } %>
+                    </p>
+        </div>
+    </script>
+    <script>
+        $(document).ready(function () {
+            $(window).scroll(function () {
+                if (($(window).scrollTop() >= $(document).height() - $(window).height() * 1.5) && !(stop_flag)) {
+                    get_events();
+                }
+            });
+
+            update_view("{{ request.session.view }}");
+            get_events();
+
+            $(".template-switcher").click(function (event) {
+                update_view([$(this).data("view")]);
+                event.preventDefault();
+            });
+        });
+
+        function get_events() {
+            stop_flag = true;
+            $(".loading").fadeIn("fast");
+            $.post("{% url "album:index"  %}", get_request_data(), handle_events, "json");
+        }
+
+        function get_request_data() {
+            return {"offset": offset,
+                "per_page": current_view.per_page,
+                "csrfmiddlewaretoken": "{{ csrf_token }}"
+{#                {% if "autor" in request.GET %},"authors": "{{ request.GET.autor }}"{% endif %}#}
+            }
+        }
+
+        function handle_events(data) {
+            $(".loading").fadeOut("fast");
+            request_handled = true;
+
+            if ((offset == 0) && (data.evenimente.length == 0)) {
+                $(current_view.target).append(current_view.no_results);
+            }
+
+
+            $.each(data.evenimente, function (index, element) {
+                evenimente.push(element);
+                element.position = _.indexOf(evenimente, element);
+
+                var compiled = _.template(current_view.template);
+                $(current_view.target).append(compiled({"eveniment": element}));
+                current_view.post_render(element);
+
+            });
+
+            offset += data.current_count;
+            if (offset < data.total_count) {
+                stop_flag = false;
+            } else {
+                stop_flag = true;
+            }
+        }
+
+        function update_view(new_view) {
+            current_view = views[new_view];
+            $(".template-switcher").removeClass("disabled");
+            $("*[data-view='" + current_view.name + "'").addClass("disabled");
+
+            if (request_handled) {
+                $.get("{% url "album:index"  %}?view=" + new_view);
+            }
+
+            $("#eveniment_container").html(current_view.initial);
+
+            if ((evenimente.length == 0) && (request_handled == true)) {
+                $(current_view.target).append(current_view.no_results);
+            }
+
+            $.each(evenimente, function (index, element) {
+                $(current_view.target).append(_.template(current_view.template, {"eveniment" : element}));
+                current_view.post_render(element);
+            });
+
+        }
+
+        var evenimente = [];
+        var offset = 0;
+        var per_page = 5;
+        var stop_flag = true;
+        var crt_cnt = 0;
+        var request_handled = false;
+
+        var views = {
+            list_detail : {
+                name: "list_detail",
+                template_id : "#eveniment_list_detail",
+                target: "#eveniment_container",
+                initial: "",
+                template: $("#eveniment_list_detail").html(),
+                per_page: 4,
+                no_results: "<p><em>Nu există activități care să corespundă criteriilor de căutare</em></p>",
+                post_render: function () {
+
+                }
+            },
+            list: {
+                name: "list",
+                template_id : "#eveniment_list",
+                target: "#eveniment_table > tbody:last",
+                initial: "<table id = 'eveniment_table' class = 'table table-striped'><tr><th>Activitate</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th><th>Poze</th><th>Locație</th><th>&nbsp;</th></tr><tbody></tbody></table>",
+                template: $("#eveniment_list").html(),
+                per_page: 20,
+                no_results: "<tr><td>&nbsp;</td><td colspan='5'><em>Nu există activități care să corespundă criteriilor de căutare</em></td></tr>",
+                post_render: function () {
+
+                }
+            },
+            grid : {
+                name: "grid",
+                template_id : "#eveniment_grid",
+                target: "#row1",
+                initial: "<div class = 'row-fluid' id = 'row1'></div>",
+                template: $("#eveniment_grid").html(),
+                per_page: 12,
+                no_results: "<p><em>Nu există activități care să corespundă criteriilor de căutare</em></p>",
+                post_render: function (element) {
+                    if (element.position % 4 == 3) {
+                        id = "row" + (parseInt(/row(\d+)/.exec(current_view.target)[1]) + 1);
+                        $("#eveniment_container").append("<div class = 'row-fluid' id = '"+ id + "'></div>");
+                        current_view.target = "#" + id;
+                    }
+                }
+            }
+        }
+
+        var current_view = null;
+
+    </script>
+{% endblock %}
+
+{% block content %}
+    {% if request.user.is_authenticated %}
+    {% if request.session.qnume %}
+        <p class = "alert alert-info"><i class = "icon-search"></i> Căutare după <em>{{ request.session.qnume }}</em>. Pentru a te întoarce la lista de evenimente, apasă <a href = "{% url "album:index"  %}">aici.</a></p>
+    {% endif %}
+    <div class = "btn-toolbar pull-right" style = "margin-bottom: 20px">
+        <div class = "btn-group">
+            <form class = "form-inline" style="margin:0"><input class = "search-query" {% if request.session.qnume %}value = "{{ request.session.qnume }}"{% endif %} type = "text" placeholder="Caută după nume" name="qnume"></form>
+        </div>
+        <div class = "btn-group">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class = "icon-th-large"></i> Categorie {% if tip_activitate %}({{ tip_activitate }}){% endif %} <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+                {% for tip in tipuri_activitate %}
+                    <li><a tabindex="-1" href = "{% url "album:index"  %}?tip={{ tip.id }}">{{ tip }} {% if request.session.tip == tip.id %}<i class = "icon-ok"></i>{% endif %}</a></li>
+                {% endfor %}
+                <li class="divider"></li>
+                <li><a tabindex="-1" href = "{% url "album:index"  %}?tip=0">Toate {% if 'tip' not in request.session or request.session.tip == 0 %}<i class = "icon-ok"></i>{% endif %}</a></li>
+            </ul>
+        </div>
+
+        <div class = "btn-group">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class = "icon-time"></i> Status ({{ status }}) <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+                {% for status in status_activitate %}
+                    <li><a tabindex="-1" href = "{% url "album:index"  %}?status={{ status.0 }}">{{ status.1 }} {% if request.session.status == status.0 %}<i class = "icon-ok"></i>{% endif %}</a></li>
+                {% endfor %}
+                <li class="divider"></li>
+                <li><a tabindex="-1" href = "{% url "album:index"  %}?status=toate">Toate {% if request.session.status == "toate" %}<i class = "icon-ok"></i>{% endif %}</a></li>
+            </ul>
+        </div>
+
+        <div class = "btn-group">
+            <a href = "#" class = "disabled btn">Unități: </a>
+            <a href = "{% url "album:index"  %}?unitate=0" class = "btn {% if 'unitate' not in request.session or request.session.unitate == '0' %}disabled{% endif %}">Toate</a>
+            {% for unitate in unitati %}
+                <a href = "{% url "album:index"  %}?unitate={{ unitate.id }}" class = "btn {% if request.session.unitate and request.session.unitate == unitate.id %}disabled{% endif %}" data-id = "{{ unitate.id }}"><img style="height: 18px" src = "{{ STATIC_URL }}images/icon-{{ unitate.ramura_de_varsta|slugify }}.png" /> {{ unitate.nume }}</a>
+            {% endfor %}
+            {% if patrula %}
+                <a href = "#" class = "btn disabled">{{ patrula }}</a>
+            {% endif %}
+        </div>
+
+        <div class = "btn-group">
+            <a class = "btn {% if request.session.album %}btn-success{% else %}btn-danger{% endif %}" href = "{% url "album:index"  %}?album={% if request.session.album %}0{% else %}1{% endif %}"><i class = "icon-picture"></i></a>
+        </div>
+
+    </div>
+    <div style="clear:both"></div>
+    {% endif %}
+    <div id = "eveniment_container">
+
+    </div>
+    <div class="loading"></div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load pagination_tags %}
+
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Locații</li>
+		<li><a href = "{% url "patrocle:send_sms"  %}"><i class = "icon-phone"></i> Trimite SMS</a></li>
+		{% if user.is_superuser %}
+		<li><a href = "{% url "patrocle:system_stats"  %}"><i class = "icon-cog"></i> Statistici</a></li>
+		{% endif %}
+		
+		{% if user.is_superuser %}
+			<li class = "nav-header">Acțiuni</li>
+			<li><a href = "{% url "patrocle:credit_asociaza"  %}"><i class = "icon-plus-sign"></i> Asociază credit</a></li>
+		{% endif %}
+	</ul>
+{% endblock %}
+
+{% block page_title %}
+	Credite
+{% endblock %}
+
+{% block content %}
+	{% autopaginate object_list 10 %}
+	<div class = "alert alert-info"><i class = "icon-cog"></i> Total SMS-uri nealocate sistem: {{ credit_sistem_nealocat }} (din {{ credit_curent_sistem }} totale disponibile)</div>
+	<table class = "table table-striped">
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>Clasa</th>
+				<th>Deținător</th>
+				<th>Valoare</th>
+				<th>Nefolosite</th>
+				<th>&nbsp;</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for credit in object_list %}
+			<tr>
+				<td style = "width: 20px">{{ forloop.counter }}</td>
+				<td>
+					{{ credit.content_type.name }}
+				</td>
+				<td>
+					{{ credit.content_object }}
+				</td>
+				<td>{{ credit.credit }}</td>
+				<td>{{ credit.credit_ramas }}</td>
+				<td>&nbsp;</td>
+			</tr>
+			{% empty %}
+			<tr>
+				<td>&nbsp;</td>
+				<td><em>Nu există credite asociate!</em></td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	{% paginate_bs2 %}
+{% endblock %}

@@ -1,6 +1,6 @@
 __author__ = 'yeti'
 
-import settings
+from django.conf import settings
 
 def product_version(request):
     return { "MAJOR_VERSION" : settings.MAJOR_VERSION,
@@ -10,6 +10,7 @@ def product_version(request):
 
 def api_keys(request):
     return { "GOOGLE_API_KEY" : settings.GOOGLE_API_KEY }
+
 
 def url_root(request):
     return { "url_root" : settings.URL_ROOT.strip("/") }
