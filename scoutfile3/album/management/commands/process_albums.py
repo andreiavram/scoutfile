@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        seturi = SetPoze.objects.filter(status = 1)
+        seturi = SetPoze.objects.filter(status=1)
         for set_poze in seturi:
             logger.info("Processing set %d" % set_poze.id)
             try:

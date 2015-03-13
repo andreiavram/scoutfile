@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+    {{ eveniment }} <span style="font-weight: normal">| export</span>
+{% endblock %}
+
+{% block context_menu %}
+    {% include "album/eveniment_context_menu.html" %}
+{% endblock %}
+
+{% block extrahead %}
+{% endblock %}
+
+{% block content %}
+    {% crispy form form.helper %}
+{% endblock %}

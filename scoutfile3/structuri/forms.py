@@ -26,7 +26,7 @@ class UnitateMembruCreateForm(CrispyBaseModelForm):
     class Meta:
         model = Membru
         exclude = ['timestamp_confirmed', "timestamp_registered", "timestamp_accepted", "requested_password_reset",
-                   "hash", "user", "sex", "data_nasterii", "poza_profil", "centru_local", "familie"]
+                   "hash", "user", "sex", "data_nasterii", "poza_profil", "centru_local", "familie", "scout_id", "scor_credit"]
 
     data_start_membru = forms.DateField(input_formats = ['%d.%m.%Y', ], widget = forms.DateInput(format = "%d.%m.%Y"), 
                                         label = u"Membru Centru Local din", 
@@ -99,7 +99,7 @@ class LiderCreateForm(UnitateLiderCreateForm):
 class MembruUpdateForm(CrispyBaseModelForm):
     class Meta:
         model = Membru
-        fields = ["nume", "prenume", "cnp", "email"]
+        fields = ["nume", "prenume", "cnp", "email", "scout_id", "scor_credit"]
 
     email = forms.EmailField(label=u"Email", help_text=u"Schimbarea email-ului aici implicâ schimbarea utilizatorului!")
         

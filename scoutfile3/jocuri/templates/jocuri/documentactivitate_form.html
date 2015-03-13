@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+	{% if object %}Modifică {{ object }}{% else %}Adaugă documente pentru {{ activitate }}{% endif %}
+{% endblock %}
+
+{% block extrahead %}
+    {{ form.media }}
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Locații</li>
+		<li><a href = "{% url jocuri:activitate_detail pk=activitate.id %}"><i class = "icon-home"></i> {{ activitate }}</a></li>
+		<li><a href = "{% url jocuri:activitate_search %}"><i class = "icon-search"></i> Căutare jocuri</a>
+
+           <li class = "nav-header">Atașamente</li>
+    {% for doc in activitate.fisiere.all %}
+        <li>
+            <a class = "doc-link" data-shortcode="{{ doc.shortcode_reference }}" href = "{{ doc.get_download_url }}">
+            {% comment %}
+                {% if doc.image_storage %}
+                    <img src = "{{ doc.image_storage.get_thumbnail_url }}" class = "thumbnail" style="width: 100%">
+                {% endif %}
+            {% endcomment %}
+            <i class = "icon-{% if doc.source_type.0 == "fisier" %}file{% elif doc.source_type.0 == "imagine" %}picture{% endif %}"></i> {{ doc.titlu }}
+            {% if doc.descriere and 0 %}
+                <span style = "font-size: 10px; color: #666666">- {{ doc.descriere }}</span>
+            {% endif %}</a>
+        </li>
+    {% endfor %}
+	</ul>
+{% endblock %}
+
+
+{% block content %}
+	{% crispy form form.helper %}
+{% endblock %}
+
+{% block extrajs %}
+{% endblock %}

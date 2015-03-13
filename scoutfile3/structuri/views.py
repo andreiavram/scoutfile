@@ -24,7 +24,9 @@ import hashlib
 import logging
 import traceback
 from unidecode import unidecode
+from adrese_postale.adrese import AdresaPostala
 from album.models import ParticipareEveniment
+from album.views import FileUploadMixin
 
 from documente.models import Trimestru, ChitantaCotizatie, PlataCotizatieTrimestru
 from settings import SECRET_KEY, SYSTEM_EMAIL, MEDIA_ROOT, DEBUG, \
@@ -94,7 +96,7 @@ class CentruLocalUpdate(UpdateView):
 class CentruLocalDetail(DetailView, TabbedViewMixin):
     model = CentruLocal
 
-    @allow_by_afiliere([("Centru Local", "Lider")])
+    @allow_by_afiliere([("Centru Local", "Lider"), (("Centru Local", "Lider asistent"))])
     def dispatch(self, request, *args, **kwargs):
         return super(CentruLocalDetail, self).dispatch(request, *args, **kwargs)
 
@@ -219,7 +221,7 @@ class CentruLocalLiderCreate(CreateView):
                  "valoare": self.object.telefon})
             InformatieContact(**info_kwargs).save()
 
-        if not DEBUG:
+        if not DEBUG or USE_EMAIL_CONFIRMATION:
             self.send_email(parola)
 
         messages.success(self.request,
@@ -350,7 +352,7 @@ class CentruLocalTabUnitati(ListView):
     model = Unitate
     template_name = "structuri/centrulocal_tab_unitati.html"
 
-    @allow_by_afiliere([("Centru Local", u"Lider")])
+    @allow_by_afiliere([("Centru Local", u"Lider"), ("Centru Local", u"Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         self.centru_local = get_object_or_404(CentruLocal, id=kwargs.pop("pk"))
         return super(CentruLocalTabUnitati, self).dispatch(request, *args, **kwargs)
@@ -408,7 +410,7 @@ class CentruLocalTabContact(ContactTab):
     template_name = "structuri/centrulocal_tab_contact.html"
     target_model = CentruLocal
 
-    @allow_by_afiliere([("Centru Local", u"Lider")])
+    @allow_by_afiliere([("Centru Local", u"Lider"), ("Centru Local", "Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         return super(CentruLocalTabContact, self).dispatch(request, *args, **kwargs)
 
@@ -417,7 +419,7 @@ class CentruLocalTabMembri(ListView):
     model = AsociereMembruStructura
     template_name = "structuri/centrulocal_tab_membri.html"
 
-    @allow_by_afiliere([("Centru Local", u"Lider")])
+    @allow_by_afiliere([("Centru Local", u"Lider"), ("Centru Local", u"Lider asistent"), ])
     def dispatch(self, request, *args, **kwargs):
         self.centru_local = get_object_or_404(CentruLocal, id=kwargs.pop("pk"))
         return super(CentruLocalTabMembri, self).dispatch(request, *args, **kwargs)
@@ -463,7 +465,7 @@ class MembriFaraAfilieri(ListView):
 class CentruLocalMembri(CentruLocalTabMembri):
     template_name = "structuri/centrulocal_membri.html"
 
-    @allow_by_afiliere([("Centru Local", u"Lider")])
+    @allow_by_afiliere([("Centru Local", u"Lider"), ("Centru Local", u"Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         self.rdv = None
         if "rdv" in request.GET and request.GET['rdv']:
@@ -512,7 +514,6 @@ class CentruLocalMembri(CentruLocalTabMembri):
                     unitate = membru.get_unitate()
                     if unitate and unitate.ramura_de_varsta.slug == self.rdv:
                         membri_final.append(membru)
-
                 qs = qs.filter(membru__in=membri_final)
             elif self.rdv in ("lideri", ):
                 membri_final = []
@@ -577,7 +578,7 @@ class UnitateUpdate(UpdateView):
 class UnitateDetail(DetailView, TabbedViewMixin):
     model = Unitate
 
-    @allow_by_afiliere([("Unitate, Centru Local", u"Lider")])
+    @allow_by_afiliere([("Unitate, Centru Local", u"Lider"), ("Unitate, Centru Local", u"Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         return super(UnitateDetail, self).dispatch(request, *args, **kwargs)
 
@@ -650,7 +651,7 @@ class UnitateTabBrief(ListView):
     model = AsociereMembruStructura
     template_name = "structuri/unitate_tab_brief.html"
 
-    @allow_by_afiliere([("Unitate, Centru Local", "Lider")])
+    @allow_by_afiliere([("Unitate, Centru Local", "Lider"), ("Unitate, Centru Local", "Lider asistent")])
     def dispatch(self, *args, **kwargs):
         self.unitate = get_object_or_404(Unitate, id=kwargs.pop("pk"))
         return super(UnitateTabBrief, self).dispatch(*args, **kwargs)
@@ -678,7 +679,7 @@ class UnitateTabPatrule(ListView):
     model = Patrula
     template_name = "structuri/unitate_tab_patrule.html"
 
-    @allow_by_afiliere([("Unitate, Centru Local", "Lider")])
+    @allow_by_afiliere([("Unitate, Centru Local", "Lider"), ("Unitate, Centru Local", "Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         self.unitate = get_object_or_404(Unitate, id=kwargs.pop("pk"))
         return super(UnitateTabPatrule, self).dispatch(request, *args, **kwargs)
@@ -708,7 +709,7 @@ class UnitateTabMembri(ListView):
     model = AsociereMembruStructura
     template_name = "structuri/unitate_tab_membri.html"
 
-    @allow_by_afiliere([("Unitate, Centru Local", "Lider")])
+    @allow_by_afiliere([("Unitate, Centru Local", "Lider"), ("Unitate, Centru Local", "Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         self.unitate = get_object_or_404(Unitate, id=kwargs.pop("pk"))
         return super(UnitateTabMembri, self).dispatch(request, *args, **kwargs)
@@ -780,7 +781,7 @@ class PatrulaUpdate(UpdateView):
 class PatrulaDetail(DetailView, TabbedViewMixin):
     model = Patrula
 
-    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider")])
+    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider"), ("Patrula, Unitate, Centru Local", "Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         return super(PatrulaDetail, self).dispatch(request, *args, **kwargs)
 
@@ -800,7 +801,7 @@ class PatrulaTabBrief(DetailView):
     model = Patrula
     template_name = "structuri/patrula_tab_brief.html"
 
-    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider")])
+    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider"), ("Patrula, Unitate, Centru Local", "Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         return super(PatrulaTabBrief, self).dispatch(request, *args, **kwargs)
 
@@ -810,7 +811,7 @@ class PatrulaTabMembri(ListView):
     template_name = "structuri/patrula_tab_membri.html"
 
 
-    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider")])
+    @allow_by_afiliere([("Patrula, Unitate, Centru Local", "Lider"), ("Patrula, Unitate, Centru Local", "Lider asistent ")])
     def dispatch(self, request, *args, **kwargs):
         self.patrula = get_object_or_404(Patrula, id=kwargs.pop("pk"))
         return super(PatrulaTabMembri, self).dispatch(request, *args, **kwargs)
@@ -913,6 +914,7 @@ class PatrulaMembruAsociaza(CreateView):
         data['target_object'] = self.patrula
         return data
 
+
 class MembruUpdate(UpdateView):
     model = Membru
     form_class = MembruUpdateForm
@@ -929,7 +931,7 @@ class MembruUpdate(UpdateView):
             self.object.user.username = self.object.email
             self.object.user.save()
 
-            if not DEBUG:
+            if not DEBUG or USE_EMAIL_CONFIRMATION:
                 send_mail(u"Schimbare cont ScoutFile",
                           u"Utilizatorul tau pentru ScoutFile a fost schimbat pe această adresa.\n\nNumai bine,\nyeti",
                           SERVER_EMAIL,
@@ -942,7 +944,20 @@ class MembruUpdate(UpdateView):
         return reverse("structuri:membru_detail", kwargs={"pk": self.object.id})
 
 
-class MembruEditProfilePicture(UpdateView):
+class ProfilePictureUpdateView(FileUploadMixin, UpdateView):
+    def save_profile_photo(self, save=True):
+        profile_photo_kwargs = dict(form_field_name="poza_profil", object_field_name="poza_profil", image_class=ImagineProfil, folder_path="profil")
+        profile_photo_kwargs['save'] = save
+        self.save_photo(**profile_photo_kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=True)
+        self.save_profile_photo(save=True)
+        messages.success(self.request, u"Poza de profil a fost modificată cu success")
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class MembruEditProfilePicture(ProfilePictureUpdateView):
     form_class = UtilizatorProfilePictureForm
     template_name = "structuri/membru_edit_profile_picture.html"
     model = Membru
@@ -950,32 +965,6 @@ class MembruEditProfilePicture(UpdateView):
     @allow_by_afiliere([("Membru, Unitate", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruEditProfilePicture, self).dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-
-        try:
-            #    upload the file
-            uploaded_file = self.request.FILES['poza_profil']
-            with open('%sprofil/%d-%s' % (MEDIA_ROOT, self.object.id, uploaded_file.name), 'wb+') as destination:
-                for chunk in uploaded_file.chunks():
-                    destination.write(chunk)
-        except Exception, e:
-            logger.error(
-                u"%s: nu am putut să uploades poza. %s : %s" % (self.__class__.__name__, e, traceback.format_exc()))
-            messages.error(self.request, u"Nu am putut încărca poza (%s)" % e)
-            return HttpResponseRedirect(reverse("structuri:membru_edit_profile_picture"))
-
-        #        if self.object.poza_profil != None:
-        #            self.object.poza_profil.delete()
-
-        poza_profil = ImagineProfil(image="profil/%d-%s" % (self.object.id, uploaded_file.name))
-        poza_profil.save()
-        self.object.poza_profil = poza_profil
-        self.object.save()
-
-        messages.success(self.request, u"Poza de profil a fost modificată cu success")
-        return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         return reverse("structuri:membru_detail", kwargs={"pk": self.object.id})
@@ -985,7 +974,7 @@ class MembruDetail(DetailView, TabbedViewMixin):
     model = Membru
 
     @allow_by_afiliere(
-        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruDetail, self).dispatch(request, *args, **kwargs)
 
@@ -1016,7 +1005,7 @@ class MembruTabBrief(DetailView):
     template_name = "structuri/membru_tab_brief.html"
 
     @allow_by_afiliere(
-        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruTabBrief, self).dispatch(request, *args, **kwargs)
 
@@ -1025,7 +1014,7 @@ class MembruTabDocumente(ListView):
     model = Membru
     template_name = "structuri/membru_tab_documente.html"
 
-    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ])
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         self.object = get_object_or_404(self.model, id=kwargs.pop("pk"))
         return ListView.dispatch(self, request, *args, **kwargs)
@@ -1048,7 +1037,7 @@ class MembruTabConexiuni(DetailView):
     template_name = "structuri/membru_tab_conexiuni.html"
 
     @allow_by_afiliere(
-        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruTabConexiuni, self).dispatch(request, *args, **kwargs)
 
@@ -1058,7 +1047,7 @@ class MembruTabIstoric(DetailView):
     template_name = "structuri/membru_tab_istoric.html"
 
     @allow_by_afiliere(
-        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruTabIstoric, self).dispatch(request, *args, **kwargs)
 
@@ -1068,7 +1057,7 @@ class MembruTabContact(ContactTab):
     target_model = Membru
 
     @allow_by_afiliere(
-        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruTabContact, self).dispatch(request, *args, **kwargs)
 
@@ -1077,7 +1066,7 @@ class MembruTabFamilie(DetailView):
     template_name = "structuri/membru_tab_familie.html"
     model = Membru
 
-    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruTabFamilie, self).dispatch(request, *args, **kwargs)
 
@@ -1091,7 +1080,7 @@ class MembruTabActivitati(ListView):
     model = ParticipareEveniment
     template_name = "structuri/membru_tab_activitati.html"
 
-    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
         return super(MembruTabActivitati, self).dispatch(request, *args, **kwargs)
@@ -1432,7 +1421,7 @@ class UtilizatorEditProfile(UpdateView):
             self.object.user.email = self.object.email
             self.object.user.save()
 
-            if not DEBUG:
+            if not DEBUG or USE_EMAIL_CONFIRMATION:
                 send_mail(u"Schimbare cont ScoutFile",
                           u"Utilizatorul tau pentru ScoutFile a fost schimbat pe această adresa.\n\nNumai bine,\nyeti",
                           SERVER_EMAIL,
@@ -1448,7 +1437,7 @@ class UtilizatorEditProfile(UpdateView):
         return reverse("structuri:membru_profil")
 
 
-class UtilizatorEditProfilePicture(UpdateView):
+class UtilizatorEditProfilePicture(ProfilePictureUpdateView):
     form_class = UtilizatorProfilePictureForm
     template_name = "structuri/utilizator_edit_profile_picture.html"
     model = Membru
@@ -1456,32 +1445,6 @@ class UtilizatorEditProfilePicture(UpdateView):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super(UtilizatorEditProfilePicture, self).dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-
-        try:
-            #    upload the file
-            uploaded_file = self.request.FILES['poza_profil']
-            with open('%sprofil/%d-%s' % (MEDIA_ROOT, self.object.id, uploaded_file.name), 'wb+') as destination:
-                for chunk in uploaded_file.chunks():
-                    destination.write(chunk)
-        except Exception, e:
-            logger.error(
-                u"%s: nu am putut să uploades poza. %s : %s" % (self.__class__.__name__, e, traceback.format_exc()))
-            messages.error(self.request, u"Nu am putut încărca poza (%s)" % e)
-            return HttpResponseRedirect(reverse("structuri:membru_edit_profile_picture"))
-
-        #        if self.object.poza_profil != None:
-        #            self.object.poza_profil.delete()
-
-        poza_profil = ImagineProfil(image="profil/%d-%s" % (self.object.id, uploaded_file.name))
-        poza_profil.save()
-        self.object.poza_profil = poza_profil
-        self.object.save()
-
-        messages.success(self.request, u"Poza de profil a fost modificată cu success")
-        return HttpResponseRedirect(self.get_success_url())
 
     def get_object(self, queryset=None):
         return self.request.user.get_profile().membru
@@ -1535,6 +1498,10 @@ class AsociereUpdate(UpdateView):
                        "tip_asociere": self.object.tip_asociere.id,
                        "object_id": self.object.object_id})
         return super(AsociereUpdate, self).get_context_data(**kwargs)
+
+    def form_valid(self, form):
+        self.object.membru.clear_cache("asociere")
+        return super(AsociereUpdate, self).form_valid(form)
 
     def get_success_url(self):
         return reverse("structuri:membru_detail", kwargs={"pk": self.object.membru.id}) + "#afilieri"
@@ -1594,7 +1561,7 @@ class MembruContactCreate(GenericContactCreate):
     target_model = Membru
 
     @allow_by_afiliere(
-        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruContactCreate, self).dispatch(request, *args, **kwargs)
 
@@ -1663,7 +1630,7 @@ class MembruAddFamilie(CreateView):
     form_class = AsociereMembruFamilieForm
     template_name = "structuri/membru_familie_form.html"
 
-    @allow_by_afiliere([("Membru, Centru Local", "Lider")])
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
         return super(MembruAddFamilie, self).dispatch(request, *args, **kwargs)
@@ -1695,7 +1662,7 @@ class MembruEditFamilie(UpdateView):
     form_class = AsociereMembruFamilieForm
     template_name = "structuri/membru_familie_form.html"
 
-    @allow_by_afiliere([("Membru, Centru Local", "Lider")], pkname="mpk")
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent")], pkname="mpk")
     def dispatch(self, request, *args, **kwargs):
         return super(MembruEditFamilie, self).dispatch(request, *args, **kwargs)
 
@@ -1724,7 +1691,7 @@ class MembruPersoanaDeContactCreate(CreateView):
     template_name = "structuri/membru_pdc_form.html"
     form_class = PersoanaDeContactForm
 
-    @allow_by_afiliere([("Membru, Centru Local", "Lider")])
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent")])
     def dispatch(self, request, *args, **kwargs):
         self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
         return super(MembruPersoanaDeContactCreate, self).dispatch(request, *args, **kwargs)
@@ -1750,7 +1717,7 @@ class MembruPersoanaDeContactUpdate(UpdateView):
     template_name = "structuri/membru_pdc_form.html"
     form_class = PersoanaDeContactForm
 
-    @allow_by_afiliere([("Membru, Centru Local", "Lider")], pkname="mpk")
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent")], pkname="mpk")
     def dispatch(self, request, *args, **kwargs):
         return super(MembruPersoanaDeContactUpdate, self).dispatch(request, *args, **kwargs)
 
@@ -2006,6 +1973,7 @@ class MembruDoAJAXWork(View):
     @allow_by_afiliere([("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
+        self.membru.clear_cache("cotizatie")
         return super(MembruDoAJAXWork, self).dispatch(request, *args, **kwargs)
 
     def do_work(self, request, *args, **kwargs):
@@ -2042,3 +2010,29 @@ class MembruStergeAcoperire(MembruDoAJAXWork):
 
     def get_error_message(self, e=""):
         return u"Eroare ștergere acoperire cotizație (%s)" % e
+
+
+class MembruAdreseStatus(ListView):
+    model = InformatieContact
+    template_name = "structuri/adrese_status.html"
+    
+    def dispatch(self, request, *args, **kwargs):
+        return super(MembruAdreseStatus, self).dispatch(request, *args, **kwargs)
+
+    @staticmethod
+    def check_valid(value):
+        try:
+            adr = AdresaPostala.parse_address(value)
+        except Exception, e:
+            return False
+
+        if adr is not None and adr.__unicode__() == value and adr.are_cod():
+            return True
+
+        return False
+
+    def get_queryset(self):
+        qs = InformatieContact.objects.filter(tip_informatie__nume__iexact=u"Adresa corespondență")
+        qs = [a for a in qs if hasattr(a.content_object, "centru_local") and a.content_object.centru_local and a.content_object.centru_local.id == 1]
+        qs = [a for a in qs if not self.check_valid(a.valoare)]
+        return qs

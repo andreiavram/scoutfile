@@ -9,18 +9,18 @@ import logging
 import datetime
 from django.db.models import permalink
 from photologue.models import ImageModel
-from django.conf.global_settings import MEDIA_ROOT
-import os.path
 from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 import unidecode
+from adrese_postale.adrese import AdresaPostala
 from album.models import Imagine
 from documente.models import PlataCotizatieTrimestru, AsociereDocument, Trimestru, ChitantaCotizatie
 from utils.models import FacebookSession
-
+from django.core import cache
 
 logger = logging.getLogger(__name__)
+redis_cache = cache.get_cache("redis")
 
 
 class RamuraDeVarsta(models.Model):
@@ -241,8 +241,9 @@ class Utilizator(models.Model):
 
 class ImagineProfil(ImageModel):
     def delete(self):
-        if os.path.exists("%s%s" % (MEDIA_ROOT, self.image)):
-            os.unlink("%s%s" % (MEDIA_ROOT, self.image))
+        self.image.delete()
+        # if os.path.exists("%s%s" % (MEDIA_ROOT, self.image)):
+        #     os.unlink("%s%s" % (MEDIA_ROOT, self.image))
         return super(ImagineProfil, self).delete()
 
 
@@ -307,6 +308,8 @@ class Membru(Utilizator):
     sex = models.CharField(max_length=1, choices=(("m", u"Masculin"), ("f", "Feminin")), null=True, blank=True)
 
     familie = models.ManyToManyField("self", through=AsociereMembruFamilie, symmetrical=False, null=True, blank=True)
+    scout_id = models.CharField(max_length=255, null=True, blank=True, verbose_name="ID ONCR")
+    scor_credit = models.IntegerField(default=2, choices=((0, u"Rău"), (1, u"Neutru"), (2, u"Bun")), verbose_name=u"Credit", help_text=u"Această valoare reprezintă încrederea Centrului Local într-un membru de a-și respecta angajamentele financiare (dacă Centrul are sau nu încredere să pună bani pentru el / ea)")
 
     #TODO: find some smarter way to do this
     poza_profil = models.ForeignKey(ImagineProfil, null=True, blank=True)
@@ -341,25 +344,24 @@ class Membru(Utilizator):
 
     @property
     def adresa_postala(self):
-        try:
-            return InformatieContact.objects.filter(content_type=ContentType.objects.get_for_model(self),
-                                                    object_id=self.id,
-                                                    tip_informatie__nume__iexact=u"Adresă corespondență",
-                                                    tip_informatie__relevanta="Membru")[0].valoare
-        except Exception, e:
-            return self.adresa
+        adresa = self.get_contact(u"Adresa corespondență")
+        return adresa if adresa is not None else self.adresa
 
     @property
     def mobil(self):
-        mobil_filters = dict(content_type=ContentType.objects.get_for_model(self),
-                             object_id=self.id,
-                             tip_informatie__nume__iexact=u"Mobil",
-                             tip_informatie__relevanta="Membru")
+        mobil = self.get_contact(u"Mobil")
+        return mobil if mobil is not None else self.telefon
 
-        try:
-            return InformatieContact.objects.filter(**mobil_filters)[0].valoare
-        except Exception, e:
-            return self.telefon
+    def get_contact(self, key, just_value=True):
+        key_filters = dict(content_type=ContentType.objects.get_for_model(self), object_id=self.id,
+                           tip_informatie__nume__iexact=key, tip_informatie__relevanta="Membru")
+
+        data = InformatieContact.objects.filter(**key_filters)
+        if data.count() == 0:
+            return None
+        if just_value:
+            return data[0].valoare
+        return data
 
     @property
     def centru_local(self):
@@ -440,6 +442,11 @@ class Membru(Utilizator):
         if not isinstance(calitate, type([])):
             calitate = [calitate, ]
 
+        if not structura:
+            if qs:
+                return AsociereMembruStructura.objects.none()
+            return False
+
         ams_filter = dict(content_type=ContentType.objects.get_for_model(structura),
                           object_id=structura.id,
                           tip_asociere__content_types__in=(ContentType.objects.get_for_model(structura), ),
@@ -462,6 +469,10 @@ class Membru(Utilizator):
                        "Lider", "Lider asistent", "Membru adult", u"Șef Centru Local"]
 
     def _proprietati_comune(self):
+        _proprietati = self.get_from_cache("proprietati")
+        if _proprietati:
+            return _proprietati
+
         if not hasattr(self, "_proprietati") or self._proprietati is None:
             self._proprietati = {}
             for calitate in self.CALITATI_COMUNE:
@@ -473,12 +484,13 @@ class Membru(Utilizator):
                 for calitate in calitati:
                     self._proprietati[calitate.tip_asociere.nume] = True
 
+        self.save_to_cache("proprietati", self._proprietati)
         return self._proprietati
 
     @permalink
     def get_home_link(self):
         if self.is_lider():
-            unitate = self.get_unitate(rol=["Lider", "Lider asistent"])
+            unitate = self.get_unitate(rol=(u"Lider", u"Lider asistent"))
             if unitate:
                 return ("structuri:unitate_detail", [], {"pk": unitate.id})
             return ("structuri:cl_detail", [], {"pk": self.centru_local.id})
@@ -498,7 +510,7 @@ class Membru(Utilizator):
         return qs
 
     def get_ramura_de_varsta(self):
-        if self.is_lider():
+        if self.is_lider_generic():
             return "Lider"
 
         unitate = self.get_unitate()
@@ -524,21 +536,39 @@ class Membru(Utilizator):
         return asociere
 
     def get_badges_rdv(self):
+        import json
+        badges = self.get_from_cache("badges_rdv")
+        badges = json.loads(badges if badges else "[]")
+
+        if badges:
+            return badges
         badges = []
+
         if self.is_lider_generic():
             badges.append("lider")
         else:
             unitate = self.get_unitate()
             if unitate:
                 badges.append(unidecode.unidecode(unitate.ramura_de_varsta.nume.lower()))
+        self.save_to_cache("badges_rdv", json.dumps(badges))
+        print "SAED TO CACHE %s" % badges
         return badges
 
     def get_extra_badges(self):
+        import json
+        badges = self.get_from_cache("badges_extra")
+        badges = json.loads(badges if badges else "[]")
+
+        if badges:
+            return badges
         badges = []
+
         if self.is_sef_centru():
             badges.append("sef-centru")
         if self.is_membru_ccl():
             badges.append("membru-ccl")
+
+        self.save_to_cache("badges_extra", json.dumps(badges))
         return badges
 
     @models.permalink
@@ -598,6 +628,22 @@ class Membru(Utilizator):
 
         return data
 
+    def clear_cache(self, index):
+        mapping = {"asociere": ["trimestru_initial", "proprietati", "badges_rdv"],
+                   "cotizatie_sociala": ["are_cotizatie_sociala", "status_cotizatie"],
+                   "cotizatie": ["status_cotizatie", ],}
+        to_clear = mapping.get(index, None)
+        if to_clear is not None:
+            for idx in to_clear:
+                redis_cache.delete("m:%d:%s" % (self.id, idx))
+
+    def get_from_cache(self, index):
+        val = redis_cache.get("m:%d:%s" % (self.id, index))
+        return val
+
+    def save_to_cache(self, index, value, timeout=0):
+        return redis_cache.set("m:%d:%s" % (self.id, index), value, timeout)
+
     #    Cotizatie specific code
     def get_trimestru_initial_cotizatie(self):
         """ Obtine primul trimestu din care acest membru ar trebui sa plateasca cotizatie.
@@ -605,6 +651,10 @@ class Membru(Utilizator):
         al centrului local) sau este momentul 0 al centrului local (pentru cei inscrisi pana 
         la momentul 0)
         """
+        stored_value = self.get_from_cache("trimestru_initial")
+        if stored_value:
+            from documente.models import Trimestru
+            return Trimestru.objects.get(id=stored_value)
 
         #    in mod necesar membrul are macar un centru local asociat
         #    calitatea de membru in ONCR se intampla prin intermediul Centrelor Locale
@@ -622,7 +672,9 @@ class Membru(Utilizator):
 
         trimestru_centru = self.centru_local.moment_initial_cotizatie
 
-        return max(trimestru_membru, trimestru_centru, key=lambda x: x.ordine_globala)
+        return_value = max(trimestru_membru, trimestru_centru, key=lambda x: x.ordine_globala)
+        self.save_to_cache("trimestru_initial", return_value.id)
+        return return_value
 
     def are_cotizatie_sociala(self, trimestru=None):
         """ Intoarce True daca membrul este in situatia de a plati cotizatie sociala
@@ -630,6 +682,11 @@ class Membru(Utilizator):
             exista la o vreme după ce membrul este deja plătitor de cotizație, deci este necesar de știut despre
             ce trimestru este vorba.
         """
+
+        stored_value = self.get_from_cache("are_cotizatie_sociala")
+        if stored_value:
+            return stored_value
+
         from documente.models import DocumentCotizatieSociala, AsociereDocument
 
         filtru_documente = {"content_type": ContentType.objects.get_for_model(self),
@@ -644,7 +701,10 @@ class Membru(Utilizator):
 
         qs = qs.filter(Q(document__documentcotizatiesociala__valabilitate_end__isnull=True) | Q(document__documentcotizatiesociala__valabilitate_end__gte=trimestru.data_inceput))
         qs = qs.filter(document__documentcotizatiesociala__valabilitate_start__lte=trimestru.data_sfarsit)
-        return qs.count() != 0
+
+        return_value = qs.count() != 0
+        self.save_to_cache("are_cotizatie_sociala", return_value)
+        return return_value
 
     def aplica_reducere_familie(self, valoare, trimestru):
         """ Aplica reducerea de familie pentru cotizatie
@@ -706,6 +766,10 @@ class Membru(Utilizator):
         """ Cotizatia se poate plati pana pe 15 a ultimei luni din trimestru
         """
 
+        stored_value = self.get_from_cache("status_cotizatie")
+        if stored_value:
+            return stored_value
+
         pct = PlataCotizatieTrimestru.objects.filter(membru=self, final=True).order_by("-trimestru__ordine_globala")[0:1]
         nothing = False
         if pct.count():
@@ -743,7 +807,10 @@ class Membru(Utilizator):
             trimestru = trimestru.urmatorul_trimestru(trimestru)
 
         diferenta_trimestre -= trimestre_scutite
-        return diferenta_trimestre, trimestru_curent, ultimul_trimestru
+
+        return_value = diferenta_trimestre, trimestru_curent, ultimul_trimestru
+        self.save_to_cache("status_cotizatie", return_value, 60 * 60 * 6)
+        return return_value
 
     def status_cotizatie(self, for_diff=None):
         if for_diff is None:
@@ -881,6 +948,18 @@ class Membru(Utilizator):
 
         return True
 
+    @property
+    def oncr_status(self):
+        if self.scout_id is None:
+            return None
+
+        oncr_data = self.get_from_cache("oncr_feegood"), self.get_from_cache("oncr_lastpaidquarter")
+
+        if oncr_data[0] is None and oncr_data[1] is None:
+            return None
+
+        return oncr_data
+
 
 class TipAsociereMembruStructura(models.Model):
     """
@@ -977,6 +1056,8 @@ class TipInformatieContact(models.Model):
     descriere = models.CharField(max_length=255, null=True, blank=True)
     relevanta = models.CharField(max_length=255, null=True, blank=True)
 
+    adresa = models.BooleanField(default=False)
+
     is_sms_capable = models.BooleanField()
 
     def __unicode__(self):
@@ -996,6 +1077,8 @@ class InformatieContact(models.Model):
     data_start = models.DateTimeField(null=True, blank=True)
     data_end = models.DateTimeField(null=True, blank=True)
 
+    implicita = models.BooleanField(default=True)
+
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
@@ -1010,6 +1093,28 @@ class InformatieContact(models.Model):
 
     def __unicode__(self):
         return "%s: %s" % (self.tip_informatie.nume, self.valoare)
+
+    def process_adresa(self):
+        try:
+            return AdresaPostala.parse_address(self.valoare), None
+        except Exception, e:
+            return None, e
+
+    def get_cod_postal(self):
+        try:
+            adresa, err = self.process_adresa()
+            if adresa:
+                if adresa.are_cod():
+                    return adresa.cod
+
+                adresa.determine_cod()
+
+                if adresa.are_cod():
+                    return adresa.cod
+        except Exception, e:
+            return e
+
+        return None
 
 
 DOMENII_DEZVOLTARE = (("intelectual", "Intelectual"),

@@ -68,14 +68,14 @@
             {% endif %}
         </div>{% endif %}
     <div class="row-fluid">
-        <div style="position: relative; margin-left: 0; margin-right: auto;width : {{ object.get_large_size.0 }}px; background-color: black; padding: 5px;">
+        <div style="position: relative; margin-left: 0; margin-right: auto; background-color: black; padding: 5px;" id="bigimage_container">
             {#            <div style="float: left; height: 0;">#}
             {#        #}
             {#		{% for face in object.detectedface_set.all %}#}
             {#			<div class = "face" style = "display: none; position: absolute; left: {% widthratio face.x object.resolution_x 960 %}px; top: {% widthratio face.y object.resolution_x 960 %}px; width: {% widthratio face.width object.resolution_x 960 %}px; height: {% widthratio face.height object.resolution_x 960 %}px; border: 3px dashed #3c3f41;"></div>#}
             {#		{% endfor %}#}
             {#            </div>#}
-            <img src="{{ object.get_large_url }}?{{ random_value }}" style=""/>
+            <img id = "bigimage" src="{{ object.get_large_url }}?{{ random_value }}" style=""/>
             <div style="bottom: 10px; right: 10px; position: absolute; background: #000; color: #fff; border: 1px solid #666; opacity: 0.7; padding: 5px 10px;">&copy; {{ object.data|date:"Y" }}, {{ object.set_poze.autor }}</div>
             {% if object.published_status == 4 %}
                 <div class="fb-like" style="position: absolute; bottom: 10px; left: 10px;"
@@ -111,7 +111,12 @@
       </div>
     </div>
     <script type = "text/javascript">
-		jQuery(document).ready(function() {
+        $(document).ready(function() {
+            $("#bigimage").load(function() {
+                $("#bigimage_container").css("width", $(this).width());
+            });
+
+
             $("#submit-report").click(function (e) {
                 if (($('#raport_form input[type=radio]:checked').val() == "altul") && ($("#id_alt_motiv").val().length == 0)) {
                     $("#modal-error").html("Ați ales 'alt motiv', spuneți și care este acesta").show("fast");

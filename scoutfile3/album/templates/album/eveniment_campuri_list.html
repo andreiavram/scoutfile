@@ -56,4 +56,38 @@
 
 
     </table>
+
+    <h2>Alte coloane disponibile</h2>
+    <ul class="unstyled">
+    {% for col in coloane_permise %}
+        <li><label for = "id_{{ col.0 }}"><input class = "camp-aditional" data-slug="{{ col.0 }}" type="checkbox" id = "id_{{ col.0 }}"> {{ col.1 }}</label></li>
+    {% endfor %}
+    </ul>
+    <input type = "hidden" value = "{{ eveniment.campuri_aditionale }}" id = "campuri_aditionale">
+{% endblock %}
+
+{% block extrajs %}
+    <script>
+    $("document").ready(function () {
+        var campuri = $("#campuri_aditionale").val().split(";");
+        _.each(campuri, function (e) {
+           $("#id_" + e).prop("checked", true);
+        });
+        $(".camp-aditional").change(function (e) {
+            var index = _.indexOf(campuri, $(this).data("slug"));
+            if ($(this).is(":checked")) {
+                if (index < 0) {
+                    campuri.push($(this).data("slug"));
+                    $.post("{% url album:eveniment_camp_update slug=eveniment.slug %}", {"campuri": campuri.join(";"), "csrfmiddlewaretoken": "{{ csrf_token }}"}, function (data) {});
+                }
+            } else {
+                if (index > 0) {
+                    campuri.splice(index, 1);
+                    $.post("{% url album:eveniment_camp_update slug=eveniment.slug %}", {"campuri": campuri.join(";"), "csrfmiddlewaretoken": "{{ csrf_token }}"}, function (data) {});
+                }
+            }
+        });
+    });
+
+    </script>
 {% endblock %}
