@@ -1,6 +1,6 @@
 __author__ = 'yeti'
 
-MAJOR_VERSION = 3
-MINOR_VERSION = "6"
+MAJOR_VERSION = 4
+MINOR_VERSION = "0"
 REDMINE_VERSION_URL = "http://yeti.albascout.ro/redmine/versions/9"
 

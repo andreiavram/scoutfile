@@ -494,9 +494,8 @@ class CampArbitrarParticipareEveniment(models.Model):
         if participare is None:
             return
 
-        try:
-            instanta = self.get_instanta(participare=participare)
-        except InstantaCampArbitrarParticipareEveniment.DoesNotExist:
+        instanta = self.get_instanta(participare=participare)
+        if instanta is None:
             instanta_args = dict(participare=participare, camp=self)
             instanta = InstantaCampArbitrarParticipareEveniment.objects.create(**instanta_args)
 
