@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load pagination_tags %}
+
+{% block page_title %}
+	Eveniment <span style = "font-weight: normal">| Raport - istoric editare</span>
+{% endblock %}
+
+{% block context_menu %}
+    {% include 'album/eveniment_context_menu.html' %}
+{% endblock %}
+
+{% block content %}
+	{% autopaginate object_list 20 as object_list %}
+    <table class = "table table-striped">
+    <tr>
+        <th>#</th>
+        <th>Cine?</th>
+        <th>Când?</th>
+        <th>Închis</th>
+        <th>Curent</th>
+    </tr>
+
+	{% for raport in object_list %}
+        <tr>
+            <td>#{{ raport.id }}</td>
+            <td>{{ raport.editor }}</td>
+            <td>{{ raport.timestamp|date:"j F Y H:i" }}</td>
+            <td>{% if raport.is_locked %}<i class = "icon-lock"></i>{% endif %}</td>
+            <td>{% if raport.is_leaf %}<i class = "icon-ok"></i>{% endif %}</td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td>&nbsp;</td>
+            <td colspan = "4">Nu există informații pentru raport. Creează raportul <a href ="{% url "album:eveniment_raport_update"  slug=eveniment.slug %}">aici</a></td>
+        </tr>
+	{% endfor %}
+    </table>
+	{% paginate_bs2 %}
+{% endblock %}

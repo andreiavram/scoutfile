@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load cotizatie_tags %}
+
+{% block page_title %}
+    Preia sume de la {{ lider }}
+{% endblock %}
+
+{% block extrahead %}
+    <script>
+        function calculeaza_suma() {
+            var suma = 0.;
+            $(".sum").each(function (i, e) {
+                if ($("#id_plata_" + $(this).data("id")).is(":checked")) {
+                    suma += parseFloat($(this).text().replace(",","."));
+                }
+            });
+
+            return suma;
+        }
+
+        function calculeaza_plati() {
+            var ids = new Array();
+            var idx = 0;
+            $(".checkbox_plata").each(function (i, e) {
+                if ($(e).is(":checked")) {
+                    ids[idx] = $(this).closest("tr").data("id");
+                    idx += 1;
+                }
+            });
+
+            return ids.join("|");
+        }
+
+        $("document").ready(function () {
+            $("#toggle_plati").click(function (e) {
+                $("#lista_plati").toggle("fast");
+            });
+
+            $("#suma_finala").html(calculeaza_suma());
+            $("#id_plati").val(calculeaza_plati());
+            $(".checkbox_plata").change(function (e) {
+                $("#suma_finala").html(calculeaza_suma());
+                $("#id_plati").val(calculeaza_plati());
+            });
+
+        })
+    </script>
+{% endblock %}
+
+
+{% block context_menu %}
+    <ul class="nav nav-list">
+        <li class="nav-header">Acțiuni</li>
+        <li><a href="{% url "documente:cotizatii_centru_local"  pk=request.user.utilizator.membru.centru_local.id %}"><i
+                class="icon-chevron-left"> Cotizații</i></a></li>
+    </ul>
+{% endblock %}
+
+{% block content %}
+    <div>
+        <a href="#" class="btn" id="toggle_plati">Alege plăți individuale</a><br/><br/>
+
+        <div style="display:none;" id="lista_plati">
+            <table class="table table-striped">
+                {% for p in plati %}
+                    <tr data-id = "{{ p.id }}">
+                        <td><input class = "checkbox_plata" type="checkbox" name="plata_{{ p.id }}" id="id_plata_{{ p.id }}" checked/></td>
+                        <td>{{ p.platitor }}</td>
+                        <td>{% for ptc in p.platacotizatietrimestru_set.all %}
+                            {{ ptc.trimestru }} {% if ptc.partial %}(partial){% endif %}{% if ptc.final %}(final){% endif %}<br />
+                        {% endfor %}</td>
+                        <td data-id = "{{ p.id }}" class = "sum">{{ p.suma }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    <div class="">
+        <p>Suma de transferat: <strong id="suma_finala">{{ suma }}</strong> RON</p>
+    </div>
+    {% crispy form form.helper %}
+{% endblock %}

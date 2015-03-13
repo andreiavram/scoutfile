@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+
+{% block extrahead %}
+	<!-- Force latest IE rendering engine or ChromeFrame if installed -->
+	<!--[if IE]>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<![endif]-->
+	<link rel="stylesheet" href="{% static 'jquery_upload/css/style.css' %}">
+	<!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
+	<link rel="stylesheet" href="{% static 'jquery_upload/css/jquery.fileupload-ui.css' %}">
+
+	<!-- CSS adjustments for browsers with JavaScript disabled -->
+	<noscript><link rel="stylesheet" href="{% static 'jquery_upload/css/jquery.fileupload-ui-noscript.css' %}"></noscript>
+{% endblock %}
+
+{% block page_title %}
+	{{ eveniment }} - upload
+{% endblock %}
+
+{% block context_menu %}
+	{% with eveniment as object %}
+		{% include 'album/eveniment_context_menu.html' %}
+	{% endwith %}
+{% endblock %}
+
+{% block content %}
+	<div class = "alert alert-info"><i class = "icon-bullhorn"></i> Fiecare autor diferit necesită o sesiune de upload nouă. Click <a href = "{% url "album:eveniment_upload"  slug=eveniment.slug %}">aici</a> pentru o sesiune nouă</div>
+	<div class = "content">
+    <!-- The file upload form used as target for the file upload widget -->
+    <form id="fileupload" action="{% url "album:eveniment_upload"  slug=eveniment.slug %}" method="POST" enctype="multipart/form-data">
+    	{% csrf_token %}
+    	<input type = "hidden" id = "id_eveniment" name = "eveniment" value = "{{ eveniment.id }}" />
+        <!-- Redirect browsers with JavaScript disabled to the origin page -->
+        <noscript><input type="hidden" name="redirect" value="http://blueimp.github.io/jQuery-File-Upload/"></noscript>
+        <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
+        <div class="fileupload-buttonbar">
+            <div class="col-lg-7">
+                <!-- The fileinput-button span is used to style the file input field as button -->
+                <span class="btn btn-success fileinput-button">
+                    <i class="glyphicon glyphicon-plus"></i>
+                    <span><i class = "icon-plus-sign"></i> Adaugă arhive poze (.zip)</span>
+                    <input type="file" name="zip_file" multiple>
+                </span>
+                <button type="submit" class="btn btn-primary start">
+                    <i class="glyphicon glyphicon-upload"></i>
+                    <span><i class = "icon-upload"></i> Încarcă</span>
+                </button>
+                <button type="reset" class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span><i class = "icon-remove"></i> Renunță</span>
+                </button>
+                <button type="button" class="btn btn-danger delete">
+                    <i class="glyphicon glyphicon-trash"></i>
+                    <span><i class = "icon-trash"></i> Șterge fișiere selectate</span>
+                </button>
+                <input type="checkbox" class="toggle">
+                <!-- The loading indicator is shown during file processing -->
+                <span class="fileupload-loading"></span>
+            </div>
+            <!-- The global progress information -->
+            <div class="col-lg-5 fileupload-progress fade">
+                <!-- The global progress bar -->
+                <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                    <div class="bar bar-success" style="width:0%;"></div>
+                </div>
+                <!-- The extended global progress information -->
+                <div class="progress-extended">&nbsp;</div>
+            </div>
+            
+			<div id="div_id_autor" class="control-group"><label for="id_autor" class="control-label ">
+				Autor
+			</label><div class="controls"><input id="id_autor" type="text" class="textinput textInput" name="autor" maxlength="255" /> <p id="hint_id_autor" class="help-block">Lăsați gol dacă încărcați pozele proprii</p></div></div>
+			<div id="div_id_offset_secunde" class="control-group"><label for="id_offset_secunde" class="control-label requiredField">
+				Offset secunde<span class="asteriskField">*</span></label><div class="controls"><input id="id_offset_secunde" type="text" class="textinput textInput" value="0" name="offset_secunde" /> <p id="hint_id_offset_secunde" class="help-block">Numărul de secunde cu care ceasul camerei voastre a fost decalat față de ceasul corect (poate fi și negativ). Foarte util pentru sincronizarea pozelor de la mai mulți fotografi</p></div></div>
+        </div>
+        <!-- The table listing the files available for upload/download -->
+        <table role="presentation" class="table table-striped"><tbody class="files"></tbody></table>
+    </form>
+	</div>
+	<div class = "clear" style = "clear: both">&nbsp;</div>
+{% endblock content %}
+<!-- The template to display files available for upload -->
+{% block extrajs %}
+<script id="template-upload" type="text/x-tmpl">
+{% templatetag openblock %}for (var i=0, file; file=o.files[i]; i++) { {% templatetag closeblock %}
+    <tr class="template-upload fade">
+        <td>
+            <span class="preview"></span>
+        </td>
+        <td>
+            <p class="name">{% templatetag openblock %}=file.name{% templatetag closeblock %}</p>
+            {% templatetag openblock %}if (file.error) { {% templatetag closeblock %}
+                <div><span class="label label-danger">Error</span> {% templatetag openblock %}=file.error{% templatetag closeblock %}</div>
+            {% templatetag openblock %} }{% templatetag closeblock %}
+        </td>
+        <td>
+            <p class="size">{% templatetag openblock %}=o.formatFileSize(file.size){% templatetag closeblock %}</p>
+            {% templatetag openblock %}if (!o.files.error) { {% templatetag closeblock %}
+                <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="bar bar-success" style="width:0%;"></div></div>
+            {% templatetag openblock %} }{% templatetag closeblock %}
+        </td>
+        <td>
+            {% templatetag openblock %}if (!o.files.error && !i && !o.options.autoUpload) { {% templatetag closeblock %}
+                <button class="btn btn-primary start">
+                    <i class="glyphicon glyphicon-upload"></i>
+                    <span>Start</span>
+                </button>
+            {% templatetag openblock %} }{% templatetag closeblock %}
+            {% templatetag openblock %}if (!i) { {% templatetag closeblock %}
+                <button class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>Cancel</span>
+                </button>
+            {% templatetag openblock %} }{% templatetag closeblock %}
+        </td>
+    </tr>
+{% templatetag openblock %} }{% templatetag closeblock %}
+</script>
+<!-- The template to display files available for download -->
+<script id="template-download" type="text/x-tmpl">
+{% templatetag openblock %}for (var i=0, file; file=o.files[i]; i++) { {% templatetag closeblock %}
+    <tr class="template-download fade">
+        <td>
+            <span class="preview">
+                {% templatetag openblock %}if (file.thumbnailUrl) { {% templatetag closeblock %}
+                    <a href="{% templatetag openblock %}=file.url{% templatetag closeblock %}" title="{% templatetag openblock %}=file.name{% templatetag closeblock %}" download="{% templatetag openblock %}=file.name{% templatetag closeblock %}" data-gallery><img src="{% templatetag openblock %}=file.thumbnailUrl{% templatetag closeblock %}"></a>
+                {% templatetag openblock %} }{% templatetag closeblock %}
+            </span>
+        </td>
+        <td>
+            <p class="name">
+                {% templatetag openblock %}if (file.url) { {% templatetag closeblock %}
+                    <a href="{% templatetag openblock %}=file.url{% templatetag closeblock %}" title="{% templatetag openblock %}=file.name{% templatetag closeblock %}" download="{% templatetag openblock %}=file.name{% templatetag closeblock %}" {% templatetag openblock %}=file.thumbnailUrl?'data-gallery':''{% templatetag closeblock %}>{% templatetag openblock %}=file.name{% templatetag closeblock %}</a>
+                {% templatetag openblock %} } else { {% templatetag closeblock %}
+                    <span>{% templatetag openblock %}=file.name{% templatetag closeblock %}</span>
+                {% templatetag openblock %} }{% templatetag closeblock %}
+            </p>
+            {% templatetag openblock %}if (file.error) { {% templatetag closeblock %}
+                <div><span class="label label-danger">Error</span> {% templatetag openblock %}=file.error{% templatetag closeblock %}</div>
+            {% templatetag openblock %} }{% templatetag closeblock %}
+        </td>
+        <td>
+            <span class="size">{% templatetag openblock %}=o.formatFileSize(file.size){% templatetag closeblock %}</span>
+        </td>
+        <td>
+            {% templatetag openblock %}if (file.delete_url) { {% templatetag closeblock %}
+                <button class="btn btn-danger delete" data-type="{% templatetag openblock %}=file.delete_type{% templatetag closeblock %}" data-url="{% templatetag openblock %}=file.delete_url{% templatetag closeblock %}"{% templatetag openblock %}if (file.deleteWithCredentials) { {% templatetag closeblock %} data-xhr-fields='{"withCredentials":true}'{% templatetag openblock %} }{% templatetag closeblock %}>
+                    <i class="glyphicon glyphicon-trash"></i>
+                    <span>Delete</span>
+                </button>
+                <input type="checkbox" name="delete" value="1" class="toggle">
+            {% templatetag openblock %} } else { {% templatetag closeblock %}
+                <button class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>Cancel {% templatetag openblock %}= file.delete_url {% templatetag closeblock %} </span>
+                </button>
+            {% templatetag openblock %} }{% templatetag closeblock %}
+        </td>
+    </tr>
+{% templatetag openblock %} }{% templatetag closeblock %}
+</script>
+<script>
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+function sameOrigin(url) {
+    // test that a given url is a same-origin URL
+    // url could be relative or scheme relative or absolute
+    var host = document.location.host; // host + port
+    var protocol = document.location.protocol;
+    var sr_origin = '//' + host;
+    var origin = protocol + sr_origin;
+    // Allow absolute or scheme relative URLs to same origin
+    return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+        (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+        // or any other URL that isn't scheme relative or absolute i.e relative.
+        !(/^(\/\/|http:|https:).*/.test(url));
+}
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
+            // Send the token to same-origin, relative URLs only.
+            // Send the token only if the method warrants CSRF protection
+            // Using the CSRFToken value acquired earlier
+            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+        }
+    }
+});
+
+</script>
+
+<!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
+<script src="{% static 'jquery_upload/js/vendor/jquery.ui.widget.js' %}"></script>
+<!-- The Templates plugin is included to render the upload/download listings -->
+<script src="http://blueimp.github.io/JavaScript-Templates/js/tmpl.min.js"></script>
+<!-- The Load Image plugin is included for the preview images and image resizing functionality -->
+<script src="http://blueimp.github.io/JavaScript-Load-Image/js/load-image.all.min.js"></script>
+<!-- The Canvas to Blob plugin is included for image resizing functionality -->
+<script src="http://blueimp.github.io/JavaScript-Canvas-to-Blob/js/canvas-to-blob.min.js"></script>
+<!-- blueimp Gallery script -->
+<script src="http://blueimp.github.io/Gallery/js/jquery.blueimp-gallery.min.js"></script>
+<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+<script src="{% static 'jquery_upload/js/jquery.iframe-transport.js' %}"></script>
+<!-- The basic File Upload plugin -->
+<script src="{% static 'jquery_upload/js/jquery.fileupload.js' %}"></script>
+<!-- The File Upload processing plugin -->
+<script src="{% static 'jquery_upload/js/jquery.fileupload-process.js' %}"></script>
+<!-- The File Upload image preview & resize plugin -->
+<script src="{% static 'jquery_upload/js/jquery.fileupload-image.js' %}"></script>
+<!-- The File Upload audio preview plugin -->
+<script src="{% static 'jquery_upload/js/jquery.fileupload-audio.js' %}"></script>
+<!-- The File Upload video preview plugin -->
+<script src="{% static 'jquery_upload/js/jquery.fileupload-video.js' %}"></script>
+<!-- The File Upload validation plugin -->
+<script src="{% static 'jquery_upload/js/jquery.fileupload-validate.js' %}"></script>
+<!-- The File Upload user interface plugin -->
+<script src="{% static 'jquery_upload/js/jquery.fileupload-ui.js' %}"></script>
+<!-- The main application script -->
+<script src="{% static 'jquery_upload/js/main.js' %}"></script>
+<!-- The XDomainRequest Transport is included for cross-domain file deletion for IE 8 and IE 9 -->
+<!--[if (gte IE 8)&(lt IE 10)]>
+<script src="js/cors/jquery.xdr-transport.js"></script>
+<![endif]-->
+{% endblock %}

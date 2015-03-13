@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+
+{% block extrajs %}
+    <script type="application/javascript">
+        (function ($) {
+            $("document").ready(function () {
+                $("#login_form").hide();
+                $("#login_toggle").click(function (e) {
+                    $("#login_form").toggle();
+{#                    $("#facebook_login").toggle();#}
+{#                    $("#recupereaza_parola").toggle();#}
+                })
+            });
+        })(jQuery);
+    </script>
+{% endblock %}
+{%  block extrahead %}
+    <style>
+        .btn.btn-login {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+{% endblock %}
+
+{% block page_title %}
+    Autentificare
+{% endblock %}
+
+{% block content %}
+    <div class='row'>
+        <div class='span4'>
+            <img src="{% static "images/bufnita.png" %}"/>
+        </div>
+        <div class='span8' >
+            <div>
+                <a href="#" id="login_toggle" class="btn btn-primary btn-large btn-login"><i class="icon-user"></i> &nbsp;&nbsp;Login clasic</a>
+                <a id = "facebook_login" href="{{ facebook_connect_url }}" class="btn btn-large btn-facebook btn-login"><i class="icon-facebook"></i> &nbsp;&nbsp;Login
+                cu Facebook</a>
+
+                <a id = "recupereaza_parola" href="{% url "structuri:membru_forgot_password"  %}" class="btn btn-large btn-login"><i class="icon-key"></i> &nbsp;&nbsp;Resetează
+                    parolă (dacă ai uitat-o)</a>
+            </div>
+
+            <div id="login_form">
+
+                {% if 'notauthorized' in request.GET.keys %}
+                    <div class="alert alert-warning"><i class="icon-bullhorn"></i> Nu ai drepturi pentru a face acest
+                        lucru. Discută cu o persoană cu drepturi mai mari (Membri ai Consiliului Centrului Local)
+                    </div>
+                {% endif %}
+                {% crispy form form.helper %}
+
+
+                <p>Nu ai utilizator, dar ești membru al Organizației Naționale Cercetașii României? Poți să te
+                    înregistrezi <a href="{% url "structuri:membru_register"  %}">aici</a>.</p>
+
+                <p>Ți-ai uitat parola? Poți să o resetezi de <a
+                        href="{% url "structuri:membru_forgot_password"  %}">aici</a>.</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

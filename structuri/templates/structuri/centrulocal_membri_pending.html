@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block page_title %}
+	Membri în așteptare
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Acțiuni</li>
+		<li><a href = "{% url "structuri:cl_detail"  pk=cl.id %}"><i class = "icon-home"></i> {{ cl }}</a>
+	</ul>
+{% endblock %}
+
+
+{% block content %}
+	{% include 'structuri/centrulocal_membri_pending_headless.html' %}
+{% endblock %}

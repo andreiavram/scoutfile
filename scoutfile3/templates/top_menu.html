@@ -1,0 +1,64 @@
+	<ul class="nav pull-left">
+		{% if request.user.is_authenticated %}
+			{% if request.user.utilizator.membru.centru_local %}
+                {% with request.user.utilizator.membru.centru_local.id  as cl_id %}
+    				<li><a href = "{% url "structuri:cl_detail"  pk=cl_id %}"><i class = "icon-th"></i> Centru Local</a></li>
+                    <li><a href = "{% url "structuri:cl_membri"  pk=cl_id %}"><i class = "icon-user"></i> Cercetași</a></li>
+                {% endwith %}
+			{% endif %}
+		{% endif %}
+		<li><a href = "{% url "album:index"  %}"><i class = "icon-picture"></i> Activități</a></li>
+		{% if request.user.is_staff %}
+		<li class = "disabled"><a href = "{% url "cantece:cantec_list"  %}"><i class = "icon-music"></i> Cântece</a></li>
+		{% endif %}
+{#		<li class = "disabled"><a href = "{% url "patrocle:home"  %}"><i class = "icon-phone"></i> Patrocle</a></li>#}
+            <li><a href = "{% url "badge:badge_list"  %}"><i class = "icon-trophy"></i> Badge-uri</a></li>
+    		<li><a href = "{% url "jocuri:activitate_search"  %}"><i class = "icon-book"></i> Jocuri</a></li>
+	</ul>
+	
+	<ul class = 'nav pull-right'>
+		{% if request.user.is_authenticated %}
+		<li class = "dropdown">
+			<a href = "#" class = 'dropdown-toggle' data-toggle = "dropdown">
+				{{ request.user.username }}
+				<span class = "caret"></span>
+			</a> 
+			<ul class = "dropdown-menu">
+				{% if request.session.impersonate__id %}
+                    <li><a href = "{% url "index"  %}?impersonate__clear"><i class = "icon-unlock"></i> Înapoi la userul tău</a></li>
+                {% else %}
+                    <li><a href = "{% url "logout"  %}"><i class = "icon-lock"></i> Logout</a></li>
+                {% endif %}
+				<li><a href = "{% url "structuri:membru_profil"  %}"><i class = "icon-user"></i> Profil</a></li>
+				<li><a href = "{% url "structuri:membru_change_password"  %}"><i class = "icon-wrench"></i> Schimbă parola</a></li>
+                     <li><a href = "{% url "structuri:membru_confirma_facebook"  %}"><i class = 'icon-facebook'></i>
+                {% if user.utilizator.facebook_connected %}
+                   Setări Facebook
+                {% else %}
+                   <em>Conectează-te cu Facebook</em>
+                {% endif %}
+                 </a></li>
+				{% if user.is_staff %}
+				<li class = "divider"></li>
+				<li><a href = "{% url "structuri:cl_list"  %}"><i class = "icon-list"></i> Centre Locale</a></li>
+				<li><a href = "{% url "structuri:membri_pierduti_list"  %}"><i class = "icon-exclamation-sign"></i> Membri pierduți</a></li>
+				{% endif %}
+				
+				
+			</ul>
+		</li>		
+	{% else %}
+		<li>
+			
+			<a href = "{% url "login"  %}"><i class = "icon-user"></i> Login</a>
+		</li>
+	{% endif %}
+	
+
+	</ul>
+    {% comment %}
+	<form action = "" method = "GET" class="navbar-search pull-right" style = "margin-right: 10px;">
+	    <input type="text" class="search-query" name = "q" placeholder="Căutare">
+	    {% csrf_token %}
+	</form>
+	{% endcomment %}

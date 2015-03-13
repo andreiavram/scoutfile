@@ -1,0 +1,109 @@
+<script type="text/javascript" src="{% url "goodies:js_delete" app_label='documente' model='AsociereDocument' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $(".recompute").click(function (e) {
+            $.post($(this).attr("href"), {"csrfmiddlewaretoken" : "{{ csrf_token }}"},
+                    function (data) {
+                        location.reload(true);
+                    });
+            e.preventDefault()
+        });
+
+        $(".switch-blocat").click(function (e) {
+            $.post("{% url "documente:toggle_document_blocat" %}", {document: $(this).data("document")}, after_toggle_blocat)
+            e.preventDefault();
+        });
+    });
+
+    function after_toggle_blocat(data) {
+        var link = $('*[data-document="' + data.document + '"]');
+        console.log(link);
+        if (!data.blocat) {
+            link.removeClass("btn-danger").addClass("btn-success");
+            $("i", link).removeClass("icon-remove").addClass("icon-ok");
+        } else {
+            link.removeClass("btn-success").addClass("btn-danger");
+            $("i", link).removeClass("icon-ok").addClass("icon-remove");
+        }
+    }
+
+</script>
+<div class = "btn-toolbar">
+    <div class = "btn-group">
+        <a href="{% url "documente:cotizatie_membru_add"  pk=object.id %}"	class="btn btn-primary"><i class="icon-plus-sign icon-white"></i> Adaugă cotizație</a>
+        <a href="{% url "documente:adeziune_add"  pk=object.id %}"	class="btn"><i class="icon-plus-sign"></i> Adaugă adeziune</a>
+    </div>
+    <div class = "btn-group">
+        <a href = "{% url "structuri:membru_alte_documente"  pk=object.id %}" class = "btn"><i class = "icon-file-alt"></i> Adaugă alte documente</a>
+    </div>
+    {% if request.user.utilizator.membru.is_membru_ccl %}
+    <div class = "btn-group">
+        <a href = "{% url "structuri:membru_recalculeaza_acoperire"  pk=object.id %}" class = "btn btn-danger recompute"><i class = "icon-refresh"></i> Recalculează</a>
+        <a href = "{% url "structuri:membru_reseteaza_acoperire"  pk=object.id %}" class = "btn btn-danger recompute"><i class = "icon-remove"></i> Resetează</a>
+    </div>
+    {% endif %}
+</div>
+<h4>Documente</h4>
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>Titlu</th>
+			<th>Referință / Emis</th>
+            <th>&nbsp;</th>
+            <th>Liberă</th>
+            <th>Detalii</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for afiliere in object_list %}
+		<tr id="row_{{ object.id }}">
+			<td>{{ forloop.counter }}</td>
+			<td>{{ afiliere.document.titlu }}</td>
+			<td>Nr. înreg: {{ afiliere.document.referinta }} <br />
+                {{ afiliere.moment_asociere }}
+			</td>
+            <td>{% if afiliere.document.fisier %}<a href = "{{ afiliere.document.fisier.url }}"><i class = "icon-paper-clip"></i> Document</a>{% endif %}</td>
+            <td>{% if request.user.utilizator.membru.is_membru_ccl %}
+                    <a href = "#" data-document="{{ afiliere.document.chitanta.chitantacotizatie.id }}" class = "switch-blocat btn btn-mini btn-{% if afiliere.document.chitanta.chitantacotizatie.blocat %}danger{% else %}success{% endif %}"><i class = "icon-{% if afiliere.document.chitanta.chitantacotizatie.blocat %}remove{% else %}ok{% endif %}"></i>
+                {% else %}
+                    <i class = "icon-{% if afiliere.document.chitanta.chitantacotizatie.blocat %}remove{% else %}ok{% endif %}">
+                {% endif %}
+            </td>
+
+			<td>{% if afiliere.document.chitanta.chitantacotizatie %}
+                    {% with afiliere.document.chitanta.chitantacotizatie as cc %}
+                        {% for ptc in cc.platacotizatietrimestru_set.all %}
+                            <strong>{{ ptc.suma }} RON</strong> pentru {{ ptc.trimestru }} {% if ptc.partial %}(partial){% endif %}{% if ptc.final and ptc.partial %}(final){% endif %}<br />
+                        {% endfor %}
+                    {% endwith %}
+                {% endif %}
+                {% with afiliere.document.documentcotizatiesociala as dcs %}{# dcs - declaratie cotizatie sociala #}
+                {% if dcs %}
+                    {% if dcs.este_valabil %}<strong>Aprobat CCL</strong> <br />{% endif %}
+                    {% if dcs.valabilitate_end %}A fost valabil între {{ dcs.valabilitate_start|date:"d F Y" }} și {{ dcs.valabilitate_end|date:"d F Y" }}{% else %}
+                        Valabil de la {{ dcs.valabilitate_start|date:"d F Y" }}
+                    {% endif %}
+                {% endif %}
+                {% endwith %}
+            </td>
+			<td>
+				<div class="btn-group pull-right">
+					<a class="btn btn-mini" href="{{ afiliere.document_edit_link }}"><i class="icon-pencil"></i></a>
+					{% if afiliere.document.chitanta.chitantacotizatie and afiliere.document.chitanta.chitantacotizatie.editabila %}<a class="btn btn-mini" id="delete_{{ afiliere.id }}" href="javascript:void()"><i class="icon-trash"></i></a>{% endif %}
+				</div>
+			</td>
+		</tr>
+		{% empty %}
+		<tr>
+			<td>&nbsp;</td>
+			<td><em>Nu există documente atașate acestui membru.</em></td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
