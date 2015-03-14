@@ -7,6 +7,7 @@ import logging
 import datetime
 from django.core.management.base import BaseCommand
 from django.conf import settings
+from utils.oncr_client import ONCRClient
 
 logger = logging.getLogger(__name__)
 
@@ -65,33 +66,15 @@ class Command(BaseCommand):
         self.stdout.write("%d not found\n" % nf)
         return
 
+
     def oncr_sync(self, *args, **options):
         membri_oncr = Membru.objects.filter(scout_id__isnull=False).exclude(scout_id="")
 
-        import requests
-        import re
-
-        s = requests.session()
-        r1 = s.get("https://www.oncr.ro/login")
-        login_data = {"_username": settings.ONCR_USER, "_password": settings.ONCR_PASSWORD}
-        regex = 'name="_csrf_token" value="([a-f0-9]*)"'
-        csrf = re.findall(regex, r1.text)
-
-        if len(csrf) == 0:
-            self.stdout.write("ERROR connecting to ONCR.ro")
-
-        login_data['_csrf_token'] = csrf[0]
-
-        r2 = s.post("https://www.oncr.ro/login_check", login_data)
-        # r3 = s.get("https://www.oncr.ro/%s.json", scout_id)
+        oncr_client = ONCRClient()
 
         for membru in membri_oncr:
-            r3 = s.get("https://www.oncr.ro/%s.json" % membru.scout_id)
-            if r3.status_code != 200:
-                self.stdout.write("Error getting %s (%s): %s" % (membru, membru.scout_id, r3.status_code))
-
             try:
-                jdict = r3.json()
+                jdict = oncr_client.get_membru_json(membru.scout_id)
                 membru.save_to_cache("oncr_feegood", jdict["feeGood"], 24 * 60 * 60)
                 membru.save_to_cache("oncr_lastpaidquarter", jdict["lastPaidQuarter"], 24 * 60 * 60)
             except Exception, e:

@@ -86,7 +86,8 @@ class EvenimentCreateForm(CrispyBaseModelForm):
                                     "facebook_event_link", "articol_site_link", "locatie_text", "locatie_geo",
                                     "organizator", "organizator_cercetas", "international", "published_status", "cover_photo",
                                     Fieldset(u"Responsabili", "responsabil_articol", "responsabil_raport"),
-                                    Fieldset(u"Participanți", "lupisori", "temerari", "exploratori", "seniori", "lideri", "adulti"))
+                                    Fieldset(u"Participanți", "lupisori", "temerari", "exploratori", "seniori", "lideri", "adulti"),
+                                    Fieldset(u"Altele", "oncr_id"))
 
 
 class EvenimentUpdateForm(EvenimentCreateForm):
