@@ -95,6 +95,8 @@ class Eveniment(models.Model):
     proiect = models.ForeignKey("proiecte.Project", null=True, blank=True)
     campuri_aditionale = models.CharField(max_length=1024, null=True, blank=True)
 
+    oncr_id = models.CharField(max_length=255, null=True, blank=True)
+
     class Meta:
         verbose_name = u"Eveniment"
         verbose_name_plural = u"Evenimente"
@@ -255,7 +257,11 @@ class Eveniment(models.Model):
 
     @property
     def total_participanti(self):
-        return self.participantieveniment_set.aggregate(Sum("numar"))['numar__sum']
+        list_totals = 0
+        if self.participareeveniment_set.exists():
+            list_totals = self.participareeveniment_set.filter(status_participare__in=(2, 3, 4)).count()
+        manual_override_totals = self.participantieveniment_set.aggregate(Sum("numar"))['numar__sum']
+        return max(list_totals, manual_override_totals)
 
     def get_visibility_level(self, user=None):
         from structuri.models import TipAsociereMembruStructura
