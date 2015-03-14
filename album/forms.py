@@ -114,7 +114,8 @@ class RaportEvenimentForm(CrispyBaseModelForm):
     class Meta:
         model = RaportEveniment
         fields = ["parteneri", "obiective", "grup_tinta", "activitati", "alti_beneficiari",
-                  "promovare", "buget", "accept_publicare_raport_national"]
+                  "promovare", "buget", "accept_publicare_raport_national", "aventura",
+                  "social", "cultural", "ecologie", "spiritual", "fundraising", "altele"]
 
 
 class EvenimentParticipareBaseForm(CrispyBaseModelForm):

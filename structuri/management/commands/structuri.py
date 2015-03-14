@@ -12,8 +12,6 @@ from utils.oncr_client import ONCRClient
 logger = logging.getLogger(__name__)
 
 
-
-
 class Command(BaseCommand):
     available_commands = ["update_adrese", "oncr_sync", "oncr_sync_ids"]
 
@@ -49,7 +47,7 @@ class Command(BaseCommand):
         nf = 0
         for line in lines:
             line = line.split(",")
-            # self.stdout.write(line[1] + "\n")
+
             nume = line[1].split()[0]
             prenume = " ".join(line[1].split()[1:])
 
@@ -60,12 +58,11 @@ class Command(BaseCommand):
                 self.stdout.write("SCOUTID: %s\n" % membru.scout_id)
                 membru.save()
             else:
-                self.stdout.write("NOT FOUNd: nume %s, prenume %s\n" % (nume, prenume))
+                self.stdout.write("NOT FOUND: nume %s, prenume %s\n" % (nume, prenume))
                 nf += 1
 
         self.stdout.write("%d not found\n" % nf)
         return
-
 
     def oncr_sync(self, *args, **options):
         membri_oncr = Membru.objects.filter(scout_id__isnull=False).exclude(scout_id="")

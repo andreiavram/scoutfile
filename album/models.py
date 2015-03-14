@@ -173,6 +173,7 @@ class Eveniment(models.Model):
 
     def scor_raportare(self):
         elemente_de_verificat = ["obiective", "grup_tinta", "activitati"]
+        categorii_eveniment = ["aventura", "social", "cultural", "ecologie", "spiritual", "fundraising", "altele"]
         rapoarte = self.raporteveniment_set.all()
         if rapoarte.count():
             raport = rapoarte[0]
@@ -184,7 +185,10 @@ class Eveniment(models.Model):
             if getattr(raport, field) is None or len(getattr(raport, field).strip()) == 0:
                 scor -= 1
 
-        if self.participantieveniment_set.all().count() == 0 or self.participantieveniment_set.all().aggregate(Sum('numar')) == 0:
+        if not any([getattr(raport, boolfield) for boolfield in categorii_eveniment]):
+            scor -= 1
+
+        if self.total_participanti == 0:
             scor -= 1
 
         if self.tip_eveniment is None:
@@ -330,6 +334,15 @@ class RaportEveniment(models.Model):
     promovare = models.TextField(null=True, blank=True, help_text=u"Cum / dacă s-a promovat proiectul")
     buget = models.FloatField(null=True, blank=True, help_text=u"Estimativ, în RON")
     accept_publicare_raport_national = models.BooleanField(default=True, verbose_name="Acord raport ONCR", help_text=u"Dacă se propune această activitate pentru raportul anual al ONCR")
+
+    aventura = models.BooleanField(default=False)
+    social = models.BooleanField(default=False)
+    cultural = models.BooleanField(default=False)
+    ecologie = models.BooleanField(default=False)
+    spiritual = models.BooleanField(default=False)
+    fundraising = models.BooleanField(default=False)
+    altele = models.BooleanField(default=False)
+
 
     eveniment = models.ForeignKey(Eveniment)
     is_locked = models.BooleanField(default=False)

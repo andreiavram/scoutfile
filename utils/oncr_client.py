@@ -1,3 +1,6 @@
+from collections import defaultdict
+from unidecode import unidecode
+
 __author__ = 'yeti'
 
 import requests
@@ -15,8 +18,8 @@ class ONCRClient(object):
     }
 
     def __init__(self, user=None, password=None, **kwargs):
-        self.user = user # if user else settings.ONCR_USER
-        self.password = password # if password else settings.ONCR_PASSWORD
+        self.user = user if user else settings.ONCR_USER
+        self.password = password if password else settings.ONCR_PASSWORD
         self.session = requests.session()
         self.logged_in = False
 
@@ -30,39 +33,69 @@ class ONCRClient(object):
                       "_csrf_token": csrf_value}
 
         r_login = self.session.post(self.URLS.get("login_check"), login_data)
-
-        if r_login.status_code == 302 and r_login.headers['location'] == "https://www.oncr.ro/":
-            self.logged_in = True
+        if "Datele introduse sunt incorecte!" in r_login.text:
+            self.logged_in = False
+        elif r_login.history:
+            for resp in r_login.history:
+                if resp.status_code == 302 and resp.headers['location'] == "https://www.oncr.ro/":
+                    self.logged_in = True
 
         return self.logged_in
+
+    def python_date_to_mysql(self, date):
+        return date.strftime("%Y-%m-%d")
 
     def add_activitate(self, **kwargs):
         r_activitate = self.session.get(self.URLS.get("add_activitate"))
         soup = BeautifulSoup(r_activitate.text)
         token = soup.find("input", {"name": "activity[_token]"}).attrs.get("value")
 
-        data = {"activity[published_in][]": ['1', '2'],
-                "activity[name]": "test1",
-                "activity[category_id]": "2",
-                "activity[location]": "test_locatie",
-                "activity[from_date]": "2014-03-01",
-                "activity[to_date]": "2014-03-03",
-                "activity[type][]": ["2", "4"],
-                "activity[participants_number]": "23",
+        raport_anual_oncr = kwargs.get("raport_anual_oncr", False)
+        raport_centru_local = kwargs.get("raport_anual_cl", True)
+        published_in = []
+        if raport_anual_oncr:
+            published_in.append("1")
+        if raport_centru_local:
+            published_in.append("2")
+
+        activity_type_args = ["aventura", "social", "cultural", "ecologie", "spiritual", "fundraising", "altele"]
+        activity_type = [str(2**activity_type_args.index(category_field)) for category_field in activity_type_args if kwargs.get(category_field)]
+
+        data = {"activity[published_in][]": published_in,
+                "activity[name]": kwargs.get("nume"),
+                "activity[category_id]": str(kwargs.get("categorie")),
+                "activity[location]": kwargs.get("locatie"),
+                "activity[from_date]": self.python_date_to_mysql(kwargs.get("data_inceput")),
+                "activity[to_date]": self.python_date_to_mysql(kwargs.get("data_sfarsit")),
+                "activity[type][]": activity_type,
+                "activity[participants_number]": kwargs.get("numar_participanti"),
                 "activity[_token]": token,
-                "activity[short_description]": "testdescription",
-                "activity[objectives]": "testobjectives",
-                "activity[target]": "testtargetgroup",
-                "activity[activities]": "testactivites",
-                "activity[promotion]": "testpromotion",
-                "activity[partners]": "tespartnerst",
-                "activity[budget]": "7000",
-                "activity[beneficiaries]": "testbeneficiaries",
+                "activity[short_description]": kwargs.get("descriere"),
+                "activity[objectives]": kwargs.get("obiective"),
+                "activity[target]": kwargs.get("grup_tinta"),
+                "activity[activities]": kwargs.get("activitati"),
+                "activity[promotion]": kwargs.get("promovare"),
+                "activity[partners]": kwargs.get("parteneri"),
+                "activity[budget]": kwargs.get("buget"),
+                "activity[beneficiaries]": kwargs.get("beneficiari"),
                 }
+
+        photo = kwargs.get("photo", None)
+        photo_upload_data = ("", "", "application/octet-stream")
+        if photo:
+            photo_tmp_path = "/tmp/%s" % unidecode(kwargs.get("nume").replace(" ", ""))
+            r = requests.get(photo, stream=True)
+            if r.status_code == 200:
+                with open(photo_tmp_path, 'wb') as f:
+                    for chunk in r.iter_content(1024):
+                        f.write(chunk)
+
+            photo_data = open(photo_tmp_path, "rb")
+            photo_upload_data = ("cover.png", photo_data, "application/octet-stream")
 
         r_activitate = self.session.post(self.URLS.get("add_activitate"),
                     data=data,
-                    files=[("photos[]", ("", "", "application/octet-stream"))],
+                    files=[("photos[]", photo_upload_data)],
                     headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36",
                              "Referer": self.URLS.get("add_activitate"),
                              "Host": "www.oncr.ro",
@@ -93,13 +126,12 @@ class ONCRClient(object):
         r_events = self.session.post(self.URLS.get("list_activitati") % "2", command_dict)
 
         if r_events.status_code == 200:
-            return r_events.json()
+            return r_events.json()["aaData"]
 
         return {}
 
 
 if __name__ == "__main__":
-    client = ONCRClient()
-    client.do_login()
-    events = client.get_activitati_list()
+    client = ONCRClient(user="andrei.avram@albascout.ro", password="yetiRulz1_")
+    events = client.get_membru_json("AA147")
     print events
