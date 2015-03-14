@@ -39,7 +39,12 @@ class Command(BaseCommand):
 
         successful_events = 0
         for event in events:
+            if event.scor_raportare() < 0:
+                continue
+
             categorie = 2
+            if event.tip_eveniment == "intalnire":
+                categorie = 1
             if event.international:
                 categorie = 4
             elif event.organizator and event.organizator_cercetas:
