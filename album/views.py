@@ -1116,12 +1116,15 @@ class RaportEvenimentUpdate(UpdateView):
         #TODO: trateaza cazul cu mai multe leaf-uri
         self.raport_nou = False
         if self.eveniment.raporteveniment_set.exists():
-            kwargs['pk'] = self.eveniment.raporteveniment_set.all()[0].id
+            self.object = self.eveniment.raporteveniment_set.all()[0]
         else:
             self.object = self.create_raport(request)
             self.raport_nou = True
-            kwargs['pk'] = self.object.id
+
         return super(RaportEvenimentUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        return self.object
 
     def create_raport(self, request):
         raport_data = {"eveniment": self.eveniment,
