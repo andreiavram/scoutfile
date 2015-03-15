@@ -54,7 +54,6 @@ class Command(BaseCommand):
             if raport is None:
                 continue
 
-
             eveniment_args = {
                 "raport_anual_oncr": raport.accept_publicare_raport_national,
                 "raport_anual_cl": True,
