@@ -43,7 +43,7 @@ def upload_to_template_carte_cantece(instance, fn):
 
 class TemplateCarteCantece(models.Model):
     nume = models.CharField(max_length=255)
-    template_file = models.FileField(upload_to=upload_to_template_carte_cantece, storage=LocalStorage)
+    template_file = models.FileField(upload_to=upload_to_template_carte_cantece, storage=LocalStorage())
 
     def __unicode__(self):
         return self.nume
