@@ -16,6 +16,15 @@ class CategorieFiseActivitate(models.Model):
         return self.nume
 
 
+# TODO: remove this override when https://github.com/alex/django-taggit/issues/282 is closed
+class FixedTaggableManager(TaggableManager):
+    def get_joining_columns(self, reverse_join=False):
+        if reverse_join:
+            return ((self.model._meta.pk.column, "object_id"),)
+        else:
+            return (("object_id", self.model._meta.pk.column),)
+
+
 class FisaActivitate(Document):
     descriere_joc = models.TextField(null=True, blank=True, verbose_name=u"Descriere")
 
@@ -34,7 +43,7 @@ class FisaActivitate(Document):
     editori = models.ManyToManyField("structuri.Membru")
     is_draft = models.BooleanField(default=True, verbose_name=u"Este incomplet?", help_text=u"Dacă nu ești chiar gata, marchează bifa aici ca să știe și ceilalți")
 
-    tags = TaggableManager()
+    tags = FixedTaggableManager()
 
     def save(self, **kwargs):
         self.tip_document = TipDocument.obtine("fisa_activitate")

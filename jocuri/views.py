@@ -79,9 +79,9 @@ class ActivitateSearch(ListView):
 
         taguri = Tag.objects.all()
         taguri_relevante = []
-        from django.db.models import Count
+
         for tag in taguri:
-            cnt = FisaActivitate.objects.filter(tags__in=[tag]).count()
+            cnt = FisaActivitate.objects.filter(tags__name__in=[tag.name, ]).count()
             if cnt:
                 taguri_relevante.append((tag, cnt))
 
