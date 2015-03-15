@@ -28,7 +28,7 @@ class Document(models.Model):
     titlu = models.CharField(max_length=1024)
     descriere = models.CharField(max_length=2048, null=True, blank=True)
 
-    fisier = models.FileField(upload_to=upload_to_document_fisier, null=True, blank=True, storage=LocalStorage)
+    fisier = models.FileField(upload_to=upload_to_document_fisier, null=True, blank=True, storage=LocalStorage())
     url = models.URLField(max_length=2048, null=True, blank=True)
 
     version_number = models.IntegerField(default=0)
@@ -77,7 +77,7 @@ class Document(models.Model):
 
     def get_download_url(self):
         if self.fisier:
-            return self.fisier.url
+            return self.fisier
         if self.image_storage:
             return self.image_storage.image.url
 
