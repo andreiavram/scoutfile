@@ -253,7 +253,7 @@
             }
 
             $.each(evenimente, function (index, element) {
-                $(current_view.target).append(_.template(current_view.template, {"eveniment" : element}));
+                $(current_view.target).append(_.template(current_view.template)({"eveniment" : element}));
                 current_view.post_render(element);
             });
 
