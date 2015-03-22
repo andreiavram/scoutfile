@@ -94,10 +94,10 @@
 
         var node = this.container.find('.description');
         jQuery(node).text(this.list[index].descriere);
-        $(".sfcontrols", this.container).html(_.template($("#sfcontrols_template").html(), {"imagine": this.list[index]}));
+        $(".sfcontrols", this.container).html(_.template($("#sfcontrols_template").html())({"imagine": this.list[index]}));
         set_handlers($(".sfcontrols", this.container), true);
 
-        $(".tags", this.container).html(_.template($("#tags_template").html(), {"image": this.list[index]}));
+        $(".tags", this.container).html(_.template($("#tags_template").html())({"image": this.list[index]}));
     }
 
     function handle_imagini(data) {
@@ -119,9 +119,10 @@
             _.extend(item, element);
 
             new_gallery_data.push(item);
-
+            // console.log("here");
+            // console.log(element);
             element.gallery_order_id = gallery_data.length + new_gallery_data.length - 1;
-            $("#rezultate-list div.row-fluid:last-child").append(_.template($("#imagine_template").html(), {"image": element}));
+            $("#rezultate-list div.row-fluid:last-child").append(_.template($("#imagine_template").html())({"image": element}));
             var element = $("#rezultate-list div.row-fluid:last-child .span3:last-child");
             set_handlers(element);
             setTimeout(function () {
