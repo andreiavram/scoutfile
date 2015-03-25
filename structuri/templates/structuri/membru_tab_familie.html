@@ -24,7 +24,7 @@
 			</td>
 			<td>
 				<div class = "btn-group pull-right">
-					<a class = "btn btn-mini" href ="{% url "structuri:membru_edit_familie"  pk=obj.id,mpk=object.id %}"><i class = "icon-pencil"></i></a>
+					<a class = "btn btn-mini" href ="{% url "structuri:membru_edit_familie"  pk=obj.id mpk=object.id %}"><i class = "icon-pencil"></i></a>
 					<a class = "btn btn-mini" href ="#" id = "delete_{{ obj.id }}"><i class = "icon-trash"></i></a>
 				</div>
 			</td>
@@ -56,7 +56,7 @@
 			{% if obj.note %}<br /><span style = "font-size: 10px;">{{ obj.note }}</span>{% endif %}</td>
 			<td>
 				<div class = "btn-group pull-right">
-					<a class = "btn btn-mini" href ="{% url "structuri:membru_edit_pdc"  pk=obj.id,mpk=object.id %}"><i class = "icon-pencil"></i></a>
+					<a class = "btn btn-mini" href ="{% url "structuri:membru_edit_pdc"  pk=obj.id mpk=object.id %}"><i class = "icon-pencil"></i></a>
 					<a class = "btn btn-mini" href ="#" id = "pdc_{{ obj.id }}"><i class = "icon-trash"></i></a>
 				</div>
 			</td>
