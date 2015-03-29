@@ -336,7 +336,7 @@ class Membru(Utilizator):
 
             if int(self.cnp[0]) in (1, 2):
                 prefix_an = "19"
-            elif int(self.cnp[0]) in (5, 6):
+            elif int(self.cnp[0]) in (5, 6, 7, 8):
                 prefix_an = "20"
             else:
                 prefix_an = "19"

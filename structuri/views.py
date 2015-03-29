@@ -162,7 +162,7 @@ class CentruLocalLiderCreate(CreateView):
 
     @allow_by_afiliere([("Centru Local", u"Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
-        if not hasattr(self, "centru_local") or self.centru_local == None:
+        if not hasattr(self, "centru_local") or self.centru_local is None:
             self.centru_local = get_object_or_404(CentruLocal, id=kwargs.pop("pk"))
         return super(CentruLocalLiderCreate, self).dispatch(request, *args, **kwargs)
 
