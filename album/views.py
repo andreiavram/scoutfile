@@ -791,79 +791,10 @@ class EvenimentEditMixin(FileUploadMixin):
     def get_save_kwargs(self, file_handler, local_file_name):
         return {"file_handler": file_handler, "local_file_name": local_file_name}
 
-    def update_counts(self, form):
-        counts = ParticipantiEveniment.objects.filter(eveniment=self.object)
-
-        participanti = self.participanti[:]
-        for c in counts:
-            key = None
-            if c.ramura_de_varsta is not None and c.ramura_de_varsta.slug in participanti:
-                key = c.ramura_de_varsta.slug
-            elif c.alta_categorie is not None and c.alta_categorie in participanti:
-                key = c.alta_categorie
-
-            if key and key in form.cleaned_data:
-                c.numar = form.cleaned_data.get(key)
-                c.save()
-                participanti.remove(key)
-
-        for c in participanti:
-            pe_data = dict(eveniment=self.object, numar=form.cleaned_data.get(c, 0))
-            try:
-                rdv = RamuraDeVarsta.objects.get(slug=c)
-                pe_data['ramura_de_varsta'] = rdv
-            except RamuraDeVarsta.DoesNotExist:
-                pe_data['alta_categorie'] = c
-
-            ParticipantiEveniment(**pe_data).save()
-
-    def get_participant_count_initial(self):
-        totals = {t: 0 for t in self.participanti}
-        if not hasattr(self, "object") or self.object is None:
-            return totals
-
-        counts = ParticipantiEveniment.objects.filter(eveniment=self.object)
-        for c in counts:
-            if c.ramura_de_varsta is not None and c.ramura_de_varsta.slug in self.participanti:
-                totals[c.ramura_de_varsta.slug] = c.numar
-            elif c.alta_categorie is not None and c.alta_categorie in self.participanti:
-                totals[c.alta_categorie] = c.numar
-        return totals
-
-    # def handle_uploaded_file(self, f):
-    #     fname = f.name
-    #     if hasattr(self, 'object') and self.object is not None and self.object.id is not None:
-    #         fname += str(self.object.id) + "-" + fname
-    #
-    #     path = os.path.join("/tmp", fname)
-    #     #path = os.path.join(MEDIA_ROOT, base_path)
-    #     with open(path, 'wb+') as destination:
-    #         for chunk in f.chunks():
-    #             destination.write(chunk)
-    #
-    #     return path
-
     def save_cover_photo(self, save=True):
         cover_photo_args = dict(form_field_name="cover_photo", object_field_name="custom_cover_photo", image_class=Imagine, folder_path="covers")
         cover_photo_args['save'] = save
         self.save_photo(**cover_photo_args)
-        # if "cover_photo" in self.request.FILES:
-        #     try:
-        #         path = self.handle_uploaded_file(self.request.FILES['cover_photo'])
-        #     except Exception, e:
-        #         return
-        #
-        #     if self.object.custom_cover_photo:
-        #         self.object.custom_cover_photo.image.delete()
-        #         self.object.custom_cover_photo.delete()
-        #     filehandler = open(path, "r")
-        #     cover_photo = Imagine()
-        #     cover_photo.image.save(os.path.join(settings.PHOTOLOGUE_DIR, "covers", self.request.FILES['cover_photo'].name), File(filehandler), save=False)
-        #     cover_photo.save(file_handler=filehandler, local_file_name=path)
-        #     self.object.custom_cover_photo = cover_photo
-        #
-        #     if save:
-        #         self.object.save()
 
 
 class EvenimentCreate(CreateView, EvenimentEditMixin):
@@ -884,7 +815,6 @@ class EvenimentCreate(CreateView, EvenimentEditMixin):
 
     def get_initial(self):
         data = super(EvenimentCreate, self).get_initial()
-        data.update(self.get_participant_count_initial())
         return data
 
     def form_valid(self, form):
@@ -897,11 +827,8 @@ class EvenimentCreate(CreateView, EvenimentEditMixin):
             self.object.slug = slugify(self.object.nume) + "-%s-%d" % (self.object.start_date.year, index)
 
         self.object.save()
-
         self.save_cover_photo()
-
         self.create_connections()
-        self.update_counts(form)
 
         return HttpResponseRedirect(self.get_success_url())
 
@@ -932,19 +859,12 @@ class EvenimentUpdate(UpdateView, EvenimentEditMixin):
 
     def get_initial(self):
         data = super(EvenimentUpdate, self).get_initial()
-        data.update(self.get_participant_count_initial())
         return data
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        # if "cover_photo" in self.request.FILES:
-        #     path = self.handle_uploaded_file(self.request.FILES['cover_photo'])
-        #     cover_photo = Imagine(image=path)
-        #     cover_photo.save()
-        #     self.object.custom_cover_photo = cover_photo
         self.save_cover_photo(save=False)
         self.object.save()
-        self.update_counts(form)
 
         messages.success(self.request, u"Evenimentul a fost actualizat")
         return super(EvenimentUpdate, self).form_valid(form)

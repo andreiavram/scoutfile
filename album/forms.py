@@ -70,13 +70,6 @@ class EvenimentCreateForm(CrispyBaseModelForm):
     facebook_event_link = forms.URLField(widget=FacebookLinkWidget, required=False, label=u"Link eveniment Facebook")
     cover_photo = forms.FileField(label=u"Cover photo", required=False)
 
-    lupisori = forms.IntegerField(required=True)
-    temerari = forms.IntegerField(required=True)
-    exploratori = forms.IntegerField(required=True)
-    seniori = forms.IntegerField(required=True)
-    lideri = forms.IntegerField(required=True)
-    adulti = forms.IntegerField(required=True)
-
     responsabil_articol = AutoCompleteSelectField("membri", label=u"Responsabil articol", required=False)
     responsabil_raport = AutoCompleteSelectField("lideri", label=u"Responsabil raport", required=False)
 
@@ -86,7 +79,6 @@ class EvenimentCreateForm(CrispyBaseModelForm):
                                     "facebook_event_link", "articol_site_link", "locatie_text", "locatie_geo",
                                     "organizator", "organizator_cercetas", "international", "published_status", "cover_photo",
                                     Fieldset(u"Responsabili", "responsabil_articol", "responsabil_raport"),
-                                    Fieldset(u"Participanți", "lupisori", "temerari", "exploratori", "seniori", "lideri", "adulti"),
                                     Fieldset(u"Altele", "oncr_id"))
 
 

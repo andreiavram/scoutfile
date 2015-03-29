@@ -25,13 +25,16 @@ class Command(BaseCommand):
     def update_adrese(self, *args, **options):
         total = 0
         for membru in Membru.objects.all():
-            adrese = InformatieContact.objects.filter(content_type=ContentType.objects.get_for_model(membru), object_id=membru.id,
-                                                 tip_informatie__nume__iexact=u"Adresă corespondență", tip_informatie__relevanta="Membru")
+            adrese = InformatieContact.objects.filter(content_type=ContentType.objects.get_for_model(membru),
+                                                      object_id=membru.id,
+                                                      tip_informatie__nume__iexact=u"Adresă corespondență",
+                                                      tip_informatie__relevanta="Membru")
             if adrese.count():
                 continue
 
+            tip_informatie = TipInformatieContact.objects.get(nume__iexact=u"Adresă corespondență", relevanta="Membru")
             ic = InformatieContact(content_type=ContentType.objects.get_for_model(membru), object_id=membru.id,
-                                   tip_informatie=TipInformatieContact.objects.get(nume__iexact=u"Adresă corespondență", relevanta="Membru"),
+                                   tip_informatie=tip_informatie,
                                    valoare=membru.adresa, data_start=datetime.datetime.now())
             ic.save()
             total += 1
