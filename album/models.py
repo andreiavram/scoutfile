@@ -428,7 +428,7 @@ class ParticipareEveniment(models.Model):
     user_modificare = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="participari_responsabil")
 
     class Meta:
-        ordering = ["-data_sosire"]
+        ordering = ["-data_sosire", "status_participare"]
 
     @property
     def is_partiala(self):
