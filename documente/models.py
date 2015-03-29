@@ -337,10 +337,7 @@ class PlataCotizatieTrimestru(models.Model):
     def calculeaza_necesar(cls, membru):
         trimestru_initial, plati_partiale = membru.get_ultimul_trimestru_cotizatie(return_plati_partiale=True)
         t_current = trimestru_initial
-        t_target = Trimestru.trimestru_pentru_data(data=datetime.date.today() - datetime.timedelta(days=15))
-
-        # print t_current
-        # print t_target
+        t_target = Trimestru.trimestru_pentru_data(data=datetime.date.today() + datetime.timedelta(days=15))
 
         suma_necesara = 0
         while t_current.ordine_globala < t_target.ordine_globala:
