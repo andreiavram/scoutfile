@@ -68,12 +68,23 @@
                 <!-- The extended global progress information -->
                 <div class="progress-extended">&nbsp;</div>
             </div>
-            
-			<div id="div_id_autor" class="control-group"><label for="id_autor" class="control-label ">
-				Autor
-			</label><div class="controls"><input id="id_autor" type="text" class="textinput textInput" name="autor" maxlength="255" /> <p id="hint_id_autor" class="help-block">Lăsați gol dacă încărcați pozele proprii</p></div></div>
-			<div id="div_id_offset_secunde" class="control-group"><label for="id_offset_secunde" class="control-label requiredField">
-				Offset secunde<span class="asteriskField">*</span></label><div class="controls"><input id="id_offset_secunde" type="text" class="textinput textInput" value="0" name="offset_secunde" /> <p id="hint_id_offset_secunde" class="help-block">Numărul de secunde cu care ceasul camerei voastre a fost decalat față de ceasul corect (poate fi și negativ). Foarte util pentru sincronizarea pozelor de la mai mulți fotografi</p></div></div>
+
+            <div class = "row-fluid">
+                <div class = "span6">
+                    <div id="div_id_autor" class="control-group"><label for="id_autor" class="control-label">
+                        Autor
+                    </label><div class="controls"><input id="id_autor" type="text" class="textinput textInput" name="autor" maxlength="255" /> <p id="hint_id_autor" class="help-block">Lăsați gol dacă încărcați pozele proprii</p></div></div>
+                </div>
+                <div class = "span6">
+                    <div id="div_id_offset_secunde" class="control-group"><label for="id_offset_secunde" class="control-label requiredField">
+                        Offset secunde<span class="asteriskField">*</span></label><div class="controls"><input id="id_offset_secunde" type="text" class="textinput textInput" value="0" name="offset_secunde" /> <p id="hint_id_offset_secunde" class="help-block">Numărul de secunde cu care ceasul camerei voastre a fost decalat față de ceasul corect (poate fi și negativ). Foarte util pentru sincronizarea pozelor de la mai mulți fotografi</p></div></div>
+                    <div id="div_id_default_visibility_level" class="control-group"><label for="id_default_visibility_level" class="control-label requiredField">
+                        Vizibilitate implicită<span class="asteriskField">*</span></label><div class="controls">{{ form.default_visibility_level }}</div></div>
+                </div>
+            </div>
+
+
+
         </div>
         <!-- The table listing the files available for upload/download -->
         <table role="presentation" class="table table-striped"><tbody class="files"></tbody></table>
