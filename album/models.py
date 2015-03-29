@@ -97,7 +97,7 @@ class Eveniment(models.Model):
     proiect = models.ForeignKey("proiecte.Project", null=True, blank=True)
     campuri_aditionale = models.CharField(max_length=1024, null=True, blank=True)
 
-    oncr_id = models.CharField(max_length=255, null=True, blank=True)
+    oncr_id = models.CharField(max_length=255, null=True, blank=True, verbose_name=u"ONCR ID")
 
     class Meta:
         verbose_name = u"Eveniment"
@@ -654,8 +654,10 @@ class SetPoze(models.Model):
 
     date_uploaded = models.DateTimeField(auto_now=True)
     offset_secunde = models.IntegerField(default=0,
-                                         help_text="Numărul de secunde cu care ceasul camerei voastre a fost decalat față de ceasul corect (poate fi și negativ). Foarte util pentru sincronizarea pozelor de la mai mulți fotografi")
-    offset_changed = models.BooleanField(default=False, verbose_name = u"Offset-ul a fost modificat")
+                                         help_text=u"Numărul de secunde cu care ceasul camerei voastre a fost decalat față de ceasul corect (poate fi și negativ). Foarte util pentru sincronizarea pozelor de la mai mulți fotografi")
+
+    offset_changed = models.BooleanField(default=False, verbose_name=u"Offset-ul a fost modificat")
+    default_visibility_level = models.IntegerField(default=-1, choices=IMAGINE_PUBLISHED_STATUS, null=True, blank=True)
 
     class Meta:
         verbose_name = u"Set poze"
@@ -707,7 +709,8 @@ class SetPoze(models.Model):
                     logger.debug("SetPoze: extracting file %s to S3:%s" % (f.filename, event_path_no_root))
                     zf.extract(f, tmp_album_path)
 
-                    im = Imagine(set_poze=self, titlu=os.path.basename(f.filename))
+                    published_status = 2 if self.default_visibility_level < 0 else self.default_visibility_level
+                    im = Imagine(set_poze=self, titlu=os.path.basename(f.filename), published_status=published_status)
                     file_handler = open(os.path.join(tmp_album_path, f.filename))
                     im.image.save(os.path.join(event_path_no_root, f.filename), File(file_handler), save=False)
 

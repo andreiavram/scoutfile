@@ -16,7 +16,7 @@ from django.core.exceptions import ValidationError
 
 from goodies.widgets import BootstrapDateTimeInput, GeoCoordinatesInput, FacebookLinkWidget, TaggitTagsInput
 from album.models import FlagReport, FLAG_MOTIVES, RaportEveniment, ParticipareEveniment, \
-    CampArbitrarParticipareEveniment, STATUS_PARTICIPARE
+    CampArbitrarParticipareEveniment, STATUS_PARTICIPARE, IMAGINE_PUBLISHED_STATUS
 from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
 from generic.widgets import BootstrapDateTimeInput, BootstrapDateInput
 
@@ -44,6 +44,7 @@ class ReportForm(CrispyBaseModelForm):
 
 class ReportFormNoButtons(ReportForm):
     has_submit_buttons = False
+
 
 class SetPozeCreateForm(CrispyBaseModelForm):
     class Meta:
