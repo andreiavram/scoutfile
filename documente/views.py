@@ -576,12 +576,13 @@ class CotizatiiCentruLocal(ListView, CasieriMixin):
 
     def get_queryset(self):
         #membrii = self.centru_local.cercetasi(qs=True).values_list("membru_id", flat=True)
-        return self.model.objects.filter(registru__centru_local = self.centru_local).order_by("-data_inregistrare")
+        return self.model.objects.filter(registru__centru_local=self.centru_local).order_by("-data_inregistrare")
 
     def get_context_data(self, **kwargs):
         data = super(CotizatiiCentruLocal, self).get_context_data(**kwargs)
         data.update({"centru_local" : self.centru_local, "casieri" : self.get_casieri(self.centru_local)})
         return data
+
 
 class CotizatiiLider(ListView, CasieriMixin):
     template_name = "documente/cotizatii_list.html"
@@ -602,9 +603,10 @@ class CotizatiiLider(ListView, CasieriMixin):
 
     def get_context_data(self, **kwargs):
         data = super(CotizatiiLider, self).get_context_data(**kwargs)
-        data.update({"lider" : self.lider, "centru_local" : self.lider.centru_local,
-                     "casieri" : self.get_casieri(centru_local=self.lider.centru_local),
-                     "suma_casa" : self.get_suma_lider(), "trezorier" : self.lider.centru_local.ocupant_functie(u"Trezorier Centru Local")})
+        data.update({"lider": self.lider, "centru_local" : self.lider.centru_local,
+                     "casieri": self.get_casieri(centru_local=self.lider.centru_local),
+                     "suma_casa": self.get_suma_lider(),
+                     "trezorier": self.lider.centru_local.ocupant_functie(u"Trezorier Centru Local")})
         return data
 
 class PreiaIncasariCasier(FormView):
