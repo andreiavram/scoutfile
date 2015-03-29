@@ -60,7 +60,7 @@ class SetPozeUpdateForm(CrispyBaseModelForm):
 class EvenimentCreateForm(CrispyBaseModelForm):
     class Meta:
         model = Eveniment
-        exclude = ["centru_local", "custom_cover_photo", "ramuri_de_varsta", "activa"]
+        exclude = ["centru_local", "custom_cover_photo", "ramuri_de_varsta", "activa", "slug"]
 
     descriere = forms.CharField(required=False, widget=Textarea(attrs={"cols": 400}))
     start_date = forms.DateTimeField(required=True, widget=BootstrapDateTimeInput(), label=u"Data început")

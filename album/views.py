@@ -7,6 +7,7 @@ import logging
 from django.contrib.sites.models import Site
 from django.db.models.aggregates import Count
 from django.db.models.query_utils import Q
+from django.utils.text import slugify
 from django.views.generic.edit import UpdateView, CreateView, FormView
 from django.views.generic.detail import DetailView
 from django.views.generic.base import View, TemplateView
@@ -889,6 +890,12 @@ class EvenimentCreate(CreateView, EvenimentEditMixin):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.centru_local = self.centru_local
+        self.object.slug = slugify(self.object.nume) + "-%s" % self.object.start_date.year
+        index = 1
+        while self.model.objects.filter(slug=self.object.slug).exists():
+            index += 1
+            self.object.slug = slugify(self.object.nume) + "-%s-%d" % (self.object.start_date.year, index)
+
         self.object.save()
 
         self.save_cover_photo()
