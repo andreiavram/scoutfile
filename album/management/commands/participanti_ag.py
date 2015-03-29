@@ -25,11 +25,9 @@ class Command(BaseCommand):
         membri = cl.cercetasi(qs=False)
         membri_ag = [m for m in membri if m.drept_vot_teoretic()]
 
-        print cl
-        print len(membri)
-        print len(membri_ag)
-
         for m in membri_ag:
             ParticipareEveniment.objects.create(membru=m, eveniment=eveniment, data_sosire=eveniment.start_date, data_plecare=eveniment.end_date,
                                                 status_participare=1, detalii=u"adăugat automat")
 
+
+        self.stdout.write(u"Added %d people to event\n" % len(membri_ag))
