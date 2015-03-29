@@ -29,5 +29,4 @@ class Command(BaseCommand):
             ParticipareEveniment.objects.create(membru=m, eveniment=eveniment, data_sosire=eveniment.start_date, data_plecare=eveniment.end_date,
                                                 status_participare=1, detalii=u"adăugat automat")
 
-
         self.stdout.write(u"Added %d people to event\n" % len(membri_ag))
