@@ -1,5 +1,6 @@
 #coding: utf-8
 from PIL import Image
+from collections import Counter
 import datetime
 from zipfile import ZipFile
 import logging
@@ -26,6 +27,7 @@ from taggit.managers import TaggableManager
 from django.conf import settings
 
 from album.managers import RaportEvenimentManager
+
 
 
 logger = logging.getLogger(__name__)
@@ -114,11 +116,35 @@ class Eveniment(models.Model):
 
     @property
     def get_ramuri_de_varsta(self):
-        totals = self.participantieveniment_set.filter()
-        rdvs = {}
-        for c in totals:
-            key = c.ramura_de_varsta.slug if c.ramura_de_varsta is not None else c.alta_categorie
-            rdvs[key] = (c.numar, c)
+        participari = self.participareeveniment_set.exclude(status_participare=5)
+
+        if self.status in ("terminat", ):
+            participari = participari.exclude(status_participare__in=(1, 2, 3))
+        if participari.exists():
+            membri = [p.membru for p in participari if p.membru]
+            rdvs = [m.get_ramura_de_varsta(slug=True) for m in membri if m.get_ramura_de_varsta()]
+            nonmembri = [p.nonmembru for p in participari if p.nonmembru]
+            rdvs = Counter(rdvs)
+            rdvs.update({"adulti": rdvs[None], "nonmembri": len(nonmembri)})
+            rdvs = dict(rdvs)
+        else:
+            #   this code is here for events pre-2015
+            totals = self.participantieveniment_set.filter()
+            rdvs = {}
+            for c in totals:
+                key = c.ramura_de_varsta.slug if c.ramura_de_varsta is not None else c.alta_categorie
+                rdvs[key] = c.numar
+
+        rdvs = rdvs.items()
+
+        from structuri.models import RamuraDeVarsta
+        def rdv_sorter(item):
+            rdv_slug = item[0]
+            try:
+                return RamuraDeVarsta.objects.get(slug=rdv_slug).varsta_intrare
+            except RamuraDeVarsta.DoesNotExist:
+                return 999
+        rdvs.sort(key=rdv_sorter)
         return rdvs
 
     @property

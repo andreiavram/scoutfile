@@ -518,13 +518,18 @@ class Membru(Utilizator):
             qs = qs.order_by("moment_incheiere")
         return qs
 
-    def get_ramura_de_varsta(self):
+    def get_ramura_de_varsta(self, slug=False):
         if self.is_lider_generic():
+            if slug:
+                return "lideri"
             return "Lider"
 
         unitate = self.get_unitate()
         if unitate:
-            return self.get_unitate().ramura_de_varsta.nume
+            rdv = self.get_unitate().ramura_de_varsta
+            if slug:
+                return rdv.slug
+            return rdv.nume
         return None
 
     def asociaza(self, rol, structura, data_start=None, data_end=None, confirmata=False, user=None):
