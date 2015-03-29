@@ -66,13 +66,14 @@ class Structura(models.Model):
                                                           object_id=self.id,
                                                           moment_incheiere__isnull=True)
 
-        if isinstance(tip_asociere, type([])):
+        if isinstance(tip_asociere, type([])) or isinstance(tip_asociere, type(())):
             asociere = asociere.filter(tip_asociere__nume__in=tip_asociere)
         else:
             asociere = asociere.filter(tip_asociere__nume__iexact=tip_asociere)
 
         if qs:
             return asociere
+
         return [a.membru for a in asociere]
 
     def lideri(self, qs=False):
@@ -923,6 +924,20 @@ class Membru(Utilizator):
 
     def is_membru_ccl(self):
         return self._proprietati_comune().get("Membru Consiliul Centrului Local", False)
+
+    def drept_vot(self):
+        #   are drept vot si nu e suspendat pe baza de cotizatie
+        drept_vot_teoretic = self.drept_vot_teoretic()
+        cotizatie_condition = self._status_cotizatie()[0] <= 1
+        return drept_vot_teoretic and cotizatie_condition and not self.is_suspendat()
+
+    def drept_vot_teoretic(self, date=None):
+        #   are minim 16 ani la data evenimentului si are promisiunea depusa
+        if date is None:
+            date = datetime.date.today()
+        age_condition = date.year - self.data_nasterii.year - ((date.month, date.day) < (self.data_nasterii.month, self.data_nasterii.day)) >= 16
+        membership_condition = not self.is_aspirant() and not self.is_adult() and not self.is_inactiv()
+        return age_condition and membership_condition
 
     def is_sef_centru(self):
         return self._proprietati_comune().get(u"Șef Centru Local", False)
