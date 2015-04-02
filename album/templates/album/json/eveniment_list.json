@@ -54,10 +54,10 @@
             "locatie_text": "{{ event.locatie_text }}",
             "facebook_event_link": "{{ event.facebook_event_link }}",
             "ramuri_de_varsta" : [
-                {% for rdv, data in event.get_ramuri_de_varsta.items %}
+                {% for rdv, data in event.get_ramuri_de_varsta %}
                     {
                         "ramura_de_varsta": "{{ rdv }}",
-                        "count" : "{{ data.0 }}"
+                        "count" : "{{ data }}"
                     }
                     {% if not forloop.last %},{% endif %}
                 {% endfor %}
