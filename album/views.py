@@ -33,6 +33,7 @@ from django.conf import settings
 from rest_framework import permissions
 
 from album.exporters.envelopes import C5Envelopes
+from album.exporters.table import TabularExport
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipantiEveniment, \
     ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT, SetPoze, IMAGINE_PUBLISHED_STATUS, \
     CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment, FLAG_MOTIVES, ParticipantEveniment
@@ -1323,7 +1324,9 @@ class EvenimentParticipantiExport(FormView):
     form_class = EvenimentParticipantFilterForm
     template_name = "album/eveniment_participanti_options.html"
 
-    EXPORT_OPTIONS = (("plicuri_c5", u"Plicuri C5", u"Export PDF cu plicuri C5 pentru printare"), )
+    EXPORT_OPTIONS = (("plicuri_c5", u"Plicuri C5", u"Export PDF cu plicuri C5 pentru printare"),
+                      ("tabel_xlsx", u"Tabel", u"Export XLS cu toți participanții"),
+                      ("date_json", u"JSON", u"Date în format JSON, care pot fi procesate de alte aplicații"))
 
     @allow_by_afiliere([("Eveniment, Centru Local", "Lider")], pkname="slug")
     def dispatch(self, request, *args, **kwargs):
@@ -1348,6 +1351,12 @@ class EvenimentParticipantiExport(FormView):
 
     def plicuri_c5(self, qs):
         return C5Envelopes.generate_envelopes(qs)
+
+    def tabel_xlsx(self, qs):
+        return TabularExport.generate_xlsx(qs)
+
+    def date_json(self, qs):
+        return TabularExport.generate_json(qs)
 
     def form_valid(self, form):
         qs = self.get_queryset(filters=form.cleaned_data.get("filter_expression", None),

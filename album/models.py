@@ -458,7 +458,8 @@ class ParticipareEveniment(models.Model):
 
     @property
     def is_partiala(self):
-        return (self.data_sosire > self.eveniment.start_date + datetime.timedelta(seconds=3600 * 4)) or (self.data_plecare < self.eveniment.end_date - datetime.timedelta(seconds=3600 * 4))
+        return (self.data_sosire > self.eveniment.start_date + datetime.timedelta(seconds=3600 * 4)) or \
+               (self.data_plecare < self.eveniment.end_date - datetime.timedelta(seconds=3600 * 4))
 
     def process_camp_aditional(self, camp):
         if self.nonmembru_id:
@@ -467,13 +468,15 @@ class ParticipareEveniment(models.Model):
                           "email": lambda o: o.nonmembru.email}
         elif self.membru_id:
             resolution = {"telefon": lambda o: o.membru.mobil,
-                      "adresa": lambda o: o.membru.adresa_postala,
-                      "scoutid": lambda o: o.membru.scout_id,
-                      "email": lambda o: o.membru.email,
-                      "status": lambda o: o.membru.status_cotizatie(),
-                      "cotizatie": lambda o: o.membru.calculeaza_necesar_cotizatie(),
-                      "buletin": lambda o: o.membru.get_contact(u"Buletin"),
-                      "credit": lambda o: o.membru.get_scor_credit_display()}
+                          "adresa": lambda o: o.membru.adresa_postala,
+                          "scoutid": lambda o: o.membru.scout_id,
+                          "email": lambda o: o.membru.email,
+                          "status": lambda o: o.membru.status_cotizatie(),
+                          "cotizatie": lambda o: o.membru.calculeaza_necesar_cotizatie(),
+                          "buletin": lambda o: o.membru.get_contact(u"Buletin"),
+                          "credit": lambda o: o.membru.get_scor_credit_display(),
+                          "unitate": lambda o: o.membru.get_unitate(),
+                          "ramura_de_varsta": lambda o: o.membru.get_ramura_de_varsta()}
         else:
             return "-"
 
