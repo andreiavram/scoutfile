@@ -28,7 +28,7 @@ class BadgeCreate(BadgeFileUploadMixin, CreateView):
     model = Badge
     form_class = BadgeForm
 
-    @method_decorator(user_passes_test(lambda u: u.get_profile().membru.is_lider()))
+    @method_decorator(user_passes_test(lambda u: u.utilizator.membru.is_lider()))
     def dispatch(self, request, *args, **kwargs):
         return super(BadgeCreate, self).dispatch(request, *args, **kwargs)
 
@@ -49,7 +49,7 @@ class BadgeUpdate(BadgeFileUploadMixin, UpdateView):
     model = Badge
     form_class = BadgeForm
 
-    @method_decorator(user_passes_test(lambda u: u.get_profile().membru.is_lider()))
+    @method_decorator(user_passes_test(lambda u: u.utilizator.membru.is_lider()))
     def dispatch(self, request, *args, **kwargs):
         return super(BadgeUpdate, self).dispatch(request, *args, **kwargs)
 
