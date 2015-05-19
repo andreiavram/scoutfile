@@ -18,7 +18,7 @@ class SendSMS(FormView):
     form_class = SendSMSForm
     template_name = "patrocle/send_form.html"
     
-    @method_decorator(user_passes_test(lambda u : u.get_profile().membru.is_lider() or u.get_profile().membru.is_membru_ccl()))
+    @method_decorator(user_passes_test(lambda u : u.utilizator.membru.is_lider() or u.utilizator.membru.is_membru_ccl()))
     def dispatch(self, request, *args, **kwargs):
         self.destinatar = None
         if "destinatar" in request.GET and request.GET['destinatar']:
