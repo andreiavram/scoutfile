@@ -304,7 +304,7 @@ GOOGLE_API_KEY = "AIzaSyCIiQgKmmRv2SLBj8KTbx6HB7Kn_6LIU-o"
 FACEBOOK_LOGIN_REDIRECT = "login"
 FACEBOOK_APP_ID = "152554668279442"
 FACEBOOK_APP_SECRET = "388c926e843601ac88f16274923245ea"
-FACEBOOK_PERMISSIONS = ['email', 'publish_stream']
+FACEBOOK_PERMISSIONS = ['email', ]
 FACEBOOK_ERROR_URL = "login"
 
 AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend', 'utils.auth_backends.FacebookBackend',)
