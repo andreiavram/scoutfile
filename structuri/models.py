@@ -328,7 +328,7 @@ class Membru(Utilizator):
         Asigură la salvare preluarea sexului și a datei nașterii din CNP
         Asigură menținerea centrulu local corect
         """
-
+        #TODO: mută procesarea asta de aici într-o utilitate
         if self.data_nasterii is None:
             sufix_an = self.cnp[1:3]
             luna = self.cnp[3:5]
