@@ -1,7 +1,6 @@
 # Create your views here.
-from atom.http_core import HttpResponse
 from django.contrib.auth.decorators import user_passes_test
-from django.http.response import HttpResponseBadRequest
+from django.http.response import HttpResponse, HttpResponseBadRequest
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView, View
 from fabric.tasks import execute
