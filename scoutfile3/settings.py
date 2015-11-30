@@ -84,8 +84,6 @@ CACHES = {
     },
 }
 
-JOHNNY_MIDDLEWARE_KEY_PREFIX = 'jc_scoutfile3'
-
 ROOT_URLCONF = 'scoutfile3.urls'
 
 TEMPLATE_DIRS = (
@@ -111,6 +109,8 @@ ALLOWED_HOSTS = []
 
 
 INSTALLED_APPS = (
+    'redis_cache',
+
     #   django apps
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -122,7 +122,6 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
 
     #   third party pluggables
-    'redis_cache',
     'debug_toolbar',
     'photologue',
     'crispy_forms',
