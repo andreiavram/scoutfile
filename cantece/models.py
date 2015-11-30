@@ -52,7 +52,7 @@ class TemplateCarteCantece(models.Model):
 class CarteCantece(models.Model):
     cantece = models.ManyToManyField(Cantec, through="ConexiuneCantecCarte")
     template = models.ForeignKey(TemplateCarteCantece)
-    optiuni_template = models.ManyToManyField(OptiuniTemplateCarteCantece, null=True, blank=True)
+    optiuni_template = models.ManyToManyField(OptiuniTemplateCarteCantece, blank=True)
 
 
 class ConexiuneCantecCarte(models.Model):

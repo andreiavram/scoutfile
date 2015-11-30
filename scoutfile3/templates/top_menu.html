@@ -14,6 +14,9 @@
 {#		<li class = "disabled"><a href = "{% url "patrocle:home"  %}"><i class = "icon-phone"></i> Patrocle</a></li>#}
             <li><a href = "{% url "badge:badge_list"  %}"><i class = "icon-trophy"></i> Badge-uri</a></li>
     		<li><a href = "{% url "jocuri:activitate_search"  %}"><i class = "icon-book"></i> Jocuri</a></li>
+        {% if request.user.is_staff %}
+            <li><a href = "{% url "inventar:locatie_access" %}">Locații</a></li>
+        {% endif %}
 	</ul>
 	
 	<ul class = 'nav pull-right'>

@@ -2,7 +2,7 @@
 
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.generic import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.urlresolvers import reverse
 from django.db.models.aggregates import Sum
 import logging
@@ -17,10 +17,10 @@ from adrese_postale.adrese import AdresaPostala
 from album.models import Imagine
 from documente.models import PlataCotizatieTrimestru, AsociereDocument, Trimestru, ChitantaCotizatie
 from utils.models import FacebookSession
-from django.core import cache
+from django.core.cache import caches
 
 logger = logging.getLogger(__name__)
-redis_cache = cache.get_cache("redis")
+redis_cache = caches["default"]
 
 
 class RamuraDeVarsta(models.Model):
@@ -316,7 +316,7 @@ class Membru(Utilizator):
     data_nasterii = models.DateField(null=True, blank=True)
     sex = models.CharField(max_length=1, choices=(("m", u"Masculin"), ("f", "Feminin")), null=True, blank=True)
 
-    familie = models.ManyToManyField("self", through=AsociereMembruFamilie, symmetrical=False, null=True, blank=True)
+    familie = models.ManyToManyField("self", through=AsociereMembruFamilie, symmetrical=False, blank=True)
     scout_id = models.CharField(max_length=255, null=True, blank=True, verbose_name="ID ONCR")
     scor_credit = models.IntegerField(default=2, choices=((0, u"Rău"), (1, u"Neutru"), (2, u"Bun")), verbose_name=u"Credit", help_text=u"Această valoare reprezintă încrederea Centrului Local într-un membru de a-și respecta angajamentele financiare (dacă Centrul are sau nu încredere să pună bani pentru el / ea)")
 
@@ -995,7 +995,7 @@ class TipAsociereMembruStructura(models.Model):
         sau alumni, in Consiliul Centrului Local este responsabil pe un anumit domeniu samd
         """
     nume = models.CharField(max_length=255)
-    content_types = models.ManyToManyField(ContentType, null=True, blank=True)
+    content_types = models.ManyToManyField(ContentType, blank=True)
 
     def __unicode__(self):
         return u"%s" % self.nume

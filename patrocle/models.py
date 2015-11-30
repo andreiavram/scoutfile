@@ -1,15 +1,16 @@
 # coding: utf-8
-from django.db import models
-from django.contrib.contenttypes.models import ContentType
 import datetime
-from django.db.models.query_utils import Q
 import logging
-from django.contrib.contenttypes.generic import GenericForeignKey
-from django.conf import settings
 import urllib
 import urllib2
-from django.dispatch.dispatcher import receiver
+
+from django.conf import settings
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+from django.db import models
+from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
+from django.dispatch.dispatcher import receiver
 
 logger = logging.getLogger(__name__)
 
