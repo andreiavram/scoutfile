@@ -62,8 +62,6 @@ TEMPLATE_LOADERS = (
 
 MIDDLEWARE_CLASSES = (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'johnny.middleware.LocalStoreClearMiddleware',
-    'johnny.middleware.QueryCacheMiddleware',
     'raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware',
     'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -76,17 +74,12 @@ MIDDLEWARE_CLASSES = (
 )
 
 CACHES = {
-    'default': dict(
-        BACKEND='johnny.backends.memcached.MemcachedCache',
-        LOCATION=['127.0.0.1:11211'],
-        JOHNNY_CACHE=True,
-    ),
-
-    'redis': {
+    'default': {
         "BACKEND": "redis_cache.cache.RedisCache",
-        "LOCATION": "127.0.0.1:6379:1",
+        "LOCATION": "127.0.0.1:6379",
         "OPTIONS": {
             "CLIENT_CLASS": "redis_cache.client.DefaultClient",
+            "DB": 1,
         }
     },
 }
@@ -129,6 +122,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
 
     #   third party pluggables
+    'redis_cache',
     'debug_toolbar',
     'photologue',
     'crispy_forms',
@@ -164,6 +158,7 @@ INSTALLED_APPS = (
     'jocuri',
     'badge',
     'adrese_postale',
+    'inventar',
 )
 
 WSGI_APPLICATION = 'scoutfile3.wsgi.application'

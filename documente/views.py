@@ -25,7 +25,7 @@ from django.contrib import messages
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import permissions
-from settings import MEDIA_ROOT
+from django.conf import settings
 
 from documente.forms import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm, \
     DecizieCuantumCotizatieForm, TransferIncasariForm, AdeziuneUpdateForm, AdeziuneCreateForm, \
@@ -733,7 +733,7 @@ class ChitantaPrintare(DetailView):
         pdfmetrics.registerFont(TTFont("DejaVuSans", "/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf"))
 
         if self.object.registru.centru_local.antet:
-            antet_path = os.path.join(MEDIA_ROOT, "%s" % self.object.registru.centru_local.antet)
+            antet_path = os.path.join(settings.MEDIA_ROOT, "%s" % self.object.registru.centru_local.antet)
             pdf.drawInlineImage(antet_path, 2.5 * cm, 10.8 * cm, width=16. * cm, height=2.66 * cm)
             pdf.drawInlineImage(antet_path, 2.5 * cm, 24.5 * cm, width=16. * cm, height=2.66 * cm)
         pdf.setStrokeColorRGB(0, 0, 0)

@@ -59,7 +59,7 @@ class Workflow(models.Model):
 class TaskState(models.Model):
     name = models.CharField(max_length=255)
     workflow = models.ForeignKey(Workflow)
-    available_states = models.ManyToManyField("TaskState", null=True, blank=True)
+    available_states = models.ManyToManyField("TaskState", blank=True)
 
 
 class TaskStateHistory(models.Model):

@@ -9,6 +9,7 @@ components/*
 .idea/*
 .vagrant/*
 *.sql
+!sql/*.sql
 scoutfile3/local_settings.local.py
 scoutfile3/local_settings.py
 scoutfile3_production.sql

@@ -19,7 +19,7 @@ from photologue.models import ImageModel, PhotoSizeCache
 import os
 # from photologue.processors import PhotologueSpec
 from unidecode import unidecode
-from django.contrib.contenttypes.generic import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import File, ContentFile
 from django import forms

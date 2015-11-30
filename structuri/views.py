@@ -54,8 +54,6 @@ from utils.views import FacebookUserConnectView
 logger = logging.getLogger(__name__)
 
 
-#    definitii ctypes
-ctype_centrulocal = ContentType.objects.get_for_model(CentruLocal)
 
 
 class CentruLocalCreate(CreateView):
@@ -1910,6 +1908,7 @@ class CentruLocalCuantumuriCotizatii(ListView):
         return super(CentruLocalCuantumuriCotizatii, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
+        ctype_centrulocal = ContentType.objects.get_for_model(CentruLocal)
         filter_args = {"document_ctype": ContentType.objects.get_for_model(DecizieCotizatie),
                        "content_type": ctype_centrulocal,
                        "object_id": self.centru_local.id}

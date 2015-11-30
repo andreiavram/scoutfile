@@ -29,7 +29,7 @@ class FisaActivitate(Document):
     descriere_joc = models.TextField(null=True, blank=True, verbose_name=u"Descriere")
 
     materiale_necesare = models.TextField(null=True, blank=True, help_text=u"Câte unul pe linie, fără numerotare adițională")
-    ramuri_de_varsta = models.ManyToManyField("structuri.RamuraDeVarsta", null=True, blank=True)
+    ramuri_de_varsta = models.ManyToManyField("structuri.RamuraDeVarsta", blank=True)
 
     min_participanti = models.PositiveIntegerField(null=True, blank=True, verbose_name=u"Minim participanți")
     max_participanti = models.PositiveIntegerField(null=True, blank=True, verbose_name=u"Maxim participanți")
