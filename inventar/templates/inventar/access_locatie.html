@@ -20,7 +20,7 @@
                     {"csrfmiddlewaretoken": "{{ csrf_token }}"},
                     dataType="json")
             .done(function(data) {
-                $("#action-response").html(data.result).addClass("alert", "alert-info").show(); })
+                $("#action-response").html("Usa deschisa!").addClass("alert", "alert-success").show(); })
             .fail(function(data) {
                 $("#action-response").html("Eroare! Nu am putut deschide poarta!").addClass("alert").addClass("alert-error").show();
             });
