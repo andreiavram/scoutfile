@@ -270,7 +270,7 @@ class CentruLocalLiderCreate(CreateView):
                                        {"utilizator": self.object,
                                         "parola": parola},
                                        context_instance=RequestContext(self.request))
-            send_mail(u"Cont ScoutFile", message, settings.settings.SYSTEM_EMAIL, [self.object.email, ])
+            send_mail(u"Cont ScoutFile", message, settings.SYSTEM_EMAIL, [self.object.email, ])
 
 
     def get_context_data(self, **kwargs):
