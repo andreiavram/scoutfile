@@ -15,12 +15,15 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     available_commands = ["update_adrese", "oncr_sync", "oncr_sync_ids"]
 
+    def add_arguments(self, parser):
+        parser.add_argument('command', nargs=1, type=str)
+
     def handle(self, *args, **options):
-        if args[0] not in self.available_commands:
+        if options['command'][0] not in self.available_commands:
             self.stderr.write(u"Command must be one of %s" % ",".join(self.available_commands))
             return
 
-        getattr(self, args[0])(*args[1:], **options)
+        getattr(self, options['command'][0])(*args, **options)
 
     def update_adrese(self, *args, **options):
         total = 0
