@@ -20,6 +20,7 @@ from captcha.fields import ReCaptchaField
 from django.db.models.query_utils import Q
 from ajax_select.fields import AutoCompleteSelectField
 from structuri.fields import BetterROCNPField
+from django.contrib.contenttypes.models import ContentType
 
 
 class UnitateMembruCreateForm(CrispyBaseModelForm):
@@ -340,12 +341,12 @@ class AsociereCreateForm(CrispyBaseModelForm):
     def __init__(self, *args, **kwargs):
         super(AsociereCreateForm, self).__init__(*args, **kwargs)
         
-        from django.contrib.contenttypes.models import ContentType
-        self.fields['content_type'].queryset = ContentType.objects.filter(name__in = (u"Centru Local", u"Unitate", u"Patrulă"))
+        content_type_filter = dict(app_label="structuri", model__in=("centrulocal", "unitate", "patrula"))
+        self.fields['content_type'].queryset = ContentType.objects.filter(**content_type_filter)
         
-        self.helper.layout = Layout(Field("content_type"), Field("object_id"),
-                                    Field("tip_asociere"), Field("moment_inceput", css_class = "datepicker", template = "fields/datepicker.html"),
-                                    Field("moment_incheiere", css_class = "datepicker", template = "fields/datepicker.html"))
+        self.helper.layout = Layout(Field("content_type"), Field("object_id"), Field("tip_asociere"),
+                                    Field("moment_inceput", css_class="datepicker", template="fields/datepicker.html"),
+                                    Field("moment_incheiere", css_class="datepicker", template="fields/datepicker.html"))
         
 
 class AsociereUpdateForm(AsociereCreateForm):
@@ -362,8 +363,8 @@ class AsociereEvenimentStructuraForm(CrispyBaseModelForm):
     def __init__(self, *args, **kwargs):
         super(AsociereEvenimentStructuraForm, self).__init__(*args, **kwargs)
 
-        from django.contrib.contenttypes.models import ContentType
-        self.fields['content_type'].queryset = ContentType.objects.filter(name__in=(u"Centru Local", u"Unitate", u"Patrulă"))
+        content_type_filter = dict(app_label="structuri", model__in=("centrulocal", "unitate", "patrula"))
+        self.fields['content_type'].queryset = ContentType.objects.filter(**content_type_filter)
 
         
 class InformatieContactCreateForm(CrispyBaseModelForm):
