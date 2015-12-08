@@ -1,3 +1,9 @@
+from django.contrib.contenttypes.models import ContentType
+from django.shortcuts import get_object_or_404
+
+from structuri.decorators import redirect_with_error
+from structuri.models import CentruLocal, Unitate, Patrula, Membru, AsociereMembruStructura, InformatieContact
+
 __author__ = 'yeti'
 
 
@@ -14,8 +20,8 @@ def allow_by_afiliere(asocieri, pkname = "pk", combine = False):
             if args[0].user.groups.filter(name__icontains = u"administrator").count():
                 return view_func(self, *args, **kwargs)
 
-            lookups = {"Centru Local" : lambda : get_object_or_404(CentruLocal, id = kwargs.get(pkname)),
-             "Unitate" :  lambda : get_object_or_404(Unitate, id = kwargs.get(pkname)),
+            lookups = {"Centru Local" : lambda : get_object_or_404(CentruLocal, id=kwargs.get(pkname)),
+             "Unitate" :  lambda : get_object_or_404(Unitate, id=kwargs.get(pkname)),
              "Patrula" : lambda : get_object_or_404(Patrula, id = kwargs.get(pkname)).unitate.centru_local,
              "Unitate, Centru Local" :  lambda : get_object_or_404(Unitate, id = kwargs.get(pkname)).centru_local,
              "Patrula, Unitate, Centru Local" : lambda : get_object_or_404(Patrula, id = kwargs.get(pkname)).unitate.centru_local,

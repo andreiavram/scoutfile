@@ -103,7 +103,8 @@ class AsociereCreditForm(CrispyBaseModelForm):
     def __init__(self, *args, **kwargs):
         self.credit_maxim = kwargs.pop("credit_maxim")
         super(AsociereCreditForm, self).__init__(*args, **kwargs)
-        self.fields['content_type'].queryset = ContentType.objects.filter(name__in = (u"Centru Local", u"Unitate", u"Patrulă"))
+        content_type_filter = dict(app_label="structuri", model__in=("centrulocal", "unitate", "patrula"))
+        self.fields['content_type'].queryset = ContentType.objects.filter(**content_type_filter)
         
     def clean_credit(self):
         if not ("credit" in self.cleaned_data and self.cleaned_data['credit']):
