@@ -1,4 +1,4 @@
-#coding: utf-8
+#   coding: utf-8
 from django.contrib.contenttypes.models import ContentType
 
 from structuri.models import Membru, InformatieContact, TipInformatieContact
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    available_commands = ["update_adrese", "oncr_sync", "oncr_sync_ids"]
+    available_commands = ["update_adrese", "oncr_sync", "oncr_sync_ids", "update_membru_cache"]
 
     def add_arguments(self, parser):
         parser.add_argument('command', nargs=1, type=str)
@@ -82,3 +82,10 @@ class Command(BaseCommand):
                 membru.save_to_cache("oncr_lastpaidquarter", jdict["lastPaidQuarter"], 24 * 60 * 60)
             except Exception, e:
                 self.stdout.write("Error getting %s: %s\n" % (membru.scout_id, e))
+
+    def update_membru_cache(self, *args, **options):
+        for m in Membru.objects.all():
+            try:
+                m.calculeaza_necesar_cotizatie()
+            except Exception, e:
+                logger.error(u"%s" % e)

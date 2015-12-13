@@ -1,10 +1,13 @@
 # coding: utf-8
-import json
-import datetime
 import hashlib
+import json
 import logging
+import random
+import string
 import traceback
 
+import datetime
+from django.conf import settings
 from django.conf.global_settings import SERVER_EMAIL
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
@@ -13,7 +16,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
-from django.conf import settings
 from django.db.models.query_utils import Q
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -25,13 +27,14 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.views.generic.list import ListView
 from goodies.views import TabbedViewMixin, GenericDeleteView
+from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import permissions
 
 from adrese_postale.adrese import AdresaPostala
 from album.models import ParticipareEveniment
 from album.views import FileUploadMixin
+from documente.models import AsociereDocument
 from documente.models import Trimestru, DecizieCotizatie
 from structuri.decorators import allow_by_afiliere
 from structuri.forms import MembruCreateForm, MembruUpdateForm, \
@@ -49,7 +52,6 @@ from structuri.models import CentruLocal, AsociereMembruStructura, \
     InformatieContact, TipInformatieContact, AsociereMembruFamilie, \
     PersoanaDeContact
 from utils.views import FacebookUserConnectView
-
 
 logger = logging.getLogger(__name__)
 
@@ -184,10 +186,6 @@ class CentruLocalLiderCreate(CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-
-        import random
-        import string
-
         parola = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(6))
 
         self.object.user = User.objects.create_user(self.object.email, self.object.email, parola)
@@ -1020,7 +1018,6 @@ class MembruTabDocumente(ListView):
         return ListView.dispatch(self, request, *args, **kwargs)
 
     def get_queryset(self):
-        from documente.models import AsociereDocument
         filter_kwargs = {"content_type": ContentType.objects.get_for_model(self.object),
                          "object_id": self.object.id}
 
@@ -1168,8 +1165,6 @@ class ConfirmForgotPassword(TemplateView):
 
         #    the user exists and required password change
         #    do password change
-        import random
-        import string
 
         new_password = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(8))
         self.utilizator.user.set_password(new_password)
@@ -1377,7 +1372,6 @@ class UtilizatorHomeTabsDocumente(ListView):
         return super(UtilizatorHomeTabsDocumente, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        from documente.models import AsociereDocument
         filter_kwargs = {"content_type": ContentType.objects.get_for_model(self.object),
                          "object_id": self.object.id}
 
@@ -1912,7 +1906,6 @@ class CentruLocalCuantumuriCotizatii(ListView):
         filter_args = {"document_ctype": ContentType.objects.get_for_model(DecizieCotizatie),
                        "content_type": ctype_centrulocal,
                        "object_id": self.centru_local.id}
-        from documente.models import AsociereDocument
 
         qs = AsociereDocument.objects.prefetch_related().kwargs(**filter_args)
         qs = qs.order_by("-moment_asociere")

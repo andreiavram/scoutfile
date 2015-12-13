@@ -18,9 +18,16 @@ from album.models import Imagine
 from documente.models import PlataCotizatieTrimestru, AsociereDocument, Trimestru, ChitantaCotizatie
 from utils.models import FacebookSession
 from django.core.cache import caches
+import json
+
+from patrocle.models import Credit
+from patrocle.models import RezervareCredit
+from patrocle.models import RezervareCredit
+from documente.models import Trimestru
+from documente.models import DocumentCotizatieSociala, AsociereDocument
 
 logger = logging.getLogger(__name__)
-redis_cache = caches["default"]
+redis_cache = caches["redis"]
 
 
 class RamuraDeVarsta(models.Model):
@@ -310,6 +317,8 @@ class AsociereMembruFamilie(models.Model):
 
 
 class Membru(Utilizator):
+    CALITATI_SCUTITE_COTIZATIE = ("Membru inactiv", "Membru adult")
+
     cnp = models.CharField(max_length=255, null=True, blank=True, verbose_name=u"CNP", unique=True)
     telefon = models.CharField(max_length=10, null=True, blank=True)
     adresa = models.CharField(max_length=2048, null=True, blank=True)
@@ -322,6 +331,10 @@ class Membru(Utilizator):
 
     #TODO: find some smarter way to do this
     poza_profil = models.ForeignKey(ImagineProfil, null=True, blank=True)
+
+    def __init__(self, *args, **kwargs):
+        super(Membru, self).__init__(*args, **kwargs)
+        self._plateste_cotizatie = {}
 
     def save(self, *args, **kwargs):
         """
@@ -376,27 +389,9 @@ class Membru(Utilizator):
     def centru_local(self):
         return self.get_centru_local()
 
-    def get_centru_local(self, qs=False, tip_asociere=[]):
-        if len(tip_asociere) == 0:
-            tip_asociere = CentruLocal.asocieri_membru
-
-        asocieri_filter = dict(membru=self,
-                               content_type=ContentType.objects.get_for_model(CentruLocal),
-                               tip_asociere__nume__in=tip_asociere,
-                               moment_incheiere__isnull=True)
-        asocieri = AsociereMembruStructura.objects.filter(**asocieri_filter).order_by("-moment_inceput", )
-
-        if qs:
-            return asocieri
-
-        if asocieri.count():
-            return asocieri[0].content_object
-
-        return None
-
-    def get_structura(self, qs=False, rol=[u"Membru", ], single=True, structura_model=None, trimestru=None):
+    def get_structura(self, qs=False, rol=(u"Membru", ), single=True, structura_model=None, trimestru=None):
         if self.is_lider and not single:
-            rol = rol + [u"Lider", u"Lider asistent"]
+            rol = list(rol) + [u"Lider", u"Lider asistent"]
 
         kwargs = {"content_type": ContentType.objects.get_for_model(structura_model),
                   "tip_asociere__nume__in": rol,
@@ -406,36 +401,36 @@ class Membru(Utilizator):
         asocieri = AsociereMembruStructura.objects.filter(**kwargs).order_by("-moment_inceput")
 
         if trimestru is None:
-            # trimestrul curent, vorbim despre prezent
             asocieri = asocieri.filter(moment_inceput__isnull=False, moment_incheiere__isnull=True)
         else:
             asocieri = asocieri.filter(Q(moment_incheiere__isnull=True) | Q(moment_incheiere__gte=trimestru.data_inceput))
             asocieri = asocieri.filter(moment_inceput__lte=trimestru.data_sfarsit)
 
-        if asocieri.count():
-            if qs:
-                if single:
-                    return asocieri[0]
-                else:
-                    return asocieri
-            else:
-                if single:
-                    return asocieri[0].content_object
-                else:
-                    return [a.content_object for a in asocieri]
+        if asocieri.exists():
+            #   switch on qs, single
+            results = {
+                (True, True): asocieri[0],
+                (True, False): asocieri,
+                (False, True): asocieri[0].content_object,
+                (False, False): structura_model.objects.filter(id__in=asocieri.values_list("object_id", flat=True).all())
+            }
+            return results[(qs, single)]
 
         return None
+    
+    def get_centru_local(self, qs=False, rol=(u"Membru", ), single=True, trimestru=None):
+        return self.get_structura(qs=qs, rol=rol, single=single, structura_model=CentruLocal, trimestru=trimestru)
 
-    def get_unitate(self, qs=False, rol=[u"Membru", ], single=True, trimestru=None):
+    def get_unitate(self, qs=False, rol=(u"Membru", ), single=True, trimestru=None):
         return self.get_structura(qs=qs, rol=rol, single=single, structura_model=Unitate, trimestru=trimestru)
 
-    def get_patrula(self, qs=False, rol=[u"Membru", ], single=True, trimestru=None):
+    def get_patrula(self, qs=False, rol=(u"Membru", ), single=True, trimestru=None):
         return self.get_structura(qs=qs, rol=rol, single=single, structura_model=Patrula, trimestru=trimestru)
 
-    def get_unitati(self, qs=False, rol=[u"Membru", ], trimestru=None):
+    def get_unitati(self, qs=False, rol=(u"Membru", ), trimestru=None):
         return self.get_unitate(qs=qs, rol=rol, single=False, trimestru=trimestru)
 
-    def get_patrule(self, qs=False, rol=[u"Membru", ], trimestru=None):
+    def get_patrule(self, qs=False, rol=(u"Membru", ), trimestru=None):
         return self.get_patrula(qs=qs, rol=rol, single=False, trimestru=trimestru)
 
     def get_centre_locale_permise(self):
@@ -478,8 +473,12 @@ class Membru(Utilizator):
                        "Lider", "Lider asistent", "Membru adult", u"Șef Centru Local"]
 
     def _proprietati_comune(self):
+        if hasattr(self, "_proprietati") and self._proprietati is not None:
+            return self._proprietati
+
         _proprietati = self.get_from_cache("proprietati")
         if _proprietati:
+            self._proprietati = _proprietati
             return _proprietati
 
         if not hasattr(self, "_proprietati") or self._proprietati is None:
@@ -550,7 +549,6 @@ class Membru(Utilizator):
         return asociere
 
     def get_badges_rdv(self):
-        import json
         badges = self.get_from_cache("badges_rdv")
         badges = json.loads(badges if badges else "[]")
 
@@ -565,11 +563,9 @@ class Membru(Utilizator):
             if unitate:
                 badges.append(unidecode.unidecode(unitate.ramura_de_varsta.nume.lower()))
         self.save_to_cache("badges_rdv", json.dumps(badges))
-        print "SAED TO CACHE %s" % badges
         return badges
 
     def get_extra_badges(self):
-        import json
         badges = self.get_from_cache("badges_extra")
         badges = json.loads(badges if badges else "[]")
 
@@ -591,8 +587,6 @@ class Membru(Utilizator):
 
     #    Patrocle specific code
     def rezerva_credit(self):
-        from patrocle.models import Credit
-
         credit = Credit.objects.filter(content_type=ContentType.objects.get_for_model(CentruLocal),
                                        object_id=self.centru_local.id,
                                        epuizat=False).order_by("timestamp")
@@ -602,8 +596,6 @@ class Membru(Utilizator):
         credit = credit[0]
 
         if credit.credit_disponibil() > 0:
-            from patrocle.models import RezervareCredit
-
             rezervare = RezervareCredit(credit=credit, content_type=ContentType.objects.get_for_model(self),
                                         object_id=self.id)
             rezervare.save()
@@ -611,8 +603,6 @@ class Membru(Utilizator):
         return True
 
     def elibereaza_credit(self):
-        from patrocle.models import RezervareCredit
-
         rezervari = RezervareCredit.objects.filter(content_type=ContentType.objects.get_for_model(self),
                                                    object_id=self.id)
         if rezervari.count() == 0:
@@ -644,8 +634,8 @@ class Membru(Utilizator):
 
     def clear_cache(self, index):
         mapping = {"asociere": ["trimestru_initial", "proprietati", "badges_rdv"],
-                   "cotizatie_sociala": ["are_cotizatie_sociala", "status_cotizatie"],
-                   "cotizatie": ["status_cotizatie", ],}
+                   "cotizatie_sociala": ["are_cotizatie_sociala", "status_cotizatie", "necesar_cotizatie"],
+                   "cotizatie": ["status_cotizatie", "necesar_cotizatie"],}
         to_clear = mapping.get(index, None)
         if to_clear is not None:
             for idx in to_clear:
@@ -667,7 +657,6 @@ class Membru(Utilizator):
         """
         stored_value = self.get_from_cache("trimestru_initial")
         if stored_value:
-            from documente.models import Trimestru
             return Trimestru.objects.get(id=stored_value)
 
         #    in mod necesar membrul are macar un centru local asociat
@@ -678,7 +667,6 @@ class Membru(Utilizator):
             raise ValueError(u"Cercetașul cu ID-ul %d nu are niciun Centru Local asociat" % self.id)
 
         moment_initial_membru = afilieri[0].moment_inceput
-        from documente.models import Trimestru
 
         trimestru_membru = Trimestru.trimestru_pentru_data(moment_initial_membru)
         if moment_initial_membru != trimestru_membru.data_inceput:
@@ -700,8 +688,6 @@ class Membru(Utilizator):
         stored_value = self.get_from_cache("are_cotizatie_sociala")
         if stored_value:
             return stored_value
-
-        from documente.models import DocumentCotizatieSociala, AsociereDocument
 
         filtru_documente = {"content_type": ContentType.objects.get_for_model(self),
                             "object_id": self.id,
@@ -792,7 +778,6 @@ class Membru(Utilizator):
             ultimul_trimestru = self.get_trimestru_initial_cotizatie()
             nothing = True
 
-        from documente.models import Trimestru
         today = datetime.date.today()
         trimestru_curent = Trimestru.trimestru_pentru_data(today)
 
@@ -814,17 +799,43 @@ class Membru(Utilizator):
         #if not trimestru_curent.data_in_trimestru(today - datetime.timedelta(days = 15)):
         #    diferenta_trimestre -= 1
         trimestru = ultimul_trimestru
-        trimestre_scutite = 0
-        while trimestru.ordine_globala < trimestru_curent.ordine_globala:
-            if not self.plateste_cotizatie(trimestru=trimestru):
-                trimestre_scutite += 1
-            trimestru = trimestru.urmatorul_trimestru(trimestru)
+        #   schimbat aici pentru a nu mai folosi un loop
+        trimestre_scutite = self._trimestre_scutite(trimestru, trimestru_curent)
 
         diferenta_trimestre -= trimestre_scutite
 
         return_value = diferenta_trimestre, trimestru_curent, ultimul_trimestru
         self.save_to_cache("status_cotizatie", return_value, 60 * 60 * 6)
         return return_value
+
+    def _trimestre_scutite(self, trimestru_start, trimestru_end):
+        start = trimestru_start.ordine_globala
+        end = trimestru_end.ordine_globala
+        trimestre = list(range(start, end + 1))
+
+        ams_filter = dict(content_type=ContentType.objects.get_for_model(CentruLocal),
+                          object_id=self.centru_local.id,
+                          tip_asociere__content_types__in=(ContentType.objects.get_for_model(CentruLocal), ),
+                          tip_asociere__nume__in=[self.CALITATI_SCUTITE_COTIZATIE],
+                          membru=self,)
+
+        asocieri = AsociereMembruStructura.objects.filter(**ams_filter)
+        if asocieri.exists():
+            return 0
+
+        scutite = 0
+        for a in asocieri:
+            print "%s - %s" % (trimestre, self)
+            t_start = Trimestru.trimestru_pentru_data(a.moment_inceput)
+            if a.moment_incheiere is None:
+                de_scutit = set(range(t_start.ordine_globala, end + 1))
+            else:
+                t_end = Trimestru.trimestru_pentru_data(a.moment_incheiere)
+                de_scutit = set(range(t_start.ordine_globala, t_end.ordine_globala + 1))
+            scutite += len(list(set.intersection(de_scutit, trimestre)))
+            trimestre = set.difference(trimestre, de_scutit)
+
+        return scutite
 
     def status_cotizatie(self, for_diff=None):
         if for_diff is None:
@@ -841,8 +852,6 @@ class Membru(Utilizator):
             return u"avans pentru %d %s" % (abs(status), trimestru_string)
 
     def get_ultimul_trimestru_cotizatie(self, return_plati_partiale=False):
-        from documente.models import Trimestru
-
         plati_membru = self.platacotizatietrimestru_set.all().order_by("-trimestru__ordine_globala", "-index")
         plati_partiale = None
         if plati_membru.count() == 0:
@@ -858,7 +867,13 @@ class Membru(Utilizator):
         return trimestru_initial
 
     def calculeaza_necesar_cotizatie(self):
-        return PlataCotizatieTrimestru.calculeaza_necesar(membru=self)
+        necesar_cotizatie = self.get_from_cache("necesar_cotizatie")
+        if necesar_cotizatie:
+            return float(necesar_cotizatie)
+
+        necesar_cotizatie = PlataCotizatieTrimestru.calculeaza_necesar(membru=self)
+        self.save_to_cache("necesar_cotizatie", necesar_cotizatie)
+        return necesar_cotizatie
 
     def recalculeaza_acoperire_cotizatie(self, trimestru_start=None, membri_procesati=[], reset=False):
         chitanta_partial = False
@@ -891,19 +906,19 @@ class Membru(Utilizator):
         return int(status)
 
     def are_adeziune(self):
-        return self.adeziune(qs=True).count() > 0
+        return self.adeziune(qs=True).exists()
 
     def adeziune(self, qs=False):
-        search = {"document__tip_document__slug" : "adeziune",
-                  "tip_asociere__slug" : "subsemnat",
-                  "content_type" : ContentType.objects.get_for_model(self),
-                  "object_id" : self.id}
+        search = {"document__tip_document__slug": "adeziune",
+                  "tip_asociere__slug": "subsemnat",
+                  "content_type": ContentType.objects.get_for_model(self),
+                  "object_id": self.id}
 
         asociere = AsociereDocument.objects.filter(**search)
         if qs:
             return asociere
-        if asociere.count():
-            return asociere.document
+        if asociere.exists():
+            return asociere.first().document
         return None
 
     def is_aspirant(self):
@@ -958,8 +973,29 @@ class Membru(Utilizator):
         if trimestru is None:
             trimestru = Trimestru.trimestru_pentru_data(datetime.date.today())
 
-        if self.are_calitate(["Lider", "Lider asistent"], self.centru_local, trimestru=trimestru):
-            return True
+        if trimestru.ordine_globala in self._plateste_cotizatie:
+            return self._plateste_cotizatie[trimestru.ordine_globala]
+
+        #   daca exista o relatie de scutire de cotizatie care nu e inca inchisa, putem prepopula de la primul apel
+        #   pentru toate trimestrele pana la cel curent relevante
+        if self.is_adult() or self.is_inactiv():
+            qs = self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, qs=True)
+            asociere_deschisa = qs.filter(moment_incheiere__isnull=True).first()
+            if asociere_deschisa:
+                trimestru_end = Trimestru.trimestru_pentru_data(datetime.date.today()).ordine_globala
+                trimestru_curent = Trimestru.trimestru_pentru_data(asociere_deschisa.moment_inceput).ordine_globala
+                self._plateste_cotizatie.update({k: False for k in range(trimestru_curent, trimestru_end + 1)})
+
+                if trimestru.ordine_globala in self._plateste_cotizatie:
+                    return self._plateste_cotizatie[trimestru.ordine_globala]
+
+        if self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, trimestru=trimestru):
+            self._plateste_cotizatie[trimestru.ordine_globala] = False
+            return False
+
+        # if self.are_calitate(["Lider", "Lider asistent"], self.centru_local, trimestru=trimestru):
+        #     self._plateste_cotizatie[trimestru] = True
+        #     return True
 
         # unitate = self.get_unitate(trimestru=trimestru)
         # if unitate is None:
@@ -968,13 +1004,8 @@ class Membru(Utilizator):
         #     logger.info("Membru: membru care nu este lider, si nu apartine niciunei unitati %s" % self)
         #     return True
 
-        if self.are_calitate(["Membru inactiv", "Membru adult"], self.centru_local, trimestru=trimestru):
-            return False
-
-        # if unitate.ramura_de_varsta.slug == "adulti" and self.are_calitate("Membru adult", self.centru_local, trimestru=trimestru):
-        #     return False
-
-        return True
+        self._plateste_cotizatie[trimestru.ordine_globala] = result = True
+        return result
 
     @property
     def oncr_status(self):

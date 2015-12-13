@@ -1,17 +1,19 @@
 # coding: utf-8
+import logging
+
+import datetime
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
-import datetime
 from django.db.models.aggregates import Sum
 from django.db.models.signals import post_delete
 from django.dispatch.dispatcher import receiver
-import logging
-from scoutfile3.s3utils import LocalStorage
 
-from django.conf import settings
+from scoutfile3.s3utils import LocalStorage
 
 logger = logging.getLogger(__name__)
 
@@ -226,7 +228,6 @@ class Trimestru(models.Model):
     @classmethod
     def get_trimestru(cls, year, order):
         if Trimestru.objects.count() == 0:
-            from django.core.management import call_command
             call_command('genereaza_trimestre')
 
         try:
@@ -271,13 +272,6 @@ class Trimestru(models.Model):
         if Trimestru.objects.all().count():
             raise ValueError("Metoda __urmatorul trimestru__ trebuie apelata cu un parametru trimestru")
 
-        #trimestru_nou = Trimestru()
-        #trimestru_nou.ordine_locala = 4
-        #trimestru_nou.ordine_globala = 1
-        #trimestru_nou.data_inceput = datetime.date(year=2011, month=10, day=1)
-        #trimestru_nou.data_sfarsit = datetime.date(year=2012, month=1, day=1) - datetime.timedelta(days=1)
-        #trimestru_nou.save()
-        from django.core.management import call_command
         call_command('genereaza_trimestre')
 
         return Trimestru.objects.get(data_inceput = datetime.date(year=2011, month=10, day=1))

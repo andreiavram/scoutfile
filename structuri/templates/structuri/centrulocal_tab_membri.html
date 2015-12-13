@@ -32,8 +32,6 @@
                         <i class = "icon-warning-sign" style="color:#ffaf24"></i>
                         <br /><span style = "font-size: 10px; color:#ffaf24">{{ object.membru.calculeaza_necesar_cotizatie }}</span>
                     {% endif %}
-
-
             {% endif %}{% endwith %}
             </td>
             <td>
@@ -79,6 +77,10 @@
                 {% endif %}
                 {% endwith %}
             {% endif %}
+
+
+
+
 {#				<ul class = "unstyled">#}
 {#				{% for afiliere in object.membru.afilieri_curente %}#}
 {#					{% if not afiliere.tip_asociere.nume == "Membru" or not afiliere.content_type.name == "Centru Local" %}#}
@@ -87,6 +89,7 @@
 {#						 {{ afiliere.tip_asociere }} {% if afiliere.content_type.name != "Centru Local" %}({{ afiliere.content_object }}){% endif %}</li>#}
 {#					{% endif %}#}
 {#				{% endfor %}#}
+
 
                 {% if not object.membru.are_adeziune %}
                     <a style="color: red" href = "{% url "documente:adeziune_add"  pk=object.membru.id %}"><i class = "icon-warning-sign"></i> Nu are adeziune</a>
