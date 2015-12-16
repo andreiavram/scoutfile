@@ -13,7 +13,9 @@
 					{{ object.valoare }}{% if object.informatii_suplimentare %}<br /><span style = "font-size: 10px;">{{ object.informatii_suplimentare }}</span>{% endif %}
 				{% endif %}
 			</td>
-
+            <td>
+                Ultima actualizare acum <strong>{{ object.data_start|timesince }}</strong><br/> <small>{{ object.data_start|date:"j F Y" }}</small>
+            </td>
 			<td>
 				<div class = "btn-toolbar pull-right">
 				{% if object.tip_informatie.is_sms_capable %}
@@ -34,6 +36,7 @@
 			<td>&nbsp;</td>
 			<td><em>Nu există informații de contact. Adaugă unele de <a href = "{% url "structuri:membru_contact_add"  pk=object.id %}">aici</a>.</em></td>
 			<td>&nbsp;</td>
+            <td>&nbsp;</td>
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
 		</tr>
