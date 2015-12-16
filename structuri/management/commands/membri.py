@@ -86,6 +86,7 @@ class Command(BaseCommand):
     def update_membru_cache(self, *args, **options):
         for m in Membru.objects.all():
             try:
-                m.calculeaza_necesar_cotizatie()
+                m.calculeaza_necesar_cotizatie(force_real=True)
+                m._status_cotizatie(force_real=True)
             except Exception, e:
                 logger.error(u"%s" % e)

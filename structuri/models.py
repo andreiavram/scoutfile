@@ -554,7 +554,6 @@ class Membru(Utilizator):
 
         if badges:
             return badges
-        badges = []
 
         if self.is_lider_generic():
             badges.append("lider")
@@ -571,7 +570,6 @@ class Membru(Utilizator):
 
         if badges:
             return badges
-        badges = []
 
         if self.is_sef_centru():
             badges.append("sef-centru")
@@ -762,12 +760,12 @@ class Membru(Utilizator):
         quota = quotas.get(plata_index, 0.25)
         return valoare * quota
 
-    def _status_cotizatie(self):
+    def _status_cotizatie(self, force_real=False):
         """ Cotizatia se poate plati pana pe 15 a ultimei luni din trimestru
         """
 
         stored_value = self.get_from_cache("status_cotizatie")
-        if stored_value:
+        if stored_value and not force_real:
             return stored_value
 
         pct = PlataCotizatieTrimestru.objects.filter(membru=self, final=True).order_by("-trimestru__ordine_globala")[0:1]
@@ -805,7 +803,7 @@ class Membru(Utilizator):
         diferenta_trimestre -= trimestre_scutite
 
         return_value = diferenta_trimestre, trimestru_curent, ultimul_trimestru
-        self.save_to_cache("status_cotizatie", return_value, 60 * 60 * 6)
+        self.save_to_cache("status_cotizatie", return_value)
         return return_value
 
     def _trimestre_scutite(self, trimestru_start, trimestru_end):
@@ -813,27 +811,27 @@ class Membru(Utilizator):
         end = trimestru_end.ordine_globala
         trimestre = list(range(start, end + 1))
 
-        ams_filter = dict(content_type=ContentType.objects.get_for_model(CentruLocal),
+        ctype_centru_local = ContentType.objects.get_for_model(CentruLocal)
+        ams_filter = dict(content_type=ctype_centru_local,
                           object_id=self.centru_local.id,
-                          tip_asociere__content_types__in=(ContentType.objects.get_for_model(CentruLocal), ),
-                          tip_asociere__nume__in=[self.CALITATI_SCUTITE_COTIZATIE],
+                          tip_asociere__content_types__in=(ctype_centru_local, ),
+                          tip_asociere__nume__in=self.CALITATI_SCUTITE_COTIZATIE,
                           membru=self,)
 
         asocieri = AsociereMembruStructura.objects.filter(**ams_filter)
-        if asocieri.exists():
+        if not asocieri.exists():
             return 0
 
         scutite = 0
         for a in asocieri:
-            print "%s - %s" % (trimestre, self)
             t_start = Trimestru.trimestru_pentru_data(a.moment_inceput)
             if a.moment_incheiere is None:
                 de_scutit = set(range(t_start.ordine_globala, end + 1))
             else:
                 t_end = Trimestru.trimestru_pentru_data(a.moment_incheiere)
                 de_scutit = set(range(t_start.ordine_globala, t_end.ordine_globala + 1))
-            scutite += len(list(set.intersection(de_scutit, trimestre)))
-            trimestre = set.difference(trimestre, de_scutit)
+            scutite += len(list(set.intersection(de_scutit, set(trimestre))))
+            trimestre = set.difference(set(trimestre), de_scutit)
 
         return scutite
 
@@ -866,9 +864,9 @@ class Membru(Utilizator):
             return trimestru_initial, plati_partiale
         return trimestru_initial
 
-    def calculeaza_necesar_cotizatie(self):
+    def calculeaza_necesar_cotizatie(self, force_real=False):
         necesar_cotizatie = self.get_from_cache("necesar_cotizatie")
-        if necesar_cotizatie:
+        if necesar_cotizatie and not force_real:
             return float(necesar_cotizatie)
 
         necesar_cotizatie = PlataCotizatieTrimestru.calculeaza_necesar(membru=self)
