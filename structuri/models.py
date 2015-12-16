@@ -1087,7 +1087,7 @@ class AsociereMembruStructura(models.Model):
 
 #    def save(self, *args, **kwargs):
 #        retval = super(AsociereMembruStructura, self).save(*args, **kwargs)
-#        
+#
 #        if self.content_type.name in ordine_structuri.keys():
 #            content_type = self.content_type
 #            while content_type != None:
@@ -1096,15 +1096,15 @@ class AsociereMembruStructura(models.Model):
 #                except Exception, e:
 #                    content_type = None
 #                    continue
-#                
+#
 #                object_id = getattr(self.content_object, campuri_structuri.get(self.content_type.name)).id
-#                if AsociereMembruStructura.objects.filter(membru = self.membru, content_type = content_type, object_id = object_id, tip_asociere = self.tip_asociere, 
+#                if AsociereMembruStructura.objects.filter(membru = self.membru, content_type = content_type, object_id = object_id, tip_asociere = self.tip_asociere,
 #                                        moment_inceput__lte = self.moment_inceput, moment_incheiere__isnull = True).count() == 0:
 #                    AsociereMembruStructura(membru = self.membru, content_type = content_type, object_id = object.id,
-#                                            tip_asociere = self.tip_asociere, moment_inceput = self.moment_inceput, 
+#                                            tip_asociere = self.tip_asociere, moment_inceput = self.moment_inceput,
 #                                            confirmata = self.confirmata, confirmata_pe = self.confirmata_pe,
 #                                            confirmata_de = self.confirmata_de).save()
-#            
+#
 #        return retval
 
 
@@ -1116,8 +1116,9 @@ class TipInformatieContact(models.Model):
     relevanta = models.CharField(max_length=255, null=True, blank=True)
 
     adresa = models.BooleanField(default=False)
-
     is_sms_capable = models.BooleanField(default=False)
+
+    categorie = models.CharField(max_length=255, default="Contact")
 
     def __unicode__(self):
         return u"%s" % self.nume

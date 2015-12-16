@@ -44,9 +44,8 @@ from structuri.forms import MembruCreateForm, MembruUpdateForm, \
     UtilizatorProfilePictureForm, LiderCreateForm, UnitateMembruCreateForm, \
     UnitateLiderCreateForm, AsociereCreateForm, AsociereUpdateForm, \
     CentruLocalAdminCreateForm, CentruLocalAdminUpdateForm, \
-    InformatieContactCreateForm, InformatieContactUpdateForm, \
-    InformatieContactDeleteForm, AsociereMembruFamilieForm, PersoanaDeContactForm, SetariSpecialeCentruLocalForm, \
-    PatrulaMembruAsociazaForm
+    AsociereMembruFamilieForm, PersoanaDeContactForm, SetariSpecialeCentruLocalForm, \
+    PatrulaMembruAsociazaForm, InformatieGenericCreateForm, InformatieGenericDeleteForm
 from structuri.models import CentruLocal, AsociereMembruStructura, \
     Membru, Unitate, Patrula, TipAsociereMembruStructura, Utilizator, ImagineProfil, \
     InformatieContact, TipInformatieContact, AsociereMembruFamilie, \
@@ -380,22 +379,26 @@ class CentruLocalTabLideri(ListView):
     def get_queryset(self, *args, **kwargs):
         return self.centru_local.lideri(qs=True)
 
+
 class ContactTab(ListView):
     model = InformatieContact
+    target_model = None
+    target_categorie = "Contact" # default
 
     def dispatch(self, request, *args, **kwargs):
         self.target_object = self.get_target_object(kwargs)
         return super(ContactTab, self).dispatch(request, *args, **kwargs)
 
     def get_target_object(self, kwargs):
-        if self.target_model == None:
+        if self.target_model is None:
             raise ImproperlyConfigured
 
         return get_object_or_404(self.target_model, id=kwargs.pop("pk"))
 
     def get_queryset(self):
         kwargs = {"content_type": ContentType.objects.get_for_model(self.target_object),
-                  "object_id": self.target_object.id}
+                  "object_id": self.target_object.id,
+                  "tip_informatie__categorie__exact": self.target_categorie}
 
         return super(ContactTab, self).get_queryset().filter(**kwargs)
 
@@ -980,9 +983,10 @@ class MembruDetail(DetailView, TabbedViewMixin):
         self.tabs = (("brief", u"Sumar", reverse("structuri:membru_tab_brief", kwargs={"pk": self.object.id}), "", 1),
                      ("afilieri", u"Afilieri", reverse("structuri:membru_tab_afilieri", kwargs={"pk": self.object.id}),"", 2),
                      ("contact", u"Contact", reverse("structuri:membru_tab_contact", kwargs={"pk": self.object.id}), "", 3),
-                     ("familie", u"Familie", reverse("structuri:membru_tab_familie", kwargs={"pk": self.object.id}), "", 4),
-                     ('documente', u"Documente", reverse("structuri:membru_tab_documente", kwargs={"pk": self.object.id}), "", 5),
-                     ('activitati', u"Activități", reverse("structuri:membru_tab_activitati", kwargs={"pk": self.object.id}), "icon-calendar", 6),
+                     ("altele", u"Alte informații", reverse("structuri:membru_tab_altele", kwargs={"pk": self.object.id}), "", 4),
+                     ("familie", u"Familie", reverse("structuri:membru_tab_familie", kwargs={"pk": self.object.id}), "", 5),
+                     ('documente', u"Documente", reverse("structuri:membru_tab_documente", kwargs={"pk": self.object.id}), "", 6),
+                     ('activitati', u"Activități", reverse("structuri:membru_tab_activitati", kwargs={"pk": self.object.id}), "icon-calendar", 7),
         )
         return super(MembruDetail, self).get_tabs()
 
@@ -1057,6 +1061,17 @@ class MembruTabContact(ContactTab):
         [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
         return super(MembruTabContact, self).dispatch(request, *args, **kwargs)
+
+
+class MembruTabAlteInformatii(ContactTab):
+    template_name = "structuri/membru_tab_altele.html"
+    target_model = Membru
+    target_categorie = "Altele"
+
+    @allow_by_afiliere(
+        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+    def dispatch(self, request, *args, **kwargs):
+        return super(MembruTabAlteInformatii, self).dispatch(request, *args, **kwargs)
 
 
 class MembruTabFamilie(DetailView):
@@ -1501,24 +1516,29 @@ class AsociereUpdate(UpdateView):
         return reverse("structuri:membru_detail", kwargs={"pk": self.object.membru.id}) + "#afilieri"
 
 
-class GenericContactCreate(CreateView):
-    form_class = InformatieContactCreateForm
+class GenericInformatieCreate(CreateView):
+    form_class = InformatieGenericCreateForm
     model = InformatieContact
     target_model = None
 
+    def __init__(self, *args, **kwargs):
+        self.target_object = None
+        self.object = None
+        super(GenericInformatieCreate, self).__init__(*args, **kwargs)
+
     def dispatch(self, request, *args, **kwargs):
         self.target_object = self.get_target_object(kwargs)
-        return super(GenericContactCreate, self).dispatch(request, *args, **kwargs)
+        return super(GenericInformatieCreate, self).dispatch(request, *args, **kwargs)
 
     def get_target_object(self, kwargs):
-        if self.target_model == None:
+        if self.target_model is None:
             raise ImproperlyConfigured
 
         return get_object_or_404(self.target_model, id=kwargs.pop("pk"))
 
     def get_form_kwargs(self):
-        current = super(GenericContactCreate, self).get_form_kwargs()
-        current.update({"filter_by": self.filter_by})
+        current = super(GenericInformatieCreate, self).get_form_kwargs()
+        current.update({"filter_by": self.filter_by, "filter_categorie_by": self.filter_categorie_by})
         return current
 
     def form_valid(self, form):
@@ -1533,12 +1553,46 @@ class GenericContactCreate(CreateView):
 
     def get_context_data(self, **kwargs):
         kwargs.update({"target_object": self.target_object})
-        return super(GenericContactCreate, self).get_context_data(**kwargs)
+        return super(GenericInformatieCreate, self).get_context_data(**kwargs)
 
 
-class CentruLocalContactCreate(GenericContactCreate):
+class ContactUpdate(UpdateView):
+    model = InformatieContact
+    form_class = InformatieGenericCreateForm
+    template_name = "structuri/centrulocal_contact_form.html"
+    filter_by = None
+    filter_categorie_by = "Contact"
+
+    def dispatch(self, request, *args, **kwargs):
+        return super(ContactUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        current = super(ContactUpdate, self).get_form_kwargs()
+        current.update({"filter_by": self.filter_by, "filter_categorie_by": self.filter_categorie_by})
+        return current
+
+    def get_context_data(self, **kwargs):
+        kwargs.update({"target_object": self.object.content_object})
+        return super(ContactUpdate, self).get_context_data(**kwargs)
+
+
+class ContactDelete(GenericDeleteView):
+    model = InformatieContact
+    form_class = InformatieGenericDeleteForm
+
+    @allow_by_afiliere([("InformatieContact, Centru Local", "Membru Consiliul Centrului Local")])
+    def dispatch(self, request, *args, **kwargs):
+        self.success_url = reverse("structuri:cl_detail", kwargs={"pk": self.get_object().id}) + "#contact"
+        return super(ContactDelete, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return self.success_url
+
+
+class CentruLocalContactCreate(GenericInformatieCreate):
     template_name = "structuri/centrulocal_contact_form.html"
     filter_by = "Centru Local"
+    filter_categorie_by = "Contact"
     target_model = CentruLocal
 
     @allow_by_afiliere([("Centru Local", "Membru Consiliul Centrului Local")])
@@ -1549,41 +1603,10 @@ class CentruLocalContactCreate(GenericContactCreate):
         return reverse("structuri:cl_detail", kwargs={"pk": self.target_object.id}) + "#contact"
 
 
-class MembruContactCreate(GenericContactCreate):
-    template_name = "structuri/membru_contact_form.html"
-    filter_by = "Membru"
-    target_model = Membru
-
-    @allow_by_afiliere(
-        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
-    def dispatch(self, request, *args, **kwargs):
-        return super(MembruContactCreate, self).dispatch(request, *args, **kwargs)
-
-    def get_success_url(self):
-        return reverse("structuri:membru_detail", kwargs={"pk": self.target_object.id}) + "#contact"
-
-
-class ContactUpdate(UpdateView):
-    model = InformatieContact
-    form_class = InformatieContactUpdateForm
-    template_name = "structuri/centrulocal_contact_form.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        return super(ContactUpdate, self).dispatch(request, *args, **kwargs)
-
-    def get_form_kwargs(self):
-        current = super(ContactUpdate, self).get_form_kwargs()
-        current.update({"filter_by": self.filter_by})
-        return current
-
-    def get_context_data(self, **kwargs):
-        kwargs.update({"target_object": self.object.content_object})
-        return super(ContactUpdate, self).get_context_data(**kwargs)
-
-
 class CentruLocalContactUpdate(ContactUpdate):
     template_name = "structuri/centrulocal_contact_form.html"
     filter_by = "Centru Local"
+    filter_categorie_by = "Contact"
 
     @allow_by_afiliere([("InformatieContact, Centru Local", "Membru Consiliul Centrului Local")])
     def dispatch(self, request, *args, **kwargs):
@@ -1593,9 +1616,41 @@ class CentruLocalContactUpdate(ContactUpdate):
         return reverse("structuri:cl_detail", kwargs={"pk": self.object.content_object.id}) + "#contact"
 
 
+class MembruContactCreate(GenericInformatieCreate):
+    template_name = "structuri/membru_contact_form.html"
+    filter_by = "Membru"
+    filter_categorie_by = "Contact"
+    target_model = Membru
+    redirect_tab = "contact"
+
+    @allow_by_afiliere(
+        [("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"), ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+    def dispatch(self, request, *args, **kwargs):
+        return super(MembruContactCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse("structuri:membru_detail", kwargs={"pk": self.target_object.id}) + "#%s" % self.redirect_tab
+
+    def get_context_data(self, **kwargs):
+        kwargs.update({'categorie': u"Adaugă informații de contact membru"})
+        return super(MembruContactCreate, self).get_context_data(**kwargs)
+
+
+class MembruInformatieCreate(MembruContactCreate):
+    template_name = "structuri/membru_contact_form.html"
+    filter_categorie_by = "Altele"
+    redirect_tab = "altele"
+
+    def get_context_data(self, **kwargs):
+        kwargs.update({'categorie': u"Adaugă alte informații membru"})
+        return super(MembruContactCreate, self).get_context_data(**kwargs)
+
+
 class MembruContactUpdate(ContactUpdate):
     template_name = "structuri/membru_contact_form.html"
     filter_by = "Membru"
+    filter_categorie_by = "Contact"
+    redirect_tab = "contact"
 
     @allow_by_afiliere([("InformatieContact, Membru, Centru Local", "Lider"),
                         ("InformatieContact, Membru, Centru Local", "Membru Consiliul Centrului Local")])
@@ -1603,20 +1658,13 @@ class MembruContactUpdate(ContactUpdate):
         return super(MembruContactUpdate, self).dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse("structuri:membru_detail", kwargs={"pk": self.object.content_object.id}) + "#contact"
+        return reverse("structuri:membru_detail", kwargs={"pk": self.object.content_object.id}) + "#%s" % self.redirect_tab
 
 
-class ContactDelete(GenericDeleteView):
-    model = InformatieContact
-    form_class = InformatieContactDeleteForm
-
-    @allow_by_afiliere([("InformatieContact, Centru Local", "Membru Consiliul Centrului Local")])
-    def dispatch(self, request, *args, **kwargs):
-        self.success_url = reverse("structuri:cl_detail", kwargs={"pk": self.get_object().id}) + "#contact"
-        return super(ContactDelete, self).dispatch(request, *args, **kwargs)
-
-    def get_success_url(self):
-        return self.success_url
+class MembruInformatieUpdate(MembruContactUpdate):
+    template_name = "structuri/membru_contact_form.html"
+    filter_categorie_by = "Altele"
+    redirect_tab = "altele"
 
 
 class MembruAddFamilie(CreateView):

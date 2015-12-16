@@ -67,8 +67,8 @@ class SMSMessage(models.Model):
             from structuri.models import InformatieContact, TipInformatieContact, Membru
             tip_informatie = TipInformatieContact.objects.filter(nume__icontains = "mobil")
             data = InformatieContact.objects.filter(tip_informatie__in = tip_informatie,
-                                             content_type = ContentType.objects.get_for_model(Membru),
-                                             valoare = self.destinatar)
+                                                    content_type = ContentType.objects.get_for_model(Membru),
+                                                    valoare = self.destinatar)
             data = data.filter(Q(data_end__isnull = True) | Q(data_end__gte = datetime.datetime.now()))
             
             if data.count():

@@ -366,35 +366,60 @@ class AsociereEvenimentStructuraForm(CrispyBaseModelForm):
         content_type_filter = dict(app_label="structuri", model__in=("centrulocal", "unitate", "patrula"))
         self.fields['content_type'].queryset = ContentType.objects.filter(**content_type_filter)
 
-        
-class InformatieContactCreateForm(CrispyBaseModelForm):
+
+class InformatieGenericCreateForm(CrispyBaseModelForm):
+    tip_informatie_categorie = "Contact" #  default value
+
     class Meta:
         model = InformatieContact
         fields = ["tip_informatie", "valoare", "informatii_suplimentare"]
-    
-    informatii_suplimentare = forms.CharField(widget = Textarea, required = False, label = u"Informații adiționale", help_text = u"Folosiți acest câmp dacă este nevoie să explicați informația din câmpul de mai sus (spre exemplu, a cui este adresa de corespondență)")
-    
-    def __init__(self, *args, **kwargs):
-        filter_by = None
-        if "filter_by" in kwargs.keys():
-            filter_by = kwargs.pop("filter_by")
-        
-        super(InformatieContactCreateForm, self).__init__(*args, **kwargs)
-        
-        if filter_by:
-            self.fields['tip_informatie'].queryset = TipInformatieContact.objects.filter(Q(relevanta__isnull = True) | Q(relevanta__icontains = filter_by))
-        
-class InformatieContactUpdateForm(InformatieContactCreateForm):
-    pass
 
-class InformatieContactDeleteForm(CrispyBaseDeleteForm):
+    informatii_suplimentare = forms.CharField(widget = Textarea, required = False, label = u"Informații adiționale", help_text = u"Folosiți acest câmp dacă este nevoie să explicați informația din câmpul de mai sus (spre exemplu, a cui este adresa de corespondență)")
+
+    def __init__(self, *args, **kwargs):
+        filter_by = kwargs.pop("filter_by", None)
+        filter_categorie_by = kwargs.pop("filter_categorie_by", None)
+
+        super(InformatieGenericCreateForm, self).__init__(*args, **kwargs)
+
+        if filter_by:
+            qs = TipInformatieContact.objects.filter(Q(relevanta__isnull=True) | Q(relevanta__icontains=filter_by))
+            qs = qs.filter(categorie__exact=filter_categorie_by)
+            self.fields['tip_informatie'].queryset = qs
+
+
+class InformatieGenericDeleteForm(CrispyBaseDeleteForm):
     class Meta:
         model = InformatieContact
         exclude = []
 
     has_cancel = True
-    
-    
+
+
+# class InformatieContactCreateForm(InformatieGenericForm):
+#     tip_informatie_categorie = "Contact"
+#
+#
+# class InformatieContactUpdateForm(InformatieContactCreateForm):
+#     pass
+#
+#
+# class InformatieContactDeleteForm(InformatieGenericDeleteForm):
+#     pass
+#
+#
+# class InformatieAlteleCreateForm(InformatieGenericForm):
+#     tip_informatie_categorie = "Altele"
+#
+#
+# class InformatieAlteleUpdateForm(InformatieAlteleCreateForm):
+#     pass
+#
+#
+# class InformatieAlteleDeleteForm(InformatieGenericDeleteForm):
+#     pass
+
+
 class AsociereMembruFamilieForm(CrispyBaseModelForm):
     class Meta:
         model = AsociereMembruFamilie

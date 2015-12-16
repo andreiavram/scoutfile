@@ -2,7 +2,15 @@
 {% load crispy_forms_tags %}
 
 {% block page_title %}
-	{% if object %}Modifică {{ object.tip_informatie|lower }}{% else %}Adaugă informații de contact membru{% endif %}
+	{% if object %}
+        Modifică {{ object.tip_informatie|lower }}
+    {% else %}
+        {% if categorie %}
+            {{ categorie }}
+        {% else %}
+            Adaugă informații de contact membru
+        {% endif %}
+    {% endif %}
 {% endblock %}
 
 {% block extrahead %}
