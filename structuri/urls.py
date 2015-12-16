@@ -25,7 +25,8 @@ from structuri.views import CentruLocalCreate, CentruLocalUpdate,\
     MembriFaraAfilieri, GetSpeedList, MembruTabDocumente, SetariSpecialeCentruLocal, MembruConfirmaFacebook, \
     UnitateTabMembriFaraPatrula, MembruTabActivitati, MembruRecalculeazaAcoperire, UnitateTabPatruleInactive, \
     UtilizatorHomeTabsDocumente, UtilizatorHomeTabsActivitati, MembruStergeAcoperire, CentruLocalTabMembriDeSuspendat, \
-    MembruAdreseStatus, UnitatiListAPI, UpdateContentObjects
+    MembruAdreseStatus, UnitatiListAPI, UpdateContentObjects, MembruInformatieCreate, MembruInformatieUpdate, \
+    MembruTabAlteInformatii
 
 urlpatterns = patterns('structuri.views',
     (r'centrulocal/adauga/$', CentruLocalCreate.as_view(), {}, "cl_add"),
@@ -94,6 +95,7 @@ urlpatterns = patterns('structuri.views',
     (r'membru/(?P<pk>\d+)/tab/conexiuni/$', MembruTabConexiuni.as_view(), {}, "membru_tab_afilieri"),
     (r'membru/(?P<pk>\d+)/tab/istoric/$', MembruTabIstoric.as_view(), {}, "membru_tab_istoric"),
     (r'membru/(?P<pk>\d+)/tab/contact/$', MembruTabContact.as_view(), {}, "membru_tab_contact"),
+    (r'membru/(?P<pk>\d+)/tab/alteinfo/$', MembruTabAlteInformatii.as_view(), {}, "membru_tab_altele"),
     (r'membru/(?P<pk>\d+)/tab/familie/$', MembruTabFamilie.as_view(), {}, "membru_tab_familie"),
     (r'membru/(?P<pk>\d+)/tab/documente/$', MembruTabDocumente.as_view(), {}, "membru_tab_documente"),
     (r'membru/(?P<pk>\d+)/tab/activitati/$', MembruTabActivitati.as_view(), {}, "membru_tab_activitati"),
@@ -102,6 +104,8 @@ urlpatterns = patterns('structuri.views',
     (r'membru/(?P<pk>\d+)/reseteaza_acoperire/$', MembruStergeAcoperire.as_view(), {}, "membru_reseteaza_acoperire"),
     (r'membru/(?P<pk>\d+)/contact/add/$', MembruContactCreate.as_view(), {}, "membru_contact_add"),
     (r'membru/contact/(?P<pk>\d+)/edit/$', MembruContactUpdate.as_view(), {}, "membru_contact_edit"),
+    (r'membru/(?P<pk>\d+)/alteinfo/add/$', MembruInformatieCreate.as_view(), {}, "membru_altele_add"),
+    (r'membru/alteinfo/(?P<pk>\d+)/edit/$', MembruInformatieUpdate.as_view(), {}, "membru_altele_edit"),
     (r'membru/(?P<pk>\d+)/picture/$', MembruEditProfilePicture.as_view(), {}, "membru_admin_edit_profile_picture"),
     
     (r'membru/inregistrare/$', RegisterMembru.as_view(), {}, "membru_register"),
