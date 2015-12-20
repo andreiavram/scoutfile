@@ -59,9 +59,9 @@
 
 {% block content %}
     <div>
-        <a href="#" class="btn" id="toggle_plati">Alege plăți individuale</a><br/><br/>
+        <a style="display:none" href="#" class="btn" id="toggle_plati">Alege plăți individuale</a><br/><br/>
 
-        <div style="display:none;" id="lista_plati">
+        <div style="" id="lista_plati">
             <table class="table table-striped">
                 {% for p in plati %}
                     <tr data-id = "{{ p.id }}">
