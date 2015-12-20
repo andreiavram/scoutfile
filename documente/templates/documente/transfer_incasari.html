@@ -65,7 +65,7 @@
             <table class="table table-striped">
                 {% for p in plati %}
                     <tr data-id = "{{ p.id }}">
-                        <td><input class = "checkbox_plata" type="checkbox" name="plata_{{ p.id }}" id="id_plata_{{ p.id }}" checked/></td>
+                        <td><input class = "checkbox_plata" type="checkbox" name="plata_{{ p.id }}" id="id_plata_{{ p.id }}" /></td>
                         <td>{{ p.platitor }}</td>
                         <td>{% for ptc in p.platacotizatietrimestru_set.all %}
                             {{ ptc.trimestru }} {% if ptc.partial %}(partial){% endif %}{% if ptc.final %}(final){% endif %}<br />
