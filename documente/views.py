@@ -593,7 +593,7 @@ class CotizatiiLider(ListView, CasieriMixin):
         return super(CotizatiiLider, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.model.objects.filter(casier = self.lider)
+        return self.model.objects.filter(casier = self.lider).order_by("-data_inregistrare")
 
     def get_suma_lider(self):
         search = dict(casier=self.lider,
@@ -641,7 +641,7 @@ class PreiaIncasariCasier(FormView):
         data = super(PreiaIncasariCasier, self).get_context_data(**kwargs)
         plati = ChitantaCotizatie.objects.filter(registru__centru_local = self.lider.centru_local,
                                                  casier = self.lider,
-                                                 predat = False)
+                                                 predat = False).order_by("-data_inregistrare")
         data.update({"plati" : plati,
                      "trezorier" : self.request.user.utilizator.membru.are_calitate("Trezorier Centru Local", self.lider.centru_local),
                      "lider" : self.lider,
