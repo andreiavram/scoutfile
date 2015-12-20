@@ -70,6 +70,7 @@
                         <td>{% for ptc in p.platacotizatietrimestru_set.all %}
                             {{ ptc.trimestru }} {% if ptc.partial %}(partial){% endif %}{% if ptc.final %}(final){% endif %}<br />
                         {% endfor %}</td>
+                        <td>{{ p.data_inregistrare|date:"j F Y" }}</td>
                         <td data-id = "{{ p.id }}" class = "sum">{{ p.suma }}</td>
                     </tr>
                 {% endfor %}
