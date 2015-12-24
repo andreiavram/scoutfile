@@ -4,15 +4,25 @@ Created on Sep 23, 2012
 
 @author: yeti
 """
-from ajax_select import LookupChannel
+from ajax_select import LookupChannel, register
 from django.db.models.query_utils import Q
 from django.template.loader import render_to_string
 from django.conf import settings
 
 from structuri.models import Membru
 
+class ScoutfileLookup(LookupChannel):
+    def get_objects(self, ids):
+        # had to override this because .to_python wasn't turning up the right things
+        # return objects in the same order as passed in here
+        ids = [int(pk) for pk in ids]
+        things = self.model.objects.in_bulk(ids)
+        return [things[aid] for aid in ids if aid in things]
 
-class MembriLookup(LookupChannel):
+
+
+@register("membri")
+class MembriLookup(ScoutfileLookup):
     model = Membru
     search_field = "nume"
     
@@ -32,6 +42,8 @@ class MembriLookup(LookupChannel):
         return render_to_string("structuri/membru_for_ajax.html", {"obj": obj, "STATIC_URL": settings.STATIC_URL})
 
 
+
+@register("lideri")
 class LideriLookup(MembriLookup):
     def get_query(self, q, request):
         qs = Membru.objects.filter(Q(nume__icontains=q) | Q(prenume__icontains=q))

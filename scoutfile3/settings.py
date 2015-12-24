@@ -165,10 +165,10 @@ INSTALLED_APPS = (
 
 WSGI_APPLICATION = 'scoutfile3.wsgi.application'
 
-AJAX_LOOKUP_CHANNELS = {
-    'membri': ('structuri.lookups', 'MembriLookup'),
-    'lideri': ('structuri.lookups', 'LideriLookup'),
-}
+# AJAX_LOOKUP_CHANNELS = {
+#     'membri': ('structuri.lookups', 'MembriLookup'),
+#     'lideri': ('structuri.lookups', 'LideriLookup'),
+# }
 
 AJAX_SELECT_BOOTSTRAP = False
 AJAX_SELECT_INLINES = False
