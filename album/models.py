@@ -1,13 +1,14 @@
 #coding: utf-8
-from PIL import Image
-from collections import Counter
 import datetime
-from zipfile import ZipFile
 import logging
-import traceback
 import shutil
+import traceback
+from collections import Counter
 from io import BytesIO
+from zipfile import ZipFile
 
+import os
+from PIL import Image
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -15,8 +16,8 @@ from django.db.models.aggregates import Sum
 from django.db.models.query_utils import Q
 from django.db.models.signals import post_init
 from django.dispatch.dispatcher import receiver
-from photologue.models import ImageModel, PhotoSizeCache
-import os
+from photologue.models import ImageModel
+
 # from photologue.processors import PhotologueSpec
 from unidecode import unidecode
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -27,7 +28,7 @@ from taggit.managers import TaggableManager
 from django.conf import settings
 
 from album.managers import RaportEvenimentManager
-
+from PIL import ExifTags
 
 
 logger = logging.getLogger(__name__)
@@ -877,20 +878,20 @@ class Imagine(ImageModel):
             exif_data = {}
 
             #    get current EXIF data
-            if info is not None:
-                for tag, value in info.items():
-                    from PIL import ExifTags
+            try:
 
-                    decoded = ExifTags.TAGS.get(tag, tag)
-                    if decoded == u"Maker Note":
-                        continue
+                if info is not None:
+                    for tag, value in info.items():
+                        decoded = ExifTags.TAGS.get(tag, tag)
+                        if decoded == u"Maker Note":
+                            continue
 
-                    if decoded == u"DateTimeOriginal":
-                        self.data = datetime.datetime.strptime(value, "%Y:%m:%d %H:%M:%S")
+                        if decoded == u"DateTimeOriginal":
+                            self.data = datetime.datetime.strptime(value[0], "%Y:%m:%d %H:%M:%S")
 
-                    exif_data[decoded] = value
-
-            # logger.debug("exifdata %s" % exif_data)
+                        exif_data[decoded] = value[0] if len(value) else None
+            except Exception, e:
+                logger.error("%s - %s" % (e, traceback.format_exc()))
         retval = super(Imagine, self).save(*args, **kwargs)
 
         if not self.is_face_processed:
