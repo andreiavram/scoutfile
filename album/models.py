@@ -407,11 +407,11 @@ class RaportEveniment(models.Model):
         self.is_locked = True
         self.save(*args, **kwargs)
 
+        self.parent_id = self.id
         self.id = None
-        self.parent = self
         self.user = user
         if self.original_parent is None:
-            self.original_parent = self.parent
+            self.original_parent_id = self.parent_id
         self.is_leaf = True
         self.is_locked = False
         self.save(*args, **kwargs)
