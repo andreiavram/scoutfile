@@ -1145,7 +1145,7 @@ class ForgotPassword(FormView):
             messages.error(self.request, u"Nu am găsit niciun utilizator care sa aibă adresa pe care ai introdus-o")
             return HttpResponseRedirect(reverse("structuri:membru_forgot_password"))
 
-        if utilizator.timestamp_accepted == None:
+        if utilizator.timestamp_accepted is None:
             messages.error(self.request,
                            u"Utilizatorul există, dar nu a fost încă confirmat de un lider. Așteaptă pentru când este confirmat, apoi solicită resetarea parolei!")
             return HttpResponseRedirect(reverse("structuri:membru_forgot_password"))
