@@ -4,20 +4,11 @@ from utils.oncr_client import ONCRClient
 
 
 class Command(BaseCommand):
-    available_commands = ["sync_oncr_activitati"]
+    def add_arguments(self, parser):
+        parser.add_argument('an', nargs='+', type=int)
 
     def handle(self, *args, **options):
-        if args[0] not in self.available_commands:
-            self.stderr.write(u"Command must be one of %s" % ",".join(self.available_commands))
-            return
-
-        getattr(self, args[0])(*args[1:], **options)
-
-    def add_arguments(self, parser):
-        parser.add_argument('an', type=int)
-
-    def sync_oncr_activitati(self, *args, **options):
-        year = int(options['an'])
+        year = options['an']
 
         events = Eveniment.objects.filter(start_date__year=year, oncr_id__isnull=True)
         self.stdout.write(u"Sincronizare ONCR: %d evenimente\n" % events.count())
