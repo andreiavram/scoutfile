@@ -5,7 +5,7 @@ from utils.oncr_client import ONCRClient
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
-        parser.add_argument('an', nargs='+', type=int)
+        parser.add_argument('an', nargs=1, type=int)
 
     def handle(self, *args, **options):
         year = options['an']
