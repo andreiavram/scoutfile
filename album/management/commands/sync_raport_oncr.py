@@ -5,10 +5,10 @@ from utils.oncr_client import ONCRClient
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
-        parser.add_argument('an', nargs=1, type=int)
+        parser.add_argument('an', nargs='+', type=int)
 
     def handle(self, *args, **options):
-        year = options['an']
+        year = options['an'][0]
 
         events = Eveniment.objects.filter(start_date__year=year, oncr_id__isnull=True)
         self.stdout.write(u"Sincronizare ONCR: %d evenimente\n" % events.count())
