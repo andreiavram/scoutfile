@@ -8,6 +8,7 @@ import requests
 from django.conf import settings
 from bs4 import BeautifulSoup
 
+
 class ONCRClient(object):
     URLS = {
         "login_form": "https://www.oncr.ro/login",
