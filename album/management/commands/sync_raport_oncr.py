@@ -1,4 +1,6 @@
 from django.core.management.base import BaseCommand
+from django.db.models.query_utils import Q
+
 from album.models import Eveniment
 from utils.oncr_client import ONCRClient
 
@@ -10,7 +12,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         year = options['an'][0]
 
-        events = Eveniment.objects.filter(start_date__year=year, oncr_id__isnull=True)
+        events = Eveniment.objects.filter(start_date__year=year).filter(Q(oncr_id__isnull=True) | Q(oncr_id=""))
         self.stdout.write(u"Sincronizare ONCR: %d evenimente\n" % events.count())
 
         oncr_client = ONCRClient()
