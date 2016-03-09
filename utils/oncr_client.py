@@ -27,7 +27,7 @@ class ONCRClient(object):
     def do_login(self):
         r_auth = self.session.get(self.URLS.get("login_form"))
 
-        soup = BeautifulSoup(r_auth.text)
+        soup = BeautifulSoup(r_auth.text, "html.parser")
         csrf_value = soup.find("input", {"name": "_csrf_token"}).attrs.get("value")
         login_data = {"_username": self.user,
                       "_password": self.password,
@@ -48,7 +48,7 @@ class ONCRClient(object):
 
     def add_activitate(self, **kwargs):
         r_activitate = self.session.get(self.URLS.get("add_activitate"))
-        soup = BeautifulSoup(r_activitate.text)
+        soup = BeautifulSoup(r_activitate.text, "html.parser")
         token = soup.find("input", {"name": "activity[_token]"}).attrs.get("value")
 
         raport_anual_oncr = kwargs.get("raport_anual_oncr", False)
