@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load pagination_tags %}
+
+{% block page_title %}
+	Membri cu drept de vot ({{ rdv_slug }})
+{% endblock %}
+
+{% block extrahead %}
+{% endblock %}
+
+{% block context_menu %}
+	<ul class = "nav nav-list">
+		<li class = "nav-header">Locații</li>
+        <li><a href = "{% url "structuri:membrii_drept_vot" rdv_slug='exploratori' %}"><i class = "icon-list"></i> eXploratori</a></li>
+        <li><a href = "{% url "structuri:membrii_drept_vot" rdv_slug='seniori' %}"><i class = "icon-list"></i> seniori</a></li>
+	</ul>
+{% endblock %}
+
+
+
+{% block content %}
+    <table class="table table-striped">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>Nume</th>
+            <th>Patrula</th>
+            <th>Vârsta</th>
+			<th>Drept de vot teoretic<br><small>are 16 ani, are promisiune</small></th>
+            <th>Drept de vot curent<br><small>are cotizatia la zi, nu e suspendat</small></th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+    {% for membru in object_list %}
+    <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ membru }}</td>
+        <td>{% if membru.get_patrula %}{{ membru.get_patrula }}{% endif %}</td>
+        <td>{{ membru.data_nasterii|timesince }}</td>
+        <td>{% if membru.drept_vot_teoretic %}DA{% else %}NU{% endif %}</td>
+        <td>{% if membru.drept_vot %}DA{% else %}NU{% endif %}</td>
+        <td>&nbsp;</td>
+    </tr>
+    {% endfor %}
+    <tr>
+        <td colspan="4"></td>
+        <td>{{ total_drept_vot_teoretic }}</td>
+        <td>{{ total_drept_vot }}</td>
+        <td>&nbsp;</td>
+    </tr>
+    </tbody>
+    </table>
+{% endblock %}

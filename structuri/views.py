@@ -18,6 +18,7 @@ from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.http import HttpResponseRedirect, HttpResponse
+from django.http.response import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
@@ -49,7 +50,7 @@ from structuri.forms import MembruCreateForm, MembruUpdateForm, \
 from structuri.models import CentruLocal, AsociereMembruStructura, \
     Membru, Unitate, Patrula, TipAsociereMembruStructura, Utilizator, ImagineProfil, \
     InformatieContact, TipInformatieContact, AsociereMembruFamilie, \
-    PersoanaDeContact
+    PersoanaDeContact, RamuraDeVarsta
 from utils.views import FacebookUserConnectView
 
 logger = logging.getLogger(__name__)
@@ -2110,3 +2111,33 @@ class UpdateContentObjects(APIView):
 
 
     # after_update_content_objects
+
+
+class ListaMembriiDreptVot(ListView):
+    model = Membru
+    template_name = "structuri/centrulocal_dreptvot.html"
+    centru_local_id = 1
+    ALLOWED_RDVS = ["exploratori", "seniori"]
+
+    def dispatch(self, request, *args, **kwargs):
+        self.centru_local = CentruLocal.objects.get(id=self.centru_local_id)
+        self.rdv_slug = kwargs.pop("rdv_slug", "exploratori")
+        if self.rdv_slug not in self.ALLOWED_RDVS:
+            return HttpResponseBadRequest()
+        return super(ListaMembriiDreptVot, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        unitati = Unitate.objects.filter(ramura_de_varsta__slug__iexact=self.rdv_slug, centru_local=self.centru_local)
+        membrii = []
+        for unitate in unitati:
+            membrii += unitate.cercetasi()
+        return membrii
+
+    def get_context_data(self, **kwargs):
+        data = super(ListaMembriiDreptVot, self).get_context_data(**kwargs)
+        data["centru_local"] = self.centru_local
+        data["object"] = self.centru_local
+        data["total_drept_vot"] = sum(1 for m in data['object_list'] if m.drept_vot())
+        data["total_drept_vot_teoretic"] = sum(1 for m in data['object_list'] if m.drept_vot_teoretic())
+        data["rdv_slug"] = self.rdv_slug
+        return data

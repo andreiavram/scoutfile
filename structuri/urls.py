@@ -26,7 +26,7 @@ from structuri.views import CentruLocalCreate, CentruLocalUpdate,\
     UnitateTabMembriFaraPatrula, MembruTabActivitati, MembruRecalculeazaAcoperire, UnitateTabPatruleInactive, \
     UtilizatorHomeTabsDocumente, UtilizatorHomeTabsActivitati, MembruStergeAcoperire, CentruLocalTabMembriDeSuspendat, \
     MembruAdreseStatus, UnitatiListAPI, UpdateContentObjects, MembruInformatieCreate, MembruInformatieUpdate, \
-    MembruTabAlteInformatii
+    MembruTabAlteInformatii, ListaMembriiDreptVot
 
 urlpatterns = patterns('structuri.views',
     (r'centrulocal/adauga/$', CentruLocalCreate.as_view(), {}, "cl_add"),
@@ -148,6 +148,7 @@ urlpatterns = patterns('structuri.views',
     (r'ajax/speeddial/$', GetSpeedList.as_view(), {}, "speedlist"),
 
     (r'adrese/status/$', MembruAdreseStatus.as_view(), {}, "membru_adrese_status"),
+    (r'dreptvot/(?P<rdv_slug>[\w\-]+)/$', ListaMembriiDreptVot.as_view(), {}, "membrii_drept_vot"),
 
     (r'api/get_unitati/$', UnitatiListAPI.as_view(), {}, "get_unitati"),
     (r'api/update_content_objects/$', UpdateContentObjects.as_view(), {}, "update_content_objects")
