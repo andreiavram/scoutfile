@@ -946,7 +946,7 @@ class Membru(Utilizator):
         #   are drept vot si nu e suspendat pe baza de cotizatie
         drept_vot_teoretic = self.drept_vot_teoretic()
         cotizatie_condition = self._status_cotizatie()[0] <= 1
-        return drept_vot_teoretic and cotizatie_condition and not self.is_suspendat()
+        return drept_vot_teoretic and cotizatie_condition and (not self.is_suspendat())
 
     def drept_vot_teoretic(self, date=None):
         #   are minim 16 ani la data evenimentului si are promisiunea depusa
@@ -1015,10 +1015,6 @@ class Membru(Utilizator):
             return None
 
         return oncr_data
-
-
-    def drept_vot(self):
-        pass
 
 
 class TipAsociereMembruStructura(models.Model):
