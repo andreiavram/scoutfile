@@ -173,7 +173,6 @@ class CentruLocal(Structura):
         return cnt_membri - cnt_adeziuni
 
 
-
 class Unitate(Structura):
     class Meta:
         verbose_name = u"Unitate"
@@ -1016,6 +1015,10 @@ class Membru(Utilizator):
             return None
 
         return oncr_data
+
+
+    def drept_vot(self):
+        pass
 
 
 class TipAsociereMembruStructura(models.Model):

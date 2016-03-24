@@ -359,7 +359,7 @@ class RaportEveniment(models.Model):
     activitati = models.TextField(null=True, blank=True, help_text=u"Descriere semi-formală a activităților desfășurate")
     alti_beneficiari = models.TextField(null=True, blank=True)
     promovare = models.TextField(null=True, blank=True, help_text=u"Cum / dacă s-a promovat proiectul")
-    buget = models.FloatField(null=True, blank=True, help_text=u"Estimativ, în RON")
+    buget = models.FloatField(null=True, blank=True, help_text= u"Estimativ, în RON")
     accept_publicare_raport_national = models.BooleanField(default=True, verbose_name="Acord raport ONCR", help_text=u"Dacă se propune această activitate pentru raportul anual al ONCR")
 
     aventura = models.BooleanField(default=False)
