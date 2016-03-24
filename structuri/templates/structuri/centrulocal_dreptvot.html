@@ -39,7 +39,7 @@
         <td>{% if membru.get_patrula %}{{ membru.get_patrula }}{% endif %}</td>
         <td>{{ membru.data_nasterii|timesince }}</td>
         <td>{% if membru.drept_vot_teoretic %}DA{% else %}NU{% endif %}</td>
-        <td>{% if membru.drept_vot %}DA{% else %}NU{% endif %} (cotizatie {{ membru.status_cotizatie }})</td>
+        <td>{% if membru.drept_vot %}DA{% else %}NU{% endif %} <br><small>cotizatie {{ membru.status_cotizatie }}</small>{% if membru.is_suspendat %}<br><small>suspendat</small>{% endif %}</td>
         <td>&nbsp;</td>
     </tr>
     {% endfor %}
