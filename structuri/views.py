@@ -2131,6 +2131,7 @@ class ListaMembriiDreptVot(ListView):
         membrii = []
         for unitate in unitati:
             membrii += unitate.cercetasi()
+
         return membrii
 
     def get_context_data(self, **kwargs):
