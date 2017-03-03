@@ -5,14 +5,16 @@ media/*
 .pydevproject
 logs/*”
 components/*
-!components/components.index
+!components/components. index
 .idea/*
 .vagrant/*
 *.sql
 !sql/*.sql
-scoutfile3/local_settings.local.py
-scoutfile3/local_settings.py
+web/scoutfile3/local_settings.local.py
+web/scoutfile3/local_settings.py
 scoutfile3_production.sql
 .vagrant
 importdata
 node_modules
+data
+/sql/current_dump/
