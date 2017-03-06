@@ -12,8 +12,8 @@ from django.forms.widgets import HiddenInput
 from goodies.forms import CrispyBaseModelForm, CrispyBaseForm
 from goodies.widgets import BootstrapDateInput
 
-from documente import Document, ChitantaCotizatie
-from documente import DocumentCotizatieSociala, Registru, DecizieCotizatie, PlataCotizatieTrimestru, Adeziune, \
+from documente.models import Document, ChitantaCotizatie
+from documente.models import DocumentCotizatieSociala, Registru, DecizieCotizatie, PlataCotizatieTrimestru, Adeziune, \
     Decizie
 from generic.widgets import BootstrapDateInput
 

@@ -18,9 +18,9 @@ from goodies.forms import CrispyBaseModelForm, CrispyBaseForm,\
     CrispyBaseDeleteForm
 from goodies.widgets import BootstrapDateInput
 
-from album import AsociereEvenimentStructura
-from structuri import BetterROCNPField
-from structuri import Membru, CentruLocal, Unitate, Patrula,\
+from album.models import AsociereEvenimentStructura
+from structuri.fields import BetterROCNPField
+from structuri.models import Membru, CentruLocal, Unitate, Patrula,\
     AsociereMembruStructura, InformatieContact, TipInformatieContact,\
     AsociereMembruFamilie, PersoanaDeContact
 

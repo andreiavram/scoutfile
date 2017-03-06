@@ -28,16 +28,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from utils.fiscal import suma2text
 
-from documente import DecizieContextMenu
-from documente import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm, \
+from documente.menus import DecizieContextMenu
+from documente.forms import DeclaratieCotizatieSocialaForm, RegistruUpdateForm, RegistruCreateForm, \
     DecizieCuantumCotizatieForm, TransferIncasariForm, AdeziuneUpdateForm, AdeziuneCreateForm, \
     DecizieGeneralaForm, DecizieGeneralaUpdateForm
-from documente import Document
-from documente import DocumentCotizatieSociala, AsociereDocument, Registru, REGISTRU_TIPURI, DecizieCotizatie, \
+from documente.models import Document
+from documente.models import DocumentCotizatieSociala, AsociereDocument, Registru, REGISTRU_TIPURI, DecizieCotizatie, \
     PlataCotizatieTrimestru, ChitantaCotizatie, Adeziune, Chitanta, Decizie
-from documente import DocumentCreateForm, FolderCreateForm, CotizatieMembruForm
+from documente.forms import DocumentCreateForm, FolderCreateForm, CotizatieMembruForm
 from generic.views import ScoutFileAjaxException
-from structuri import Membru, CentruLocal
+from structuri.models import Membru, CentruLocal
 
 logger = logging.getLogger(__name__)
 

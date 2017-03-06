@@ -6,7 +6,7 @@ Created on Aug 28, 2012
 '''
 from django.contrib import admin
 
-from album import Eveniment, ZiEveniment, Imagine, SetPoze,\
+from album.models import Eveniment, ZiEveniment, Imagine, SetPoze,\
     EXIFData, DetectedFace, TipEveniment, FlagReport
 
 admin.site.register(Eveniment)

@@ -88,4 +88,4 @@ RUN mkdir web/logs
 
 RUN pip install -r /scoutfile/deploy/requirements.txt
 
-CMD ["python", "./manage.py runserver 0.0.0.0:8000"]
+# CMD ["python", "./manage.py runserver 0.0.0.0:8000"]

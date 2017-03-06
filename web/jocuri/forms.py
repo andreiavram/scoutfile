@@ -8,9 +8,9 @@ from goodies.forms import CrispyBaseModelForm
 from goodies.widgets import TaggitTagsInput
 from taggit.forms import TagField
 
-from documente import Document
-from jocuri import FisaActivitate
-from structuri import RamuraDeVarsta
+from documente.models import Document
+from jocuri.models import FisaActivitate
+from structuri.models import RamuraDeVarsta
 
 __author__ = 'andrei'
 

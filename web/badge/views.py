@@ -8,8 +8,8 @@ from django.views.generic.list import ListView
 
 from badge.forms import BadgeForm
 from badge.models import Badge
-from album import FileUploadMixin
-from album import Imagine
+from album.views import FileUploadMixin
+from album.models import Imagine
 
 
 class BadgeList(ListView):
