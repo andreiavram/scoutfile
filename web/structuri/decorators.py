@@ -12,9 +12,9 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 
-from album import Eveniment
-from album import Imagine, ParticipareEveniment
-from structuri import CentruLocal, Patrula, Unitate, Membru,\
+from album.models import Eveniment
+from album.models import Imagine, ParticipareEveniment
+from structuri.models import CentruLocal, Patrula, Unitate, Membru,\
     AsociereMembruStructura, InformatieContact
 
 logger = logging.getLogger()

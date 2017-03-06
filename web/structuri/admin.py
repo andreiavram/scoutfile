@@ -7,10 +7,10 @@ Created on Jul 1, 2012
 from django.contrib import admin
 from django.contrib.admin.options import ModelAdmin
 
-from structuri import RamuraDeVarsta, CentruLocal, Unitate,\
-    Patrula, TipAsociereMembruStructura, AsociereMembruStructura, Membru,\
-    TipInformatieContact, InformatieContact, AsociereMembruFamilie,\
-    TipRelatieFamilie
+from structuri.models import (RamuraDeVarsta, CentruLocal, Unitate,
+    Patrula, TipAsociereMembruStructura, AsociereMembruStructura, Membru,
+    TipInformatieContact, InformatieContact, AsociereMembruFamilie,
+    TipRelatieFamilie)
 
 admin.site.register(RamuraDeVarsta)
 admin.site.register(CentruLocal)

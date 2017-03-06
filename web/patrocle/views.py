@@ -11,8 +11,8 @@ from django.views.generic.base import View, TemplateView
 from django.views.generic.edit import FormView, CreateView
 from django.views.generic.list import ListView
 
-from patrocle import SMSMessage, Credit
-from patrocle import SendSMSForm, AsociereCreditForm
+from patrocle.models import SMSMessage, Credit
+from patrocle.forms import SendSMSForm, AsociereCreditForm
 
 logger = logging.getLogger(__name__)
 

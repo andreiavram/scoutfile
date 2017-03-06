@@ -3,7 +3,7 @@ from django_ace.widgets import AceWidget
 from goodies.forms import CrispyBaseModelForm, CrispyBaseForm
 from goodies.widgets import TaggitTagsInput
 
-from cantece import Cantec, CarteCantece
+from cantece.models import Cantec, CarteCantece
 
 __author__ = 'andrei'
 

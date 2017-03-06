@@ -13,8 +13,8 @@ from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.views.generic.list import ListView
 from unidecode import unidecode
 
-from cantece import Cantec, CarteCantece
-from cantece import CantecForm, CarteCanteceForm, CantecFileForm
+from cantece.models import Cantec, CarteCantece
+from cantece.forms import CantecForm, CarteCanteceForm, CantecFileForm
 
 
 class CantecList(ListView):

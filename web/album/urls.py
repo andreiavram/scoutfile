@@ -1,6 +1,6 @@
 from django.conf.urls import patterns
 
-from album import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
+from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     RotateImage, EvenimentStats, ZiStats, FlagImage, EvenimentList, \
     SetImaginiUpload, SetImaginiDeleteAjax, SetImaginiToate, \
     SetImaginiUser, EvenimentSeturiUser, EvenimentSeturi, SetPozeUpdate, EvenimentCreate, EvenimentUpdate, EvenimentDetail, EvenimentDelete, PozaUpdate, ZiEdit, PozaDelete, ImagineTagSearch, ImagineSearchJSON, ZiDetailBeta, \
@@ -10,7 +10,7 @@ from album import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     EvenimentCampuriArbitrare, EvenimentCampuriArbitrareCreate, EvenimentCampuriArbitrareUpdate, PozaUpdateTags, \
     FlagImageAjax, EvenimentUpdateCampuriAditionale, EvenimentParticipantNonMembruCreate, \
     EvenimentParticipantNonMembruUpdate, EvenimentParticipantiExport, PozaVot, PozaMakeCover
-from album import ChangeImagineVisibility
+from album.views import ChangeImagineVisibility
 
 urlpatterns = patterns('album.views',
                        (r'eveniment/list/$', EvenimentList.as_view(), {}, "index"),
