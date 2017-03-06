@@ -33,14 +33,14 @@ from structuri.models import Membru, CentruLocal, Unitate, Patrula, TipAsociereM
 from taggit.models import Tag
 from taggit.utils import parse_tags
 
-from album import C5Envelopes
-from album import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT, SetPoze, IMAGINE_PUBLISHED_STATUS, \
+from album.exporters.envelopes import C5Envelopes
+from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT, SetPoze, IMAGINE_PUBLISHED_STATUS, \
     CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment, FLAG_MOTIVES, ParticipantEveniment
-from album import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm, \
+from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm, \
     EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm, CampArbitrarForm, EvenimentParticipareUpdateForm, \
     ReportFormNoButtons, EvenimentParticipareNonMembruForm, EvenimentParticipareNonmembruUpdateForm, \
     EvenimentParticipantFilterForm
-from album import TabularExport
+from album.exporters.table import TabularExport
 from generic.views import ScoutFileAjaxException
 from structuri.decorators import allow_by_afiliere
 

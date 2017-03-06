@@ -13,9 +13,9 @@ from goodies.forms import CrispyBaseModelForm, CrispyBaseForm
 from goodies.widgets import BootstrapDateTimeInput, GeoCoordinatesInput, FacebookLinkWidget, TaggitTagsInput
 from taggit.forms import TagField
 
-from album import FlagReport, FLAG_MOTIVES, RaportEveniment, ParticipareEveniment, \
+from album.models import FlagReport, FLAG_MOTIVES, RaportEveniment, ParticipareEveniment, \
     CampArbitrarParticipareEveniment, STATUS_PARTICIPARE
-from album import SetPoze, Eveniment, Imagine, ZiEveniment
+from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
 from generic.widgets import BootstrapDateTimeInput, BootstrapDateInput
 
 

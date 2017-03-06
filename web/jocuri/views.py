@@ -11,12 +11,12 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from taggit.models import Tag
 
-from album import FileUploadMixin
-from album import Imagine
-from documente import Document
-from jocuri import FisaActivitate, CategorieFiseActivitate
-from jocuri import FisaActivitateForm, parse_string_to_seconds, DocumentActivitateForm
-from structuri import RamuraDeVarsta
+from album.views import FileUploadMixin
+from album.models import Imagine
+from documente.models import Document
+from jocuri.models import FisaActivitate, CategorieFiseActivitate
+from jocuri.forms import FisaActivitateForm, parse_string_to_seconds, DocumentActivitateForm
+from structuri.models import RamuraDeVarsta
 
 logger = logging.getLogger(__name__)
 

@@ -47,10 +47,10 @@ from structuri.models import CentruLocal, AsociereMembruStructura, \
 from utils.views import FacebookUserConnectView
 
 from adrese_postale.adrese import AdresaPostala
-from album import FileUploadMixin
-from album import ParticipareEveniment
-from documente import AsociereDocument
-from documente import Trimestru, DecizieCotizatie
+from album.views import FileUploadMixin
+from album.models import ParticipareEveniment
+from documente.models import AsociereDocument
+from documente.models import Trimestru, DecizieCotizatie
 from structuri.decorators import allow_by_afiliere
 
 logger = logging.getLogger(__name__)

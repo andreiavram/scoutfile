@@ -1,9 +1,9 @@
 # coding: utf-8
 from django.db import models
 
-from album import Eveniment
-from documente import Document
-from structuri import CentruLocal, Membru
+from album.models import Eveniment
+from documente.models import Document
+from structuri.models import CentruLocal, Membru
 
 
 class LocateiInventar(models.Model):

@@ -7,7 +7,7 @@ Created on Sep 27, 2012
 from django.contrib import admin
 from django.contrib.admin.options import ModelAdmin
 
-from patrocle import SMSMessage, Credit
+from patrocle.models import SMSMessage, Credit
 
 
 class SMSAdmin(ModelAdmin):

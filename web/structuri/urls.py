@@ -1,8 +1,8 @@
 #coding: utf8
 from django.conf.urls import patterns
 
-from documente import DeclaratieCotizatieSocialaAdauga, DeclaratieCotizatieSocialaModifica, MembruAlteDocumente
-from structuri import CentruLocalCreate, CentruLocalUpdate,\
+from documente.views import DeclaratieCotizatieSocialaAdauga, DeclaratieCotizatieSocialaModifica, MembruAlteDocumente
+from structuri.views import CentruLocalCreate, CentruLocalUpdate,\
     CentruLocalDetail, CentruLocalList, CentruLocalMembruCreate,\
     CentruLocalMembruAsociaza, CentruLocalTabBrief, CentruLocalTabUnitati,\
     CentruLocalTabLideri, CentruLocalTabMembri, CentruLocalUnitateCreate,\

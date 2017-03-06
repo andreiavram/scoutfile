@@ -1,8 +1,8 @@
 #coding: utf8
 from django.conf.urls import patterns
 
-from documente import CotizatieMembruAdauga
-from documente import DeclaratieCotizatieSocialaAdauga, CentruLocalRegistre, RegistruCreate, RegistruUpdate, RegistruDetail, SelectieAdaugareDocument, DecizieCuantumAdauga, DecizieCuantumDetail, CalculeazaAcoperireCotizatie, CotizatiiCentruLocal, CotizatiiLider, PreiaIncasariCasier, AdeziuneMembruModifica, AdeziuneMembruAdauga, ChitantaPrintare, \
+from documente.views import CotizatieMembruAdauga
+from documente.views import DeclaratieCotizatieSocialaAdauga, CentruLocalRegistre, RegistruCreate, RegistruUpdate, RegistruDetail, SelectieAdaugareDocument, DecizieCuantumAdauga, DecizieCuantumDetail, CalculeazaAcoperireCotizatie, CotizatiiCentruLocal, CotizatiiLider, PreiaIncasariCasier, AdeziuneMembruModifica, AdeziuneMembruAdauga, ChitantaPrintare, \
     DecizieGeneralaAdauga, DecizieGeneralaModifica, ToggleBlocatCotizatie
 
 urlpatterns = \

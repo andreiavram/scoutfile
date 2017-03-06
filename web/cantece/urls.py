@@ -2,7 +2,7 @@
 from django.conf.urls import patterns
 from django.conf.urls import url
 
-from cantece import CantecList, CantecCreate, CantecDetail, CantecEdit, CarteList, CarteCreate, CarteDetail, \
+from cantece.views import CantecList, CantecCreate, CantecDetail, CantecEdit, CarteList, CarteCreate, CarteDetail, \
     CarteEdit
 
 urlpatterns = patterns('cantece.views',

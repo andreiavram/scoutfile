@@ -26,7 +26,7 @@ from photologue.models import ImageModel
 from taggit.managers import TaggableManager
 from unidecode import unidecode
 
-from album import RaportEvenimentManager
+from album.managers import RaportEvenimentManager
 
 logger = logging.getLogger(__name__)
 
