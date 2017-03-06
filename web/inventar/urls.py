@@ -1,7 +1,7 @@
 #coding: utf8
 from django.conf.urls import patterns
 
-from inventar import LocatieAccess, LocatieAccessAction
+from inventar.views import LocatieAccess, LocatieAccessAction
 
 urlpatterns = patterns(
     'inventar.views',

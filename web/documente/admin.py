@@ -1,7 +1,7 @@
 # coding: utf8
 from django.contrib import admin
 
-from documente import PlataCotizatieTrimestru, ChitantaCotizatie, Registru, Adeziune, DocumentCotizatieSociala, \
+from documente.models import PlataCotizatieTrimestru, ChitantaCotizatie, Registru, Adeziune, DocumentCotizatieSociala, \
     Document, AsociereDocument, TipDocument
 
 admin.site.register(PlataCotizatieTrimestru)

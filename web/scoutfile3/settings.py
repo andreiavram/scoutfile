@@ -2,7 +2,7 @@
 import os
 from django.conf import global_settings
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-print BASE_DIR
+
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -338,3 +338,7 @@ REST_FRAMEWORK = {
     ]
 }
 
+try:
+    from local_settings import *
+except:
+    pass

@@ -1,6 +1,6 @@
 from django.contrib.admin.options import ModelAdmin
 
-from jocuri import CategorieFiseActivitate
+from jocuri.models import CategorieFiseActivitate
 
 __author__ = "andrei"
 

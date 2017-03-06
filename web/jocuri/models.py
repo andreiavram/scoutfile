@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from taggit.managers import TaggableManager
 
-from documente import Document, TipDocument
+from documente.models import Document, TipDocument
 
 
 # Create your models here.

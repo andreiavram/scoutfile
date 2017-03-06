@@ -1,6 +1,6 @@
 from django.conf.urls import patterns
 
-from utils import FacebookLoginView, FacebookUserConnectView
+from utils.views import FacebookLoginView, FacebookUserConnectView
 
 urlpatterns = patterns('',
                        # (r'^associate/$', FacebookAssociateView.as_view(), {}, "facebook_auth"),

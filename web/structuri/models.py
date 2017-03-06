@@ -20,10 +20,10 @@ from patrocle.models import RezervareCredit
 from photologue.models import ImageModel
 
 from adrese_postale.adrese import AdresaPostala
-from album import Imagine
-from documente import DocumentCotizatieSociala
-from documente import PlataCotizatieTrimestru, AsociereDocument, ChitantaCotizatie
-from documente import Trimestru
+from album.models import Imagine
+from documente.models import DocumentCotizatieSociala
+from documente.models import PlataCotizatieTrimestru, AsociereDocument, ChitantaCotizatie
+from documente.models import Trimestru
 from utils.models import FacebookSession
 
 logger = logging.getLogger(__name__)
