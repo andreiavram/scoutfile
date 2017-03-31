@@ -1,8 +1,9 @@
 # coding: utf-8
 import os
 from django.conf import global_settings
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
+PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = os.path.dirname(PROJECT_ROOT)
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -91,7 +92,7 @@ CACHES = {
 ROOT_URLCONF = 'scoutfile3.urls'
 
 TEMPLATE_DIRS = (
-    (os.path.join(BASE_DIR, "scoutfile3", "templates")),
+    (os.path.join(PROJECT_ROOT, "scoutfile3", "templates")),
 )
 
 
@@ -259,7 +260,7 @@ LOGGING = {
 
 PHOTOLOGUE_DIR = "poze"
 PHOTOLOGUE_IMAGE_FIELD_MAX_LENGTH = 1024
-FIXTURE_DIRS = ["%s/fixtures" % BASE_DIR, ]
+FIXTURE_DIRS = ["%s/fixtures" % PROJECT_ROOT, ]
 
 
 LOGIN_URL = "/login/"
@@ -338,7 +339,14 @@ REST_FRAMEWORK = {
     ]
 }
 
+
 try:
     from local_settings import *
-except:
+except ImportError:
+    pass
+
+
+try:
+    from version import *
+except ImportError:
     pass

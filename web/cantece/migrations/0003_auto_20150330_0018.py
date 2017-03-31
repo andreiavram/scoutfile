@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 
 import scoutfile3.s3utils
-from web import cantece
+import cantece
 
 
 class Migration(migrations.Migration):

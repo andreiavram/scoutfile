@@ -42,7 +42,7 @@ urlpatterns = \
              url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
              )
 
-urlpatterns += staticfiles_urlpatterns()
+# urlpatterns += staticfiles_urlpatterns()
 
 #    temp media fix
 if settings.DEBUG:
