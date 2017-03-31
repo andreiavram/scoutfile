@@ -2,6 +2,7 @@ __author__ = 'yeti'
 
 from django.conf import settings
 
+
 def product_version(request):
     return { "MAJOR_VERSION" : settings.MAJOR_VERSION,
              "MINOR_VERSION" : settings.MINOR_VERSION,
