@@ -135,7 +135,7 @@ class Eveniment(models.Model):
 
         rdvs = rdvs.items()
 
-        from structuri import RamuraDeVarsta
+        from structuri.models import RamuraDeVarsta
         def rdv_sorter(item):
             rdv_slug = item[0]
             try:

@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-from web import cantece
+import cantece
 import django.core.files.storage
 from django.conf import settings
 import taggit.managers

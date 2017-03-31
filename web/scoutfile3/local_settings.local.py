@@ -8,7 +8,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'scoutfile_local',                      # Or path to database file if using sqlite3.
         'USER': 'root',                      # Not used with sqlite3.
-        'PASSWORD': 'root123.',                  # Not used with sqlite3.
+        'PASSWORD': '"root123."',                  # Not used with sqlite3.
         'HOST': 'mysql',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
         'OPTIONS': {
@@ -26,10 +26,10 @@ RAVEN_CONFIG = {
     'dsn': 'http://d7e2875a012341e592603b37604c5728:ebf178b496c54a73a536c5e79d7eeff5@sentry.albascout.ro/5',
 }
 
-URL_ROOT = "http://192.168.33.10:8000"
+URL_ROOT = "http://127.0.0.1:8000"
 
-AWS_ACCESS_KEY_ID = "AKIAJR6DCMVVAM7J3OTA"
-AWS_SECRET_ACCESS_KEY = "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"
+AWS_ACCESS_KEY_ID = "AKIAJA5OORXJQPQHSYOQ"
+AWS_SECRET_ACCESS_KEY = "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"
 AWS_STORAGE_BUCKET_NAME = 'scoutfile-local'
 S3_URL = 'http://%s.s3-website-eu-west-1.amazonaws.com/' % AWS_STORAGE_BUCKET_NAME
 
@@ -63,9 +63,6 @@ CACHES = {
     },
     'redis': {
         "BACKEND": "redis_cache.RedisCache",
-        "LOCATION": "redis:63791",
-        "OPTIONS": {
-            "DB": 1,
-        }
+        "LOCATION": "redis://redis:6379/1",
     },
 }
