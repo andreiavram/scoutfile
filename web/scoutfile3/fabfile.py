@@ -26,7 +26,7 @@ def seed_db():
                 ))
 
         get('/tmp/%s.sql.gz' % settings.REMOTE_DB['name'], '/tmp/%s.sql.gz' % settings.DATABASES['default']['NAME'])
-        local('gunzip < /tmp/%s.sql.gz | mysql -h %s -u %s -p%s -D %s' % (
+        local('gunzip < /tmp/%s.sql.gz | mysql -h %s -u %s -p\'%s\' -D %s' % (
                 settings.DATABASES['default']['NAME'],
                 settings.DATABASES['default']['HOST'],
                 settings.DATABASES['default']['USER'],
