@@ -38,12 +38,12 @@ MEDIA_URL = S3_URL + MEDIA_DIRECTORY
 
 SMSLINK_URL = "http://www.smslink.ro/sms/gateway/communicate/"
 SMSLINK_CONNID = "A196357A18017C10"
-SMSLINK_PASSWORD = "yetiRulz1_"
+SMSLINK_PASSWORD = ""
 
 BOWER_PATH = '/usr/bin/bower'
 
 ONCR_USER = "andrei.avram@albascout.ro"
-ONCR_PASSWORD = "yetiRulz1_"
+ONCR_PASSWORD = ""
 
 GATEKEEPER_CONNECTION_STRING = "pi@10.8.0.10"
 GATEKEEPER_CONNECTION_PASSWORD = "raspberry"
@@ -53,6 +53,8 @@ REMOTE_DB = {
     "user": "root",
     "password": "sql123.",
     "host": "yeti.albascout.ro",
+    "ssh_host": "lair",
+    "ssh_user": "yeti",
 }
 
 
