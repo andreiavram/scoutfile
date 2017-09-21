@@ -128,7 +128,7 @@ class AdresaPostala(object):
             self.available_data.append("cod")
 
     def determine_cod(self):
-        from adrese_postale import CodPostal
+        from adrese_postale.models import CodPostal
         cod = CodPostal.get_cod_pentru_adresa(self)
         if cod:
             self.set_cod(cod.cod_postal)
