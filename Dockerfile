@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y \
     libjpeg-dev \
     libfreetype6-dev \
     zlib1g-dev \
+    ttf-dejavu \
  && rm -rf /var/lib/apt/lists
 
 RUN pip install --upgrade pip
@@ -85,6 +86,8 @@ RUN pip install Django-Select2==5.4.0 \
 ADD . /scoutfile
 WORKDIR /scoutfile/web
 RUN mkdir /scoutfile/logs
+ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /scoutfile/wait-for-it.sh
+RUN chmod a+x /scoutfile/wait-for-it.sh
 
 RUN pip install -r /scoutfile/deploy/requirements.txt
 
