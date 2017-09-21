@@ -70,7 +70,7 @@ class C5Envelopes(object):
             try:
                 adresa = AdresaPostala.parse_address(adresa_postala, fail_silently=False)
             except Exception, e:
-                logger.error("%s: %s (%s)" % (cls.__name__, e, traceback.format_exc()))
+                logger.error(u"%s: %s (%s)" % (cls.__name__, e, traceback.format_exc()))
                 record[destinatar] = u"Adresă rea (%s)" % e
                 error_count += 1
                 continue
