@@ -272,7 +272,7 @@ SERVER_EMAIL = "sistem@albascout.ro"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = "587"
 EMAIL_HOST_USER = "sistem@albascout.ro"
-EMAIL_HOST_PASSWORD = "yetiRulz1_"
+EMAIL_HOST_PASSWORD = ""
 EMAIL_USE_TLS = True
 
 

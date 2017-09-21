@@ -12,8 +12,8 @@ def seed_db():
             settings.REMOTE_DB['host'],
             settings.REMOTE_DB['name'])
 
-    env.hosts = ["lair", ]
-    env.user = "yeti"
+    env.hosts = [settings.REMOTE_DB["ssh_host"], ]
+    env.user = settings.REMOTE_DB["ssh_user"]
 
     msg = prompt("Sure you want to get '%s' from '%s>%s'?" % data, default="y/n")
 
@@ -26,8 +26,9 @@ def seed_db():
                 ))
 
         get('/tmp/%s.sql.gz' % settings.REMOTE_DB['name'], '/tmp/%s.sql.gz' % settings.DATABASES['default']['NAME'])
-        local('gunzip < /tmp/%s.sql.gz | mysql -u %s -p%s -D %s' % (
+        local('gunzip < /tmp/%s.sql.gz | mysql -h %s -u %s -p%s -D %s' % (
                 settings.DATABASES['default']['NAME'],
+                settings.DATABASES['default']['HOST'],
                 settings.DATABASES['default']['USER'],
                 settings.DATABASES['default']['PASSWORD'],
                 settings.DATABASES['default']['NAME']
