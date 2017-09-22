@@ -481,6 +481,10 @@ class ParticipareEveniment(models.Model):
         val = resolution.get(camp, lambda o: "-")(self)
         return val if val else "-"
 
+    def add_to_custom_field(self, slug, value):
+        camp = CampArbitrarParticipareEveniment.objects.get(slug=slug, eveniment=self.eveniment)
+        camp.set_value(value, self)
+
     def delete(self, **kwargs):
         if self.nonmembru:
             self.nonmembru.delete()
