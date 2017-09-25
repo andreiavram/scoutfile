@@ -828,20 +828,25 @@ class EvenimentCreate(CreateView, EvenimentEditMixin):
 
         self.object.save()
         self.save_cover_photo()
-        self.create_connections(adauga_persoane=form.cleaned_data["adauga_persoane"])
+        self.create_connections(
+            adauga_persoane=form.cleaned_data["adauga_persoane"],
+            adauga_lideri=form.cleaned_data["adauga_lideri"]
+        )
 
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         return reverse("album:eveniment_detail", kwargs={"slug": self.object.slug})
 
-    def create_connections(self, adauga_persoane=False):
+    def create_connections(self, adauga_persoane=False, adauga_lideri=False):
         if self.target_obj is not None:
             self.object.creeaza_asociere_structura(self.target_obj)
 
-            if adauga_persoane and self.adauga_persoane_possible:
-                _ = [self.object.creaza_participare(c) for c in self.target_obj.cercetasi()]
-                _ = [self.object.creaza_participare(l) for l in self.target_obj.lideri()]
+            if self.adauga_persoane_possible:
+                if adauga_persoane:
+                    _ = [self.object.creaza_participare(c) for c in self.target_obj.cercetasi()]
+                if adauga_lideri:
+                    _ = [self.object.creaza_participare(l) for l in self.target_obj.lideri()]
 
 
 
