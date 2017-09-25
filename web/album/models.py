@@ -292,7 +292,7 @@ class Eveniment(models.Model):
         return max(list_totals, manual_override_totals)
 
     def get_visibility_level(self, user=None):
-        from structuri import TipAsociereMembruStructura
+        from structuri.models import TipAsociereMembruStructura
         visibility_level = 4
         if user is None:
             return visibility_level
@@ -340,6 +340,19 @@ class Eveniment(models.Model):
                               content_type=ContentType.objects.get_for_model(structura),
                               object_id=structura.id)
         AsociereEvenimentStructura.objects.create(**structura_args)
+
+    def creaza_participare(self, membru, rol="participant"):
+        pe_args = dict(
+            eveniment=self,
+            membru=membru,
+            data_sosire=self.start_date,
+            data_plecare=self.end_date,
+            status_participare=1,
+            rol=rol
+        )
+
+        if not ParticipareEveniment.objects.filter(eveniment=self, membru=membru).exists():
+            pe = ParticipareEveniment.objects.create(**pe_args)
 
 class AsociereEvenimentStructura(models.Model):
     content_type = models.ForeignKey(ContentType, verbose_name=u"Tip structură")
