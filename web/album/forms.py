@@ -72,13 +72,15 @@ class EvenimentCreateForm(CrispyBaseModelForm):
     responsabil_articol = AutoCompleteSelectField("membri", label=u"Responsabil articol", required=False)
     responsabil_raport = AutoCompleteSelectField("lideri", label=u"Responsabil raport", required=False)
 
+    adauga_persoane = forms.BooleanField(required=False, label=u"Adaugă persoane la eveniment?")
+
     def __init__(self, *args, **kwargs):
         super(EvenimentCreateForm, self).__init__(*args, **kwargs)
         self.helper.layout = Layout("nume", Field("descriere", style="width:100%"), "status", "tip_eveniment", "start_date", "end_date", "slug",
                                     "facebook_event_link", "articol_site_link", "locatie_text", "locatie_geo",
                                     "organizator", "organizator_cercetas", "international", "published_status", "cover_photo",
                                     Fieldset(u"Responsabili", "responsabil_articol", "responsabil_raport"),
-                                    Fieldset(u"Altele", "oncr_id"))
+                                    Fieldset(u"Altele", "oncr_id"), Fieldset(u"Participați impliciți", "adauga_persoane"))
 
 
 class EvenimentUpdateForm(EvenimentCreateForm):
