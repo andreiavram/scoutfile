@@ -49,6 +49,10 @@ def allow_by_afiliere(asocieri, pkname = "pk", combine = False):
                         break
                     continue
 
+                #   Temporary fix for problem #7 on github
+                if calitate == "Lider":
+                    calitate = ["Lider", "Lider asistent"]
+
                 structura = lookups[structura_ref]()
                 if not structura or not args[0].user.utilizator.membru.are_calitate(calitate, structura):
                     if combine:
