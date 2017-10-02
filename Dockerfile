@@ -83,12 +83,14 @@ RUN pip install Django-Select2==5.4.0 \
     tablib==0.10.0 \
     wsgiref==0.1.2
 
-ADD . /scoutfile
-WORKDIR /scoutfile/web
-RUN mkdir /scoutfile/logs
-ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /scoutfile/wait-for-it.sh
-RUN chmod a+x /scoutfile/wait-for-it.sh
+#ADD . /scoutfile
+#WORKDIR /scoutfile/web
+#RUN mkdir /scoutfile/logs
+ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /wait-for-it.sh
+RUN chmod a+x /wait-for-it.sh   
 
-RUN pip install -r /scoutfile/deploy/requirements.txt
+ADD ./deploy/requirements.txt /requirements.txt
+#RUN pip install -r /scoutfile/deploy/requirements.txt
+RUN pip install -r /requirements.txt
 
 # CMD ["python", "./manage.py runserver 0.0.0.0:8000"]
