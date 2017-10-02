@@ -18,3 +18,6 @@ importdata
 node_modules
 data
 /sql/current_dump/
+.idea/
+logs/
+web/scoutfile3/local_settings.local.py.bkp
