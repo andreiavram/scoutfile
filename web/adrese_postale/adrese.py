@@ -1,4 +1,6 @@
 # coding: utf-8
+from unidecode import unidecode
+
 __author__ = 'yeti'
 
 
@@ -104,7 +106,12 @@ class AdresaPostala(object):
 
         # print m[10]
         # print m
-        judet = m[10] if len(m[10].strip()) != 0 else "jud. Alba"
+
+        #   Bucurestiul nu are judet, deci da rezultate bizare
+        if m[5] in (u"Bucuresti", u"București"):
+            judet=u"București"
+        else:
+            judet = m[10] if len(m[10].strip()) != 0 else "jud. Alba"
         adresa_obj = cls(tip_strada=m[0], nume_strada=m[1], cod=m[4], localitate=m[5], comuna=m[8], judet=judet, **kwargs_detaliu)
 
         try:
@@ -128,7 +135,7 @@ class AdresaPostala(object):
             self.available_data.append("cod")
 
     def determine_cod(self):
-        from adrese_postale import CodPostal
+        from adrese_postale.models import CodPostal
         cod = CodPostal.get_cod_pentru_adresa(self)
         if cod:
             self.set_cod(cod.cod_postal)
