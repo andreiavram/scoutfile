@@ -803,7 +803,7 @@ class EvenimentCreate(CreateView, EvenimentEditMixin):
 
     adauga_persoane_possible = False
 
-    @allow_by_afiliere([("Utilizator, Centru Local", "Lider")])
+    @allow_by_afiliere([("Utilizator, Centru Local", "Lider"), ("Utilizator, Centru Local", "Lider asistent"), ])
     def dispatch(self, request, *args, **kwargs):
         self.centru_local = request.user.utilizator.membru.centru_local
 
