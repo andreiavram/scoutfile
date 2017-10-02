@@ -16,6 +16,7 @@ from reportlab.platypus.flowables import PageBreak
 from reportlab.platypus.paragraph import Paragraph
 
 from adrese_postale.adrese import AdresaPostala
+from album.models import CampArbitrarParticipareEveniment
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +58,16 @@ class C5Envelopes(object):
         styles["Normal"].fontName = "DejaVu"
         styles["Normal"].leading = 0.5 * cm
 
+        qs = list(qs)
+        camp_params = dict(
+            eveniment=qs[0].eveniment,
+            nume="Plic C5 export stats",
+            slug="plic_c5_export_stats",
+            tip_camp="text",
+        )
+
+        camp, _ = CampArbitrarParticipareEveniment.objects.get_or_create(**camp_params)
+
         error_count = 0
         record = {}
 
@@ -67,12 +78,25 @@ class C5Envelopes(object):
                 destinatar = participare.nonmembru.get_full_name()
 
             adresa_postala = participare.membru.adresa_postala if participare.membru else participare.nonmembru.adresa_postala
+
+            adresa_internationala = False
+            #   verifica adresa internationala
+            if participare.membru:
+                adresa = participare.membru.get_contact(u"Adresa corespondență", just_value=False)
+                adresa = adresa.first()
+                if adresa.informatii_suplimentare and "adresa internationala" in adresa.informatii_suplimentare:
+                    adresa_internationala = True
+
             try:
                 adresa = AdresaPostala.parse_address(adresa_postala, fail_silently=False)
             except Exception, e:
-                logger.error("%s: %s (%s)" % (cls.__name__, e, traceback.format_exc()))
-                record[destinatar] = u"Adresă rea (%s)" % e
-                error_count += 1
+                if not adresa_internationala:
+                    logger.error(u"%s: %s (%s)" % (cls.__name__, e, traceback.format_exc()))
+                    record[destinatar] = u"Adresă rea (%s)" % e
+                    error_count += 1
+                else:
+                    record[destinatar] = u"OK, international"
+                participare.add_to_custom_field(camp.slug, record[destinatar])
                 continue
 
             try:
@@ -82,14 +106,17 @@ class C5Envelopes(object):
                 logger.error("%s: %s (%s)" % (cls.__name__, e, traceback.format_exc()))
                 error_count += 1
                 record[destinatar] = u"Eroare la Cod Poștal (%s)" % e
+                participare.add_to_custom_field(camp.slug, record[destinatar])
                 continue
 
             if not adresa.are_cod():
                 error_count += 1
                 record[destinatar] = u"Codul Poștal nu a putut fi determinat"
+                participare.add_to_custom_field(camp.slug, record[destinatar])
                 continue
 
             record[destinatar] = u"OK"
+            participare.add_to_custom_field(camp.slug, record[destinatar])
 
             cod_postal = adresa.cod
             judet = adresa.judet
