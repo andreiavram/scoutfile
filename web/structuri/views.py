@@ -1468,7 +1468,7 @@ class AsociereCreate(CreateView):
     form_class = AsociereCreateForm
     template_name = "structuri/afiliere_form.html"
 
-    @allow_by_afiliere([("Membru, Centru Local", "Lider")])
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent")])
     def dispatch(self, *args, **kwargs):
         self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
         return super(AsociereCreate, self).dispatch(*args, **kwargs)

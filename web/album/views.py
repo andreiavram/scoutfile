@@ -801,7 +801,9 @@ class EvenimentCreate(CreateView, EvenimentEditMixin):
     template_name = "album/eveniment_form.html"
     target_model = CentruLocal
 
-    @allow_by_afiliere([("Utilizator, Centru Local", "Lider")])
+    adauga_persoane_possible = False
+
+    @allow_by_afiliere([("Utilizator, Centru Local", "Lider"), ("Utilizator, Centru Local", "Lider asistent"), ])
     def dispatch(self, request, *args, **kwargs):
         self.centru_local = request.user.utilizator.membru.centru_local
 
@@ -826,24 +828,36 @@ class EvenimentCreate(CreateView, EvenimentEditMixin):
 
         self.object.save()
         self.save_cover_photo()
-        self.create_connections()
+        self.create_connections(
+            adauga_persoane=form.cleaned_data["adauga_persoane"],
+            adauga_lideri=form.cleaned_data["adauga_lideri"]
+        )
 
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         return reverse("album:eveniment_detail", kwargs={"slug": self.object.slug})
 
-    def create_connections(self):
+    def create_connections(self, adauga_persoane=False, adauga_lideri=False):
         if self.target_obj is not None:
             self.object.creeaza_asociere_structura(self.target_obj)
+
+            if self.adauga_persoane_possible:
+                if adauga_persoane:
+                    _ = [self.object.creaza_participare(c) for c in self.target_obj.cercetasi()]
+                if adauga_lideri:
+                    _ = [self.object.creaza_participare(l) for l in self.target_obj.lideri()]
+
 
 
 class UnitateEvenimentCreate(EvenimentCreate):
     target_model = Unitate
+    adauga_persoane_possible = True
 
 
 class PatrulaEvenimentCreate(UnitateEvenimentCreate):
     target_model = Patrula
+    adauga_persoane_possible = True
 
 
 class EvenimentUpdate(UpdateView, EvenimentEditMixin):
