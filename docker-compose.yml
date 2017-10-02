@@ -35,7 +35,10 @@ services:
       - mysql
 
     working_dir: /scoutfile/web/
-    command: ["/scoutfile/wait-for-it.sh", "mysql:3306", "--", "python", "/scoutfile/web/manage.py", "runserver", "0.0.0.0:8000"]
+    command: ["/wait-for-it.sh", "mysql:3306", "--", "python", "/scoutfile/web/manage.py", "runserver", "0.0.0.0:8000"]
+    volumes:
+      - .:/scoutfile
+
 
 
     ports:
