@@ -18,6 +18,7 @@ install:
 before_script:
  - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
  - cp web/scoutfile3/local_settings.travis.py web/scoutfile3/local_settings.py
+ - mkdir logs
 
 script:
   - cd web && python manage.py test
