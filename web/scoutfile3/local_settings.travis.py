@@ -23,7 +23,6 @@ RECAPTCHA_PUBLIC_KEY = ''
 RECAPTCHA_PRIVATE_KEY = ''
 RECAPTCHA_USE_SSL = True
 
-
 AWS_ACCESS_KEY_ID = ""
 AWS_SECRET_ACCESS_KEY = ""
 AWS_STORAGE_BUCKET_NAME = 'scoutfile-'
@@ -36,12 +35,10 @@ SMSLINK_URL = "http://www.smslink.ro/sms/gateway/communicate/"
 SMSLINK_CONNID = ""
 SMSLINK_PASSWORD = ""
 
-RAVEN_CONFIG = {
-    'dsn': '',
-}
-
 REDMINE_API_KEY = ""
 BOWER_PATH = "/usr/local/bin/bower"
 
 ONCR_USER = "andrei.avram@albascout.ro"
 ONCR_PASSWORD = ""
+
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
