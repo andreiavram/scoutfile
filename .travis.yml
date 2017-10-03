@@ -20,7 +20,7 @@ before_script:
  - cp web/scoutfile3/local_settings.travis.py web/scoutfile3/local_settings.py
 
 script:
-  - python manage.py test
+  - cd web && python manage.py test
 
 notifications:
   email:
