@@ -530,7 +530,7 @@ class SetImaginiUpload(CreateView):
             logger.debug("%s - retrieving existing set (%d)" % (self.__class__.__name__, self.object.id))
         else:
             self.object = form.save(commit=False)
-            from structuri import Membru
+            from structuri.models import Membru
 
             self.object.autor_user = Membru.objects.get(id=self.request.user.utilizator.id)
 
@@ -595,7 +595,7 @@ class SetImaginiDeleteAjax(View):
         return self.post(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        from structuri import Membru
+        from structuri.models import Membru
 
         logger.debug("%s: user is superuser: %s, user is same membru object %s" % (
         self.__class__.__name__, request.user.is_superuser,

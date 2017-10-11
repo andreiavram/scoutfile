@@ -5,8 +5,8 @@ import logging
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from album import Eveniment, ParticipareEveniment
-from structuri import CentruLocal
+from album.models import Eveniment, ParticipareEveniment
+from structuri.models import CentruLocal
 
 
 logger = logging.getLogger(__name__)

@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from album import Eveniment
+from album.models import Eveniment
 from utils.oncr_client import ONCRClient
 
 

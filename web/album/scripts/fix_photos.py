@@ -11,7 +11,7 @@ from bootstrap import bootstrap
 
 bootstrap("/home/yeti/Workspace/scoutfile3/scoutfile3/")
 
-from album import SetPoze
+from album.models import SetPoze
 
 i = 0
 for set_poze in SetPoze.objects.filter(offset_changed = True):

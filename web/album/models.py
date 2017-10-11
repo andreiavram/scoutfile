@@ -328,7 +328,7 @@ class Eveniment(models.Model):
         return self.asociereevenimentstructura_set.filter(**filter_args).count() > 0
 
     def ramura_de_varsta(self):
-        from structuri import Unitate
+        from structuri.models import Unitate
         filter_args = dict(content_type=ContentType.objects.get_for_model(Unitate))
         qs = self.asociereevenimentstructura_set.filter(**filter_args)
         if qs.count() == 1:
