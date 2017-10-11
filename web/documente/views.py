@@ -130,7 +130,7 @@ class CotizatieMembruAdauga(CreateView):
     template_name = "documente/cotizatie_form.html"
 
     def dispatch(self, request, *args, **kwargs):
-        from structuri import Membru
+        from structuri.models import Membru
 
         self.target = get_object_or_404(Membru, id=kwargs.pop("pk"))
         return super(CotizatieMembruAdauga, self).dispatch(request, *args, **kwargs)
@@ -296,7 +296,7 @@ class CentruLocalRegistre(ListView):
 
     # TODO: add permissions check for this
     def dispatch(self, request, *args, **kwargs):
-        from structuri import CentruLocal
+        from structuri.models import CentruLocal
         self.centru_local = get_object_or_404(CentruLocal, id=kwargs.get("pk"))
         self.inactive = False
         if "inactive" in request.GET:
@@ -326,7 +326,7 @@ class RegistruCreate(CreateView):
 
     # TODO: add permissions check for this
     def dispatch(self, request, *args, **kwargs):
-        from structuri import CentruLocal
+        from structuri.models import CentruLocal
         self.centru_local = get_object_or_404(CentruLocal, id=kwargs.get("pk"))
         return super(RegistruCreate, self).dispatch(request, *args, **kwargs)
 
@@ -388,7 +388,7 @@ class SelectieAdaugareDocument(TemplateView):
 
     # TODO: add permission check for this
     def dispatch(self, request, *args, **kwargs):
-        from structuri import CentruLocal
+        from structuri.models import CentruLocal
         self.centru_local = get_object_or_404(CentruLocal, id=kwargs.pop("pk"))
         return super(SelectieAdaugareDocument, self).dispatch(request, *args, **kwargs)
 
@@ -406,7 +406,7 @@ class DecizieGeneralaAdauga(CreateView, ContextMenuMixin):
 
     #   TODO: add permission checks for this (only secretarul CCL?)
     def dispatch(self, request, *args, **kwargs):
-        from structuri import CentruLocal
+        from structuri.models import CentruLocal
         self.centru_local = get_object_or_404(CentruLocal, id=kwargs.pop("pk"))
         return super(DecizieGeneralaAdauga, self).dispatch(request, *args, **kwargs)
 
@@ -462,7 +462,7 @@ class DecizieCuantumAdauga(CreateView):
 
     # TODO: add permission checks for this (only membrii CCL)
     def dispatch(self, request, *args, **kwargs):
-        from structuri import CentruLocal
+        from structuri.models import CentruLocal
         self.centru_local = get_object_or_404(CentruLocal, id=kwargs.pop("pk"))
         return super(DecizieCuantumAdauga, self).dispatch(request, *args, **kwargs)
 
