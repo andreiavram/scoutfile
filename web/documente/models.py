@@ -188,7 +188,7 @@ class Chitanta(Document):
         return "Seria %s, nr. %s / %s" % (self.registru.serie, self.numar_inregistrare, self.date_created.strftime("%d.%m.%Y"))
 
     def platitor(self):
-        from structuri import Membru
+        from structuri.models import Membru
         asociere_filter = dict(document=self, content_type=ContentType.objects.get_for_model(Membru), tip_asociere__slug="platitor")
         asociere = AsociereDocument.objects.get(**asociere_filter)
         return asociere.content_object
@@ -198,7 +198,7 @@ class Chitanta(Document):
 
     @classmethod
     def pentru_membru(cls, membru=None, tip_document="chitanta"):
-        from structuri import Membru
+        from structuri.models import Membru
         asociere_filter = dict(content_type=ContentType.objects.get_for_model(Membru),
                                object_id=membru.id,
                                document__tip_document__slug=tip_document,
@@ -464,7 +464,7 @@ class PlataCotizatieTrimestru(models.Model):
     @classmethod
     def recalculeaza_pentru_familie(cls, membru, plati, membri_procesati=[]):
         logger.debug("recalculeaza_pentru_familie: familie: %s" % membri_procesati)
-        from structuri import AsociereMembruFamilie
+        from structuri.models import AsociereMembruFamilie
         familie = AsociereMembruFamilie.rude_cercetasi(membru, exclude_self=True)
         familie = [m for m in familie if m not in membri_procesati]
         #   exclude de la reducerea de membrii de familie membrii de familie care au cotizatie sociala trimestrul asta

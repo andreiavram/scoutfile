@@ -4,7 +4,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 
-from album import SetPoze
+from album.models import SetPoze
 
 logger = logging.getLogger(__name__)
 
