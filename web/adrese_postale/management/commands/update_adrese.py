@@ -2,7 +2,7 @@
 from django.core.management.base import BaseCommand
 
 from adrese_postale.adrese import AdresaPostala
-from structuri import InformatieContact
+from structuri.models import InformatieContact
 
 __author__ = 'andrei'
 

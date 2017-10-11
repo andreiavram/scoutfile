@@ -9,7 +9,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 
-from album import Eveniment, TipEveniment
+from album.models import Eveniment, TipEveniment
 
 logger = logging.getLogger(__name__)
 

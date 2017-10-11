@@ -40,14 +40,14 @@ class SendSMSForm(CrispyBaseForm):
         return data
     
     def clean_destinatari(self):
-        from structuri import PersoanaDeContact
+        from structuri.models import PersoanaDeContact
         data = self.cleaned_data['destinatari']
         
         destinatari = [a for a in json.loads(data) if len(a) > 1]
         
         
         # Verifica accesul utilizatorului curent la trimis SMS-uri la persoana X
-        from structuri import Membru
+        from structuri.models import Membru
         
         error_list = []
         rezervari = []

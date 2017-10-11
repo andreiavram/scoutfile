@@ -9,7 +9,7 @@ Created on Aug 28, 2012
 from bootstrap import bootstrap
 bootstrap("/yetiweb/scoutfile/scoutfile3/")
 
-from structuri import Membru
+from structuri.models import Membru
 
 
 membri = Membru.objects.all()

@@ -1,7 +1,7 @@
 #   coding: utf8
 from django.core.management.base import BaseCommand
 
-from documente import Trimestru
+from documente.models import Trimestru
 
 __author__ = 'andrei'
 
