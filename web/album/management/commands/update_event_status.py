@@ -9,7 +9,7 @@ from datetime import datetime
 
 from django.core.management.base import BaseCommand
 
-from album import Eveniment
+from album.models import Eveniment
 
 logger = logging.getLogger(__name__)
 

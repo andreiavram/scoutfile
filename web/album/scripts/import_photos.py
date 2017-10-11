@@ -11,7 +11,7 @@ from bootstrap import bootstrap
 
 bootstrap("/yetiweb/scoutfile/scoutfile3/")
 
-from album import Eveniment, SetPoze, Imagine
+from album.models import Eveniment, SetPoze, Imagine
 
 root_linked_path = "/media/rojam_photos/alba/"
 media_path_prefix = "ccl2012"

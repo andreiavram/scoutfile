@@ -20,8 +20,8 @@ class ScoutfilePattern(Pattern):
         self.markdown = markdown
 
     def handleMatch(self, m):
-        from documente import Document
-        from album import Imagine
+        from documente.models import Document
+        from album.models import Imagine
 
         shortcode = m.group(3)
         components = shortcode.split("#")

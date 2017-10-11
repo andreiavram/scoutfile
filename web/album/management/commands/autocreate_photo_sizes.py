@@ -9,7 +9,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 
-from album import Imagine
+from album.models import Imagine
 
 logger = logging.getLogger(__name__)
 
