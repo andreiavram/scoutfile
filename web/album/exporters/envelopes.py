@@ -84,7 +84,7 @@ class C5Envelopes(object):
             if participare.membru:
                 adresa = participare.membru.get_contact(u"Adresa corespondență", just_value=False)
                 adresa = adresa.first()
-                if adresa.informatii_suplimentare and "adresa internationala" in adresa.informatii_suplimentare:
+                if adresa.informatii_suplimentare and any(i in adresa.informatii_suplimentare for i in ["adresa internationala", u"adresă internațională"]):
                     adresa_internationala = True
 
             try:
