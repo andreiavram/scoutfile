@@ -2122,11 +2122,21 @@ class ListaMembriiDreptVot(ListView):
     def dispatch(self, request, *args, **kwargs):
         self.centru_local = CentruLocal.objects.get(id=self.centru_local_id)
         self.rdv_slug = kwargs.pop("rdv_slug", "exploratori")
+        self.patrula_id = int(request.GET.get("patrula")) if "patrula" in request.GET else None
         if self.rdv_slug not in self.ALLOWED_RDVS:
             return HttpResponseBadRequest()
         return super(ListaMembriiDreptVot, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
+        if self.patrula_id:
+            try:
+                patrula = Patrula.objects.get(id=self.patrula_id)
+                if patrula.unitate.ramura_de_varsta.slug == self.rdv_slug:
+                    membrii = list(patrula.cercetasi())
+                    return membrii
+            except Patrula.DoesNotExist:
+                pass
+
         unitati = Unitate.objects.filter(ramura_de_varsta__slug__iexact=self.rdv_slug, centru_local=self.centru_local)
         membrii = []
         for unitate in unitati:
