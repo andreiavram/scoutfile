@@ -62,8 +62,7 @@ TEMPLATE_LOADERS = (
 )
 
 
-MIDDLEWARE_CLASSES = (
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+MIDDLEWARE_CLASSES = [
     'raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware',
     'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -73,7 +72,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'pagination_bootstrap.middleware.PaginationMiddleware',
     'scoutfile3.middleware.ImpersonateUserMiddleware',
-)
+]
 
 CACHES = {
     'default': {
