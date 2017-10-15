@@ -266,7 +266,6 @@ FIXTURE_DIRS = ["%s/fixtures" % PROJECT_ROOT, ]
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/edit/"
 
-# TODO: remove secrets from here
 SYSTEM_EMAIL = "sistem@albascout.ro"
 SERVER_EMAIL = "sistem@albascout.ro"
 EMAIL_HOST = "smtp.gmail.com"
