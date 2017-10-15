@@ -61,20 +61,25 @@ def deploy_app():
 
     virtualenv_cmd = "source ~/releases/{}/.venv/bin/activate && ".format(branch)
     with cd("~/releases/{}".format(branch)):
+        run("git checkout {}".format(branch))
+        run("git pull")
+
         run(virtualenv_cmd + "pip install -r deploy/requirements.txt")
-        run("cp ~/local_settings.{}.py web/scoutfile3/".format(branch))
 
-        if not files.exists("logs"):
-            run("mkdir logs")
+        folders_to_create = {"logs": "logs", "components": "components"}
+        for folder, name in folders_to_create.items():
+            if not files.exists(folder):
+                run("mkdir {}".format(name))
 
-        if not files.exists("web/scoutfile3/local_settings.py"):
-            run("ln -s web/scoutfile3/local_settings.{}.py web/scoutfile3/local_settings.py".format(branch))
+        with cd("web/scoutfile3"):
+            if not files.exists("local_settings.py"):
+                run("ln -s ~/local_settings.{}.py local_settings.py".format(branch))
 
         if not files.exists("~/backup/{}/".format(branch)):
             run("mkdir -p ~/backup/{}".format(branch))
 
         with cd("web"):
-            db_name = run("./manage.py db_name")
+            db_name = run(virtualenv_cmd + "./manage.py db_name")
 
         run("mysqldump -p$MYSQL_PASSWORD -u $MYSQL_USER {} > ~/backup/{}/{}.sql".format(
             db_name,
@@ -82,8 +87,8 @@ def deploy_app():
             datetime.date.today().strftime("%d.%m.%Y")))
 
     with cd("~/releases/{}/web".format(branch)):
-        run(virtualenv_cmd + "python manage.py collectstatic")
-
-        run(virtualenv_cmd + "python manage.py migrate")
+        run(virtualenv_cmd + "python manage.py bower install")
+        run(virtualenv_cmd + "python manage.py collectstatic --noinput")
+        run(virtualenv_cmd + "python manage.py migrate --noinput")
 
     run("sudo supervisorctl restart scoutfile-{}".format(branch))
