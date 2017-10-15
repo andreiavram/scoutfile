@@ -74,7 +74,7 @@ def deploy_app():
             run("mkdir -p ~/backup/{}".format(branch))
 
         with cd("web"):
-            db_name = run("manage.py db_name")
+            db_name = run("./manage.py db_name")
 
         run("mysqldump -p$MYSQL_PASSWORD -u $MYSQL_USER {} > ~/backup/{}/{}.sql".format(
             db_name,
