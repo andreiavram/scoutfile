@@ -32,8 +32,13 @@ notifications:
     on_failure: always
 
 deploy:
-  provider: script
-  script: cd web && fab -H yeti.albascout.ro:24 -u scoutfile --password $DEPLOY_PASSWORD
-  on:
-    branch: master, develop
+  - provider: script
+    script: cd web && fab -H yeti.albascout.ro:24 -u scoutfile --password $DEPLOY_PASSWORD
+    on:
+      branch: master
+
+  - provider: script
+    script: cd web && fab -H yeti.albascout.ro:24 -u scoutfile --password $DEPLOY_PASSWORD
+    on:
+      branch: develop
 
