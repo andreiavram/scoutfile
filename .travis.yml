@@ -41,7 +41,7 @@ deploy:
     skip_cleanup: true
 
   - provider: script
-    script: fab -f web/fabfile.py -H yeti.albascout.ro:24 -u scoutfile --password $DEPLOY_PASSWORD
+    script: pwd && fab -f web/fabfile.py -H yeti.albascout.ro:24 -u scoutfile --password $DEPLOY_PASSWORD
     on:
       branch: develop
     skip_cleanup: true
