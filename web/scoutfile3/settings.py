@@ -266,7 +266,6 @@ FIXTURE_DIRS = ["%s/fixtures" % PROJECT_ROOT, ]
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/edit/"
 
-# TODO: remove secrets from here
 SYSTEM_EMAIL = "sistem@albascout.ro"
 SERVER_EMAIL = "sistem@albascout.ro"
 EMAIL_HOST = "smtp.gmail.com"
@@ -290,8 +289,8 @@ def photologue_path(instance, filename):
     return os.path.join(SCOUTFILE_ALBUM_STORAGE_ROOT, filename)
 PHOTOLOGUE_PATH = photologue_path
 
-DATE_INPUT_FORMATS = ('%d.%m.%Y', ) + global_settings.DATE_INPUT_FORMATS
-DATETIME_INPUT_FORMATS = ('%d.%m.%Y %H:%M %p', '%d.%m.%Y %H:%M:%S') + global_settings.DATETIME_INPUT_FORMATS
+DATE_INPUT_FORMATS = ['%d.%m.%Y', ] + list(global_settings.DATE_INPUT_FORMATS)
+DATETIME_INPUT_FORMATS = ['%d.%m.%Y %H:%M %p', '%d.%m.%Y %H:%M:%S'] + list(global_settings.DATETIME_INPUT_FORMATS)
 
 # TODO: remove secrets from here
 GOOGLE_API_KEY = "AIzaSyCIiQgKmmRv2SLBj8KTbx6HB7Kn_6LIU-o"

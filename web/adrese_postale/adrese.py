@@ -12,7 +12,7 @@ class AdresaPostalaException(Exception):
 
 
 class AdresaPostala(object):
-    REGEX = r"(B-dul\.|Str\.|P-ța\.|Piața|Calea|Intr.|Comuna|Sat) ([\w \. \-]+?), (((?:Nr|Bl|Sc|Ap|Et)\.? ?[\w\d]+, )+) ?(?:(\d{6}), +)?([\w \-]+)(:?, (:?Comuna|Com\.) ([\w \-]+))?(:?, (Jud\.?[\w \-]+))?"
+    REGEX = r"(B-dul\.|Str\.|P-ța\.|Piața|Calea|Aleea|Intr.|Comuna|Sat) ([\w \. \-]+?), (((?:Nr|Bl|Sc|Ap|Et)\.? ?[\w\d]+, )+) ?(?:(\d{6}), +)?([\w \-]+)(:?, (:?Comuna|Com\.) ([\w \-]+))?(:?, (Jud\.?[\w \-]+))?"
     DATA_HEADINGS = {
         "tip_strada": u"Tip stradă",
         "nume_strada": u"Nume stradă",
