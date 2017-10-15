@@ -8,8 +8,6 @@ from fabric.contrib import files
 import os
 import datetime
 
-import logging
-logging.basicConfig(level=logging.DEBUG, filename="/scoutfile/paramiko.log")
 
 @hosts('yeti.albascout.ro:24')
 def seed_db():
@@ -65,6 +63,7 @@ def deploy_app():
         #   in virtualenv
         #   pip install -r
         run("cp ~/local_settings.{}.py web/scoutfile3/".format(branch))
+        run("mkdir logs")
         run("ln -s web/scoutfile3/local_settings.{}.py web/scoutfile3/local_settings.py".format(branch))
         run(virtualenv_cmd + "python manage.py collectstatic")
 
