@@ -1,10 +1,8 @@
 # coding: utf-8
+from django.conf import settings
 from django.core.management.base import BaseCommand
-from fabric.tasks import execute
-
-from fabfile import seed_db
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        execute(seed_db)
+        self.stdout.write("{}\n".format(settings.DATABASES['default']['NAME']))

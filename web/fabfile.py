@@ -1,13 +1,15 @@
 from fabric.api import env, prompt, get, local, run, hosts, cd
 from fabric.contrib import django
 
-from django.conf import settings
 django.project("scoutfile3")    # noqa
-
+from django.conf import settings
 from fabric.contrib import files
 import os
 import datetime
 
+# this is needed here to evaluate settings here, and not in the fabric task
+# workaround for this bug: https://github.com/fabric/fabric/issues/256
+_ = settings.INSTALLED_APPS
 
 @hosts('yeti.albascout.ro:24')
 def seed_db():
@@ -52,30 +54,36 @@ def deploy_app():
         run("mkdir ~/releases")
 
     if not files.exists("~/releases/{}".format(branch)):
-        run("git clone git@github.com:andreiavram/scoutfile.git {}".format(branch))
-        with cd("releases/{}".format(branch)):
+        run("git clone git@github.com:andreiavram/scoutfile.git ~/releases/{}".format(branch))
+        with cd("releases/{}/".format(branch)):
             run("git checkout {}".format(branch))
             run("virtualenv .venv")
 
     virtualenv_cmd = "source ~/releases/{}/.venv/bin/activate && ".format(branch)
-    with cd("releases/{}".format(branch)):
+    with cd("~/releases/{}".format(branch)):
         run(virtualenv_cmd + "pip install -r deploy/requirements.txt")
-        #   in virtualenv
-        #   pip install -r
         run("cp ~/local_settings.{}.py web/scoutfile3/".format(branch))
-        run("mkdir logs")
-        run("ln -s web/scoutfile3/local_settings.{}.py web/scoutfile3/local_settings.py".format(branch))
+
+        if not files.exists("logs"):
+            run("mkdir logs")
+
+        if not files.exists("web/scoutfile3/local_settings.py"):
+            run("ln -s web/scoutfile3/local_settings.{}.py web/scoutfile3/local_settings.py".format(branch))
+
+        if not files.exists("~/backup/{}/".format(branch)):
+            run("mkdir -p ~/backup/{}".format(branch))
+
+        with cd("web"):
+            db_name = run("manage.py db_name")
+
+        run("mysqldump -p$MYSQL_PASSWORD -u $MYSQL_USER {} > ~/backup/{}/{}.sql".format(
+            db_name,
+            branch,
+            datetime.date.today().strftime("%d.%m.%Y")))
+
+    with cd("~/releases/{}/web".format(branch)):
         run(virtualenv_cmd + "python manage.py collectstatic")
 
-        if not files.exists("~/backup"):
-            run("mkdir ~/backup")
-        if not files.exists("~/backup/{}/".format(branch)):
-            run("mkdir ~/backup/{}".format(branch))
-        run("mysqldump -p{} -u {} {} > ~/backup/{}/{}.sql".format(settings.DATABASES['default']['USER'],
-                                                              settings.DATABASES['default']['PASSWORD'],
-                                                              settings.DATABASES['default']['NAME'],
-                                                              branch,
-                                                              datetime.date.today().strftime("%d.%m.%Y")))
-
         run(virtualenv_cmd + "python manage.py migrate")
-        run("sudo supervisorctl restart scoutfile-{}".format(branch))
+
+    run("sudo supervisorctl restart scoutfile-{}".format(branch))
