@@ -35,13 +35,13 @@ notifications:
 deploy:
 
   - provider: script
-    script: cd web && fab -H yeti.albascout.ro:24 -u scoutfile --password $DEPLOY_PASSWORD
+    script: fab -f web/fabfile.py -H yeti.albascout.ro:24 -u scoutfile --password $DEPLOY_PASSWORD
     on:
       branch: master
     skip_cleanup: true
 
   - provider: script
-    script: cd web && fab -H yeti.albascout.ro:24 -u scoutfile --password $DEPLOY_PASSWORD
+    script: fab -f web/fabfile.py -H yeti.albascout.ro:24 -u scoutfile --password $DEPLOY_PASSWORD
     on:
       branch: develop
     skip_cleanup: true
