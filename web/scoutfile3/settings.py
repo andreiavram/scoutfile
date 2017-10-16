@@ -126,7 +126,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
 
     #   third party pluggables
-    'debug_toolbar',
+
     'photologue',
     'crispy_forms',
     'rest_framework',
