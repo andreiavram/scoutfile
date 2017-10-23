@@ -75,7 +75,7 @@ def allow_by_afiliere(asocieri, pkname = "pk", combine = False):
                 structura = lookups[structura_ref]()
 
                 #   Temporary fix for problem #7 on github
-                if calitate == "Lider":
+                if calitate.upper() == "LIDER":
                     calitate = ["Lider", "Lider asistent"]
 
                 if not structura or not args[0].user.utilizator.membru.are_calitate(calitate, structura):
