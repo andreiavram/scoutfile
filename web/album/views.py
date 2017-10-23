@@ -1386,7 +1386,7 @@ class EvenimentParticipantiCreate(CreateView):
     template_name = "album/eveniment_participanti_form.html"
     form_class = EvenimentParticipareForm
 
-    @allow_by_afiliere([("Eveniment, Centru Local", "lider")], pkname="slug")
+    @allow_by_afiliere([("Eveniment, Centru Local", "Lider")], pkname="slug")
     def dispatch(self, request, *args, **kwargs):
         self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
         return super(EvenimentParticipantiCreate, self).dispatch(request, *args, **kwargs)
