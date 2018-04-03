@@ -5,7 +5,7 @@ import logging
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
-from structuri.models import Membru, InformatieContact, TipInformatieContact
+from structuri.models import Membru, InformatieContact, TipInformatieContact, CentruLocal
 
 from utils.oncr_client import ONCRClient
 
@@ -84,7 +84,13 @@ class Command(BaseCommand):
                 self.stdout.write("Error getting %s: %s\n" % (membru.scout_id, e))
 
     def update_membru_cache(self, *args, **options):
+        filter_kwargs = {"content_type": ContentType.objects.get_for_model(CentruLocal)}
+
         for m in Membru.objects.all():
+            afilieri = m.afilieri.filter(**filter_kwargs).order_by("moment_inceput")
+            if not afilieri.count():
+                continue
+
             try:
                 m.calculeaza_necesar_cotizatie(force_real=True)
                 m._status_cotizatie(force_real=True)
