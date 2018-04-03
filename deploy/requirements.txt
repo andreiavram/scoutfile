@@ -56,7 +56,7 @@ paramiko==2.3.1
 pilkit==1.1.13
 Pillow==3.0.0
 plasTeX==1.0
-psycopg2==2.6.1
+psycopg2==2.7.3
 pyasn1==0.3.7
 pycparser==2.18
 pycrypto==2.6.1
