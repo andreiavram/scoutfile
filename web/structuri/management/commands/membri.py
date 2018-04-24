@@ -74,6 +74,7 @@ class Command(BaseCommand):
         membri_oncr = Membru.objects.filter(scout_id__isnull=False).exclude(scout_id="")
 
         oncr_client = ONCRClient()
+        oncr_client.do_login()
 
         for membru in membri_oncr:
             try:
