@@ -133,6 +133,6 @@ class ONCRClient(object):
 
 
 if __name__ == "__main__":
-    client = ONCRClient(user="andrei.avram@albascout.ro", password="yetiRulz1_")
+    client = ONCRClient(user="andrei.avram@albascout.ro", password="")
     events = client.get_membru_json("AA147")
     print events
