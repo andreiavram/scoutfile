@@ -32,17 +32,17 @@ notifications:
     on_success: never
     on_failure: always
 
-deploy:
-
-  - provider: script
-    script: fab -H yeti.albascout.ro:24 -u scoutfile --password $DEPLOY_PASSWORD deploy_app
-    on:
-      branch: master
-    skip_cleanup: true
-
-  - provider: script
-    script: fab -H yeti.albascout.ro:24 -u scoutfile --password $DEPLOY_PASSWORD deploy_app
-    on:
-      branch: develop
-    skip_cleanup: true
-
+#deploy:
+#
+#  - provider: script
+#    script: fab -H yeti.albascout.ro:24 -u scoutfile --password $DEPLOY_PASSWORD deploy_app
+#    on:
+#      branch: master
+#    skip_cleanup: true
+#
+#  - provider: script
+#    script: fab -H yeti.albascout.ro:24 -u scoutfile --password $DEPLOY_PASSWORD deploy_app
+#    on:
+#      branch: develop
+#    skip_cleanup: true
+#
