@@ -1,37 +1,53 @@
-#   coding: utf8
-from django.core.management.base import BaseCommand
-
-from adrese_postale import CodPostal
-
-__author__ = 'andrei'
+# coding: utf8
+import os
+import csv
 
 from django.conf import settings
-import os
+from django.core.management.base import BaseCommand
+from django.utils.six.moves import input
+
+from adrese_postale.models import CodPostal
 
 
 class Command(BaseCommand):
+    """Management command to delete existing postal codes and load
+    new ones from file.
+
+    WARNING: This management command deletes all existing postal codes!
+    Postal codes should be located in a file whose name is specified in
+    settings POSTAL_CODES_FILENAME and should be located at the root
+    directory.
+    """
+
+    help = (
+        'Delete existing postal codes and load new ones from csv file.')
+
     def handle(self, *args, **kwargs):
+        user_response = input(
+            'Running this command will delete all '
+            'postal codes! Are you sure? y/n'
+        )
+        if user_response.lower() != 'y':
+            return
+
         CodPostal.objects.all().delete()
 
-        with open(os.path.join(settings.BASE_DIR, "scoutfile3", "adrese_postale", "data", "coduri_postale.csv")) as f:
-            lines = f.readlines()
+        postal_codes_file = os.path.join(
+            settings.BASE_DIR, settings.POSTAL_CODES_FILENAME)
+        with open(postal_codes_file, 'rb') as f:
+            csv_reader = csv.reader(f, delimiter='|')
+            lines = []
+            for row in csv_reader:
+                lines.append([x.strip() for x in row])
 
-
-        def clean_elm(elm):
-            txt = elm.strip().strip("\n")
-            if len(txt):
-                return txt
-            return None
-
-        for l in lines:
-            elms = l.split("|")
-            cp_dict = {
-                "cod_postal": clean_elm(elms[5]),
-                "judet": clean_elm(elms[0]),
-                "localitate": clean_elm(elms[1]),
-                "tip_strada": clean_elm(elms[2]),
-                "strada": clean_elm(elms[3]),
-                "sector": clean_elm(elms[6]),
-                "descriptor": clean_elm(elms[4]),
+        for line in lines:
+            cod_postal_dict = {
+                'judet': line[0],
+                'localitate': line[1],
+                'tip_strada': line[2],
+                'strada': line[3],
+                'descriptor': line[4],
+                'cod_postal': line[5],
+                'sector': line[6],
             }
-            CodPostal.objects.create(**cp_dict)
+            CodPostal.objects.create(**cod_postal_dict)
