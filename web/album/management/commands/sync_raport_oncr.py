@@ -46,6 +46,16 @@ class Command(BaseCommand):
             if raport is None:
                 continue
 
+            participanti = event.participareeveniment_set.exclude(membru__isnull=True)
+            participanti_fete = participanti.filter(membru__sex="f")
+            participanti_baieti = participanti.filter(membru__sex="m")
+
+            participanti_adulti_fete = sum([1 for i in participanti_fete if i.membru.get_ramura_de_varsta(slug=True, moment=event.start_date) in ['lideri', None]])
+            participanti_adulti_baieti = sum([1 for i in participanti_baieti if i.membru.get_ramura_de_varsta(slug=True, moment=event.start_date) in ['lideri', None]])
+            participanti_tineri_fete = participanti_fete.count() - participanti_adulti_fete
+            participanti_tineri_baieti = participanti_baieti.count() - participanti_adulti_baieti
+
+
             eveniment_args = {
                 "raport_anual_oncr": raport.accept_publicare_raport_national,
                 "raport_anual_cl": True,
@@ -58,7 +68,13 @@ class Command(BaseCommand):
                 "spiritual": raport.spiritual,
                 "fundraising": raport.fundraising,
                 "altele": raport.altele,
-                "numar_participanti": str(event.total_participanti),
+                # "numar_participanti": str(event.total_participanti),
+                "numar_participanti": {
+                    "fete": participanti_tineri_fete,
+                    "baieti": participanti_tineri_baieti,
+                    "lideri_femei": participanti_adulti_fete,
+                    "lideri_barbati": participanti_adulti_baieti,
+                },
                 "descriere": event.descriere,
                 "obiective": raport.obiective,
                 "grup_tinta": raport.grup_tinta,
@@ -72,12 +88,16 @@ class Command(BaseCommand):
                 "locatie": event.locatie_text
             }
 
+            self.stdout.write("{}\n".format(eveniment_args))
+
             photo = event.cover_photo()
             if photo:
                 eveniment_args['photo'] = photo.image.url
 
-            oncr_client.add_activitate(**eveniment_args)
-            successful_events += 1
+            result = oncr_client.add_activitate(**eveniment_args)
+            if result:
+                successful_events += 1
+            break
 
         self.stdout.write(u"Terminat sincronizare. %d cu succes, %d erori\n" % (successful_events, events.count() - successful_events))
 
