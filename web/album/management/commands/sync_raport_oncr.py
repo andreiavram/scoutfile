@@ -97,7 +97,6 @@ class Command(BaseCommand):
             result = oncr_client.add_activitate(**eveniment_args)
             if result:
                 successful_events += 1
-            break
 
         self.stdout.write(u"Terminat sincronizare. %d cu succes, %d erori\n" % (successful_events, events.count() - successful_events))
 
