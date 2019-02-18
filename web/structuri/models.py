@@ -516,15 +516,19 @@ class Membru(Utilizator):
             qs = qs.order_by("moment_incheiere")
         return qs
 
-    def get_ramura_de_varsta(self, slug=False):
+    def get_ramura_de_varsta(self, slug=False, moment=None):
         if self.is_lider_generic():
             if slug:
                 return "lideri"
             return "Lider"
 
-        unitate = self.get_unitate()
+        trimestru = None
+        if moment:
+            trimestru = Trimestru.trimestru_pentru_data(moment)
+
+        unitate = self.get_unitate(trimestru=trimestru)
         if unitate:
-            rdv = self.get_unitate().ramura_de_varsta
+            rdv = self.get_unitate(trimestru=trimestru).ramura_de_varsta
             if slug:
                 return rdv.slug
             return rdv.nume
