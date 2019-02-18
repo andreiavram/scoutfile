@@ -503,6 +503,13 @@ class ParticipareEveniment(models.Model):
             self.nonmembru.delete()
         super(ParticipareEveniment, self).delete(**kwargs)
 
+    def ramura_de_varsta_in_eveniment(self):
+        if self.membru is None:
+            return None
+
+
+
+
 
 TIPURI_CAMP_PARTICIPARE = (("text", u"Text"), ("number", u"Număr"), ("bool", u"Bifă"), ("date", u"Dată"))
 
