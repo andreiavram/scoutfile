@@ -14,7 +14,7 @@ class EnciclopedieEntries(TemplateView):
     
     def get_context_data(self, **kwargs):
         username = 'andrei.avram@gmail.com'
-        passwd = 'yetiRulz1_'
+        passwd = ''
         doc_name = 'adaugare curiozitate enciclopedie (Responses)'
         
         import gdata.docs

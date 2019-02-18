@@ -21,7 +21,7 @@ class ONCRClient(object):
     def __init__(self, user=None, password=None, **kwargs):
         self.user = user if user else settings.ONCR_USER
         self.password = password if password else settings.ONCR_PASSWORD
-        self.session = requests.session()
+        self.session = requests.Session()
         self.logged_in = False
 
     def do_login(self):
@@ -62,24 +62,34 @@ class ONCRClient(object):
         activity_type_args = ["aventura", "social", "cultural", "ecologie", "spiritual", "fundraising", "altele"]
         activity_type = [str(2**activity_type_args.index(category_field)) for category_field in activity_type_args if kwargs.get(category_field)]
 
-        data = {"activity[published_in][]": published_in,
-                "activity[name]": kwargs.get("nume"),
-                "activity[category_id]": str(kwargs.get("categorie")),
-                "activity[location]": kwargs.get("locatie"),
-                "activity[from_date]": self.python_date_to_mysql(kwargs.get("data_inceput")),
-                "activity[to_date]": self.python_date_to_mysql(kwargs.get("data_sfarsit")),
-                "activity[type][]": activity_type,
-                "activity[participants_number]": kwargs.get("numar_participanti"),
-                "activity[_token]": token,
-                "activity[short_description]": kwargs.get("descriere"),
-                "activity[objectives]": kwargs.get("obiective"),
-                "activity[target]": kwargs.get("grup_tinta"),
-                "activity[activities]": kwargs.get("activitati"),
-                "activity[promotion]": kwargs.get("promovare"),
-                "activity[partners]": kwargs.get("parteneri"),
-                "activity[budget]": kwargs.get("buget"),
-                "activity[beneficiaries]": kwargs.get("beneficiari"),
-                }
+        data = {
+            "activity[published_in][]": published_in,
+            "activity[name]": kwargs.get("nume"),
+            "activity[category_id]": str(kwargs.get("categorie")),
+            "activity[location]": kwargs.get("locatie"),
+            "activity[from_date]": self.python_date_to_mysql(kwargs.get("data_inceput")),
+            "activity[to_date]": self.python_date_to_mysql(kwargs.get("data_sfarsit")),
+            "activity[type][]": activity_type,
+            "activity[_token]": token,
+            "activity[activityParticipantsNumber][memberYoungGirls]": kwargs.get("numar_participanti", {}).get("fete"),
+            "activity[activityParticipantsNumber][memberYoungBoys]": kwargs.get("numar_participanti", {}).get("baieti"),
+            "activity[activityParticipantsNumber][memberElderGirls]": kwargs.get("numar_participanti", {}).get("lideri_femei"),
+            "activity[activityParticipantsNumber][memberElderBoys]": kwargs.get("numar_participanti", {}).get("lideri_barbati"),
+
+            "activity[activityParticipantsNumber][externYoungGirls]": 0,
+            "activity[activityParticipantsNumber][externYoungBoys]": 0,
+            "activity[activityParticipantsNumber][externElderGirls]": 0,
+            "activity[activityParticipantsNumber][externElderBoys]": 0,
+
+            "activity[short_description]": kwargs.get("descriere"),
+            "activity[objectives]": kwargs.get("obiective"),
+            "activity[target]": kwargs.get("grup_tinta"),
+            "activity[activities]": kwargs.get("activitati"),
+            "activity[promotion]": kwargs.get("promovare"),
+            "activity[partners]": kwargs.get("parteneri"),
+            "activity[budget]": "{}".format(kwargs.get("buget")),
+            "activity[beneficiaries]": kwargs.get("beneficiari"),
+        }
 
         photo = kwargs.get("photo", None)
         photo_upload_data = ("", "", "application/octet-stream")
@@ -94,13 +104,19 @@ class ONCRClient(object):
             photo_data = open(photo_tmp_path, "rb")
             photo_upload_data = ("cover.png", photo_data, "application/octet-stream")
 
-        r_activitate = self.session.post(self.URLS.get("add_activitate"),
-                    data=data,
-                    files=[("photos[]", photo_upload_data)],
-                    headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36",
-                             "Referer": self.URLS.get("add_activitate"),
-                             "Host": "www.oncr.ro",
-                             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"})
+        headers = {
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 "
+                          "Safari/537.36",
+            "Referer": self.URLS.get("add_activitate"),
+            "Host": "www.oncr.ro",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+        }
+
+        r_activitate = self.session.post(
+            self.URLS.get("add_activitate"),
+            data=data,
+            files=[("photos[]", photo_upload_data)],
+            headers=headers)
 
         return r_activitate.status_code == 200
 
@@ -134,5 +150,6 @@ class ONCRClient(object):
 
 if __name__ == "__main__":
     client = ONCRClient(user="andrei.avram@albascout.ro", password="")
-    events = client.get_membru_json("AA147")
-    print events
+    client.do_login()
+    data = client.get_membru_json("AA147")
+    print data

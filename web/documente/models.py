@@ -274,7 +274,6 @@ class Trimestru(models.Model):
         call_command('genereaza_trimestre')
 
         return Trimestru.objects.get(data_inceput = datetime.date(year=2011, month=10, day=1))
-        return trimestru_nou
 
     @classmethod
     def trimestru_pentru_data(cls, data):
