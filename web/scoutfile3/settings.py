@@ -308,7 +308,7 @@ DATE_INPUT_FORMATS = ['%d.%m.%Y', ] + list(global_settings.DATE_INPUT_FORMATS)
 DATETIME_INPUT_FORMATS = ['%d.%m.%Y %H:%M %p', '%d.%m.%Y %H:%M:%S'] + list(global_settings.DATETIME_INPUT_FORMATS)
 
 # TODO: remove secrets from here
-GOOGLE_API_KEY = "AIzaSyCIiQgKmmRv2SLBj8KTbx6HB7Kn_6LIU-o"
+GOOGLE_API_KEY = ""
 
 
 # TODO: remove secrets from here
