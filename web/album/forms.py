@@ -4,6 +4,7 @@ Created on Aug 31, 2012
 
 @author: yeti
 '''
+from builtins import object
 from ajax_select.fields import AutoCompleteSelectField
 from crispy_forms.layout import Fieldset, Layout, Field
 from django import forms
@@ -20,7 +21,7 @@ from generic.widgets import BootstrapDateTimeInput, BootstrapDateInput
 
 
 class ReportForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = FlagReport
         fields = ("motiv", "alt_motiv")
 
@@ -45,19 +46,19 @@ class ReportFormNoButtons(ReportForm):
 
 
 class SetPozeCreateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = SetPoze
         exclude = ["autor_user", "status", "zip_file", "procent_procesat"]
 
 
 class SetPozeUpdateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = SetPoze
         exclude = ["procent_procesat", "autor_user", "status", "zip_file", "eveniment"]
 
 
 class EvenimentCreateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Eveniment
         exclude = ["centru_local", "custom_cover_photo", "ramuri_de_varsta", "activa", "slug"]
 
@@ -85,13 +86,13 @@ class EvenimentCreateForm(CrispyBaseModelForm):
 
 
 class EvenimentUpdateForm(EvenimentCreateForm):
-    class Meta:
+    class Meta(object):
         model = Eveniment
         exclude = ["centru_local", "custom_cover_photo", "ramuri_de_varsta"]
 
 
 class PozaTagsForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Imagine
         fields = ["tags", "titlu", "descriere", "published_status"]
 
@@ -99,13 +100,13 @@ class PozaTagsForm(CrispyBaseModelForm):
 
 
 class ZiForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = ZiEveniment
         fields = ["titlu", "descriere"]
 
 
 class RaportEvenimentForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = RaportEveniment
         fields = ["parteneri", "obiective", "grup_tinta", "activitati", "alti_beneficiari",
                   "promovare", "buget", "accept_publicare_raport_national", "aventura",
@@ -113,7 +114,7 @@ class RaportEvenimentForm(CrispyBaseModelForm):
 
 
 class EvenimentParticipareBaseForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = ParticipareEveniment
         exclude = ["eveniment", "user_modificare", "membru", "nonmembru"]
 
@@ -147,7 +148,7 @@ class EvenimentParticipareBaseForm(CrispyBaseModelForm):
 
 
 class EvenimentParticipareForm(EvenimentParticipareBaseForm):
-    class Meta:
+    class Meta(object):
         model = ParticipareEveniment
         exclude = ["eveniment", "user_modificare", "nonmembru"]
 
@@ -202,7 +203,7 @@ class EvenimentParticipareNonmembruUpdateForm(EvenimentParticipareUpdateMixin, E
 
 
 class CampArbitrarForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = CampArbitrarParticipareEveniment
         exclude = ["eveniment", "slug"]
 
@@ -248,7 +249,7 @@ class EvenimentParticipantFilterForm(CrispyBaseForm):
                 cond[parts[0].strip()] = parts[1].strip()
 
         cond_parsed = {}
-        for camp, valoare in cond.items():
+        for camp, valoare in list(cond.items()):
             try:
                 camp_arbitrar = self.eveniment.camparbitrarparticipareeveniment_set.get(slug__iexact=camp)
                 if camp_arbitrar.tip_camp != "bool":

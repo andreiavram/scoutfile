@@ -1,4 +1,5 @@
 #   coding=utf8
+from builtins import object
 import datetime
 import logging
 from json import dumps
@@ -7,7 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models.aggregates import Sum
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -48,7 +49,7 @@ class DocumentFolderList(ListView):
 
     def dispatch(self, request, *args, **kwargs):
         self.folder = None
-        if kwargs.has_key("id"):
+        if "id" in kwargs:
             self.folder = get_object_or_404(Document, id=kwargs.pop("id"))
             if not self.folder.is_folder:
                 logger.error(u"%s: Document is not a folder" % self.__class__.__name__)
@@ -529,7 +530,7 @@ class CalculeazaAcoperireCotizatie(JSONView):
     def clean_membru(self, value):
         try:
             return Membru.objects.get(id = value)
-        except Membru.DoesNotExist, e:
+        except Membru.DoesNotExist as e:
             raise ScoutFileAjaxException(exception = e)
         return None
 

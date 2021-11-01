@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load pagination_tags %}
-{% load staticfiles %}
+{% load static %}
 {% block page_title %}
     Căutare după tag-uri
 {% endblock %}
@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block extrahead %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}goodies/css/tagmanager.css"/>
+    <link rel="stylesheet" href="{% static 'goodies/css/tagmanager.css' %}"/>
     <link rel="stylesheet" href="{% static 'gallery/css/blueimp-gallery.min.css' %}">
     <style>
         .blueimp-gallery > .description {
@@ -52,8 +52,8 @@
 {% endblock %}
 
 {% block extrajs %}
-    <script src="{{ STATIC_URL }}goodies/js/typeahead.js"></script>
-    <script src="{{ STATIC_URL }}goodies/js/tagmanager.js"></script>
+    <script src="{% static 'goodies/js/typeahead.js' %}"></script>
+    <script src="{% static 'goodies/js/tagmanager.js' %}"></script>
     <script src="{% static 'gallery/js/blueimp-gallery.js' %}"></script>
     <script src="{% static 'gallery/js/blueimp-gallery-fullscreen.js' %}"></script>
     <script src="{% static 'gallery/js/blueimp-gallery-indicator.js' %}"></script>

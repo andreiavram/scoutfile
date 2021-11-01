@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django.db.models.deletion
 from django.db import migrations, models
 
 
@@ -18,28 +19,28 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('nume', models.CharField(max_length=255)),
-                ('responsabil', models.ForeignKey(to='structuri.Membru')),
+                ('responsabil', models.ForeignKey(to='structuri.Membru', on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.CreateModel(
             name='IesireInventar',
             fields=[
-                ('document_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Document')),
+                ('document_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Document', on_delete=django.db.models.deletion.CASCADE)),
                 ('cantitate_scoasa', models.PositiveIntegerField(null=True, blank=True)),
                 ('timestamp', models.DateTimeField()),
                 ('motiv', models.CharField(max_length=255, choices=[(b'activitate', 'Activitate'), (b'imprumut', '\xcemprumut'), (b'casare', 'Casare'), (b'distrugere', 'Distrugere')])),
-                ('activitate', models.ForeignKey(to='album.Eveniment')),
+                ('activitate', models.ForeignKey(to='album.Eveniment', on_delete=django.db.models.deletion.CASCADE)),
             ],
             bases=('documente.document',),
         ),
         migrations.CreateModel(
             name='IntrareInventar',
             fields=[
-                ('document_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Document')),
+                ('document_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Document', on_delete=django.db.models.deletion.CASCADE)),
                 ('cantitate_intrata', models.PositiveIntegerField(null=True, blank=True)),
                 ('timestamp', models.DateTimeField()),
                 ('observatii', models.TextField(null=True, blank=True)),
-                ('iesire_inventar', models.ForeignKey(blank=True, to='inventar.IesireInventar', null=True)),
+                ('iesire_inventar', models.ForeignKey(blank=True, to='inventar.IesireInventar', null=True, on_delete=django.db.models.deletion.SET_NULL)),
             ],
             bases=('documente.document',),
         ),
@@ -47,8 +48,8 @@ class Migration(migrations.Migration):
             name='LocateiInventar',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('centru_local', models.ForeignKey(to='structuri.CentruLocal')),
-                ('responsabil', models.ForeignKey(to='structuri.Membru')),
+                ('centru_local', models.ForeignKey(to='structuri.CentruLocal', on_delete=django.db.models.deletion.CASCADE)),
+                ('responsabil', models.ForeignKey(to='structuri.Membru', on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -62,29 +63,29 @@ class Migration(migrations.Migration):
                 ('unitate_de_masura', models.CharField(max_length=255)),
                 ('cantitate_curenta', models.PositiveIntegerField(default=1)),
                 ('stare', models.CharField(max_length=255, choices=[(b'nou', 'Nou'), (b'fb', 'Foarte bun\u0103'), (b'b', 'Bun\u0103'), (b'u', 'Utilizabil'), (b'r', 'Are nevoie de repara\u021bii'), (b'p', 'Proast\u0103')])),
-                ('categorie', models.ForeignKey(blank=True, to='inventar.CategorieInventar', null=True)),
-                ('locatie', models.ForeignKey(to='inventar.LocateiInventar')),
-                ('responsabil', models.ForeignKey(to='structuri.Membru')),
+                ('categorie', models.ForeignKey(blank=True, to='inventar.CategorieInventar', null=True, on_delete=django.db.models.deletion.SET_NULL)),
+                ('locatie', models.ForeignKey(to='inventar.LocateiInventar', on_delete=django.db.models.deletion.CASCADE)),
+                ('responsabil', models.ForeignKey(to='structuri.Membru', on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.AddField(
             model_name='intrareinventar',
             name='ref_obiect_inventar',
-            field=models.ForeignKey(to='inventar.ObiectInventar'),
+            field=models.ForeignKey(to='inventar.ObiectInventar', on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='intrareinventar',
             name='responsabil',
-            field=models.ForeignKey(to='structuri.Membru'),
+            field=models.ForeignKey(to='structuri.Membru', on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='iesireinventar',
             name='ref_obiect_inventar',
-            field=models.ForeignKey(to='inventar.ObiectInventar'),
+            field=models.ForeignKey(to='inventar.ObiectInventar', on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='iesireinventar',
             name='responsabil',
-            field=models.ForeignKey(to='structuri.Membru'),
+            field=models.ForeignKey(to='structuri.Membru', on_delete=django.db.models.deletion.CASCADE),
         ),
     ]

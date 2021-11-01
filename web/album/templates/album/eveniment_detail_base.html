@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load tab_tags %}
-{% load staticfiles %}
+{% load static %}
 
 {% block page_title %}
     {{ object }} {% if object.tip_eveniment %}<span style="font-weight:normal">| {{ object.tip_eveniment|lower }}</span>{% endif %}
@@ -111,7 +111,7 @@
             <ul class = "unstyled" style="margin-top: 60px; font-size:14px; text-align: right">
                 {% for rdv, data in eveniment.get_ramuri_de_varsta %}
                     {% if data != 0 %}
-                    <li><strong>{{ data }}</strong> {% if rdv != "nonmembri" %}<img src = "{{ STATIC_URL }}images/icon-{{ rdv }}.png">{% else %}?{% endif %}</li>
+                    <li><strong>{{ data }}</strong> {% if rdv != "nonmembri" %}<img src = "{% get_static_prefix %}images/icon-{{ rdv }}.png">{% else %}?{% endif %}</li>
                     {% endif %}
                 {% endfor %}
             </ul>
@@ -121,7 +121,7 @@
                 {% if object.asociereevenimentstructura_set.all.count %}
                     Eveniment pentru {% for a in object.asociereevenimentstructura_set.all %}
                         <strong>{% if a.content_object.ramura_de_varsta %}
-                            <img src = "{{ STATIC_URL }}images/icon-{{ a.content_object.ramura_de_varsta|lower|slugify }}.png" />{% endif %}
+                            <img src = "{% get_static_prefix %}images/icon-{{ a.content_object.ramura_de_varsta|lower|slugify }}.png" />{% endif %}
                             <a href = "{{ a.content_object.get_absolute_url }}">{{ a.content_object.nume }}</a>
                         </strong>{% if not forloop.last %}, {% endif %}{% endfor %}.
                 {% endif %}
@@ -139,11 +139,11 @@
             {% if object.organizator %}Organizat de <strong>{{ object.organizator }} {% if object.organizator_cercetas %}(cercetași){% endif %}</strong> <i class = "icon-star"></i> {% endif %}</strong>
               </p>
 
-            <p>{% if object.responsabil_raport %}<strong>Responsabil raport: </strong>{% with object.responsabil_raport as cercetas %}{% for badge in cercetas.get_badges_rdv %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
-                            {% for badge in cercetas.get_extra_badges %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
+            <p>{% if object.responsabil_raport %}<strong>Responsabil raport: </strong>{% with object.responsabil_raport as cercetas %}{% for badge in cercetas.get_badges_rdv %} <img src = "{% get_static_prefix %}images/icon-{{ badge }}.png" />{% endfor %}
+                            {% for badge in cercetas.get_extra_badges %} <img src = "{% get_static_prefix %}images/icon-{{ badge }}.png" />{% endfor %}
                             <a href = "{% url "structuri:membru_detail"  pk=cercetas.id %}">{{ cercetas }}</a></li>{% endwith %}{% endif %}</p>
-            <p>{% if object.responsabil_articol %}<strong>Responsabil articol site: </strong>{% with object.responsabil_articol as cercetas %}{% for badge in cercetas.get_badges_rdv %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
-                            {% for badge in cercetas.get_extra_badges %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
+            <p>{% if object.responsabil_articol %}<strong>Responsabil articol site: </strong>{% with object.responsabil_articol as cercetas %}{% for badge in cercetas.get_badges_rdv %} <img src = "{% get_static_prefix %}images/icon-{{ badge }}.png" />{% endfor %}
+                            {% for badge in cercetas.get_extra_badges %} <img src = "{% get_static_prefix %}images/icon-{{ badge }}.png" />{% endfor %}
                             <a href = "{% url "structuri:membru_detail"  pk=cercetas.id %}">{{ cercetas }}</a></li>{% endwith %}{% endif %}</p>
 
             <p>{% if object.international %}<span class = "label label-info">Internațional</span> {% endif %}</p>

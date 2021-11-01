@@ -36,11 +36,11 @@
 		<tr id = "row_{{ object.id }}">
 			<td>{{ forloop.counter }}</td>
 			<td><ul class = "unstyled">{% for badge in object.get_badges_rdv %}
-				<li><img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" /></li>
+				<li><img src = "{% get_static_prefix %}images/icon-{{ badge }}.png" /></li>
 				
 				{% endfor %}</ul></td>
 			<td><img class = "thumbnail" src = "{% if object.poza_profil %}{{ object.poza_profil.get_profil_mic_url }}{% else %}{% static 'images/50x50.gif' %}'{% endif %}" /></td>
-			<td><a href = "{% url "structuri:membru_detail"  pk=object.id %}">{{ object }}</a> {% for badge in object.get_extra_badges %}<img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}</td>
+			<td><a href = "{% url "structuri:membru_detail"  pk=object.id %}">{{ object }}</a> {% for badge in object.get_extra_badges %}<img src = "{% get_static_prefix %}images/icon-{{ badge }}.png" />{% endfor %}</td>
 			
 			<td>
 				<ul class = "unstyled">

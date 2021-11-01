@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load pagination_tags %}
 {% load customfield_tags %}
+{% load static %}
 
 {% block page_title %}
     {{ eveniment }} <span style="font-weight: normal">| participanți {% if cancelled %}<small>care să fi renunțat</small>{% endif %}</span>
@@ -68,8 +69,8 @@
                 <td>#{{ participare.id }}</td>
                 {% if participare.membru_id %}
                 {% with participare.membru as cercetas %}
-                <td>{% for badge in cercetas.get_badges_rdv %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
-                            {% for badge in cercetas.get_extra_badges %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
+                <td>{% for badge in cercetas.get_badges_rdv %} <img src = "{% get_static_prefix %}images/icon-{{ badge }}.png" />{% endfor %}
+                            {% for badge in cercetas.get_extra_badges %} <img src = "{% get_static_prefix %}images/icon-{{ badge }}.png" />{% endfor %}
                             <a href = "{% url "structuri:membru_detail"  pk=cercetas.id %}">{{ cercetas }}</a></td>
                 {% endwith %}
                 {% else %}
