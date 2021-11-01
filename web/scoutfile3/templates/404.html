@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block page_title %}
 	404 - N-am găsit pagina ...
@@ -7,7 +8,7 @@
 {% block content %}
 	<div class = 'row'>
 	<div class = 'span4'>
-		<img src = "{{ STATIC_URL }}images/bufnita.png" />
+		<img src = "{% static 'images/bufnita.png' %}" />
 	</div>
 	<div class = 'span6'>
 			<p>Ups ... Cred că mi s-a dereglat busola, nu am găsit pagina pe care o căutai. 

@@ -21,7 +21,7 @@ class Cantec(models.Model):
     album = models.CharField(max_length=255, null=True, blank=True)
     tags = TaggableManager(blank=True)
 
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now=True)
 
     def delete(self, **kwargs):
@@ -33,7 +33,7 @@ class Cantec(models.Model):
 class OptiuniTemplateCarteCantece(models.Model):
     nume = models.CharField(max_length=255)
     descriere = models.CharField(max_length=1024, null=True, blank=True)
-    template = models.ForeignKey("TemplateCarteCantece")
+    template = models.ForeignKey("TemplateCarteCantece", on_delete=models.CASCADE)
 
 
 def upload_to_template_carte_cantece(instance, fn):
@@ -44,19 +44,19 @@ class TemplateCarteCantece(models.Model):
     nume = models.CharField(max_length=255)
     template_file = models.FileField(upload_to=upload_to_template_carte_cantece, storage=LocalStorage())
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nume
 
 
 class CarteCantece(models.Model):
     cantece = models.ManyToManyField(Cantec, through="ConexiuneCantecCarte")
-    template = models.ForeignKey(TemplateCarteCantece)
+    template = models.ForeignKey(TemplateCarteCantece, on_delete=models.CASCADE)
     optiuni_template = models.ManyToManyField(OptiuniTemplateCarteCantece, blank=True)
 
 
 class ConexiuneCantecCarte(models.Model):
-    cantec = models.ForeignKey(Cantec)
-    carte = models.ForeignKey(CarteCantece)
+    cantec = models.ForeignKey(Cantec, on_delete=models.CASCADE)
+    carte = models.ForeignKey(CarteCantece, on_delete=models.CASCADE)
 
     status = models.CharField(max_length=255, choices=(("propus", u"Propus"), ("aprobat", u"Aprobat"), ("respins", u"Respins")))
-    owner = models.ForeignKey(User, null=True, blank=True)
+    owner = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)

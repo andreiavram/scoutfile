@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load staticfiles %}
+{% load static %}
 {% block extrahead %}
     <link rel="stylesheet" href="{% static "bootstrap-calendar/css/calendar.css" %}">
     <script type="text/javascript" src="{% static "bootstrap-calendar/js/calendar.js" %}"></script>
@@ -14,7 +14,7 @@
 {#                events_source: function () { return [ { "id": "1", "title": "test", "url": "http://192.168.33.10:8000/continut/eveniment/1/", "class": 'event-important', "start": "1389608400000", "end": "1389624000000" } ]},#}
 
 {#                modal: "#events-modal",#}
-                tmpl_path: "{{ STATIC_URL }}bootstrap-calendar/tmpls/",
+                tmpl_path: "{% static 'bootstrap-calendar/tmpls/' %}",
                 language: 'ro-RO',
 
                 tmpl_cache: false,
@@ -146,7 +146,7 @@
                 <a href = "#" class = "disabled btn">Unități: </a>
                 <a href = "{% url "album:calendar_centru_local"  pk=object.id %}?unitate=0" class = "btn {% if 'unitate' not in request.session or request.session.unitate == '0' %}disabled{% endif %}">Toate</a>
                 {% for unitate in unitati %}
-                    <a href = "{% url "album:calendar_centru_local"  pk=object.id %}?unitate={{ unitate.id }}" class = "btn {% if request.session.unitate and request.session.unitate == unitate.id %}disabled{% endif %}" data-id = "{{ unitate.id }}"><img style="height: 18px" src = "{{ STATIC_URL }}images/icon-{{ unitate.ramura_de_varsta|slugify }}.png" /> {{ unitate.nume }}</a>
+                    <a href = "{% url "album:calendar_centru_local"  pk=object.id %}?unitate={{ unitate.id }}" class = "btn {% if request.session.unitate and request.session.unitate == unitate.id %}disabled{% endif %}" data-id = "{{ unitate.id }}"><img style="height: 18px" src = "{% get_static_prefix %}images/icon-{{ unitate.ramura_de_varsta|slugify }}.png" /> {{ unitate.nume }}</a>
                 {% endfor %}
                 {% if patrula %}
                     <a href = "#" class = "btn btn-disabled">{{ patrula }}</a>

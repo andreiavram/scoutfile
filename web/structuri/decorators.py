@@ -8,7 +8,7 @@ import logging
 
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 
@@ -30,7 +30,7 @@ def allow_by_afiliere(asocieri, pkname = "pk", combine = False):
             
             #    skip checks if dispatch method is being called from a child class for some reason
             #    and the child class has different checks then us
-            if "skip_checks" in kwargs.keys() and kwargs['skip_checks']:
+            if "skip_checks" in list(kwargs.keys()) and kwargs['skip_checks']:
                 return view_func(self, *args, **kwargs)
             
             #    pass-through for system administrators
@@ -40,7 +40,7 @@ def allow_by_afiliere(asocieri, pkname = "pk", combine = False):
 
             text_asocieri = ", ".join(["%s @ %s" % (s, a) for s, a in asocieri])
 
-            if not args[0].user.is_authenticated():
+            if not args[0].user.is_authenticated:
                 return redirect_with_error(args[0], text_asocieri)
             
             lookups = {"Centru Local" : lambda : get_object_or_404(CentruLocal, id = kwargs.get(pkname)),
@@ -66,7 +66,7 @@ def allow_by_afiliere(asocieri, pkname = "pk", combine = False):
             
             login_ok = False
             for structura_ref, calitate in asocieri:
-                if not structura_ref in lookups.keys():
+                if not structura_ref in list(lookups.keys()):
                     if combine:
                         login_ok = False
                         break

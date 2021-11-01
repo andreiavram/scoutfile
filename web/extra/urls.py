@@ -1,8 +1,7 @@
-#coding: utf8
-from django.conf.urls import patterns
-
+# coding: utf8
+from django.urls import path
 from extra.views import EnciclopedieEntries
 
-urlpatterns = patterns('extra.views',
-                       (r'enciclopedie/$', EnciclopedieEntries.as_view(), {}, "enciclopedia_temerarilor"),
-                       )
+urlpatterns = [
+    path('enciclopedie/', EnciclopedieEntries.as_view(), name="enciclopedia_temerarilor"),
+]

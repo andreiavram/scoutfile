@@ -1,3 +1,6 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from collections import defaultdict
 from unidecode import unidecode
 
@@ -152,4 +155,4 @@ if __name__ == "__main__":
     client = ONCRClient(user="andrei.avram@albascout.ro", password="")
     client.do_login()
     data = client.get_membru_json("AA147")
-    print data
+    print(data)

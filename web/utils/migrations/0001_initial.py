@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django.db.models.deletion
 from django.db import models, migrations
 from django.conf import settings
 
@@ -19,7 +20,7 @@ class Migration(migrations.Migration):
                 ('access_token', models.CharField(max_length=1024)),
                 ('expires', models.IntegerField(null=True)),
                 ('uid', models.BigIntegerField(unique=True, null=True)),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
             },

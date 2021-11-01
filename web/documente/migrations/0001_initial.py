@@ -46,7 +46,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Decizie',
             fields=[
-                ('document_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Document')),
+                ('document_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Document', on_delete=django.db.models.deletion.CASCADE)),
                 ('continut', models.TextField(null=True, blank=True)),
             ],
             options={
@@ -56,7 +56,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='DecizieRezervareNumere',
             fields=[
-                ('decizie_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Decizie')),
+                ('decizie_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Decizie', on_delete=django.db.models.deletion.CASCADE)),
                 ('tip_rezervare', models.CharField(max_length=255, choices=[(b'chitantier', 'Chitan\u021bier'), (b'facturier', 'Facturier'), (b'io', 'Registru intr\u0103ri / ie\u0219iri'), (b'intern', 'Registru intern')])),
                 ('automat', models.BooleanField(default=True)),
                 ('numar_inceput', models.IntegerField()),
@@ -70,7 +70,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='DecizieCotizatie',
             fields=[
-                ('decizie_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Decizie')),
+                ('decizie_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Decizie', on_delete=django.db.models.deletion.CASCADE)),
                 ('cuantum', models.FloatField(help_text='Valoare exprimat\u0103 \xeen RON pentru un an calendaristic (4 trimestre)')),
                 ('categorie', models.CharField(default=b'normal', max_length=255, choices=[(b'local', 'Local'), (b'national', 'Na\u021bional'), (b'local-social', 'Local (social)'), (b'national-social', 'Na\u021bional (social)')])),
                 ('data_inceput', models.DateField()),
@@ -83,7 +83,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Chitanta',
             fields=[
-                ('document_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Document')),
+                ('document_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Document', on_delete=django.db.models.deletion.CASCADE)),
                 ('suma', models.FloatField(default=0)),
                 ('printata', models.BooleanField(default=False)),
             ],
@@ -94,7 +94,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ChitantaCotizatie',
             fields=[
-                ('chitanta_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Chitanta')),
+                ('chitanta_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Chitanta', on_delete=django.db.models.deletion.CASCADE)),
                 ('predat', models.BooleanField(default=False)),
                 ('blocat', models.BooleanField(default=False)),
             ],
@@ -105,7 +105,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='DocumentCotizatieSociala',
             fields=[
-                ('document_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Document')),
+                ('document_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Document', on_delete=django.db.models.deletion.CASCADE)),
                 ('nume_parinte', models.CharField(help_text='Las\u0103 gol pentru cerceta\u0219i adul\u021bi', max_length=255, null=True, verbose_name='Nume p\u0103rinte', blank=True)),
                 ('motiv', models.CharField(max_length=2048, null=True, blank=True)),
                 ('este_valabil', models.BooleanField(default=False, help_text='Bifeaz\u0103 doar dac\u0103 cererea a fost aprobat\u0103 de Consiliu', verbose_name='Cerere aprobat\u0103?')),

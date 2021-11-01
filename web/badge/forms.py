@@ -1,4 +1,5 @@
 #coding: utf-8
+from builtins import object
 from ajax_select.fields import AutoCompleteSelectField
 from badge.models import Badge
 from crispy_forms.layout import Layout, Field, Div, Fieldset, HTML
@@ -12,7 +13,7 @@ __author__ = 'yeti'
 
 
 class BadgeForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Badge
         exclude = ("owner", "status", "poza_badge")
 
