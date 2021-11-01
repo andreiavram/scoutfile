@@ -1,15 +1,16 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 {% load cotizatie_tags %}
+{% load static %}
 
 {% block page_title %}
     Adaugă cotizație
 {% endblock %}
 
 {% block extrahead %}
-    <link type="text/css" href="{{ STATIC_URL }}css/datepicker.css" rel="stylesheet"/>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-datepicker.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-datepicker-activate.js"></script>
+    <link type="text/css" href="{% static 'css/datepicker.css' %}/" rel="stylesheet"/>
+    <script type="text/javascript" src="{% static 'js/bootstrap-datepicker.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap-datepicker-activate.js' %}"></script>
 
     <script>
         function handle_numar_inregistrare() {

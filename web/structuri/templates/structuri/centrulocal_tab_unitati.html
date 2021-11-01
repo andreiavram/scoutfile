@@ -1,3 +1,4 @@
+{% load static %}
 <a class = "btn btn-primary" href = "{% url "structuri:cl_unitate_add"  pk=centru_local.id %}"><i class = "icon-plus-sign icon-white"></i> Adaugă unitate</a>
 <table class="table table-striped">
 	<thead>
@@ -16,7 +17,7 @@
 		<tr id = "row_{{ object.id }}">
 			<td>{{ forloop.counter }}</td>
 			<td><a href = "{% url "structuri:unitate_detail"  pk=unitate.id %}">{{ unitate.nume }}</a></td>
-			<td><img src = "{{ STATIC_URL }}images/icon-{{ unitate.ramura_de_varsta.slug }}.png" /> {{ unitate.ramura_de_varsta }}</td>
+			<td><img src = "{% get_static_prefix %}images/icon-{{ unitate.ramura_de_varsta.slug }}.png" /> {{ unitate.ramura_de_varsta }}</td>
             <td>
                 <ul class = "unstyled">
                 {% for patrula in unitate.patrule %}

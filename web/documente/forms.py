@@ -4,6 +4,7 @@ Created on Nov 8, 2012
 
 @author: yeti
 '''
+from builtins import object
 from django.core.exceptions import ValidationError
 from django.db.models.aggregates import Max
 from django.db.models.query_utils import Q
@@ -19,12 +20,12 @@ from generic.widgets import BootstrapDateInput
 
 
 class DocumentCreateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Document
         exclude = ("version_number", "root_document", "folder", "locked", "is_folder", "uploader")
         
 class FolderCreateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Document
         fields = ("titlu", )
 
@@ -35,7 +36,7 @@ class DocumentRegistraturaMixin(object):
         if registru.mod_functionare == "auto":
             try:
                 self.cleaned_data['numar_inregistrare'] = registru.get_numar_inregistrare()
-            except ValueError, e:
+            except ValueError as e:
                 raise ValidationError(u"Există deja un document cu acest număr de înregistrare în registrul selectat!")
         else:
             if registru.get_document(self.cleaned_data['numar_inregistrare']):
@@ -43,7 +44,7 @@ class DocumentRegistraturaMixin(object):
 
 
 class CotizatieMembruForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = ChitantaCotizatie
         fields = ["fisier", "registru", "numar_inregistrare", "suma"]
 
@@ -69,7 +70,7 @@ class CotizatieMembruForm(CrispyBaseModelForm):
             if "numar_inregistrare" in self.cleaned_data:
                 try:
                     self.cleaned_data['numar_inregistrare'] = registru.get_numar_inregistrare()
-                except ValueError, e:
+                except ValueError as e:
                     raise ValidationError(u"Nu s-a putut obține număr de înregistrare pentru decizie ({0})".format(e))
         else:
             if registru.get_document(self.cleaned_data['numar_inregistrare']):
@@ -79,7 +80,7 @@ class CotizatieMembruForm(CrispyBaseModelForm):
 
 
 class DeclaratieCotizatieSocialaForm(CrispyBaseModelForm, DocumentRegistraturaMixin):
-    class Meta:
+    class Meta(object):
         model = DocumentCotizatieSociala
         fields = ['nume_parinte', 'motiv', 'este_valabil', 'fisier', 'registru', 'numar_inregistrare',
                   'data_inregistrare', 'valabilitate_start', 'valabilitate_end']
@@ -142,7 +143,7 @@ class RegistruForm(CrispyBaseModelForm):
 
 
 class RegistruCreateForm(RegistruForm):
-    class Meta:
+    class Meta(object):
         model = Registru
         exclude = ["centru_local", "owner", "document_referinta", "numar_curent", "valabil", "editabil"]
 
@@ -152,7 +153,7 @@ class RegistruCreateForm(RegistruForm):
 
 
 class RegistruUpdateForm(RegistruForm):
-    class Meta:
+    class Meta(object):
         model = Registru
         exclude = ["centru_local", "owner", "document_referinta", "numar_curent", "numar_inceput", "editabil"]
 
@@ -170,7 +171,7 @@ class RegistruUpdateForm(RegistruForm):
 
 
 class DecizieCuantumCotizatieForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = DecizieCotizatie
         fields = ["registru", "numar_inregistrare", "categorie", "cuantum", "data_inceput", "continut"]
 
@@ -201,7 +202,7 @@ class DecizieCuantumCotizatieForm(CrispyBaseModelForm):
                 if "numar_inregistrare" in self.cleaned_data:
                     try:
                         self.cleaned_data['numar_inregistrare'] = registru.get_numar_inregistrare()
-                    except ValueError, e:
+                    except ValueError as e:
                         raise ValidationError(u"Nu s-a putut obține număr de înregistrare pentru decizie ({0})".format(e))
             else:
                 if registru.get_document(self.cleaned_data['numar_inregistrare']):
@@ -211,7 +212,7 @@ class DecizieCuantumCotizatieForm(CrispyBaseModelForm):
 
 
 class DecizieGeneralaForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Decizie
         fields = ["titlu", "registru", "numar_inregistrare", "continut"]
 
@@ -232,7 +233,7 @@ class DecizieGeneralaForm(CrispyBaseModelForm):
             if "numar_inregistrare" in self.cleaned_data:
                 try:
                     self.cleaned_data['numar_inregistrare'] = registru.get_numar_inregistrare()
-                except ValueError, e:
+                except ValueError as e:
                     raise ValidationError(u"Nu s-a putut obține număr de înregistrare pentru decizie ({0})".format(e))
         else:
             if registru.get_document(self.cleaned_data['numar_inregistrare']):
@@ -240,7 +241,7 @@ class DecizieGeneralaForm(CrispyBaseModelForm):
 
 
 class DecizieGeneralaUpdateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Decizie
         fields = ["titlu", "continut"]
 
@@ -262,7 +263,7 @@ class TransferIncasariForm(CrispyBaseForm):
 
 
 class AdeziuneCreateForm(CrispyBaseModelForm, DocumentRegistraturaMixin):
-    class Meta:
+    class Meta(object):
         model = Adeziune
         fields = ["fisier", "registru", "numar_inregistrare", "data_inregistrare"]
 
@@ -287,6 +288,6 @@ class AdeziuneCreateForm(CrispyBaseModelForm, DocumentRegistraturaMixin):
         return self.cleaned_data
 
 class AdeziuneUpdateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Adeziune
         fields = ["fisier"]

@@ -1,3 +1,4 @@
+from builtins import object
 from django import forms
 from django_ace.widgets import AceWidget
 from goodies.forms import CrispyBaseModelForm, CrispyBaseForm
@@ -9,7 +10,7 @@ __author__ = 'andrei'
 
 
 class CantecForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Cantec
         exclude = ("nume_fisier", "owner")
 
@@ -21,6 +22,6 @@ class CantecFileForm(CrispyBaseForm):
 
 
 class CarteCanteceForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = CarteCantece
         exclude = []

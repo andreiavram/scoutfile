@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django.db.models.deletion
 from django.db import models, migrations
 
 
@@ -27,9 +28,9 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(default=b'produs', max_length=255)),
                 ('disponibil_in', models.TextField(help_text='Unde poate fi g\u0103sit badge-ul, c\xe2te o loca\u021bie pe linie', null=True, verbose_name='Unde se poate g\u0103si', blank=True)),
                 ('timestamp', models.DateTimeField(auto_now=True)),
-                ('designer_membru', models.ForeignKey(blank=True, to='structuri.Membru', null=True)),
-                ('owner', models.ForeignKey(related_name='badgeuri', to='structuri.Membru')),
-                ('poza_badge', models.ForeignKey(blank=True, to='album.Imagine', null=True)),
+                ('designer_membru', models.ForeignKey(blank=True, to='structuri.Membru', null=True, on_delete=django.db.models.deletion.SET_NULL)),
+                ('owner', models.ForeignKey(related_name='badgeuri', to='structuri.Membru', on_delete=django.db.models.deletion.CASCADE)),
+                ('poza_badge', models.ForeignKey(blank=True, to='album.Imagine', null=True, on_delete=django.db.models.deletion.SET_NULL)),
             ],
             options={
                 'ordering': ['-data_productie'],

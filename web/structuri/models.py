@@ -1,5 +1,7 @@
 #   coding: utf-8
 
+from builtins import range
+from builtins import object
 import datetime
 import json
 import logging
@@ -8,9 +10,8 @@ import unidecode
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import caches
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
-from django.db.models import permalink
 from django.db.models.aggregates import Sum
 from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
@@ -38,12 +39,12 @@ class RamuraDeVarsta(models.Model):
     culoare = models.CharField(max_length=255, null=True, blank=True)
     are_patrule = models.BooleanField(default=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s" % self.nume
 
 
 class Structura(models.Model):
-    class Meta:
+    class Meta(object):
         abstract = True
 
     nume = models.CharField(max_length=255)
@@ -124,7 +125,7 @@ def upload_to_centru_local_antent(instance, filename):
 
 
 class CentruLocal(Structura):
-    class Meta:
+    class Meta(object):
         verbose_name = u"Centru Local"
         verbose_name_plural = u"Centre Locale"
 
@@ -144,7 +145,7 @@ class CentruLocal(Structura):
                                                 default="email", verbose_name=u"Preferință trimitere corespondență",
                                                 help_text=u"Asigurați-vă că ați adăugat informațiile relevante de contact pentru tipul de corespondență ales.")
 
-    moment_initial_cotizatie = models.ForeignKey("documente.Trimestru", null=True, blank=True)
+    moment_initial_cotizatie = models.ForeignKey("documente.Trimestru", null=True, blank=True, on_delete=models.SET_NULL)
     logo = models.ImageField(null=True, blank=True, upload_to=upload_to_centru_local_logo)
     antet = models.ImageField(null=True, blank=True, upload_to=upload_to_centru_local_antent)
 
@@ -153,14 +154,13 @@ class CentruLocal(Structura):
             return u"Centrul Local \"%s\" %s" % (self.denumire, self.localitate)
         return u"Centrul Local %s" % self.localitate
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s" % self.nume_complet()
 
     def save(self, *args, **kwargs):
         self.nume = self.nume_complet()
         return super(CentruLocal, self).save(*args, **kwargs)
 
-    @models.permalink
     def get_absolute_url(self):
         return ("structuri:cl_detail", [], {"pk": self.id})
 
@@ -174,14 +174,14 @@ class CentruLocal(Structura):
 
 
 class Unitate(Structura):
-    class Meta:
+    class Meta(object):
         verbose_name = u"Unitate"
         verbose_name_plural = u"Unități"
 
-    ramura_de_varsta = models.ForeignKey(RamuraDeVarsta)
-    centru_local = models.ForeignKey(CentruLocal)
+    ramura_de_varsta = models.ForeignKey(RamuraDeVarsta, on_delete=models.CASCADE)
+    centru_local = models.ForeignKey(CentruLocal, on_delete=models.CASCADE)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"Unitatea %s" % self.nume
 
     def patrule(self):
@@ -198,17 +198,16 @@ class Unitate(Structura):
                                                       tip_asociere__nume__icontains=u"Membru",
                                                       moment_inceput__isnull=False,
                                                       moment_incheiere__isnull=True).count()
-    @models.permalink
     def get_absolute_url(self):
         return ("structuri:unitate_detail", [], {"pk": self.id})
 
 
 class Patrula(Structura):
-    class Meta:
+    class Meta(object):
         verbose_name = u"Patrulă"
         verbose_name_plural = u"Patrule"
 
-    unitate = models.ForeignKey(Unitate)
+    unitate = models.ForeignKey(Unitate, on_delete=models.CASCADE)
     moment_inchidere = models.DateField(null=True, blank=True)
 
     @property
@@ -219,16 +218,15 @@ class Patrula(Structura):
     def centru_local(self):
         return self.unitate.centru_local
 
-    def __unicode__(self):
+    def __str__(self):
         return u"Patrula %s" % self.nume
 
-    @models.permalink
     def get_absolute_url(self):
         return ("structuri:patrula_detail", [], {"pk": self.id})
 
 
 class Utilizator(models.Model):
-    user = models.OneToOneField("auth.User", null=True, blank=True)
+    user = models.OneToOneField("auth.User", null=True, blank=True, on_delete=models.CASCADE)
     email = models.EmailField(unique=True)
 
     nume = models.CharField(max_length=255)
@@ -243,7 +241,7 @@ class Utilizator(models.Model):
     def nume_complet(self):
         return "%s %s" % (self.prenume.title(), self.nume.upper())
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nume_complet()
 
     def link_confirmare(self):
@@ -264,15 +262,15 @@ class ImagineProfil(ImageModel):
 
 class TipRelatieFamilie(models.Model):
     nume = models.CharField(max_length=255)
-    reverse_relationship = models.ForeignKey("self", null=True, blank=True)
+    reverse_relationship = models.ForeignKey("self", null=True, blank=True, on_delete=models.CASCADE)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s" % self.nume
 
 
 class PersoanaDeContact(models.Model):
     nume = models.CharField(max_length=255, null=True, blank=True)
-    tip_relatie = models.ForeignKey(TipRelatieFamilie, null=True, blank=True)
+    tip_relatie = models.ForeignKey(TipRelatieFamilie, null=True, blank=True, on_delete=models.CASCADE)
     telefon = models.CharField(max_length=255, blank=True, null=True)
     email = models.EmailField(null=True, blank=True)
     implicit = models.BooleanField(default=False)
@@ -280,7 +278,7 @@ class PersoanaDeContact(models.Model):
     job = models.CharField(max_length=255, null=True, blank=True, verbose_name=u"Profesie, loc de muncă")
 
     note = models.CharField(max_length=1024, null=True, blank=True)
-    membru = models.ForeignKey("Membru")
+    membru = models.ForeignKey("Membru", on_delete=models.CASCADE)
 
 
 @receiver(post_save, sender=PersoanaDeContact)
@@ -292,9 +290,9 @@ def enforce_default(sender, instance, *args, **kwargs):
 
 
 class AsociereMembruFamilie(models.Model):
-    tip_relatie = models.ForeignKey(TipRelatieFamilie)
-    persoana_sursa = models.ForeignKey("Membru")
-    persoana_destinatie = models.ForeignKey("Membru", related_name="membru_destinatie")
+    tip_relatie = models.ForeignKey(TipRelatieFamilie, on_delete=models.CASCADE)
+    persoana_sursa = models.ForeignKey("Membru", on_delete=models.CASCADE)
+    persoana_destinatie = models.ForeignKey("Membru", related_name="membru_destinatie", on_delete=models.CASCADE)
 
     @classmethod
     def rude_cercetasi(cls, membru, exclude_self=False):
@@ -329,7 +327,7 @@ class Membru(Utilizator):
     scor_credit = models.IntegerField(default=2, choices=((0, u"Rău"), (1, u"Neutru"), (2, u"Bun")), verbose_name=u"Credit", help_text=u"Această valoare reprezintă încrederea Centrului Local într-un membru de a-și respecta angajamentele financiare (dacă Centrul are sau nu încredere să pună bani pentru el / ea)")
 
     #TODO: find some smarter way to do this
-    poza_profil = models.ForeignKey(ImagineProfil, null=True, blank=True)
+    poza_profil = models.ForeignKey(ImagineProfil, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __init__(self, *args, **kwargs):
         super(Membru, self).__init__(*args, **kwargs)
@@ -494,14 +492,13 @@ class Membru(Utilizator):
         self.save_to_cache("proprietati", self._proprietati)
         return self._proprietati
 
-    @permalink
     def get_home_link(self):
         if self.is_lider():
             unitate = self.get_unitate(rol=(u"Lider", u"Lider asistent"))
             if unitate:
-                return ("structuri:unitate_detail", [], {"pk": unitate.id})
-            return ("structuri:cl_detail", [], {"pk": self.centru_local.id})
-        return ("structuri:membru_profil", [], {})
+                return reverse("structuri:unitate_detail", kwargs={"pk": unitate.id})
+            return reverse("structuri:cl_detail", kwargs={"pk": self.centru_local.id})
+        return reverse("structuri:membru_profil")
 
     def afilieri_curente(self, end_chain=True, **kwargs):
         qs = self.afilieri.filter(moment_incheiere__isnull=True)
@@ -582,7 +579,6 @@ class Membru(Utilizator):
         self.save_to_cache("badges_extra", json.dumps(badges))
         return badges
 
-    @models.permalink
     def get_absolute_url(self):
         return ("structuri:membru_detail", [], {"pk": self.id})
 
@@ -749,7 +745,7 @@ class Membru(Utilizator):
         quotas = {0: 1, 1: 0.5, 2: 0.25}
         plata_index = 0
         if len(plati_membri_familie):
-            for q in quotas.items():
+            for q in list(quotas.items()):
                 logger.debug(u"aplica_reducere_familie, verific existență cotizație %s pentru %s, trimestrul %s" % (q[1], self, trimestru))
                 found = False
 
@@ -1029,7 +1025,7 @@ class TipAsociereMembruStructura(models.Model):
     nume = models.CharField(max_length=255)
     content_types = models.ManyToManyField(ContentType, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s" % self.nume
 
 
@@ -1043,25 +1039,25 @@ campuri_structuri = {u"Patrulă": u"Unitate", u"Unitate": u"centru_local"}
 
 
 class AsociereMembruStructura(models.Model):
-    membru = models.ForeignKey(Membru, related_name="afilieri")
+    membru = models.ForeignKey(Membru, related_name="afilieri", on_delete=models.CASCADE)
 
-    content_type = models.ForeignKey(ContentType, verbose_name=u"Tip structură")
+    content_type = models.ForeignKey(ContentType, verbose_name=u"Tip structură", on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(verbose_name=u"Structură")
     content_object = GenericForeignKey()
 
-    tip_asociere = models.ForeignKey(TipAsociereMembruStructura)
+    tip_asociere = models.ForeignKey(TipAsociereMembruStructura, on_delete=models.CASCADE)
 
     moment_inceput = models.DateTimeField(null=True, blank=True)
     moment_incheiere = models.DateTimeField(null=True, blank=True)
 
     confirmata = models.BooleanField(default=False)
     confirmata_pe = models.DateTimeField(null=True, blank=True)
-    confirmata_de = models.ForeignKey(Utilizator, null=True, blank=True, related_name="asocieri_confirmate")
+    confirmata_de = models.ForeignKey(Utilizator, null=True, blank=True, related_name="asocieri_confirmate", on_delete=models.SET_NULL)
 
     objects = AsocierePublicManager()
     all_objects = models.Manager()
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s - %s - %s" % (self.membru, self.tip_asociere, self.content_object)
 
     def get_structura(self, ctype):
@@ -1072,7 +1068,7 @@ class AsociereMembruStructura(models.Model):
                                "unitate": lambda: self.content_object.unitate,
                                "patrula": lambda: self.content_object}}
 
-        if self.content_type.model not in lookups.keys():
+        if self.content_type.model not in list(lookups.keys()):
             return None
 
         if ctype.model not in lookups.get(self.content_type.model):
@@ -1121,7 +1117,7 @@ class TipInformatieContact(models.Model):
 
     categorie = models.CharField(max_length=255, default="Contact")
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s" % self.nume
 
 
@@ -1132,7 +1128,7 @@ class InformatieValabilaManager(models.Manager):
 
 
 class InformatieContact(models.Model):
-    tip_informatie = models.ForeignKey(TipInformatieContact)
+    tip_informatie = models.ForeignKey(TipInformatieContact, on_delete=models.CASCADE)
     valoare = models.CharField(max_length=1024)
 
     data_start = models.DateTimeField(null=True, blank=True)
@@ -1140,11 +1136,11 @@ class InformatieContact(models.Model):
 
     implicita = models.BooleanField(default=True)
 
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
 
-    obiect_ref_ctype = models.ForeignKey(ContentType, related_name="referit", null=True, blank=True)
+    obiect_ref_ctype = models.ForeignKey(ContentType, related_name="referit", null=True, blank=True, on_delete=models.CASCADE)
     obiect_ref_id = models.PositiveIntegerField(null=True, blank=True)
 
     informatii_suplimentare = models.CharField(max_length=1024, null=True, blank=True)
@@ -1152,13 +1148,13 @@ class InformatieContact(models.Model):
     objects = InformatieValabilaManager()
     all_objects = models.Manager()
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s: %s" % (self.tip_informatie.nume, self.valoare)
 
     def process_adresa(self):
         try:
             return AdresaPostala.parse_address(self.valoare), None
-        except Exception, e:
+        except Exception as e:
             return None, e
 
     def get_cod_postal(self):
@@ -1172,7 +1168,7 @@ class InformatieContact(models.Model):
 
                 if adresa.are_cod():
                     return adresa.cod
-        except Exception, e:
+        except Exception as e:
             return e
 
         return None
@@ -1194,71 +1190,71 @@ class ObiectivEducativProgres(models.Model):
 
 
 class EtapaProgres(models.Model):
-    ramura_de_varsta = models.ForeignKey(RamuraDeVarsta)
+    ramura_de_varsta = models.ForeignKey(RamuraDeVarsta, on_delete=models.CASCADE)
     nume = models.CharField(max_length=255)
-    logo = models.ForeignKey(Imagine)
+    logo = models.ForeignKey(Imagine, on_delete=models.SET_NULL, null=True, blank=True)
     ordine = models.PositiveSmallIntegerField(null=True, blank=True)
     slug = models.SlugField()
 
     reguli = models.CharField(max_length=1024, null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nume
 
 
 class BadgeMerit(models.Model):
-    ramura_de_varsta = models.ForeignKey(RamuraDeVarsta, null=True, blank=True)
-    etapa_progres = models.ForeignKey(EtapaProgres, null=True, blank=True)
+    ramura_de_varsta = models.ForeignKey(RamuraDeVarsta, null=True, blank=True, on_delete=models.CASCADE)
+    etapa_progres = models.ForeignKey(EtapaProgres, null=True, blank=True, on_delete=models.CASCADE)
     nume = models.CharField(max_length=255)
     descriere = models.TextField(null=True, blank=True)
-    logo = models.ForeignKey(Imagine, null=True, blank=True)
+    logo = models.ForeignKey(Imagine, null=True, blank=True, on_delete=models.SET_NULL)
 
 
 class TargetEtapaProgres(models.Model):
     titlu = models.CharField(max_length=2048)
     capitol = models.CharField(max_length=2048)
 
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     target = GenericForeignKey()
 
 
 class EtapaProgresMembru(models.Model):
-    etapa_progres = models.ForeignKey(EtapaProgres)
-    membru = models.ForeignKey(Membru, related_name="etape_progres")
-    evaluator = models.ForeignKey(Membru, related_name="etape_progres_evaluate")
+    etapa_progres = models.ForeignKey(EtapaProgres, on_delete=models.CASCADE)
+    membru = models.ForeignKey(Membru, related_name="etape_progres", on_delete=models.CASCADE)
+    evaluator = models.ForeignKey(Membru, related_name="etape_progres_evaluate", on_delete=models.CASCADE)
     data = models.DateField()
     detalii = models.TextField(null=True, blank=True)
 
 
 class BadgeMeritMembru(models.Model):
-    badge = models.ForeignKey(BadgeMerit)
-    membru = models.ForeignKey(Membru, related_name="badgeuri_merit")
-    evaluator = models.ForeignKey(Membru, related_name="badgeuri_merit_evaluate")
+    badge = models.ForeignKey(BadgeMerit, on_delete=models.CASCADE)
+    membru = models.ForeignKey(Membru, related_name="badgeuri_merit", on_delete=models.CASCADE)
+    evaluator = models.ForeignKey(Membru, related_name="badgeuri_merit_evaluate", on_delete=models.CASCADE)
     data = models.DateField()
     detalii = models.TextField(null=True, blank=True)
 
 
 class NoteObiectivProgresMembru(models.Model):
-    obiectiv = models.ForeignKey(ObiectivEducativProgres)
+    obiectiv = models.ForeignKey(ObiectivEducativProgres, on_delete=models.CASCADE)
     nota = models.TextField()
 
-    membru = models.ForeignKey(Membru, related_name="note_obiective_progres")
-    evaluator = models.ForeignKey(Membru, related_name="note_obiective_progres_evaluate")
+    membru = models.ForeignKey(Membru, related_name="note_obiective_progres", on_delete=models.CASCADE)
+    evaluator = models.ForeignKey(Membru, related_name="note_obiective_progres_evaluate", on_delete=models.CASCADE)
     timestamp = models.DateTimeField()
 
-    activitate = models.ForeignKey("album.Eveniment", null=True, blank=True)
+    activitate = models.ForeignKey("album.Eveniment", null=True, blank=True, on_delete=models.SET_NULL)
     obiectiv_atins = models.BooleanField(default=False)
-    etapa_progres = models.ForeignKey(EtapaProgres)
+    etapa_progres = models.ForeignKey(EtapaProgres, on_delete=models.CASCADE)
 
 
 class NotaTargetEtapaProgres(models.Model):
-    target = models.ForeignKey(TargetEtapaProgres)
+    target = models.ForeignKey(TargetEtapaProgres, on_delete=models.CASCADE)
 
-    membru = models.ForeignKey(Membru, related_name="note_etape_progres")
-    evaluator = models.ForeignKey(Membru, related_name="note_etape_progres_evaluate")
+    membru = models.ForeignKey(Membru, related_name="note_etape_progres", on_delete=models.CASCADE)
+    evaluator = models.ForeignKey(Membru, related_name="note_etape_progres_evaluate", on_delete=models.CASCADE)
 
     timestamp = models.DateTimeField(auto_now_add=True)
     target_atins = models.BooleanField(default=False)
 
-    activitate = models.ForeignKey("album.Eveniment", null=True, blank=True)
+    activitate = models.ForeignKey("album.Eveniment", on_delete=models.SET_NULL, null=True, blank=True)

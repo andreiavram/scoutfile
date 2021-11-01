@@ -1,7 +1,7 @@
 # coding: utf-8
 import logging
 import traceback
-from StringIO import StringIO
+from io import BytesIO
 
 import reportlab
 from django.http import HttpResponse
@@ -43,7 +43,7 @@ class C5Envelopes(object):
 
         #    The Story is commonly used in flowing reportlab documents to contain all flowables
         Story = []
-        buff = StringIO()
+        buff = BytesIO()
 
         document_settings = {"rightMargin": 1 * cm,
                              "leftMargin": 12 * cm,
@@ -89,7 +89,7 @@ class C5Envelopes(object):
 
             try:
                 adresa = AdresaPostala.parse_address(adresa_postala, fail_silently=False)
-            except Exception, e:
+            except Exception as e:
                 if not adresa_internationala:
                     logger.error(u"%s: %s (%s)" % (cls.__name__, e, traceback.format_exc()))
                     record[destinatar] = u"Adresă rea (%s)" % e
@@ -102,7 +102,7 @@ class C5Envelopes(object):
             try:
                 if not adresa.are_cod():
                     adresa.determine_cod()
-            except Exception, e:
+            except Exception as e:
                 logger.error("%s: %s (%s)" % (cls.__name__, e, traceback.format_exc()))
                 error_count += 1
                 record[destinatar] = u"Eroare la Cod Poștal (%s)" % e

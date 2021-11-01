@@ -1,7 +1,7 @@
 #   coding: utf8
 from django.core.management.base import BaseCommand
 
-from adrese_postale import CodPostal
+from adrese_postale.models import CodPostal
 
 __author__ = 'andrei'
 
@@ -13,7 +13,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         CodPostal.objects.all().delete()
 
-        with open(os.path.join(settings.BASE_DIR, "scoutfile3", "adrese_postale", "data", "coduri_postale.csv")) as f:
+        with open(os.path.join(settings.BASE_DIR, "adrese_postale", "data", "coduri_postale.csv")) as f:
             lines = f.readlines()
 
 

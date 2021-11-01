@@ -46,7 +46,7 @@ class Command(BaseCommand):
 
     def oncr_sync_ids(self, *args, **options):
         import os
-        file_name = os.path.join(settings.BASE_DIR, "importdata", "oncr_ids.csv")
+        file_name = os.path.join(settings.PROJECT_ROOT, "importdata", "oncr_ids.csv")
         with open(file_name) as f:
             lines = f.readlines()
 
@@ -81,7 +81,7 @@ class Command(BaseCommand):
                 jdict = oncr_client.get_membru_json(membru.scout_id)
                 membru.save_to_cache("oncr_feegood", jdict["feeGood"], 24 * 60 * 60)
                 membru.save_to_cache("oncr_lastpaidquarter", jdict["lastPaidQuarter"], 24 * 60 * 60)
-            except Exception, e:
+            except Exception as e:
                 self.stdout.write("Error getting %s: %s\n" % (membru.scout_id, e))
 
     def update_membru_cache(self, *args, **options):
@@ -95,5 +95,5 @@ class Command(BaseCommand):
             try:
                 m.calculeaza_necesar_cotizatie(force_real=True)
                 m._status_cotizatie(force_real=True)
-            except Exception, e:
+            except Exception as e:
                 logger.error(u"%s" % e)

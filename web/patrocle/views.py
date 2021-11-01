@@ -4,7 +4,7 @@ import logging
 
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View, TemplateView
@@ -58,7 +58,7 @@ class SendSMS(FormView):
                                         mesaj_text = "P: %s" % form.cleaned_data["mesaj"],
                                         credit = d[1][0].elibereaza_credit(),
                                         grup_id = grup_id)            
-            except Exception, e:
+            except Exception as e:
                 d[1][0].elibereaza_credit()
                 messages.error(self.request, e)
                 return HttpResponseRedirect(reverse("patrocle:send_sms"))
@@ -75,7 +75,7 @@ class ConfirmSMS(View):
             mesaj = SMSMessage.objects.get(cod_referinta_smslink = int(request.GET['message_id']))
         except SMSMessage.DoesNotExist:
             logger.error("%s: Am primit o confirmare pentru un mesaj care nu exista (%s)" % (self.__class__.__name__, request.GET['message_id']))
-        except Exception, e:
+        except Exception as e:
             logger.error("%s: Eroare la obtinerea mesajului de confirmare: %s" % (self.__class__.__name__, e))
         
         if (request.GET['status'] == "1"):

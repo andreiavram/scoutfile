@@ -32,7 +32,7 @@
                     <strong>Tiraj: </strong> {% if not badge.tiraj_exact %}aproximativ{% endif %} {{ badge.tiraj }}<br />
                     <strong>Credit: </strong> {% if badge.designer_membru %}
                                 {% with badge.designer_membru as cercetas %}
-                                <span>{% for mbadge in cercetas.get_badges_rdv %}<img src = "{{ STATIC_URL }}images/icon-{{ mbadge }}.png" />{% endfor %}
+                                <span>{% for mbadge in cercetas.get_badges_rdv %}<img src = "{% get_static_prefix %}images/icon-{{ mbadge }}.png" />{% endfor %}
                                     <a href = "{% url "structuri:membru_detail"  pk=cercetas.id %}">{{ cercetas }}</a>
                                 </span>{% endwith %}{% else %}{{ badge.designer }}{% endif %}{% if badge.producator %} / {{ badge.producator }}{% endif %}
                 </div>
