@@ -1,9 +1,10 @@
 # coding: utf-8
+from builtins import object
 from crispy_forms.layout import Layout, Field, Div
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms.widgets import TextInput, Textarea
-from django_markdown.widgets import MarkdownWidget
+# from django_markdown.widgets import MarkdownWidget
 from goodies.forms import CrispyBaseModelForm
 from goodies.widgets import TaggitTagsInput
 from taggit.forms import TagField
@@ -40,7 +41,7 @@ def parse_string_to_seconds(value, silent=False):
     return seconds
 
 class FisaActivitateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = FisaActivitate
         fields = ("titlu", "descriere", "descriere_joc", "materiale_necesare", "ramuri_de_varsta",
                     "min_participanti", "max_participanti",
@@ -49,7 +50,7 @@ class FisaActivitateForm(CrispyBaseModelForm):
     titlu = forms.CharField(required=True, label=u"Titlu", widget=TextInput(attrs={"style": "width: 100%; font-size: 24px; line-height: 28px; padding: 10px 5px"}))
     min_durata_string = forms.CharField(required=False, label=u"Durată minimă", help_text=u"Folosește expresii de tipul 2h15m sau 1z3h30m sau 2h sau 12m")
     max_durata_string = forms.CharField(required=False, label=u"Durată maximă", help_text=u"Folosește expresii de tipul 2h15m sau 1z3h30m sau 2h sau 12m")
-    descriere_joc = forms.CharField(required=True, label=u"Conținut", help_text=u"Format Markdown, descrierea jocului, ce trebuie pregătit, ce trebuie făcut, care este obiectivul, care sunt regulile ...", widget=MarkdownWidget())
+    descriere_joc = forms.CharField(required=True, label=u"Conținut", help_text=u"Format Markdown, descrierea jocului, ce trebuie pregătit, ce trebuie făcut, care este obiectivul, care sunt regulile ...", widget=Textarea())
     descriere = forms.CharField(required=False, label=u"Descriere pe scurt", help_text=u"Un text de descriere pentru căutare", widget=Textarea(attrs={"style": "width: 100%; height: 80px"}))
     ramuri_de_varsta = forms.ModelMultipleChoiceField(RamuraDeVarsta.objects.all(), required=True, label=u"Ramuri de vârstă", help_text=u"Alegeți mărcar una", widget=forms.CheckboxSelectMultiple)
     tags = TagField(required=False, widget=TaggitTagsInput(attrs={"style": "width: 100%"}), label=u"Tag-uri")
@@ -94,7 +95,7 @@ class FisaActivitateForm(CrispyBaseModelForm):
 
 
 class DocumentActivitateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Document
         fields = ("titlu", "descriere", "fisier")
 

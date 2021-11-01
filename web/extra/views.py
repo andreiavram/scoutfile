@@ -1,4 +1,5 @@
 # Create your views here.
+from builtins import object
 from django.views.generic.base import TemplateView
 
 class EnciclopedieEntry(object):

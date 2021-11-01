@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django.db.models.deletion
 from django.db import models, migrations
 
 
@@ -89,8 +90,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
                 ('message', models.CharField(max_length=255, null=True, blank=True)),
-                ('state', models.ForeignKey(to='proiecte.TaskState')),
-                ('task', models.ForeignKey(to='proiecte.TaskItem')),
+                ('state', models.ForeignKey(to='proiecte.TaskState', on_delete=django.db.models.deletion.CASCADE)),
+                ('task', models.ForeignKey(to='proiecte.TaskItem', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
             },
@@ -109,7 +110,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='taskstate',
             name='workflow',
-            field=models.ForeignKey(to='proiecte.Workflow'),
+            field=models.ForeignKey(to='proiecte.Workflow', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
     ]

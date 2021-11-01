@@ -4,6 +4,7 @@ Created on Jun 9, 2012
 
 @author: yeti
 '''
+from builtins import next
 from localflavor.ro.forms import ROCNPField
 from django.core.validators import EMPTY_VALUES
 from django.core.exceptions import ValidationError
@@ -35,7 +36,7 @@ class BetterROCNPField(ROCNPField):
         checksum = 0
         value_iter = iter(value)
         for digit in key:
-            checksum += int(digit) * int(value_iter.next())
+            checksum += int(digit) * int(next(value_iter))
         checksum %= 11
         if checksum == 10:
             checksum = 1

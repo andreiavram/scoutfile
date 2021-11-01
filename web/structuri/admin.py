@@ -4,6 +4,7 @@ Created on Jul 1, 2012
 
 @author: yeti
 '''
+from builtins import object
 from django.contrib import admin
 from django.contrib.admin.options import ModelAdmin
 
@@ -21,7 +22,7 @@ admin.site.register(AsociereMembruStructura)
 admin.site.register(Membru)
 
 class TipInformatieContactAdmin(ModelAdmin):
-    class Meta:
+    class Meta(object):
         model = TipInformatieContact
     list_display = ("nume", "template_name", "relevanta")
 

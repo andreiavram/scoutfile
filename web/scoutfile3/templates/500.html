@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block page_title %}
 	500 - Probleme? ...
@@ -7,7 +8,7 @@
 {% block content %}
 	<div class = 'row'>
 	<div class = 'span4'>
-		<img src = "{{ STATIC_URL }}images/bufnita.png" />
+		<img src = "{% static 'images/bufnita.png' %}" />
 	</div>
 	<div class = 'span8'>
 			<p>Ups ... Se pare ca radiații din spațiu ne-au dat sistemul peste cap. Mesajul de eroare va fi folosit de administratori pentru a remedia problemele. 

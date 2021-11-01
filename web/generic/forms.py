@@ -4,6 +4,8 @@ Created on Jul 1, 2012
 
 @author: yeti
 '''
+from future import standard_library
+standard_library.install_aliases()
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
@@ -14,8 +16,8 @@ from goodies.forms import CrispyBaseForm
 from django.conf import settings
 import logging
 import json
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 
 logger = logging.getLogger(__name__)
 
@@ -52,12 +54,12 @@ class IssueCreateForm(CrispyBaseForm):
         super(IssueCreateForm, self).__init__(*args, **kwargs)
 
         values = {"key" : settings.REDMINE_API_KEY}
-        data = urllib.urlencode(values)
+        data = urllib.parse.urlencode(values)
         url_to_send = "http://yeti.albascout.ro/redmine/projects/1/issue_categories.json" + "?" + data
         try:
-            response = urllib2.urlopen(url_to_send)
+            response = urllib.request.urlopen(url_to_send)
             json_object = json.loads(response.read())
-        except Exception, e:
+        except Exception as e:
             logger.error("%s: eroare la obtinerea bug-urilor: %s" % (self.__class__.__name__, e))
         
         json_object['issue_categories'].append({"id" : "", "name" : "---"})

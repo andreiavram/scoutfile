@@ -1,4 +1,4 @@
-{% load django_markdown %}
+{% load static %}
 
 <!DOCTYPE html>
 <html>
@@ -6,13 +6,13 @@
 <base target="_blank">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>markItUp! preview</title>
-<link href="{{ STATIC_URL }}/css/bootstrap.css" rel="stylesheet" type="text/css">
-<link href="{{ STATIC_URL }}/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
-<link href="{{ STATIC_URL }}/css/font-awesome.css" rel="stylesheet" type="text/css">
+<link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'css/bootstrap-responsive.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'css/font-awesome.css' %}" rel="stylesheet" type="text/css">
 <link rel="stylesheet" type="text/css" href="{{ css }}" />
 </head>
 <body>
-{{ content|markdown }}
+{{ content }}
 </body>
 </html>
 

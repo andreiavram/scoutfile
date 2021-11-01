@@ -1,15 +1,13 @@
-#coding: utf8
-from django.conf.urls import patterns
-
+# coding: utf8
+from django.urls import path
 from jocuri.views import ActivitateUpdate, ActivitateDetail, ActivitateCreate, ActivitateSearch, DocumentActivitateList, \
     DocumentActivitateAdauga
 
-urlpatterns = patterns('jocuri.views',
-                       (r'(?P<pk>\d+)/edit/$', ActivitateUpdate.as_view(), {}, "activitate_edit"),
-                       (r'(?P<pk>\d+)/$', ActivitateDetail.as_view(), {}, "activitate_detail"),
-                       (r'(?P<pk>\d+)/documente/$', DocumentActivitateList.as_view(), {}, "activitate_documents"),
-                       (r'(?P<pk>\d+)/documente/adauga/$', DocumentActivitateAdauga.as_view(), {}, "activitate_document_create"),
-                       (r'cauta/$', ActivitateSearch.as_view(), {}, "activitate_search"),
-                       (r'adauga/$', ActivitateCreate.as_view(), {}, "activitate_create"),
-
-                       )
+urlpatterns = [
+    path('<int:pk>/edit/', ActivitateUpdate.as_view(), name="activitate_edit"),
+    path('<int:pk>/', ActivitateDetail.as_view(), name="activitate_detail"),
+    path('<int:pk>/documente/', DocumentActivitateList.as_view(), name="activitate_documents"),
+    path('<int:pk>/documente/adauga/', DocumentActivitateAdauga.as_view(), name="activitate_document_create"),
+    path('cauta/', ActivitateSearch.as_view(), name="activitate_search"),
+    path('adauga/', ActivitateCreate.as_view(), name="activitate_create"),
+]

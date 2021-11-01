@@ -1,15 +1,17 @@
 # coding: utf-8
 
+from future import standard_library
+standard_library.install_aliases()
 import logging
-import urllib
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.parse
 
 from django.conf import settings
 from django.contrib import auth
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.generic.base import View
@@ -36,13 +38,13 @@ class FacebookConnectView(View):
             'redirect_uri': self.get_redirect_url(self.request)
         }
 
-        facebook_oauth_url = 'https://graph.facebook.com/oauth/access_token?' + urllib.urlencode(facebook_oauth_args)
-        response = urlparse.parse_qs(urllib.urlopen(facebook_oauth_url).read())
+        facebook_oauth_url = 'https://graph.facebook.com/oauth/access_token?' + urllib.parse.urlencode(facebook_oauth_args)
+        response = urllib.parse.parse_qs(urllib.request.urlopen(facebook_oauth_url).read())
 
         try:
             access_token = response['access_token'][0]
             expires = response['expires'][0]
-        except KeyError, e:
+        except KeyError as e:
             logger.error(
                 "{0}: problem getting access token for code {1}".format(self.__class__.__name__,
                                                                         self.request.GET['code']))
@@ -62,7 +64,7 @@ class FacebookConnectView(View):
     @classmethod
     def get_facebook_endpoint(cls, request):
         return "https://www.facebook.com/dialog/oauth?client_id={0}&redirect_uri={1}&scope={2}&response_type=code".format(
-            settings.FACEBOOK_APP_ID, urllib.quote(cls.get_redirect_url(request)),
+            settings.FACEBOOK_APP_ID, urllib.parse.quote(cls.get_redirect_url(request)),
             ",".join(settings.FACEBOOK_PERMISSIONS))
 
     def get_success_url(self):
@@ -80,13 +82,13 @@ class FacebookConnectView(View):
         self.request = request
         try:
             access_token, expires = self.get_access_token()
-        except Exception, e:
+        except Exception as e:
             messages.error(self.request, u"Eroare la comunicarea cu Facebook ({0})".format(e))
             return HttpResponseRedirect(self.get_error_url())
 
         try:
             user = self.user_action(access_token=access_token, expires=expires)
-        except Exception, e:
+        except Exception as e:
             messages.error(self.request, u"Autentificarea cu Facebook a eșuat ({0})".format(e))
             return HttpResponseRedirect(self.get_error_url())
 
@@ -136,7 +138,7 @@ class FacebookUserConnectView(FacebookConnectView):
         try:
             facebook_session, created_fb_session = FacebookSession.objects.get_or_create(user=self.request.user,
                                                                                          uid=profile['id'])
-        except Exception, e:
+        except Exception as e:
             logger.error("{0}: {1}".format(self.__class__.__name__, e))
             raise ValueError(u"Există alt utilizator autentificat deja cu Facebook cu acest cont.")
 

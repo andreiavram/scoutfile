@@ -1,11 +1,8 @@
-#coding: utf8
-from django.conf.urls import patterns
-
+# coding: utf8
+from django.urls import path, include
 from inventar.views import LocatieAccess, LocatieAccessAction
 
-urlpatterns = patterns(
-    'inventar.views',
-    (r'locatie/acces/$', LocatieAccess.as_view(), {}, "locatie_access"),
-    (r'locatie/acces/action/$', LocatieAccessAction.as_view(), {}, "locatie_access_action"),
-
-)
+urlpatterns = [
+    path('locatie/acces/', LocatieAccess.as_view(), name="locatie_access"),
+    path('locatie/acces/action/', LocatieAccessAction.as_view(), name="locatie_access_action"),
+]

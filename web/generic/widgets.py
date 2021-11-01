@@ -1,15 +1,11 @@
 #   based on https://github.com/zokis/django-bootstrap-datetimepicker
+from builtins import object
+
 from django import forms
 from django.conf import settings
 from django.db.models.aggregates import Count
-from django.template.context import RequestContext
 from django.template.loader import render_to_string
-from django.utils import translation
-from django.utils.safestring import mark_safe
-
-from datetime import date, datetime
-from taggit.models import TaggedItem, Tag
-
+from taggit.models import Tag
 
 DATETIME_INPUT_FORMATS = getattr(settings, 'DATETIME_INPUT_FORMATS', None)
 if DATETIME_INPUT_FORMATS:
@@ -18,7 +14,7 @@ if DATETIME_INPUT_FORMATS:
 class BootstrapDateTimeInput(forms.DateTimeInput):
     """ This is based on the awesome work from http://www.malot.fr/bootstrap-datetimepicker/
     """
-    class Media:
+    class Media(object):
         js = ("generic/js/bootstrap-datetimepicker.js",
               "generic/js/locales/bootstrap-datetimepicker.ro.js",
               "generic/js/bootstrap-datetimepicker-init.js",
@@ -40,7 +36,7 @@ class BootstrapDateInput(forms.DateInput):
     """ This is based on http://www.eyecon.ro/bootstrap-datepicker/
     """
 
-    class Media:
+    class Media(object):
         js = (
             "generic/js/bootstrap-datepicker.js",
             "generic/js/bootstrap-datepicker-init.js",
@@ -55,7 +51,7 @@ class BootstrapDateInput(forms.DateInput):
 
 
 class GeoCoordinatesInput(forms.TextInput):
-    class Media:
+    class Media(object):
         js = (
             "http://maps.googleapis.com/maps/api/js?key={0}&sensor=true".format(settings.GOOGLE_API_KEY),
             settings.STATIC_URL + "generic/js/map_widget.js",
@@ -75,7 +71,7 @@ class FacebookLinkWidget(forms.TextInput):
 class TaggitTagsInput(forms.TextInput):
     """ This uses the very awesome http://welldonethings.com/tags/manager/v3
     """
-    class Media:
+    class Media(object):
         js = (
             "generic/js/typeahead.js", # uses https://github.com/twitter/typeahead.js
             "generic/js/tagmanager.js", # uses https://github.com/max-favilli/tagmanager

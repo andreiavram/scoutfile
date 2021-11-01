@@ -1,36 +1,40 @@
-#coding: utf8
-from django.conf.urls import patterns
-
+# coding: utf8
+from django.urls import path
 from documente.views import CotizatieMembruAdauga
-from documente.views import DeclaratieCotizatieSocialaAdauga, CentruLocalRegistre, RegistruCreate, RegistruUpdate, RegistruDetail, SelectieAdaugareDocument, DecizieCuantumAdauga, DecizieCuantumDetail, CalculeazaAcoperireCotizatie, CotizatiiCentruLocal, CotizatiiLider, PreiaIncasariCasier, AdeziuneMembruModifica, AdeziuneMembruAdauga, ChitantaPrintare, \
+from documente.views import DeclaratieCotizatieSocialaAdauga, CentruLocalRegistre, RegistruCreate, RegistruUpdate, \
+    RegistruDetail, SelectieAdaugareDocument, DecizieCuantumAdauga, DecizieCuantumDetail, CalculeazaAcoperireCotizatie, \
+    CotizatiiCentruLocal, CotizatiiLider, PreiaIncasariCasier, AdeziuneMembruModifica, AdeziuneMembruAdauga, \
+    ChitantaPrintare, \
     DecizieGeneralaAdauga, DecizieGeneralaModifica, ToggleBlocatCotizatie
 
-urlpatterns = \
-    patterns('documente.views',
-             (r'cotizatie/(?P<pk>\d+)/adauga/$', CotizatieMembruAdauga.as_view(), {}, "cotizatie_membru_add"),
-             (r'adeziune/(?P<pk>\d+)/adauga/$', AdeziuneMembruAdauga.as_view(), {}, "adeziune_add"),
-             (r'adeziune/(?P<pk>\d+)/modifica/$', AdeziuneMembruModifica.as_view(), {}, "adeziune_edit"),
-             #     (r'document/adauga/$', AdeziuneAdauga.as_view(), {}, "document_add"),
+urlpatterns = [
+    path('cotizatie/<int:pk>/adauga/', CotizatieMembruAdauga.as_view(), name="cotizatie_membru_add"),
+    path('adeziune/<int:pk>/adauga/', AdeziuneMembruAdauga.as_view(), name="adeziune_add"),
+    path('adeziune/<int:pk>/modifica/', AdeziuneMembruModifica.as_view(), name="adeziune_edit"),
+    #     path('document/adauga/', AdeziuneAdauga.as_view(), name="document_add"),
 
-             (r'declaratie/cotizatie-sociala/(?P<pk>\d+)/adauga/$', DeclaratieCotizatieSocialaAdauga.as_view(), {}, "declaratie_cotizatie_sociala_add"),
+    path('declaratie/cotizatie-sociala/<int:pk>/adauga/', DeclaratieCotizatieSocialaAdauga.as_view(),
+         name="declaratie_cotizatie_sociala_add"),
 
-             (r'(?P<pk>\d+)/registru/list/$', CentruLocalRegistre.as_view(), {}, "registre"),
-             (r'(?P<pk>\d+)/registru/adauga/$', RegistruCreate.as_view(), {}, "registru_add"),
-             (r'registru/(?P<pk>\d+)/edit/$', RegistruUpdate.as_view(), {}, "registru_edit"),
-             (r'registru/(?P<pk>\d+)/$', RegistruDetail.as_view(), {}, "registru_detail"),
+    path('<int:pk>/registru/list/', CentruLocalRegistre.as_view(), name="registre"),
+    path('<int:pk>/registru/adauga/', RegistruCreate.as_view(), name="registru_add"),
+    path('registru/<int:pk>/edit/', RegistruUpdate.as_view(), name="registru_edit"),
+    path('registru/<int:pk>/', RegistruDetail.as_view(), name="registru_detail"),
 
-             (r'(?P<pk>\d+)/documente/selectie/$', SelectieAdaugareDocument.as_view(), {}, "selectie_document"),
+    path('<int:pk>/documente/selectie/', SelectieAdaugareDocument.as_view(), name="selectie_document"),
 
-             (r'(?P<pk>\d+)/documente/decizie/cuantum/adauga/$', DecizieCuantumAdauga.as_view(), {}, "decizie_cuantum_adauga"),
-             (r'decizie/cuantum/(?P<pk>\d+)/$', DecizieCuantumDetail.as_view(), {}, "decizie_cuantum_detail"),
-             (r'cotizatie/calculeaza-acoperire/$', CalculeazaAcoperireCotizatie.as_view(), {}, "cotizatie_calculeaza_acoperire"),
-             (r'cotizatii/centru_local/(?P<pk>\d+)/$', CotizatiiCentruLocal.as_view(), {}, "cotizatii_centru_local"),
-             (r'cotizatii/lider/(?P<pk>\d+)/$', CotizatiiLider.as_view(), {}, "cotizatii_lider"),
-             (r'cotizatii/preia/(?P<pk>\d+)/$', PreiaIncasariCasier.as_view(), {}, "transfer_cotizatii"),
+    path('<int:pk>/documente/decizie/cuantum/adauga/', DecizieCuantumAdauga.as_view(),
+         name="decizie_cuantum_adauga"),
+    path('decizie/cuantum/<int:pk>/', DecizieCuantumDetail.as_view(), name="decizie_cuantum_detail"),
+    path('cotizatie/calculeaza-acoperire/', CalculeazaAcoperireCotizatie.as_view(),
+         name="cotizatie_calculeaza_acoperire"),
+    path('cotizatii/centru_local/<int:pk>/', CotizatiiCentruLocal.as_view(), name="cotizatii_centru_local"),
+    path('cotizatii/lider/<int:pk>/', CotizatiiLider.as_view(), name="cotizatii_lider"),
+    path('cotizatii/preia/<int:pk>/', PreiaIncasariCasier.as_view(), name="transfer_cotizatii"),
 
-             (r'chitanta/(?P<pk>\d+)/print/$', ChitantaPrintare.as_view(), {}, "chitanta_print"),
+    path('chitanta/<int:pk>/print/', ChitantaPrintare.as_view(), name="chitanta_print"),
 
-             (r'(?P<pk>\d+)/decizie/adauga/$', DecizieGeneralaAdauga.as_view(), {}, "centru_local_decizie_adauga"),
-             (r'decizie/(?P<pk>\d+)/modifica/$', DecizieGeneralaModifica.as_view(), {}, "centru_local_decizie_modifica"),
-             (r'api/document/toggle/$', ToggleBlocatCotizatie.as_view(), {}, "toggle_document_blocat"),
-             )
+    path('<int:pk>/decizie/adauga/', DecizieGeneralaAdauga.as_view(), name="centru_local_decizie_adauga"),
+    path('decizie/<int:pk>/modifica/', DecizieGeneralaModifica.as_view(), name="centru_local_decizie_modifica"),
+    path('api/document/toggle/', ToggleBlocatCotizatie.as_view(), name="toggle_document_blocat"),
+]

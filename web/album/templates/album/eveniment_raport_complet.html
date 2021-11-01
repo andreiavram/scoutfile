@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load tab_tags %}
-{% load staticfiles %}
+{% load static %}
 
 {% block page_title %}
     {{ object }} {% if object.tip_eveniment %}<span style="font-weight:normal">| {{ object.tip_eveniment|lower }}</span>{% endif %}
