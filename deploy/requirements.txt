@@ -50,7 +50,6 @@ invoke==1.6.0
 ipaddress==1.0.23
 Jinja2==3.0.2
 jmespath==0.10.0
-localflavor==1.9
 lxml==4.6.4
 Markdown==3.3.4
 MarkupSafe==2.0.1
