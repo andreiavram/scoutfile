@@ -22,7 +22,7 @@ from goodies.forms import CrispyBaseModelForm, CrispyBaseForm,\
 from goodies.widgets import BootstrapDateInput
 
 from album.models import AsociereEvenimentStructura
-from structuri.fields import BetterROCNPField
+from structuri.fields import BetterROCNPField, NonAdminAutoCompleteSelectField
 from structuri.models import Membru, CentruLocal, Unitate, Patrula,\
     AsociereMembruStructura, InformatieContact, TipInformatieContact,\
     AsociereMembruFamilie, PersoanaDeContact
@@ -431,7 +431,7 @@ class AsociereMembruFamilieForm(CrispyBaseModelForm):
         model = AsociereMembruFamilie
         fields = ["persoana_destinatie", "tip_relatie"]
     
-    persoana_destinatie = AutoCompleteSelectField("membri", required = True, help_text = u"Introduceți câteva litere pentru a căuta un membru",
+    persoana_destinatie = NonAdminAutoCompleteSelectField("membri", required = True, help_text = u"Introduceți câteva litere pentru a căuta un membru",
                                             label = u"Persoana")
     
 class PersoanaDeContactForm(CrispyBaseModelForm):
@@ -471,7 +471,7 @@ class PatrulaMembruAsociazaForm(CrispyBaseModelForm):
         model = AsociereMembruStructura
         fields = ['membru']
 
-    membru = AutoCompleteSelectField("membri", label=u"Cercetaș")
+    membru = NonAdminAutoCompleteSelectField("membri", label=u"Cercetaș")
     asociere_inceput = forms.DateField(widget=BootstrapDateInput, label=u"Moment început")
 
     def __init__(self, *args, **kwargs):

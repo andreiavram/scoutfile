@@ -153,7 +153,7 @@ class EvenimentParticipareForm(EvenimentParticipareBaseForm):
         model = ParticipareEveniment
         exclude = ["eveniment", "user_modificare", "nonmembru"]
 
-    membru = AutoCompleteSelectField("membri", label=u"Cercetaș")
+    membru = NonAdminAutoCompleteSelectField("membri", label=u"Cercetaș")
 
     def __init__(self, **kwargs):
         super(EvenimentParticipareForm, self).__init__(**kwargs)
