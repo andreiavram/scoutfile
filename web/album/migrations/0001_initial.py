@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import django.db.models.deletion
 import photologue.models
 
 
@@ -243,7 +244,7 @@ class Migration(migrations.Migration):
                 ('titlu', models.CharField(max_length=255)),
                 ('descriere', models.TextField(null=True, blank=True)),
                 ('index', models.IntegerField(default=1)),
-                ('eveniment', models.ForeignKey(to='album.Eveniment')),
+                ('eveniment', models.ForeignKey(to='album.Eveniment', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'ordering': ['index', 'date'],

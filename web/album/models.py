@@ -1,4 +1,7 @@
 #coding: utf-8
+from builtins import next
+from builtins import str
+from builtins import object
 import datetime
 import logging
 import shutil
@@ -16,7 +19,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import File, ContentFile
 from django.core.mail import send_mail
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.db.models.aggregates import Sum
 from django.db.models.query_utils import Q
@@ -35,8 +38,8 @@ IMAGINE_PUBLISHED_STATUS = ((1, "Secret"), (2, "Centru Local"), (3, "Organizați
 
 
 class ParticipantiEveniment(models.Model):
-    eveniment = models.ForeignKey("Eveniment")
-    ramura_de_varsta = models.ForeignKey("structuri.RamuraDeVarsta", null=True, blank=True)
+    eveniment = models.ForeignKey("Eveniment", on_delete=models.CASCADE)
+    ramura_de_varsta = models.ForeignKey("structuri.RamuraDeVarsta", null=True, blank=True, on_delete=models.CASCADE)
     alta_categorie = models.CharField(max_length=255, null=True, blank=True)
     numar = models.IntegerField()
 
@@ -54,7 +57,7 @@ class TipEveniment(models.Model):
     nume = models.CharField(max_length=255)
     slug = models.SlugField()
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s" % self.nume
 
 
@@ -63,16 +66,16 @@ class Eveniment(models.Model):
                        ("email", u"Email"), ("status", u"Status"), ("cotizatie", u"Cotizație"), ("buletin", u"Buletin"),
                        ("credit", u"Credit")]
 
-    centru_local = models.ForeignKey("structuri.CentruLocal")
+    centru_local = models.ForeignKey("structuri.CentruLocal", on_delete=models.CASCADE)
     nume = models.CharField(max_length=1024 , verbose_name=u"Titlu")
     descriere = models.TextField(null=True, blank=True)
     start_date = models.DateTimeField(verbose_name=u"Începe pe", help_text=u"Folosește selectorul de date pentru a defini o dată de început")
     end_date = models.DateTimeField(verbose_name=u"Ține până pe", help_text=u"Folosește selectorul de date pentru a defini o dată de sfârșit")
     slug = models.SlugField(max_length=255, unique=True)
-    custom_cover_photo = models.ForeignKey("Imagine", null=True, blank=True)
+    custom_cover_photo = models.ForeignKey("Imagine", on_delete=models.CASCADE, null=True, blank=True)
 
     tip_eveniment_text = models.CharField(default="alta", max_length=255, null=True, blank=True, choices=TIPURI_EVENIMENT)
-    tip_eveniment = models.ForeignKey(TipEveniment)
+    tip_eveniment = models.ForeignKey(TipEveniment, on_delete=models.CASCADE)
     facebook_event_link = models.URLField(null=True, blank=True, verbose_name=u"Link eveniment Facebook", help_text=u"Folosește copy/paste pentru a lua link-ul din Facebook")
     articol_site_link = models.URLField(null=True, blank=True, verbose_name=u"Link articol site", help_text=u"Link-ul de la articolul de pe site-ul Centrului Local")
 
@@ -85,24 +88,24 @@ class Eveniment(models.Model):
     #   TODO: add visibility settings to events
     published_status = models.IntegerField(default=2, choices=IMAGINE_PUBLISHED_STATUS, verbose_name=u"Vizibilitate")
 
-    responsabil_raport = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="evenimente_raport")
-    responsabil_articol = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="evenimente_articol")
+    responsabil_raport = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="evenimente_raport", on_delete=models.CASCADE)
+    responsabil_articol = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="evenimente_articol", on_delete=models.CASCADE)
 
     international = models.BooleanField(default=False, help_text=u"Dacă activitatea implică participanți din alte țări sau are loc în străinătate")
     organizator = models.CharField(max_length=255, null=True, blank=True, help_text=u"Dacă organizatorul este altul decât Centrul Local, notați-l aici")
     organizator_cercetas = models.BooleanField(default=True, help_text=u"Dacă organizatorul este un centru local sau ONCR, bifează aici")
 
-    proiect = models.ForeignKey("proiecte.Project", null=True, blank=True)
+    proiect = models.ForeignKey("proiecte.Project", null=True, blank=True, on_delete=models.CASCADE)
     campuri_aditionale = models.CharField(max_length=1024, null=True, blank=True)
 
     oncr_id = models.CharField(max_length=255, null=True, blank=True, verbose_name=u"ONCR ID")
 
-    class Meta:
+    class Meta(object):
         verbose_name = u"Eveniment"
         verbose_name_plural = u"Evenimente"
         ordering = ["-start_date"]
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s" % self.nume
 
     def get_campuri_aditionale(self):
@@ -133,7 +136,7 @@ class Eveniment(models.Model):
                 key = c.ramura_de_varsta.slug if c.ramura_de_varsta is not None else c.alta_categorie
                 rdvs[key] = c.numar
 
-        rdvs = rdvs.items()
+        rdvs = list(rdvs.items())
 
         from structuri.models import RamuraDeVarsta
         def rdv_sorter(item):
@@ -176,7 +179,7 @@ class Eveniment(models.Model):
         else:
             #   check if days have to be recreated
             zile_eveniment = self.zieveniment_set.all().order_by("index")
-            if zile_eveniment[0].date == self.start_date and zile_eveniment[zile_eveniment.count() - 1].date == self.end_date:
+            if zile_eveniment and zile_eveniment[0].date == self.start_date and zile_eveniment[zile_eveniment.count() - 1].date == self.end_date:
                 #   same dates means do nothing
                 return retval
 
@@ -289,7 +292,7 @@ class Eveniment(models.Model):
         if self.participareeveniment_set.exists():
             list_totals = self.participareeveniment_set.filter(status_participare__in=(2, 3, 4)).count()
         manual_override_totals = self.participantieveniment_set.aggregate(Sum("numar"))['numar__sum']
-        return max(list_totals, manual_override_totals)
+        return max(list_totals, manual_override_totals) if manual_override_totals else list_totals
 
     def get_visibility_level(self, user=None):
         from structuri.models import TipAsociereMembruStructura
@@ -298,7 +301,7 @@ class Eveniment(models.Model):
             return visibility_level
 
         #   decide visibility level to go for
-        if user is not None and user.is_authenticated():
+        if user and user.is_authenticated:
             visibility_level = 3    #   this means organization level, logged in user
             user_profile = user.utilizator.membru
             if user_profile.centru_local == self.centru_local:
@@ -355,11 +358,11 @@ class Eveniment(models.Model):
             pe = ParticipareEveniment.objects.create(**pe_args)
 
 class AsociereEvenimentStructura(models.Model):
-    content_type = models.ForeignKey(ContentType, verbose_name=u"Tip structură")
+    content_type = models.ForeignKey(ContentType, verbose_name=u"Tip structură", on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(verbose_name=u"Structură")
     content_object = GenericForeignKey()
 
-    eveniment = models.ForeignKey(Eveniment)
+    eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE)
 
 
 class RaportEveniment(models.Model):
@@ -381,18 +384,18 @@ class RaportEveniment(models.Model):
     altele = models.BooleanField(default=False)
 
 
-    eveniment = models.ForeignKey(Eveniment)
+    eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE)
     is_locked = models.BooleanField(default=False)
     is_leaf = models.BooleanField(default=False)
-    editor = models.ForeignKey("structuri.Membru")
+    editor = models.ForeignKey("structuri.Membru", on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    original_parent = models.ForeignKey("RaportEveniment", null=True, blank=True)
-    parent = models.ForeignKey("RaportEveniment", related_name="children", null=True, blank=True)
+    original_parent = models.ForeignKey("RaportEveniment", null=True, blank=True, on_delete=models.SET_NULL)
+    parent = models.ForeignKey("RaportEveniment", related_name="children", null=True, blank=True, on_delete=models.SET_NULL)
 
     objects = RaportEvenimentManager()
 
-    class Meta:
+    class Meta(object):
         ordering = ["-timestamp"]
 
     def parteneri_list(self):
@@ -444,16 +447,16 @@ class ParticipantEveniment(models.Model):
     def get_full_name(self):
         return "%s %s" % (self.prenume, self.nume.upper())
 
-    def __unicode__(self):
+    def __str__(self):
         return self.get_full_name()
     
 
 class ParticipareEveniment(models.Model):
     #TODO: a better way to implement this relationship needs to exist
-    membru = models.ForeignKey("structuri.Membru", null=True, blank=True)
-    nonmembru = models.ForeignKey("album.ParticipantEveniment", null=True, blank=True)
+    membru = models.ForeignKey("structuri.Membru", on_delete=models.CASCADE, null=True, blank=True)
+    nonmembru = models.ForeignKey("album.ParticipantEveniment", on_delete=models.SET_NULL, null=True, blank=True)
 
-    eveniment = models.ForeignKey(Eveniment)
+    eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE)
     data_sosire = models.DateTimeField(null=True, blank=True)
     data_plecare = models.DateTimeField(null=True, blank=True)
 
@@ -462,9 +465,9 @@ class ParticipareEveniment(models.Model):
     rol = models.CharField(max_length=255, default="participant", choices=ROL_PARTICIPARE)
 
     ultima_modificare = models.DateTimeField(auto_now=True)
-    user_modificare = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="participari_responsabil")
+    user_modificare = models.ForeignKey("structuri.Membru", on_delete=models.SET_NULL, null=True, blank=True, related_name="participari_responsabil")
 
-    class Meta:
+    class Meta(object):
         ordering = ["-data_sosire", "status_participare"]
 
     @property
@@ -515,7 +518,7 @@ TIPURI_CAMP_PARTICIPARE = (("text", u"Text"), ("number", u"Număr"), ("bool", u"
 
 
 class CampArbitrarParticipareEveniment(models.Model):
-    eveniment = models.ForeignKey(Eveniment)
+    eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE)
     nume = models.CharField(max_length=255)
     slug = models.SlugField()
     tip_camp = models.CharField(max_length=255, choices=TIPURI_CAMP_PARTICIPARE)
@@ -549,9 +552,9 @@ class CampArbitrarParticipareEveniment(models.Model):
         try:
             instanta = self.get_instanta(participare=participare)
             return instanta.get_value()
-        except InstantaCampArbitrarParticipareEveniment.DoesNotExist, e:
+        except InstantaCampArbitrarParticipareEveniment.DoesNotExist as e:
             return None
-        except Exception, e:
+        except Exception as e:
             return None
 
     def get_translated_value(self, value):
@@ -579,8 +582,8 @@ class CampArbitrarParticipareEveniment(models.Model):
 
     
 class InstantaCampArbitrarParticipareEveniment(models.Model):
-    camp = models.ForeignKey(CampArbitrarParticipareEveniment, related_name="instante")
-    participare = models.ForeignKey(ParticipareEveniment)
+    camp = models.ForeignKey(CampArbitrarParticipareEveniment, related_name="instante", on_delete=models.CASCADE)
+    participare = models.ForeignKey(ParticipareEveniment, on_delete=models.CASCADE)
     valoare_text = models.CharField(max_length=255, null=True, blank=True)
     
     def process_bool(self):
@@ -589,9 +592,9 @@ class InstantaCampArbitrarParticipareEveniment(models.Model):
     def process_number(self):
         try:
             return int(self.valoare_text)
-        except Exception, e:
+        except Exception as e:
             return float(self.valoare_text)
-        except Exception, e:
+        except Exception as e:
             return 0
 
     def process_text(self):
@@ -613,23 +616,23 @@ def update_value(sender, instance, **kwargs):
     try:
         tip_camp = instance._tip_camp if hasattr("_tip_camp", instance) else instance.camp.tip_camp
         instance.valoare = getattr(instance, "process_{0}".format(tip_camp))
-    except Exception, e:
+    except Exception as e:
         instance.valoare = None
 
 
 class ZiEveniment(models.Model):
-    eveniment = models.ForeignKey(Eveniment)
+    eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE)
     date = models.DateField()
     titlu = models.CharField(max_length=255)
     descriere = models.TextField(null=True, blank=True)
     index = models.IntegerField(default=1)
 
-    class Meta:
+    class Meta(object):
         verbose_name = u"Zi eveniment"
         verbose_name_plural = u"Zile eveniment"
         ordering = ["index", "date"]
 
-    def __unicode__(self):
+    def __str__(self):
         if self.titlu is not None and self.titlu != "":
             return self.titlu
         return u"Ziua %d" % self.index
@@ -645,7 +648,7 @@ class ZiEveniment(models.Model):
         if user:
             images = images.exclude(published_status__lt=self.eveniment.get_visibility_level(user))
 
-        if len(kwargs.keys()):
+        if len(list(kwargs.keys())):
             images = images.filter(**kwargs)
         images = images.order_by("data")
         return images
@@ -656,7 +659,7 @@ class ZiEveniment(models.Model):
     def author_distribution(self):
         authors = {}
         for image in self.filter_photos():
-            if image.set_poze.autor.strip() in authors.keys():
+            if image.set_poze.autor.strip() in list(authors.keys()):
                 authors[image.set_poze.autor.strip()] += 1
             else:
                 authors[image.set_poze.autor.strip()] = 1
@@ -669,10 +672,10 @@ SET_POZE_STATUSES = (
 
 
 class SetPoze(models.Model):
-    eveniment = models.ForeignKey(Eveniment)
+    eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE)
     autor = models.CharField(max_length=255, null=True, blank=True,
                              help_text=u"Lăsați gol dacă încărcați pozele proprii")
-    autor_user = models.ForeignKey("structuri.Membru", null=True, blank=True)
+    autor_user = models.ForeignKey("structuri.Membru", on_delete=models.SET_NULL, null=True, blank=True)
     zip_file = models.FilePathField(null=True, blank=True, path="/tmp")
     status = models.IntegerField(default=0, choices=SET_POZE_STATUSES)
     procent_procesat = models.IntegerField(default=0)
@@ -684,12 +687,12 @@ class SetPoze(models.Model):
     offset_changed = models.BooleanField(default=False, verbose_name=u"Offset-ul a fost modificat")
     default_visibility_level = models.IntegerField(default=-1, choices=IMAGINE_PUBLISHED_STATUS, null=True, blank=True)
 
-    class Meta:
+    class Meta(object):
         verbose_name = u"Set poze"
         verbose_name_plural = "seturi poze"
         ordering = ["-date_uploaded"]
 
-    def __unicode__(self):
+    def __str__(self):
         return u"Set %s (%s)" % (self.autor, self.eveniment)
 
     def get_autor(self):
@@ -703,8 +706,8 @@ class SetPoze(models.Model):
 
         try:
             #   folder creation is not required on AWS
-            event_path_no_root = os.path.join(settings.SCOUTFILE_ALBUM_STORAGE_ROOT, unicode(self.eveniment.centru_local.id),
-                                              unicode(self.eveniment.id), unidecode(self.autor.replace(" ", "_")))
+            event_path_no_root = os.path.join(settings.SCOUTFILE_ALBUM_STORAGE_ROOT, str(self.eveniment.centru_local.id),
+                                              str(self.eveniment.id), unidecode(self.autor.replace(" ", "_")))
 
             # event_path = os.path.join(settings.MEDIA_DIRECTORY, event_path_no_root)
             # path creation is not a thing with S3
@@ -726,7 +729,7 @@ class SetPoze(models.Model):
                 for f in zf.infolist():
                     logger.debug("SetPoze: fisier extras %s" % f)
 
-                    f.external_attr = 0777 << 16L
+                    f.external_attr = 0o777 << 16
                     if f.filename.endswith("/") or os.path.splitext(f.filename)[1].lower() not in (".jpg", ".jpeg", ".png") or os.path.basename(f.filename).startswith(".") or f.filename.startswith("__"):
                         logger.debug("SetPoze skipping %s %s %s" % (f, f.filename, os.path.splitext(f.filename)[1].lower()))
                         continue
@@ -741,7 +744,7 @@ class SetPoze(models.Model):
 
                     try:
                         im.save(file_handler=file_handler, local_file_name=os.path.join(tmp_album_path, f.filename))
-                    except Exception, e:
+                    except Exception as e:
                         logger.error("eroare: %s %s" % (e, traceback.format_exc()))
 
                     #   Creating thumbnail and large urls without setting the actual flag on photosize
@@ -754,7 +757,7 @@ class SetPoze(models.Model):
                         self.procent_procesat = int(current_percent)
                         self.save()
 
-        except Exception, e:
+        except Exception as e:
             self.status = 4
             send_mail(u"Eroare la procesarea fisierului %s" % os.path.basename(self.zip_file),
                       u"Arhiva încărcată de tine în evenimentul {0} nu a putut fi procesată. Eroarea a fost\n{1}".format(
@@ -782,7 +785,7 @@ class SetPoze(models.Model):
 
 
 class Imagine(ImageModel):
-    set_poze = models.ForeignKey(SetPoze, null=True, blank=True)
+    set_poze = models.ForeignKey(SetPoze, on_delete=models.CASCADE, null=True, blank=True)
     data = models.DateTimeField(null=True, blank=True)
     titlu = models.CharField(max_length=1024, null=True, blank=True)
     descriere = models.TextField(null=True, blank=True)
@@ -798,7 +801,7 @@ class Imagine(ImageModel):
 
     tags = TaggableManager()
 
-    class Meta:
+    class Meta(object):
         verbose_name = u"Imagine"
         verbose_name_plural = u"Imagini"
         ordering = ["date_taken", ]
@@ -831,7 +834,7 @@ class Imagine(ImageModel):
 
         try:
             self.clear_cache()
-        except Exception, e:
+        except Exception as e:
             logger.debug("%s: deleted cached sizes (does this even work on S3?): %s, %s" % (self.__class__.__name__, e, traceback.format_exc()))
 
         return
@@ -885,6 +888,7 @@ class Imagine(ImageModel):
             self.resolution_x, self.resolution_y = im.size
             logger.debug("Imagine resolution: %d, %d" % (self.resolution_x, self.resolution_y))
 
+        exif_data = {}
         on_create = False
         if self.id is None:
             on_create = True
@@ -892,17 +896,14 @@ class Imagine(ImageModel):
                 if im is None:
                     im = Image.open(local_file_name)
                 info = im._getexif()
-            except Exception, e:
+            except Exception as e:
                 logger.debug("%s: %s, %s" % (self.__class__.__name__, e, traceback.format_exc()))
                 info = None
 
-            exif_data = {}
-
-            #    get current EXIF data
+            #  get current EXIF data
             try:
-
                 if info is not None:
-                    for tag, value in info.items():
+                    for tag, value in list(info.items()):
                         decoded = ExifTags.TAGS.get(tag, tag)
                         if decoded == u"Maker Note":
                             continue
@@ -911,7 +912,7 @@ class Imagine(ImageModel):
                             self.data = datetime.datetime.strptime(value[0], "%Y:%m:%d %H:%M:%S")
 
                         exif_data[decoded] = value[0] if len(value) else None
-            except Exception, e:
+            except Exception as e:
                 logger.error("%s - %s" % (e, traceback.format_exc()))
         retval = super(Imagine, self).save(*args, **kwargs)
 
@@ -924,14 +925,15 @@ class Imagine(ImageModel):
             self.is_face_processed = True
 
         if on_create:
-            #    clear currently EXIF data
+            # clear currently EXIF data
             self.exifdata_set.all().delete()
 
-            for key, value in exif_data.items():
+            for key, value in list(exif_data.items()):
+                value = value.decode("utf-8", errors="replace").replace("\x00", "\uFFFD")
                 exif = EXIFData(imagine=self, key=key, value=value)
                 try:
                     exif.save()
-                except Exception, e:
+                except Exception as e:
                     continue
 
         if im is not None:
@@ -1014,15 +1016,15 @@ class Imagine(ImageModel):
 
 
 class EXIFData(models.Model):
-    imagine = models.ForeignKey(Imagine)
+    imagine = models.ForeignKey(Imagine, on_delete=models.CASCADE)
     key = models.CharField(max_length=255)
     value = models.CharField(max_length=255)
 
-    class Meta:
+    class Meta(object):
         verbose_name = u"EXIFData"
         verbose_name_plural = u"EXIFData"
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s: %s" % (self.key, self.value)
 
 
@@ -1034,27 +1036,27 @@ FLAG_MOTIVES = (("personal", u"Sunt în poză și nu sunt de acord să apară ai
 
 
 class FlagReport(models.Model):
-    imagine = models.ForeignKey(Imagine)
+    imagine = models.ForeignKey(Imagine, on_delete=models.CASCADE)
     motiv = models.CharField(max_length=1024, choices=FLAG_MOTIVES)
     alt_motiv = models.CharField(max_length=1024, null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
+    class Meta(object):
         verbose_name = u"Raport poză"
         verbose_name_plural = u"Rapoarte poze"
         ordering = ["-timestamp", "motiv"]
 
-    def __unicode__(self):
+    def __str__(self):
         return "Raport de %s la #%d (%s)" % (self.motiv, self.imagine.id, self.imagine.set_poze.eveniment)
 
 
 class DetectedFace(models.Model):
-    imagine = models.ForeignKey(Imagine)
+    imagine = models.ForeignKey(Imagine, on_delete=models.CASCADE)
     x = models.IntegerField()
     y = models.IntegerField()
     width = models.IntegerField()
     height = models.IntegerField()
 
-    content_type = models.ForeignKey(ContentType, null=True, blank=True)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     content_object = GenericForeignKey()

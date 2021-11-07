@@ -1,9 +1,6 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 
-{% block extrahead %}
-    {{ form.media }}
-{% endblock %}
 
 {% block page_title %}
     {% if object %}{{ object.titlu }} <span style = "font-weight: normal">| editează</span>{% else %}Adaugă cântec{% endif %}

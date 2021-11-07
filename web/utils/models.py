@@ -1,3 +1,5 @@
+from future import standard_library
+standard_library.install_aliases()
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -12,14 +14,14 @@ class FacebookSessionError(Exception):
     def get_type(self):
         return self.type
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s: "%s"' % (self.type, self.message)
 
 class FacebookSession(models.Model):
     access_token = models.CharField(max_length=1024)
     expires = models.IntegerField(null=True)
 
-    user = models.ForeignKey(User, null=True)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
     uid = models.BigIntegerField(unique=True, null=True)
 
     #class Meta:
@@ -27,7 +29,7 @@ class FacebookSession(models.Model):
     
     @classmethod
     def _query(cls, access_token, object_id, connection_type=None, metadata=False):
-        import urllib
+        import urllib.request, urllib.parse, urllib.error
         import json
 
         url = 'https://graph.facebook.com/%s' % object_id
@@ -38,8 +40,8 @@ class FacebookSession(models.Model):
         if metadata:
             params['metadata'] = 1
 
-        url += '?' + urllib.urlencode(params)
-        response = json.load(urllib.urlopen(url))
+        url += '?' + urllib.parse.urlencode(params)
+        response = json.load(urllib.request.urlopen(url))
         if 'error' in response:
             error = response['error']
             raise FacebookSessionError(error['type'], error['message'])
@@ -48,5 +50,5 @@ class FacebookSession(models.Model):
     def query(self, access_token, object_id, connection_type=None, metadata=False):
         return self.__class__._query(access_token, object_id)
         
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % self.uid

@@ -1,11 +1,15 @@
+from builtins import object
 from django.contrib.auth.models import User
 
 __author__ = 'andrei'
 
 
-class ImpersonateUserMiddleware(object):
-    def process_request(self, request):
-        if request.user.is_authenticated() and request.user.is_superuser:
+class ImpersonateUserMiddleware:
+    def __init__(self, get_reponse):
+        self.get_response = get_reponse
+
+    def __call__(self, request):
+        if request.user.is_authenticated and request.user.is_superuser:
             if request.GET.get("impersonate__id"):
                 request.session["impersonate__id"] = int(request.GET.get("impersonate__id"))
 
@@ -19,4 +23,5 @@ class ImpersonateUserMiddleware(object):
             except User.DoesNotExist:
                 pass
 
-        return None
+        response = self.get_response(request)
+        return response

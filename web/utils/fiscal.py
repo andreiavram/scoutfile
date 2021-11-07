@@ -1,4 +1,8 @@
 #   coding: utf8
+from __future__ import print_function
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 __author__ = 'andrei'
 
 import math
@@ -14,8 +18,8 @@ def suta2text(numar, separator = " ", level = 1):
         raise ValueError(u"Trebuie un numar natural mai mic de 1000")
 
     text_final = []
-    sute = numar / 100
-    zeci = (numar - 100 * sute) / 10
+    sute = old_div(numar, 100)
+    zeci = old_div((numar - 100 * sute), 10)
     unitati = (numar - 100 * sute - 10 * zeci)
     if sute:
         text_final.append(plural_translation.get(sute))
@@ -60,7 +64,7 @@ def numar2text(numar, separator = " "):
 
         text_final.append(separator.join(text_local))
 
-    print text_final
+    print(text_final)
     return separator.join(reversed(text_final))
 
 def suma2text(suma):
@@ -75,4 +79,4 @@ def suma2text(suma):
 
 
 if __name__ == "__main__":
-    print suma2text(124123.53)
+    print(suma2text(124123.53))

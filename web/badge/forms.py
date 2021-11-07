@@ -1,4 +1,5 @@
 #coding: utf-8
+from builtins import object
 from ajax_select.fields import AutoCompleteSelectField
 from badge.models import Badge
 from crispy_forms.layout import Layout, Field, Div, Fieldset, HTML
@@ -10,15 +11,17 @@ from generic.widgets import BootstrapDateInput
 
 __author__ = 'yeti'
 
+from structuri.fields import NonAdminAutoCompleteSelectField
+
 
 class BadgeForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Badge
         exclude = ("owner", "status", "poza_badge")
 
     nume = forms.CharField(required=True, label=u"Nume", widget=TextInput(attrs={"style": "width: 100%; font-size: 24px; line-height: 28px; padding: 10px 5px"}))
     descriere = forms.CharField(required=False, label=u"Descriere", widget=Textarea(attrs={"style": "width: 100%; height: 80px"}))
-    designer_membru = AutoCompleteSelectField("membri", label=u"Designer cercetaș", help_text=u"Dacă designerul este un membru, căutați-l aici", required=False)
+    designer_membru = NonAdminAutoCompleteSelectField("membri", label=u"Designer cercetaș", help_text=u"Dacă designerul este un membru, căutați-l aici", required=False)
     data_productie = forms.DateField(label=u"Data producție", help_text=u"Anul e important, dacă nu se știe data exactă", widget=BootstrapDateInput)
     poza = forms.FileField(label=u"Poză", required=False)
 

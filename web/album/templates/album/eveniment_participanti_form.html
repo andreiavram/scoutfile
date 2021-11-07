@@ -1,9 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block extrahead %}
-    {{ form.media }}
-{% endblock %}
 
 {% block page_title %}
     {{ eveniment.nume }} <span style = "font-weight: normal">| {% if object %}Modifică{% else %}Adaugă{% endif %} participare</span>

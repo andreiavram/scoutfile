@@ -1,8 +1,10 @@
+from __future__ import print_function
 # Create your views here.
+from builtins import str
 import logging
 
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models.query_utils import Q
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
@@ -113,7 +115,7 @@ class ActivitateCreate(CreateView):
 
         try:
             self.object.editori.add(self.request.user.utilizator.membru)
-        except Exception, e:
+        except Exception as e:
             logger.error("%s: error adding user %s to activitate, cannot fetch membru (%s)" % (self.__class__.__name__, self.request.user, e))
         return super(ActivitateCreate, self).form_valid(form)
 
@@ -161,7 +163,7 @@ class ActivitateUpdate(UpdateView):
         self.object.max_durata = form.cleaned_data.get("max_durata_string", None)
         try:
             editor = self.request.user.utilizator.membru
-        except Exception, e:
+        except Exception as e:
             editor = None
             logger.error("%s: error adding user %s to activitate, cannot fetch membru (%s)" % (self.__class__.__name__, e))
         if editor not in self.object.editori.all():
@@ -194,7 +196,7 @@ class DocumentActivitateAdauga(FileUploadMixin, CreateView):
         self.object.folder = self.activitate
 
         import os
-        print "numefisier ", os.path.splitext(form.cleaned_data.get("fisier").name)
+        print("numefisier ", os.path.splitext(form.cleaned_data.get("fisier").name))
         fname, fextension = os.path.splitext(form.cleaned_data.get("fisier").name)
         fextension = fextension[1:]
         if fextension.lower() in ["jpg", "jpeg", "png", "gif"]:
@@ -208,7 +210,7 @@ class DocumentActivitateAdauga(FileUploadMixin, CreateView):
             if not self.object.titlu:
                 self.object.titlu = "Document #"
 
-        print self.object.fisier.storage.__class__.__name__
+        print(self.object.fisier.storage.__class__.__name__)
         self.object.uploader = self.request.user
         self.object.is_folder = False
 

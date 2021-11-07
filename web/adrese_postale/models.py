@@ -1,4 +1,8 @@
 # coding: utf-8
+from builtins import chr
+from builtins import str
+from builtins import range
+from past.builtins import basestring
 import re
 from django.db import models
 
@@ -36,7 +40,7 @@ class CodPostal(models.Model):
         if isinstance(adresa, basestring):
             try:
                 a = AdresaPostala.parse_address(adresa, fail_silently=False)
-            except AdresaPostalaException, e:
+            except AdresaPostalaException as e:
                 a = None
 
         elif isinstance(adresa, AdresaPostala):
@@ -119,7 +123,7 @@ class CodPostal(models.Model):
                             sequence = cls.determine_sequence_type(parts)
                             if cls.value_in_sequence(sequence, a.bl):
                                 return code
-                        except ValueError, e:
+                        except ValueError as e:
                             pass
                     elif len(parts) == 1 and a.bl.lower() == parts[0].lower():
                         return code
@@ -133,7 +137,7 @@ class CodPostal(models.Model):
             raise ValueError(u"Need a two element list / tuple")
 
         matches = {0: (), 1: ()}
-        for r in cls.SEQUENCE_REGEXS.keys():
+        for r in list(cls.SEQUENCE_REGEXS.keys()):
             for i in range(2):
                 if len(matches[i]):
                     continue
@@ -175,9 +179,9 @@ class CodPostal(models.Model):
 
     @staticmethod
     def char_range(cls, c1, c2, prefix=""):
-        for c in xrange(ord(c1), ord(c2) + 1):
+        for c in range(ord(c1), ord(c2) + 1):
             str = "%s%s" % (prefix, chr(c))
             yield str.upper()
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s" % self.cod_postal

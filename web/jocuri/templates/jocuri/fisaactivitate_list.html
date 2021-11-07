@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load jocuri_utils %}
-{% load pagination_tags %}
+{% load pagination_tags %} {% load bs_pagination %}
+{% load static %}
 
 {% block page_title %}
 	Idei de jocuri și activități
@@ -62,7 +63,7 @@
                 Ramuri de vârstă?
                 <div style = 'margin-top: 8px'>
                 {% for rdv in ramuri_de_varsta %}
-                    <label style = "display: inline" for = "id_ramura_de_varsta_{{ rdv.slug }}"><input class = "rdv_checkbox" type="checkbox" value = "{{ rdv.id }}" id="id_ramura_de_varsta_{{ rdv.slug }}"> <img src = "{{ STATIC_URL }}images/icon-{{ rdv.slug }}.png"></label>
+                    <label style = "display: inline" for = "id_ramura_de_varsta_{{ rdv.slug }}"><input class = "rdv_checkbox" type="checkbox" value = "{{ rdv.id }}" id="id_ramura_de_varsta_{{ rdv.slug }}"> <img src = "{% get_static_prefix/// %}images/icon-{{ rdv.slug }}.png"></label>
                 {% endfor %}
                 <input type = "hidden" name = "rdv" id = "rdv" value="{{ request.GET.rdv }}">
                 </div>
@@ -102,7 +103,7 @@
 			<td>#{{ object.id }}</td>
 			<td><strong><a href = "{% url "jocuri:activitate_detail"  pk=object.id %}">{{ object.titlu }}</a></strong> {% if object.is_draft %}<span style = "color: #fc0"><i class = "icon-warning-sign"></i></span>{% endif %}<br />
             <em>{{ object.descriere|truncatewords:100 }}</em></td>
-            <td>{% for rdv in object.ramuri_de_varsta.all %}<img style = "margin-right: 3px" src = '{{ STATIC_URL }}images/icon-{{ rdv.slug }}.png'>{% endfor %}<br>
+            <td>{% for rdv in object.ramuri_de_varsta.all %}<img style = "margin-right: 3px" src = '{% static "images/icon-{{ rdv.slug }}.png" %}'>{% endfor %}<br>
                 {{ object|numar_participanti_string }} participanți<br />
 
             {{ object|durata_string }}</td>

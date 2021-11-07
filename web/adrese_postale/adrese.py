@@ -1,4 +1,7 @@
 # coding: utf-8
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from unidecode import unidecode
 
 __author__ = 'yeti'
@@ -64,7 +67,7 @@ class AdresaPostala(object):
             #    .strip("Jud.").strip("jud.").strip("Jud").strip("jud")
 
         self.available_data = []
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             if len(v.strip()) == 0:
                 continue
             setattr(self, k.lower(), v.strip())
@@ -73,8 +76,8 @@ class AdresaPostala(object):
     @classmethod
     def parse_address(cls, str_address, fail_silently=True):
         if isinstance(str_address, str):
-            ustr = unicode(str_address, "utf-8")
-        elif isinstance(str_address, unicode):
+            ustr = str(str_address, "utf-8")
+        elif isinstance(str_address, str):
             ustr = str_address
         else:
             raise ValueError("Address needs to be string")
@@ -116,7 +119,7 @@ class AdresaPostala(object):
 
         try:
             adresa_obj.validate_address()
-        except AdresaPostalaException, e:
+        except AdresaPostalaException as e:
             if not fail_silently:
                 raise e
             return None
@@ -145,7 +148,7 @@ class AdresaPostala(object):
         try:
             a_nr = re.findall(r"\d+", self.nr)[0]
             a_nr = int(a_nr)
-        except Exception, e:
+        except Exception as e:
             a_nr = None
         return a_nr
 
@@ -154,7 +157,7 @@ class AdresaPostala(object):
         return self.STRADA_HEADINGS.get(self.tip_strada, u"Strada")
 
     def validate_address(self):
-        for data in [d for d in self.DATA_DEPENDENCY.keys() if d in self.available_data]:
+        for data in [d for d in list(self.DATA_DEPENDENCY.keys()) if d in self.available_data]:
             deps = self.DATA_DEPENDENCY.get(data)
 
             for item in deps:
@@ -185,11 +188,11 @@ class AdresaPostala(object):
 
     def print_details(self):
         for k in self.available_data:
-            print "%s: %s" % (self.DATA_HEADINGS.get(k, "ERROR"), getattr(self, k.lower()))
-        print "Is sat: %s" % self.is_adresa_sat()
-        print "\n\n"
+            print("%s: %s" % (self.DATA_HEADINGS.get(k, "ERROR"), getattr(self, k.lower())))
+        print("Is sat: %s" % self.is_adresa_sat())
+        print("\n\n")
 
-    def __unicode__(self, short=False):
+    def __str__(self, short=False):
         if self.is_adresa_sat():
             pass
         adresa = u""
@@ -232,8 +235,8 @@ if __name__ == "__main__":
             adresa = AdresaPostala.parse_address(a)
         # if adresa is not None:
         # 	adresa.print_details()
-        except AdresaPostalaException, e:
-            print "Eroare validare la %s" % a
+        except AdresaPostalaException as e:
+            print("Eroare validare la %s" % a)
             cnt += 1
             adresa.print_details()
-    print cnt
+    print(cnt)

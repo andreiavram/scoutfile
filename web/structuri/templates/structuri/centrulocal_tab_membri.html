@@ -49,31 +49,31 @@
                 {% endif %}
             </td>
 			<td><ul class = "unstyled" style="{% if object.membru.is_aspirant %}opacity: 0.3{% endif %}">{% for badge in object.membru.get_badges_rdv %}
-				<li><img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" /></li>
+				<li><img src = "{% get_static_prefix %}images/icon-{{ badge }}.png" /></li>
 				{% endfor %}</ul>
             </td>
 			<td><img class = "thumbnail" src = "{% if object.membru.poza_profil %}{{ object.membru.poza_profil.get_profil_mic_url }}{% else %}{% static 'images/50x50.gif' %}{% endif %}" /></td>
 			<td><a href = "{% url "structuri:membru_detail"  pk=object.membru.id %}" {% if object.membru.is_suspendat %}style="text-decoration: line-through"{% endif %}{% if object.membru.is_inactiv %}style="color: #666"{% endif %}>{{ object.membru }}</a>
-                {% for badge in object.membru.get_extra_badges %}<img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
+                {% for badge in object.membru.get_extra_badges %}<img src = "{% get_static_prefix %}images/icon-{{ badge }}.png" />{% endfor %}
                 {% if request.user.utilizator.membru.is_membru_ccl %}<br /><span style = "font-size: 10px">{{ object.membru.cnp }}</span>{% endif %}</td>
 			<td>{{ object.moment_inceput|timesince }}<br /><span style="font-size: 10px; color: #999">{{ object.moment_inceput|date:"F Y" }}</span></td>
 			<td>
             {% if object.membru.is_lider %}
                 {% for patrula in object.membru.get_patrule %}
-                    <img src = "{{ STATIC_URL }}images/icon-{{ patrula.unitate.ramura_de_varsta.slug }}.png" /> <a href = "{{ patrula.get_absolute_url }}">{{ patrula }}</a><br />
+                    <img src = "{% get_static_prefix %}images/icon-{{ patrula.unitate.ramura_de_varsta.slug }}.png" /> <a href = "{{ patrula.get_absolute_url }}">{{ patrula }}</a><br />
                 {% endfor %}
                 {% for unitate in object.membru.get_unitati %}
-                    <img src = "{{ STATIC_URL }}images/icon-{{ unitate.ramura_de_varsta.slug }}.png" /> <a href = "{{ unitate.get_absolute_url }}">{{ unitate }}</a><br />
+                    <img src = "{% get_static_prefix %}images/icon-{{ unitate.ramura_de_varsta.slug }}.png" /> <a href = "{{ unitate.get_absolute_url }}">{{ unitate }}</a><br />
                 {% endfor %}
             {% else %}
                 {% with object.membru.get_patrula as patrula %}
                     {% if patrula %}
-                        <img src = "{{ STATIC_URL }}images/icon-{{ patrula.unitate.ramura_de_varsta.slug }}.png" /> <a href = "{{ patrula.get_absolute_url }}">{{ patrula }}</a><br />
+                        <img src = "{% get_static_prefix %}images/icon-{{ patrula.unitate.ramura_de_varsta.slug }}.png" /> <a href = "{{ patrula.get_absolute_url }}">{{ patrula }}</a><br />
                     {% endif %}
                 {% endwith %}
                 {% with object.membru.get_unitate as unitate %}
                 {% if unitate %}
-                    <img src = "{{ STATIC_URL }}images/icon-{{ unitate.ramura_de_varsta.slug }}.png" /> <a href = "{{ unitate.get_absolute_url }}">{{ unitate }}</a><br />
+                    <img src = "{% get_static_prefix %}images/icon-{{ unitate.ramura_de_varsta.slug }}.png" /> <a href = "{{ unitate.get_absolute_url }}">{{ unitate }}</a><br />
                 {% endif %}
                 {% endwith %}
             {% endif %}

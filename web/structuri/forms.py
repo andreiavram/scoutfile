@@ -4,10 +4,13 @@ Created on Jun 9, 2012
 
 @author: yeti
 '''
+from builtins import range
+from builtins import object
 import datetime
 
 from ajax_select.fields import AutoCompleteSelectField
 from captcha.fields import ReCaptchaField
+from captcha.widgets import ReCaptchaV2Checkbox
 from crispy_forms.layout import Fieldset, Layout, Submit, Field
 from django import forms
 from django.contrib.contenttypes.models import ContentType
@@ -19,14 +22,14 @@ from goodies.forms import CrispyBaseModelForm, CrispyBaseForm,\
 from goodies.widgets import BootstrapDateInput
 
 from album.models import AsociereEvenimentStructura
-from structuri.fields import BetterROCNPField
+from structuri.fields import BetterROCNPField, NonAdminAutoCompleteSelectField
 from structuri.models import Membru, CentruLocal, Unitate, Patrula,\
     AsociereMembruStructura, InformatieContact, TipInformatieContact,\
     AsociereMembruFamilie, PersoanaDeContact
 
 
 class UnitateMembruCreateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Membru
         exclude = ['timestamp_confirmed', "timestamp_registered", "timestamp_accepted", "requested_password_reset",
                    "hash", "user", "sex", "data_nasterii", "poza_profil", "centru_local", "familie", "scout_id", "scor_credit"]
@@ -100,7 +103,7 @@ class LiderCreateForm(UnitateLiderCreateForm):
         
         
 class MembruUpdateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Membru
         fields = ["nume", "prenume", "cnp", "email", "scout_id", "scor_credit"]
 
@@ -108,7 +111,7 @@ class MembruUpdateForm(CrispyBaseModelForm):
         
         
 class CentruLocalCreateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = CentruLocal
         exclude = ["nume", "statut_drepturi", "statut_juridic", "logo", "antet", "moment_initial_cotizatie"]
         
@@ -121,7 +124,7 @@ class CentruLocalCreateForm(CrispyBaseModelForm):
                                     Field("preferinte_corespondenta"))
         
 class CentruLocalAdminCreateForm(CentruLocalCreateForm):
-    class Meta:
+    class Meta(object):
         model = CentruLocal
         exclude = ["nume", "statut_drepturi", "logo", "antet", "moment_initial_cotizatie"]
             
@@ -135,7 +138,7 @@ class CentruLocalAdminCreateForm(CentruLocalCreateForm):
 
 
 class CentruLocalAdminUpdateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = CentruLocal
         exclude = ["nume", "moment_initial_cotizatie", "statut_drepturi"]
 
@@ -146,13 +149,13 @@ class CentruLocalAdminUpdateForm(CrispyBaseModelForm):
 
 
 class CentruLocalUpdateForm(CentruLocalAdminUpdateForm):
-    class Meta:
+    class Meta(object):
         model = CentruLocal
         exclude = ["nume", "statut_drepturi", "statut_juridic", "moment_initial_cotizatie"]
 
 
 class UnitateCreateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Unitate
         exclude = []
         
@@ -162,19 +165,19 @@ class UnitateCreateForm(CrispyBaseModelForm):
         super(UnitateCreateForm, self).__init__(*args, **kwargs)
 
 class CentruLocalUnitateCreateForm(UnitateCreateForm):
-    class Meta:
+    class Meta(object):
         model = Unitate
         exclude = ["centru_local", ]
         
         
 class UnitateUpdateForm(UnitateCreateForm):
-    class Meta:
+    class Meta(object):
         model = Unitate
         exclude = ["centru_local", ]
         
 
 class PatrulaCreateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Patrula
         exclude = ("unitate", )
         
@@ -182,7 +185,7 @@ class PatrulaCreateForm(CrispyBaseModelForm):
 
 
 class PatrulaUpdateForm(PatrulaCreateForm):
-    class Meta:
+    class Meta(object):
         model = Patrula
         exclude = ("unitate", )
 
@@ -190,7 +193,7 @@ class PatrulaUpdateForm(PatrulaCreateForm):
 
 
 class MembruRegistrationForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Membru
         fields = ("nume", "prenume", "cnp", "email", "telefon", "adresa")
         
@@ -241,7 +244,7 @@ class MembruRegistrationForm(CrispyBaseModelForm):
         return self.cleaned_data
     
 class ConfirmMembruAdminForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Membru
         fields = ()
     
@@ -252,12 +255,13 @@ class ConfirmMembruAdminForm(CrispyBaseModelForm):
         retval = super(ConfirmMembruAdminForm, self).__init__(*args, **kwargs)
         self.helper.add_input(Submit("reject", u"Respinge", css_class = "btn btn-danger", css_id = "id_respinge"))
         return retval
-    
+
+
 class ForgotPasswordForm(CrispyBaseForm):
     button_label = u"Trimite"
-    email = forms.EmailField(required = True)
-    captcha = ReCaptchaField(label = u"Cod verificare", attrs = {"theme" : "clean", "lang" : "ro", "options" : {"refresh_btn" : u"Imagine nouă"}})
-    
+    email = forms.EmailField(required=True)
+    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
+
     
 class ChangePasswordForm(CrispyBaseForm):
     parola_veche = forms.CharField(widget = PasswordInput, required = True)
@@ -308,7 +312,7 @@ class ChangePasswordForm(CrispyBaseForm):
 
 
 class UtilizatorProfileForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Membru
         fields = ("email", "nume", "prenume", "cnp")
         
@@ -321,7 +325,7 @@ class UtilizatorProfileForm(CrispyBaseModelForm):
         self.fields['cnp'].widget.attrs['readonly'] = True
         
 class UtilizatorProfilePictureForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Membru
         fields = ()
         
@@ -332,7 +336,7 @@ class UtilizatorProfilePictureForm(CrispyBaseModelForm):
     
     
 class AsociereCreateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = AsociereMembruStructura
         fields = ("content_type", "object_id", "tip_asociere", "moment_inceput", "moment_incheiere")
     
@@ -356,7 +360,7 @@ class AsociereUpdateForm(AsociereCreateForm):
 
 
 class AsociereEvenimentStructuraForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = AsociereEvenimentStructura
         fields = ("content_type", "object_id")
 
@@ -372,7 +376,7 @@ class AsociereEvenimentStructuraForm(CrispyBaseModelForm):
 class InformatieGenericCreateForm(CrispyBaseModelForm):
     tip_informatie_categorie = "Contact" #  default value
 
-    class Meta:
+    class Meta(object):
         model = InformatieContact
         fields = ["tip_informatie", "valoare", "informatii_suplimentare"]
 
@@ -391,7 +395,7 @@ class InformatieGenericCreateForm(CrispyBaseModelForm):
 
 
 class InformatieGenericDeleteForm(CrispyBaseDeleteForm):
-    class Meta:
+    class Meta(object):
         model = InformatieContact
         exclude = []
 
@@ -423,15 +427,15 @@ class InformatieGenericDeleteForm(CrispyBaseDeleteForm):
 
 
 class AsociereMembruFamilieForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = AsociereMembruFamilie
         fields = ["persoana_destinatie", "tip_relatie"]
     
-    persoana_destinatie = AutoCompleteSelectField("membri", required = True, help_text = u"Introduceți câteva litere pentru a căuta un membru",
+    persoana_destinatie = NonAdminAutoCompleteSelectField("membri", required = True, help_text = u"Introduceți câteva litere pentru a căuta un membru",
                                             label = u"Persoana")
     
 class PersoanaDeContactForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = PersoanaDeContact
         fields = ["nume", "tip_relatie", "telefon", "email", "job", "note", "implicit"]
 
@@ -450,7 +454,7 @@ class PersoanaDeContactForm(CrispyBaseModelForm):
         return self.cleaned_data
     
 class SetariSpecialeCentruLocalForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = CentruLocal
         fields = []
 
@@ -463,11 +467,11 @@ class SetariSpecialeCentruLocalForm(CrispyBaseModelForm):
 
 
 class PatrulaMembruAsociazaForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = AsociereMembruStructura
         fields = ['membru']
 
-    membru = AutoCompleteSelectField("membri", label=u"Cercetaș")
+    membru = NonAdminAutoCompleteSelectField("membri", label=u"Cercetaș")
     asociere_inceput = forms.DateField(widget=BootstrapDateInput, label=u"Moment început")
 
     def __init__(self, *args, **kwargs):

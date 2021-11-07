@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django.db.models.deletion
 import photologue.models
 from django.conf import settings
 from django.db import models, migrations
@@ -57,7 +58,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('data', models.DateField()),
                 ('detalii', models.TextField(null=True, blank=True)),
-                ('badge', models.ForeignKey(to='structuri.BadgeMerit')),
+                ('badge', models.ForeignKey(to='structuri.BadgeMerit', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
             },
@@ -78,7 +79,7 @@ class Migration(migrations.Migration):
                 ('preferinte_corespondenta', models.CharField(default=b'email', help_text='Asigura\u021bi-v\u0103 c\u0103 a\u021bi ad\u0103ugat informa\u021biile relevante de contact pentru tipul de coresponden\u021b\u0103 ales.', max_length=255, verbose_name='Preferin\u021b\u0103 trimitere coresponden\u021b\u0103', choices=[(b'email', b'Email'), (b'posta', 'Po\u0219t\u0103')])),
                 ('logo', models.ImageField(null=True, upload_to=structuri.models.upload_to_centru_local_logo, blank=True)),
                 ('antet', models.ImageField(null=True, upload_to=structuri.models.upload_to_centru_local_antent, blank=True)),
-                ('moment_initial_cotizatie', models.ForeignKey(blank=True, to='documente.Trimestru', null=True)),
+                ('moment_initial_cotizatie', models.ForeignKey(blank=True, to='documente.Trimestru', null=True, on_delete=django.db.models.deletion.SET_NULL)),
             ],
             options={
                 'verbose_name': 'Centru Local',
@@ -95,7 +96,7 @@ class Migration(migrations.Migration):
                 ('ordine', models.PositiveSmallIntegerField(null=True, blank=True)),
                 ('slug', models.SlugField()),
                 ('reguli', models.CharField(max_length=1024, null=True, blank=True)),
-                ('logo', models.ForeignKey(to='album.Imagine')),
+                ('logo', models.ForeignKey(to='album.Imagine', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
             },
@@ -107,7 +108,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('data', models.DateField()),
                 ('detalii', models.TextField(null=True, blank=True)),
-                ('etapa_progres', models.ForeignKey(to='structuri.EtapaProgres')),
+                ('etapa_progres', models.ForeignKey(to='structuri.EtapaProgres', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
             },
@@ -121,7 +122,7 @@ class Migration(migrations.Migration):
                 ('date_taken', models.DateTimeField(verbose_name='date taken', null=True, editable=False, blank=True)),
                 ('view_count', models.PositiveIntegerField(default=0, verbose_name='view count', editable=False)),
                 ('crop_from', models.CharField(default=b'center', max_length=10, verbose_name='crop from', blank=True, choices=[(b'top', 'Top'), (b'right', 'Right'), (b'bottom', 'Bottom'), (b'left', 'Left'), (b'center', 'Center'), (b'auto', 'Auto (Default)')])),
-                ('effect', models.ForeignKey(related_name='imagineprofil_related', verbose_name='effect', blank=True, to='photologue.PhotoEffect', null=True)),
+                ('effect', models.ForeignKey(related_name='imagineprofil_related', verbose_name='effect', blank=True, to='photologue.PhotoEffect', null=True, on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'abstract': False,
@@ -139,8 +140,8 @@ class Migration(migrations.Migration):
                 ('object_id', models.PositiveIntegerField()),
                 ('obiect_ref_id', models.PositiveIntegerField(null=True, blank=True)),
                 ('informatii_suplimentare', models.CharField(max_length=1024, null=True, blank=True)),
-                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
-                ('obiect_ref_ctype', models.ForeignKey(related_name='referit', blank=True, to='contenttypes.ContentType', null=True)),
+                ('content_type', models.ForeignKey(to='contenttypes.ContentType', on_delete=django.db.models.deletion.CASCADE)),
+                ('obiect_ref_ctype', models.ForeignKey(related_name='referit', blank=True, to='contenttypes.ContentType', null=True, on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
             },
@@ -152,7 +153,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
                 ('target_atins', models.BooleanField(default=False)),
-                ('activitate', models.ForeignKey(blank=True, to='album.Eveniment', null=True)),
+                ('activitate', models.ForeignKey(blank=True, to='album.Eveniment', null=True, on_delete=django.db.models.deletion.SET_NULL)),
             ],
             options={
             },
@@ -165,8 +166,8 @@ class Migration(migrations.Migration):
                 ('nota', models.TextField()),
                 ('timestamp', models.DateTimeField()),
                 ('obiectiv_atins', models.BooleanField(default=False)),
-                ('activitate', models.ForeignKey(blank=True, to='album.Eveniment', null=True)),
-                ('etapa_progres', models.ForeignKey(to='structuri.EtapaProgres')),
+                ('activitate', models.ForeignKey(blank=True, to='album.Eveniment', null=True, on_delete=django.db.models.deletion.SET_NULL)),
+                ('etapa_progres', models.ForeignKey(to='structuri.EtapaProgres', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
             },
@@ -237,7 +238,7 @@ class Migration(migrations.Migration):
                 ('titlu', models.CharField(max_length=2048)),
                 ('capitol', models.CharField(max_length=2048)),
                 ('object_id', models.PositiveIntegerField()),
-                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
+                ('content_type', models.ForeignKey(to='contenttypes.ContentType', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
             },
@@ -274,7 +275,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('nume', models.CharField(max_length=255)),
-                ('reverse_relationship', models.ForeignKey(blank=True, to='structuri.TipRelatieFamilie', null=True)),
+                ('reverse_relationship', models.ForeignKey(blank=True, to='structuri.TipRelatieFamilie', null=True, on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
             },
@@ -287,8 +288,8 @@ class Migration(migrations.Migration):
                 ('nume', models.CharField(max_length=255)),
                 ('data_infiintare', models.DateField(null=True, blank=True)),
                 ('activa', models.BooleanField(default=True)),
-                ('centru_local', models.ForeignKey(to='structuri.CentruLocal')),
-                ('ramura_de_varsta', models.ForeignKey(to='structuri.RamuraDeVarsta')),
+                ('centru_local', models.ForeignKey(to='structuri.CentruLocal', on_delete=django.db.models.deletion.CASCADE)),
+                ('ramura_de_varsta', models.ForeignKey(to='structuri.RamuraDeVarsta', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'verbose_name': 'Unitate',
@@ -316,7 +317,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Membru',
             fields=[
-                ('utilizator_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='structuri.Utilizator')),
+                ('utilizator_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='structuri.Utilizator', on_delete=django.db.models.deletion.CASCADE)),
                 ('cnp', models.CharField(max_length=255, unique=True, null=True, verbose_name='CNP', blank=True)),
                 ('telefon', models.CharField(max_length=10, null=True, blank=True)),
                 ('adresa', models.CharField(max_length=2048, null=True, blank=True)),
@@ -325,7 +326,7 @@ class Migration(migrations.Migration):
                 ('scout_id', models.CharField(max_length=255, null=True, verbose_name=b'ID ONCR', blank=True)),
                 ('scor_credit', models.IntegerField(default=2, help_text='Aceast\u0103 valoare reprezint\u0103 \xeencrederea Centrului Local \xeentr-un membru de a-\u0219i respecta angajamentele financiare (dac\u0103 Centrul are sau nu \xeencredere s\u0103 pun\u0103 bani pentru el / ea)', verbose_name='Credit', choices=[(0, 'R\u0103u'), (1, 'Neutru'), (2, 'Bun')])),
                 ('familie', models.ManyToManyField(to='structuri.Membru', null=True, through='structuri.AsociereMembruFamilie', blank=True)),
-                ('poza_profil', models.ForeignKey(blank=True, to='structuri.ImagineProfil', null=True)),
+                ('poza_profil', models.ForeignKey(blank=True, to='structuri.ImagineProfil', null=True, on_delete=django.db.models.deletion.SET_NULL)),
             ],
             options={
             },
@@ -334,157 +335,157 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='utilizator',
             name='user',
-            field=models.OneToOneField(null=True, blank=True, to=settings.AUTH_USER_MODEL),
+            field=models.OneToOneField(null=True, blank=True, to=settings.AUTH_USER_MODEL, on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='persoanadecontact',
             name='membru',
-            field=models.ForeignKey(to='structuri.Membru'),
+            field=models.ForeignKey(to='structuri.Membru', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='persoanadecontact',
             name='tip_relatie',
-            field=models.ForeignKey(blank=True, to='structuri.TipRelatieFamilie', null=True),
+            field=models.ForeignKey(blank=True, to='structuri.TipRelatieFamilie', null=True, on_delete=django.db.models.deletion.SET_NULL),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='patrula',
             name='unitate',
-            field=models.ForeignKey(to='structuri.Unitate'),
+            field=models.ForeignKey(to='structuri.Unitate', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='noteobiectivprogresmembru',
             name='evaluator',
-            field=models.ForeignKey(related_name='note_obiective_progres_evaluate', to='structuri.Membru'),
+            field=models.ForeignKey(related_name='note_obiective_progres_evaluate', to='structuri.Membru', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='noteobiectivprogresmembru',
             name='membru',
-            field=models.ForeignKey(related_name='note_obiective_progres', to='structuri.Membru'),
+            field=models.ForeignKey(related_name='note_obiective_progres', to='structuri.Membru', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='noteobiectivprogresmembru',
             name='obiectiv',
-            field=models.ForeignKey(to='structuri.ObiectivEducativProgres'),
+            field=models.ForeignKey(to='structuri.ObiectivEducativProgres', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='notatargetetapaprogres',
             name='evaluator',
-            field=models.ForeignKey(related_name='note_etape_progres_evaluate', to='structuri.Membru'),
+            field=models.ForeignKey(related_name='note_etape_progres_evaluate', to='structuri.Membru', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='notatargetetapaprogres',
             name='membru',
-            field=models.ForeignKey(related_name='note_etape_progres', to='structuri.Membru'),
+            field=models.ForeignKey(related_name='note_etape_progres', to='structuri.Membru', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='notatargetetapaprogres',
             name='target',
-            field=models.ForeignKey(to='structuri.TargetEtapaProgres'),
+            field=models.ForeignKey(to='structuri.TargetEtapaProgres', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='informatiecontact',
             name='tip_informatie',
-            field=models.ForeignKey(to='structuri.TipInformatieContact'),
+            field=models.ForeignKey(to='structuri.TipInformatieContact', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='etapaprogresmembru',
             name='evaluator',
-            field=models.ForeignKey(related_name='etape_progres_evaluate', to='structuri.Membru'),
+            field=models.ForeignKey(related_name='etape_progres_evaluate', to='structuri.Membru', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='etapaprogresmembru',
             name='membru',
-            field=models.ForeignKey(related_name='etape_progres', to='structuri.Membru'),
+            field=models.ForeignKey(related_name='etape_progres', to='structuri.Membru', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='etapaprogres',
             name='ramura_de_varsta',
-            field=models.ForeignKey(to='structuri.RamuraDeVarsta'),
+            field=models.ForeignKey(to='structuri.RamuraDeVarsta', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='badgemeritmembru',
             name='evaluator',
-            field=models.ForeignKey(related_name='badgeuri_merit_evaluate', to='structuri.Membru'),
+            field=models.ForeignKey(related_name='badgeuri_merit_evaluate', to='structuri.Membru', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='badgemeritmembru',
             name='membru',
-            field=models.ForeignKey(related_name='badgeuri_merit', to='structuri.Membru'),
+            field=models.ForeignKey(related_name='badgeuri_merit', to='structuri.Membru', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='badgemerit',
             name='etapa_progres',
-            field=models.ForeignKey(blank=True, to='structuri.EtapaProgres', null=True),
+            field=models.ForeignKey(blank=True, to='structuri.EtapaProgres', null=True, on_delete=django.db.models.deletion.SET_NULL),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='badgemerit',
             name='logo',
-            field=models.ForeignKey(blank=True, to='album.Imagine', null=True),
+            field=models.ForeignKey(blank=True, to='album.Imagine', null=True, on_delete=django.db.models.deletion.SET_NULL),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='badgemerit',
             name='ramura_de_varsta',
-            field=models.ForeignKey(blank=True, to='structuri.RamuraDeVarsta', null=True),
+            field=models.ForeignKey(blank=True, to='structuri.RamuraDeVarsta', null=True, on_delete=django.db.models.deletion.SET_NULL),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='asocieremembrustructura',
             name='confirmata_de',
-            field=models.ForeignKey(related_name='asocieri_confirmate', blank=True, to='structuri.Utilizator', null=True),
+            field=models.ForeignKey(related_name='asocieri_confirmate', blank=True, to='structuri.Utilizator', null=True, on_delete=django.db.models.deletion.SET_NULL),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='asocieremembrustructura',
             name='content_type',
-            field=models.ForeignKey(verbose_name='Tip structur\u0103', to='contenttypes.ContentType'),
+            field=models.ForeignKey(verbose_name='Tip structur\u0103', to='contenttypes.ContentType', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='asocieremembrustructura',
             name='membru',
-            field=models.ForeignKey(related_name='afilieri', to='structuri.Membru'),
+            field=models.ForeignKey(related_name='afilieri', to='structuri.Membru', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='asocieremembrustructura',
             name='tip_asociere',
-            field=models.ForeignKey(to='structuri.TipAsociereMembruStructura'),
+            field=models.ForeignKey(to='structuri.TipAsociereMembruStructura', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='asocieremembrufamilie',
             name='persoana_destinatie',
-            field=models.ForeignKey(related_name='membru_destinatie', to='structuri.Membru'),
+            field=models.ForeignKey(related_name='membru_destinatie', to='structuri.Membru', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='asocieremembrufamilie',
             name='persoana_sursa',
-            field=models.ForeignKey(to='structuri.Membru'),
+            field=models.ForeignKey(to='structuri.Membru', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='asocieremembrufamilie',
             name='tip_relatie',
-            field=models.ForeignKey(to='structuri.TipRelatieFamilie'),
+            field=models.ForeignKey(to='structuri.TipRelatieFamilie', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
     ]
