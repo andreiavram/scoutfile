@@ -10,6 +10,7 @@ from django.db.models.query_utils import Q
 from django.template.loader import render_to_string
 
 from structuri.models import Membru
+from django.templatetags.static import static
 
 
 class ScoutfileLookup(LookupChannel):
