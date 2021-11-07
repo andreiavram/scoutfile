@@ -888,6 +888,7 @@ class Imagine(ImageModel):
             self.resolution_x, self.resolution_y = im.size
             logger.debug("Imagine resolution: %d, %d" % (self.resolution_x, self.resolution_y))
 
+        exif_data = {}
         on_create = False
         if self.id is None:
             on_create = True
@@ -899,11 +900,8 @@ class Imagine(ImageModel):
                 logger.debug("%s: %s, %s" % (self.__class__.__name__, e, traceback.format_exc()))
                 info = None
 
-            exif_data = {}
-
-            #    get current EXIF data
+            #  get current EXIF data
             try:
-
                 if info is not None:
                     for tag, value in list(info.items()):
                         decoded = ExifTags.TAGS.get(tag, tag)
@@ -927,10 +925,11 @@ class Imagine(ImageModel):
             self.is_face_processed = True
 
         if on_create:
-            #    clear currently EXIF data
+            # clear currently EXIF data
             self.exifdata_set.all().delete()
 
             for key, value in list(exif_data.items()):
+                value = value.decode("utf-8", errors="replace").replace("\x00", "\uFFFD")
                 exif = EXIFData(imagine=self, key=key, value=value)
                 try:
                     exif.save()
