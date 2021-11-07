@@ -1,10 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block extrahead %}
-    {{  form.media }}
-{% endblock %}
-
 {% block page_title %}
     {% if object %}{{ object.nume }}{% else %}Eveniment nou{% endif %}
 {% endblock %}

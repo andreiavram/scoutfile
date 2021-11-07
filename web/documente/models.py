@@ -1,4 +1,7 @@
 # coding: utf-8
+from __future__ import division
+from past.utils import old_div
+from builtins import object
 import datetime
 import logging
 
@@ -7,7 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.db.models.aggregates import Sum
 from django.db.models.signals import post_delete
@@ -33,24 +36,24 @@ class Document(models.Model):
     url = models.URLField(max_length=2048, null=True, blank=True)
 
     version_number = models.IntegerField(default=0)
-    root_document = models.ForeignKey("Document", related_name="versions", null=True, blank=True)
-    folder = models.ForeignKey("Document", related_name="fisiere", null=True, blank=True)
+    root_document = models.ForeignKey("Document", related_name="versions", on_delete=models.SET_NULL, null=True, blank=True)
+    folder = models.ForeignKey("Document", on_delete=models.SET_NULL, related_name="fisiere", null=True, blank=True)
     locked = models.BooleanField(default=False)
 
     is_folder = models.BooleanField(default=False)
     fragment = models.IntegerField(default=0)
 
-    uploader = models.ForeignKey(User)
-    tip_document = models.ForeignKey("TipDocument", null=True, blank=True)
+    uploader = models.ForeignKey(User, on_delete=models.CASCADE)
+    tip_document = models.ForeignKey("TipDocument", on_delete=models.CASCADE, null=True, blank=True)
 
-    registru = models.ForeignKey("Registru", null=True, blank=True)
+    registru = models.ForeignKey("Registru", on_delete=models.SET_NULL, null=True, blank=True)
     numar_inregistrare = models.PositiveIntegerField(null=True, blank=True)
 
     #   de folosit pentru cand documentul este in fapt o imagine, care trebuie procesata (thumbnail-uri ...)
-    image_storage = models.ForeignKey("album.Imagine", null=True, blank=True)
+    image_storage = models.ForeignKey("album.Imagine", on_delete=models.SET_NULL, null=True, blank=True)
     # rol_in_folder = models.ForeignKey
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s" % self.titlu
 
     def referinta(self):
@@ -104,17 +107,17 @@ class TipAsociereDocument(models.Model):
 
 
 class AsociereDocument(models.Model):
-    document = models.ForeignKey(Document)
-    document_ctype = models.ForeignKey(ContentType, null=True, blank=True, related_name="asociere")
+    document = models.ForeignKey(Document, on_delete=models.CASCADE)
+    document_ctype = models.ForeignKey(ContentType, null=True, blank=True, related_name="asociere", on_delete=models.SET_NULL)
 
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
 
-    tip_asociere = models.ForeignKey(TipAsociereDocument, null=True, blank=True)
+    tip_asociere = models.ForeignKey(TipAsociereDocument, on_delete=models.CASCADE, null=True, blank=True)
 
     moment_asociere = models.DateTimeField(auto_now_add=True)
-    responsabil = models.ForeignKey(User)
+    responsabil = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def save(self, force_insert=False, force_update=False, using=None):
         self.document_ctype = ContentType.objects.get_for_model(self.document)
@@ -148,7 +151,7 @@ class TipDocument(models.Model):
     nume = models.CharField(max_length=255)
     descriere = models.TextField(null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{0}".format(self.nume)
 
     @classmethod
@@ -162,7 +165,7 @@ class TipDocument(models.Model):
 
 
 class Adeziune(Document):
-    class Meta:
+    class Meta(object):
         proxy = True
 
     registre_compatibile = ["intern", ]
@@ -173,7 +176,7 @@ class Adeziune(Document):
 
 
 class Chitanta(Document):
-    casier = models.ForeignKey("structuri.Membru")
+    casier = models.ForeignKey("structuri.Membru", null=True, blank=True, on_delete=models.SET_NULL)
     #serie = models.CharField(max_length=255)
     #numar = models.IntegerField(default=0)
     suma = models.FloatField(default=0)
@@ -259,7 +262,7 @@ class Trimestru(models.Model):
                 trimestru_nou.data_inceput = datetime.date(year=an_nou, month=luna_noua, day=1)
                 #    trimestul se termina cu o zi mai devreme decat prima zi a cele-i de-a 4 luni de la inceput
                 #    un caz special este trimestrul IV, in care trebuie trecut in 1 ianuaire a anului urmator si scazuta o zi
-                trimestru_nou.data_sfarsit = datetime.date(year=an_nou + trimestru_nou.ordine_locala / 4,
+                trimestru_nou.data_sfarsit = datetime.date(year=an_nou + old_div(trimestru_nou.ordine_locala, 4),
                                                            month=luna_noua + 3 if luna_noua < 10 else 1,
                                                            day=1) - datetime.timedelta(days=1)
                 trimestru_nou.save()
@@ -300,7 +303,7 @@ class Trimestru(models.Model):
         valoare_trimestriala = (pachet_cotizatii['national'] + pachet_cotizatii['local']) / 4.
         return valoare_trimestriala
 
-    def __unicode__(self):
+    def __str__(self):
         numerals = ["I", "II", "III", "IV"]
         return "trimestrul %s, %s" % (numerals[self.ordine_locala - 1], self.data_inceput.year)
 
@@ -308,12 +311,12 @@ MOTIVE_INREGISTRARE_PLATA_COTIZATIE = (("normal", u"Plată normală"), ("inactiv
 
 
 class PlataCotizatieTrimestru(models.Model):
-    trimestru = models.ForeignKey(Trimestru)
+    trimestru = models.ForeignKey(Trimestru, on_delete=models.CASCADE)
     partial = models.BooleanField(default=False)
     final = models.BooleanField(default=False)
     suma = models.FloatField()
-    membru = models.ForeignKey("structuri.Membru")
-    chitanta = models.ForeignKey("ChitantaCotizatie", null=True, blank=True)
+    membru = models.ForeignKey("structuri.Membru", on_delete=models.CASCADE)
+    chitanta = models.ForeignKey("ChitantaCotizatie", on_delete=models.CASCADE, null=True, blank=True)
     index = models.IntegerField()
 
     tip_inregistrare = models.CharField(max_length=255, choices=MOTIVE_INREGISTRARE_PLATA_COTIZATIE, default="normal")
@@ -484,7 +487,7 @@ class PlataCotizatieTrimestru(models.Model):
                     #   trebuie reimpartita suma, sau (in caz de egalitate) bifata ca finala ultima inregistrare
                     m.recalculeaza_acoperire_cotizatie(trimestru_start=trimestru, membri_procesati=membri_procesati)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"Plată pentru %s, pe %s, în valoare de %.2f RON" % (self.membru, self.trimestru, self.suma)
 
 
@@ -518,8 +521,8 @@ REGISTRU_TIPURI = (("chitantier", u"Chitanțier"), ("facturier", u"Facturier"), 
 
 
 class Registru(models.Model):
-    centru_local = models.ForeignKey("structuri.CentruLocal")
-    owner = models.ForeignKey("structuri.Membru")
+    centru_local = models.ForeignKey("structuri.CentruLocal", on_delete=models.CASCADE)
+    owner = models.ForeignKey("structuri.Membru", null=True, blank=True, on_delete=models.CASCADE)
 
     mod_functionare = models.CharField(default="auto", max_length=255, choices=REGISTRU_MODES,
                                        verbose_name=u"Tip numerotare",
@@ -527,7 +530,7 @@ class Registru(models.Model):
     tip_registru = models.CharField(max_length=255, choices=REGISTRU_TIPURI)
 
     #   documentul care a generat crearea registrului, spre exemplu deciziile de atribuire de numar
-    document_referinta = models.ForeignKey(Document, null=True, blank=True, related_name="registru_referinta")
+    document_referinta = models.ForeignKey(Document, null=True, blank=True, related_name="registru_referinta", on_delete=models.SET_NULL)
     serie = models.CharField(max_length=255, null=True, blank=True)
 
     #   numere inregistrare
@@ -603,7 +606,7 @@ class Registru(models.Model):
             return
         return super(Registru, self).delete(**kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{0}, seria {1} ({2})".format(self.get_tip_registru_display(), self.serie, self.mod_functionare)
 
 
@@ -641,7 +644,7 @@ class Decizie(Document):
 
 
     continut = models.TextField(null=True, blank=True)
-    centru_local = models.ForeignKey("structuri.CentruLocal")
+    centru_local = models.ForeignKey("structuri.CentruLocal", on_delete=models.CASCADE)
 
     def save(self, **kwargs):
         self.tip_document, created = TipDocument.objects.get_or_create(slug="decizie", nume="Decizie")

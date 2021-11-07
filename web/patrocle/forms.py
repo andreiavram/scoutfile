@@ -4,6 +4,7 @@ Created on Sep 25, 2012
 
 @author: yeti
 '''
+from builtins import object
 import json
 import logging
 
@@ -82,7 +83,7 @@ class SendSMSForm(CrispyBaseForm):
         if len(error_list):
             for r in rezervari:
                 r.delete()
-            if self._errors.has_key("mesaj"):
+            if "mesaj" in self._errors:
                 self._errors['mesaj'] += error_list
             else:
                 self._errors['mesaj'] = error_list
@@ -93,7 +94,7 @@ class SendSMSForm(CrispyBaseForm):
         
     
 class AsociereCreditForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Credit
         fields = ("content_type", "object_id", "credit", "comentarii")
         

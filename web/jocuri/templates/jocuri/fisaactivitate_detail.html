@@ -1,6 +1,6 @@
     {% extends 'base.html' %}
 {% load jocuri_utils %}
-{% load django_markdown %}
+<!--{% load django_markdown %}-->
 {% load jocuri_utils %}
 {% load static %}
 {% load qr_tags %}
@@ -113,14 +113,14 @@
     {%  endif %}
     <div class = "row-fluid">
         <div class = "span10" style = "text-align: justify">
-            {{ object.descriere_joc|markdown }}
+            {{ object.descriere_joc }}
         </div>
         <div class = "span2">
             <h3>Sumar</h3>
             <ul class = "unstyled">
                 <li><strong>Pentru: </strong>{{ object|numar_participanti_string }} participanți</li>
                 <li><strong>Durată: </strong>{{ object|durata_string }}</li>
-                <li>{% for rdv in object.ramuri_de_varsta.all %}<img style = "margin-right: 3px" src = '{{ STATIC_URL }}images/icon-{{ rdv.slug }}.png'>{% endfor %}</li>
+                <li>{% for rdv in object.ramuri_de_varsta.all %}<img style = "margin-right: 3px" src = '{% get_static_prefix %}images/icon-{{ rdv.slug }}.png'>{% endfor %}</li>
             </ul>
 
 

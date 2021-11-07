@@ -4,6 +4,7 @@ Created on Aug 31, 2012
 
 @author: yeti
 '''
+from builtins import object
 from ajax_select.fields import AutoCompleteSelectField
 from crispy_forms.layout import Fieldset, Layout, Field
 from django import forms
@@ -17,10 +18,11 @@ from album.models import FlagReport, FLAG_MOTIVES, RaportEveniment, ParticipareE
     CampArbitrarParticipareEveniment, STATUS_PARTICIPARE
 from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
 from generic.widgets import BootstrapDateTimeInput, BootstrapDateInput
+from structuri.fields import NonAdminAutoCompleteSelectField
 
 
 class ReportForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = FlagReport
         fields = ("motiv", "alt_motiv")
 
@@ -45,19 +47,19 @@ class ReportFormNoButtons(ReportForm):
 
 
 class SetPozeCreateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = SetPoze
         exclude = ["autor_user", "status", "zip_file", "procent_procesat"]
 
 
 class SetPozeUpdateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = SetPoze
         exclude = ["procent_procesat", "autor_user", "status", "zip_file", "eveniment"]
 
 
 class EvenimentCreateForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Eveniment
         exclude = ["centru_local", "custom_cover_photo", "ramuri_de_varsta", "activa", "slug"]
 
@@ -69,8 +71,8 @@ class EvenimentCreateForm(CrispyBaseModelForm):
     facebook_event_link = forms.URLField(widget=FacebookLinkWidget, required=False, label=u"Link eveniment Facebook")
     cover_photo = forms.FileField(label=u"Cover photo", required=False)
 
-    responsabil_articol = AutoCompleteSelectField("membri", label=u"Responsabil articol", required=False)
-    responsabil_raport = AutoCompleteSelectField("lideri", label=u"Responsabil raport", required=False)
+    responsabil_articol = NonAdminAutoCompleteSelectField("membri", label=u"Responsabil articol", required=False)
+    responsabil_raport = NonAdminAutoCompleteSelectField("lideri", label=u"Responsabil raport", required=False)
 
     adauga_persoane = forms.BooleanField(required=False, label=u"Adaugă membri la eveniment?")
     adauga_lideri = forms.BooleanField(required=False, label=u"Adaugă liderii la eveniment?")
@@ -85,13 +87,13 @@ class EvenimentCreateForm(CrispyBaseModelForm):
 
 
 class EvenimentUpdateForm(EvenimentCreateForm):
-    class Meta:
+    class Meta(object):
         model = Eveniment
         exclude = ["centru_local", "custom_cover_photo", "ramuri_de_varsta"]
 
 
 class PozaTagsForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = Imagine
         fields = ["tags", "titlu", "descriere", "published_status"]
 
@@ -99,13 +101,13 @@ class PozaTagsForm(CrispyBaseModelForm):
 
 
 class ZiForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = ZiEveniment
         fields = ["titlu", "descriere"]
 
 
 class RaportEvenimentForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = RaportEveniment
         fields = ["parteneri", "obiective", "grup_tinta", "activitati", "alti_beneficiari",
                   "promovare", "buget", "accept_publicare_raport_national", "aventura",
@@ -113,7 +115,7 @@ class RaportEvenimentForm(CrispyBaseModelForm):
 
 
 class EvenimentParticipareBaseForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = ParticipareEveniment
         exclude = ["eveniment", "user_modificare", "membru", "nonmembru"]
 
@@ -147,11 +149,11 @@ class EvenimentParticipareBaseForm(CrispyBaseModelForm):
 
 
 class EvenimentParticipareForm(EvenimentParticipareBaseForm):
-    class Meta:
+    class Meta(object):
         model = ParticipareEveniment
         exclude = ["eveniment", "user_modificare", "nonmembru"]
 
-    membru = AutoCompleteSelectField("membri", label=u"Cercetaș")
+    membru = NonAdminAutoCompleteSelectField("membri", label=u"Cercetaș")
 
     def __init__(self, **kwargs):
         super(EvenimentParticipareForm, self).__init__(**kwargs)
@@ -202,7 +204,7 @@ class EvenimentParticipareNonmembruUpdateForm(EvenimentParticipareUpdateMixin, E
 
 
 class CampArbitrarForm(CrispyBaseModelForm):
-    class Meta:
+    class Meta(object):
         model = CampArbitrarParticipareEveniment
         exclude = ["eveniment", "slug"]
 
@@ -248,7 +250,7 @@ class EvenimentParticipantFilterForm(CrispyBaseForm):
                 cond[parts[0].strip()] = parts[1].strip()
 
         cond_parsed = {}
-        for camp, valoare in cond.items():
+        for camp, valoare in list(cond.items()):
             try:
                 camp_arbitrar = self.eveniment.camparbitrarparticipareeveniment_set.get(slug__iexact=camp)
                 if camp_arbitrar.tip_camp != "bool":

@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
                 ('cover_photo', models.ImageField(null=True, upload_to=cantece.models.upload_to_cover_photo, blank=True)),
                 ('album', models.CharField(max_length=255, null=True, blank=True)),
                 ('timestamp', models.DateTimeField(auto_now=True)),
-                ('owner', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('owner', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=django.db.models.deletion.CASCADE)),
                 ('tags', taggit.managers.TaggableManager(to='taggit.Tag', through='taggit.TaggedItem', blank=True, help_text='A comma-separated list of tags.', verbose_name='Tags')),
             ],
             options={
@@ -47,9 +47,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('status', models.CharField(max_length=255, choices=[(b'propus', 'Propus'), (b'aprobat', 'Aprobat'), (b'respins', 'Respins')])),
-                ('cantec', models.ForeignKey(to='cantece.Cantec')),
-                ('carte', models.ForeignKey(to='cantece.CarteCantece')),
-                ('owner', models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True)),
+                ('cantec', models.ForeignKey(to='cantece.Cantec', on_delete=django.db.models.deletion.CASCADE)),
+                ('carte', models.ForeignKey(to='cantece.CarteCantece', on_delete=django.db.models.deletion.CASCADE)),
+                ('owner', models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True, on_delete=django.db.models.deletion.SET_NULL)),
             ],
             options={
             },
@@ -80,7 +80,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='optiunitemplatecartecantece',
             name='template',
-            field=models.ForeignKey(to='cantece.TemplateCarteCantece'),
+            field=models.ForeignKey(to='cantece.TemplateCarteCantece', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -98,7 +98,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='cartecantece',
             name='template',
-            field=models.ForeignKey(to='cantece.TemplateCarteCantece'),
+            field=models.ForeignKey(to='cantece.TemplateCarteCantece', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
     ]

@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load tab_tags %}
-{% load pagination_tags %}
+{% load pagination_tags %} {% load bs_pagination %}
+{% load static %}
 
 {% block page_title %}
 	Membri
@@ -14,12 +15,12 @@
 
         <div class = "btn-group">
 			<a href = "#" class = "btn disabled">Filtru</a>
-			<a href = "{% url "structuri:cl_membri"  pk=object.id %}?rdv=lupisori" data-title = "Lupișori" class = "{% if request.GET.rdv == 'lupisori' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-lupisori.png" /></a>
-			<a href = "{% url "structuri:cl_membri"  pk=object.id %}?rdv=temerari" data-title = "Temerari" class = "{% if request.GET.rdv == 'temerari' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-temerari.png" /></a>
-			<a href = "{% url "structuri:cl_membri"  pk=object.id %}?rdv=exploratori" data-title = "eXploratori" class = "{% if request.GET.rdv == 'exploratori' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-exploratori.png" /></a>
-			<a href = "{% url "structuri:cl_membri"  pk=object.id %}?rdv=seniori" data-title = "Seniori" class = "{% if request.GET.rdv == 'seniori' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-seniori.png" /></a>
-			<a href = "{% url "structuri:cl_membri"  pk=object.id %}?rdv=lideri" data-title = "Lideri" class = "{% if request.GET.rdv == 'lideri' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-lider.png" /></a>
-			<a href = "{% url "structuri:cl_membri"  pk=object.id %}?rdv=adulti" data-title = "Adulți" class = "btn tooltip-target"><img style = "height: 18px;" src = "{{ STATIC_URL }}images/icon-adult.png" /></a>
+			<a href = "{% url "structuri:cl_membri"  pk=object.id %}?rdv=lupisori" data-title = "Lupișori" class = "{% if request.GET.rdv == 'lupisori' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{% static 'images/icon-lupisori.png' %}" /></a>
+			<a href = "{% url "structuri:cl_membri"  pk=object.id %}?rdv=temerari" data-title = "Temerari" class = "{% if request.GET.rdv == 'temerari' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{% static 'images/icon-temerari.png' %}" /></a>
+			<a href = "{% url "structuri:cl_membri"  pk=object.id %}?rdv=exploratori" data-title = "eXploratori" class = "{% if request.GET.rdv == 'exploratori' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{% static 'images/icon-exploratori.png' %}" /></a>
+			<a href = "{% url "structuri:cl_membri"  pk=object.id %}?rdv=seniori" data-title = "Seniori" class = "{% if request.GET.rdv == 'seniori' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{% static 'images/icon-seniori.png' %}" /></a>
+			<a href = "{% url "structuri:cl_membri"  pk=object.id %}?rdv=lideri" data-title = "Lideri" class = "{% if request.GET.rdv == 'lideri' %}disabled{% endif %} btn tooltip-target"><img style = "height: 18px;" src = "{% static 'images/icon-lider.png' %}" /></a>
+			<a href = "{% url "structuri:cl_membri"  pk=object.id %}?rdv=adulti" data-title = "Adulți" class = "btn tooltip-target"><img style = "height: 18px;" src = "{% static 'images/icon-adult.png' %}" /></a>
 			<a href = "{% url "structuri:cl_membri"  pk=object.id %}" data-title = "Toată lumea" class = "{% if not request.GET.rdv %}disabled{% endif %} btn tooltip-target">Toată lumea</a>
 		</div>
         <div class = "btn-group">
@@ -85,7 +86,7 @@
     <div class = "btn-toolbar pull-right">
 
     </div>
-	{% autopaginate object_list 10 %}	
+	{% autopaginate object_list 10 %}
 	{% include 'structuri/centrulocal_tab_membri.html' %}
 	{% paginate_bs2 %}
 {% endblock %}

@@ -1,4 +1,4 @@
-{% load static from staticfiles %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,11 +22,9 @@
 		{% endcomment %}
 
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script src="{% static 'jquery/jquery.min.js' %}"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/jquery-ui.min.js"></script>
+    <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/jquery-ui.min.js"></script>
     <link href="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/themes/smoothness/jquery-ui.css" rel='stylesheet'/>
-{#      <script src="{{ STATIC_URL }}js/jquery-1.7.2.min.js" type = "text/javascript" charset="utf-8"></script>#}
 
     <!-- Le styles -->
     <link href="{% static "css/bootstrap.css" %}" rel="stylesheet" type="text/css">
@@ -34,8 +32,8 @@
     <link href="{% static "css/font-awesome.css" %}" rel="stylesheet" type="text/css">
     <link href="{%  static "css/social-buttons.css" %}" rel="stylesheet"/>
     <script src="{% static "js/bootstrap.min.js" %}"></script>
-    <script src = "{% static "lodash/lodash.js" %}"></script>
-    <script src = "{% static "jquery-cookie/jquery.cookie.js" %}"></script>
+    <script src = "{% static "lodash/index.js" %}"></script>
+    <script src = "{% static "js-cookie/dist/js.cookie.min.js" %}"></script>
     <script src = "{% static "js/csrf_protect.js" %}"></script>
     <script>
         var csrftoken = "{{ csrf_token }}";
@@ -43,15 +41,15 @@
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-	      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 	    <![endif]-->
 
 
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet'  type='text/css'>
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/layout.css" type="text/css" media="all"/>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet'  type='text/css'>
+    <link rel="stylesheet" href="{% static 'css/layout.css' %}" type="text/css" media="all"/>
 
-    <script type='text/javascript' src="{{ STATIC_URL }}js/ajax_select.js"></script>
-    <link type="text/css" href="{{ STATIC_URL }}css/ajax_select.css" rel="stylesheet">
+    <script type='text/javascript' src="{%  static 'js/ajax_select.js' %}"></script>
+    <link type="text/css" href="{% static 'css/ajax_select.css' %}" rel="stylesheet">
 
     {% block extrahead %}
     {% endblock %}
@@ -112,9 +110,7 @@
 
 <div id="footer">
     <div id="footer-inner">
-        &copy; 2017 <a href="http://yeti.albascout.ro">yeti</a>. Gata oricând! - Versiunea <a
-            href="{{ REDMINE_VERSION_URL }}"><i class="icon-cogs"></i> {{ MAJOR_VERSION }}.{{ MINOR_VERSION }}</a> - <a
-            href="{% url "issues"  %}"><i class="icon-exclamation-sign"></i> Ai dat de o problemă?</a></a>
+        &copy; 2021 <a href="https://yeti.albascout.ro">yeti</a>. Gata oricând! - Versiunea <i class="icon-cogs"></i> {{ MAJOR_VERSION }}.{{ MINOR_VERSION }}
     </div>
 </div>
 

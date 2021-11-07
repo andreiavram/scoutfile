@@ -1,18 +1,20 @@
 #coding: utf-8
+from future import standard_library
+standard_library.install_aliases()
 import datetime
 import json
 import logging
 import traceback
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template.context import RequestContext
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView, View
@@ -44,7 +46,7 @@ class Login(FormView):
     def dispatch(self, request, *args, **kwargs):
         #    daca utilizatorul este deja autentificat, redirecteaza catre pagina lui
         #    astfel se poate folosi view-ul pentru un dispatch-er pentru utilizatori
-        if request.user.is_authenticated() and "err" not in request.GET:
+        if request.user.is_authenticated and "err" not in request.GET:
             return HttpResponseRedirect(request.user.utilizator.membru.get_home_link())
         
         return super(Login, self).dispatch(request, *args, **kwargs)
@@ -81,7 +83,8 @@ class IndexView(TemplateView):
         return super(IndexView, self).dispatch(request, *args, **kwargs)
 
     def loggedin_dispatcher(self, request):
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
+            print(request.user.utilizator.membru.get_home_link())
             return HttpResponseRedirect(request.user.utilizator.membru.get_home_link())
         return None
 
@@ -93,15 +96,15 @@ class IndexView(TemplateView):
                   "limit" : 10,
                   "key" : settings.REDMINE_API_KEY}
 
-        data = urllib.urlencode(values)
+        data = urllib.parse.urlencode(values)
         url_to_send = "http://yeti.albascout.ro/redmine/issues.json" + "?" + data + "&sort=updated_on:desc"
         logger.debug(url_to_send)
 
         json_object = None
         try:
-            response = urllib2.urlopen(url_to_send)
+            response = urllib.request.urlopen(url_to_send)
             json_object = json.loads(response.read())
-        except Exception, e:
+        except Exception as e:
             logger.error("%s: eroare la obtinerea bug-urilor: %s" % (self.__class__.__name__, e))
 
         if json_object:
@@ -136,13 +139,13 @@ class Issues(TemplateView):
         if self.tracker:
             values.update({"tracker_id" : self.tracker})
         
-        data = urllib.urlencode(values)
+        data = urllib.parse.urlencode(values)
         url_to_send = "http://yeti.albascout.ro/redmine/issues.json" + "?" + data + "&sort=updated_on:desc"
         logger.debug(url_to_send)
         try:
-            response = urllib2.urlopen(url_to_send)
+            response = urllib.request.urlopen(url_to_send)
             json_object = json.loads(response.read())
-        except Exception, e:
+        except Exception as e:
             logger.error("%s: eroare la obtinerea bug-urilor: %s" % (self.__class__.__name__, e))
         
         
@@ -174,7 +177,7 @@ class CreateIssue(FormView):
         else:
             post_data['issue']['description'] = ""
             
-        if self.request.user.is_authenticated():
+        if self.request.user.is_authenticated:
             post_data["issue"]["description"] = "(%s) %s" % (self.request.user.username, post_data['issue']['description'])
         
         data = json.dumps(post_data)
@@ -182,11 +185,11 @@ class CreateIssue(FormView):
         
         url_to_send = 'http://yeti.albascout.ro/redmine/issues.json?key=%s' % settings.REDMINE_API_KEY
         try:
-            req = urllib2.Request(url_to_send, data, {'Content-Type': 'application/json'})
-            f = urllib2.urlopen(req)
+            req = urllib.request.Request(url_to_send, data, {'Content-Type': 'application/json'})
+            f = urllib.request.urlopen(req)
             #response = f.read()
             f.close()
-        except Exception, e:
+        except Exception as e:
             logger.error("%s: eroare la adaugarea unui bug nou: %s : %s" % (self.__class__.__name__, e, traceback.format_exc()))
         
         messages.success(self.request, u"Problema a fost înregistrată, și va apărea în această pagină când va fi preluată pentru rezolvare")
@@ -214,7 +217,7 @@ class ScoutFileAjaxException(Exception):
         json_dict = {"status" : "error", "exception" : "%s" % e, "trace" : "%s" % stack_trace}
         return HttpResponse(json.dumps(json_dict), status = 500, content_type = "text/json")
     
-    def __unicode__(self):
+    def __str__(self):
         return "Error: $s, %s" % (self.original_exception, self.extra_message)
 
 class JSONView(View):
@@ -225,9 +228,9 @@ class JSONView(View):
     def dispatch(self, request, *args, **kwargs):
         try:
             return super(JSONView, self).dispatch(request, *args, **kwargs)
-        except ScoutFileAjaxException, e:
+        except ScoutFileAjaxException as e:
             return e.to_response()
-        except Exception, e:
+        except Exception as e:
             return ScoutFileAjaxException.generic_response(e, traceback.format_exc())
     
     @property
@@ -237,9 +240,9 @@ class JSONView(View):
     def parse_json_data(self):
         try:
             json_dict = json.loads(self.request.body)
-        except ValueError, e:
+        except ValueError as e:
             json_dict = self.request.body.dict()
-        except Exception, e:
+        except Exception as e:
             json_dict = {}
         
         return json_dict
@@ -255,7 +258,7 @@ class JSONView(View):
         self.cleaned_data = {}
         #   checking and cleaning required params
         for param in self.params:
-            if not kwargs.has_key(param):
+            if param not in kwargs:
                 if self.params.get(param).get("type", "optional") == "required":
                     error_dict['missing'].append(param)
                 continue
@@ -267,7 +270,7 @@ class JSONView(View):
                 if self.params.get(param).get("type", "optional") == "optional" and (kwargs.get(param) in ['', None]):
                     continue
                 self.cleaned_data[param] = validator(kwargs.get(param))
-            except ScoutFileAjaxException, e:
+            except ScoutFileAjaxException as e:
                 error_dict['error'].append((param, e))
                 
         if len(error_dict['missing']) + len(error_dict['error']):
@@ -285,4 +288,5 @@ class JSONView(View):
 
 
 def custom_500(request, template_name="500.html"):
-    return render_to_response(template_name, {"exception_str": traceback.format_exc()}, context_instance = RequestContext(request))
+    return render(request, template_name,
+                  {"exception_str": traceback.format_exc()})

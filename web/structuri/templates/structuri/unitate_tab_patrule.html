@@ -1,3 +1,4 @@
+{% load static %}
 <a class = "btn btn-primary" href = "{% url "structuri:unitate_patrula_add"  pk=unitate.id %}"><i class = "icon-plus-sign icon-white"></i> Adaugă patrulă</a>
 <table class="table table-striped">
 	<thead>
@@ -18,8 +19,8 @@
             <td>
                 <ul class="unstyled">
                     {% for cercetas in object.cercetasi %}
-                        <li>{% for badge in cercetas.get_badges_rdv %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
-                            {% for badge in cercetas.get_extra_badges %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
+                        <li>{% for badge in cercetas.get_badges_rdv %} <img src = "{% get_static_prefix %}images/icon-{{ badge }}.png" />{% endfor %}
+                            {% for badge in cercetas.get_extra_badges %} <img src = "{% get_static_prefix %}images/icon-{{ badge }}.png" />{% endfor %}
                             <a href = "{% url "structuri:membru_detail"  pk=cercetas.id %}">{{ cercetas }}</a></li>
                     {% endfor %}
                 </ul>
@@ -27,8 +28,8 @@
             <td>
                 <ul class="unstyled">
                     {% for cercetas in object.lideri %}
-                        <li>{% for badge in cercetas.get_badges_rdv %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
-                            {% for badge in cercetas.get_extra_badges %} <img src = "{{ STATIC_URL }}images/icon-{{ badge }}.png" />{% endfor %}
+                        <li>{% for badge in cercetas.get_badges_rdv %} <img src = "{% get_static_prefix %}images/icon-{{ badge }}.png" />{% endfor %}
+                            {% for badge in cercetas.get_extra_badges %} <img src = "{% get_static_prefix %}images/icon-{{ badge }}.png" />{% endfor %}
                             <a href = "{% url "structuri:membru_detail"  pk=cercetas.id %}">{{ cercetas }}</a></li>
                     {% endfor %}
                 </ul>

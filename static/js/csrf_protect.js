@@ -2,8 +2,7 @@
  * Created by yeti on 14.02.2015.
  */
 
-
-var csrftoken = $.cookie('csrftoken');
+var csrftoken = Cookies.get("csrftoken");
 
 function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection

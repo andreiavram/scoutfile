@@ -1,4 +1,6 @@
 # coding: utf-8
+from __future__ import print_function
+from builtins import range
 import datetime
 import hashlib
 import json
@@ -15,7 +17,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 from django.core.mail import send_mail
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models.query_utils import Q
 from django.http import HttpResponseRedirect, HttpResponse
 from django.http.response import HttpResponseBadRequest
@@ -174,7 +176,7 @@ class CentruLocalLiderCreate(CreateView):
     def get_pozitie(self, *args, **kwargs):
         try:
             form = kwargs.get("form")
-        except Exception, e:
+        except Exception as e:
             logger.error("%s: %s, %s" % (self.__class__.__name__, e, traceback.format_exc()))
             raise e
 
@@ -229,7 +231,7 @@ class CentruLocalLiderCreate(CreateView):
     def get_unitate(self, *args, **kwargs):
         try:
             form = kwargs.pop("form")
-        except Exception, e:
+        except Exception as e:
             logger.error("%s: %s, %s" % (self.__class__.__name__, e, traceback.format_exc()))
             raise e
 
@@ -245,7 +247,7 @@ class CentruLocalLiderCreate(CreateView):
         try:
             asociere = self.object.asociaza(u"Membru", self.get_centru_local(), form.cleaned_data['data_start_membru'])
             asociere.confirma(self.request.user.utilizator)
-        except Exception, e:
+        except Exception as e:
             logger.error(
                 u"%s: asocierea cu centrul local a esuat: %s %s" % (self.__class__.__name__, e, traceback.format_exc()))
 
@@ -256,7 +258,7 @@ class CentruLocalLiderCreate(CreateView):
             if unitate:
                 asociere = self.object.asociaza(pozitie, unitate, form.cleaned_data['data_start_unitate'])
                 asociere.confirma(self.request.user.utilizator)
-        except Exception, e:
+        except Exception as e:
             logger.error(
                 u"%s: asocierea cu unitatea a esuat: %s %s" % (self.__class__.__name__, e, traceback.format_exc()))
 
@@ -363,7 +365,7 @@ class CentruLocalTabUnitati(ListView):
     def get_context_data(self, **kwargs):
         current = super(CentruLocalTabUnitati, self).get_context_data(**kwargs)
         current.update({"centru_local": self.centru_local})
-        if self.request.GET.has_key("tab"):
+        if "tab" in self.request.GET:
             current.update({"tab": self.request.GET.get("tab")})
         return current
 
@@ -436,7 +438,7 @@ class CentruLocalTabMembriDeSuspendat(CentruLocalTabMembri):
 
     def membru_fits_query(self, membru):
         status_cotizatie = membru._status_cotizatie()
-        print status_cotizatie
+        print(status_cotizatie)
         return not membru.is_suspendat() and status_cotizatie[0] >= 2
 
     def get_queryset(self, *args, **kwargs):
@@ -483,11 +485,11 @@ class CentruLocalMembri(CentruLocalTabMembri):
                          "aspiranti": {"filter": lambda m: m.is_aspirant()},
                          "adulti": {"filter": lambda m: m.is_adult()}}
 
-        for switch in self.switches.keys():
+        for switch in list(self.switches.keys()):
             self.switches[switch]["value"] = int(request.GET.get(switch, request.session.get("membri_%s" % switch, 1)))
 
         #   initialise and maintain session values for current values
-        for switch in self.switches.keys():
+        for switch in list(self.switches.keys()):
             request.session["membri_%s" % switch] = self.switches.get(switch).get("value")
 
         kwargs.update({"skip_checks": True})
@@ -495,7 +497,7 @@ class CentruLocalMembri(CentruLocalTabMembri):
 
     def check_switches(self, a):
         valid = False
-        for s in self.switches.values():
+        for s in list(self.switches.values()):
             if s.get("value", 0):
                 valid = s.get("filter")(a.membru) or valid
         return valid
@@ -527,7 +529,7 @@ class CentruLocalMembri(CentruLocalTabMembri):
         qs = qs.order_by("membru__nume", "membru__prenume")
 
         #   verifica daca toate categoriile sunt selectate
-        if sum([s.get("value") for s in self.switches.values()]) != len(self.switches.keys()):
+        if sum([s.get("value") for s in list(self.switches.values())]) != len(list(self.switches.keys())):
             qs = AsociereMembruStructura.objects.filter(id__in=[a.id for a in qs if self.check_switches(a)])
         return qs
 
@@ -635,7 +637,7 @@ class UnitateLiderCreate(UnitateMembruCreate):
     def get_pozitie(self, *args, **kwargs):
         try:
             form = kwargs.get("form")
-        except Exception, e:
+        except Exception as e:
             logger.error("%s: %s, %s" % (self.__class__.__name__, e, traceback.format_exc()))
             raise e
 
@@ -1135,7 +1137,7 @@ class ForgotPassword(FormView):
     template_name = "structuri/inregistrare/password_reset.html"
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             return HttpResponseRedirect(reverse("login"))
         return super(ForgotPassword, self).dispatch(request, *args, **kwargs)
 
@@ -1206,7 +1208,7 @@ class RegisterMembru(CreateView):
     template_name = "structuri/inregistrare/registration_form.html"
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             return HttpResponseRedirect(reverse("login"))
         return super(RegisterMembru, self).dispatch(request, *args, **kwargs)
 
@@ -1265,9 +1267,9 @@ class ConfirmMembruRegistration(TemplateView):
     def dispatch(self, *args, **kwargs):
         try:
             self.membru = Membru.objects.get(hash=kwargs.pop("hash"))
-        except Membru.DoesNotExist, e:
+        except Membru.DoesNotExist as e:
             self.msg_code = "doesnotexist"
-        except Exception, e:
+        except Exception as e:
             self.msg_code = "otherproblem"
 
         if self.membru.timestamp_confirmed != None:
@@ -1880,7 +1882,7 @@ class GetSpeedList(View):
             self.mode = request.GET['mode']
         try:
             data = getattr(self, "handler_%s" % self.mode)(request, *args, **kwargs)
-        except Exception, e:
+        except Exception as e:
             logger.debug("%s: %s \n %s" % (self.__class__.__name__, e, traceback.format_exc()))
             data = []
         return HttpResponse(json.dumps(data))
@@ -2024,7 +2026,7 @@ class MembruDoAJAXWork(View):
         try:
             self.do_work(request, *args, **kwargs)
             messages.success(request, self.get_success_message())
-        except Exception, e:
+        except Exception as e:
             messages.error(request, self.get_error_message(e))
 
         return HttpResponse("done")
@@ -2064,7 +2066,7 @@ class MembruAdreseStatus(ListView):
     def check_valid(value):
         try:
             adr = AdresaPostala.parse_address(value)
-        except Exception, e:
+        except Exception as e:
             return False
 
         if adr is not None and adr.__unicode__() == value and adr.are_cod():

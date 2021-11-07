@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load staticfiles %}
+{% load static %}
 
 {% block page_title %}
 	{% if album %}Album foto{% else %}Activități{% endif %} <div class = "btn-toolbar pull-right">
@@ -47,7 +47,7 @@
                     <% for (j = 0; j < eveniment.structuri.length; j++) { %>
                         <strong>
                             <% if (eveniment.structuri[j].ramura_de_varsta) { %>
-                                <img src = "{{ STATIC_URL }}images/icon-<%= eveniment.structuri[j].ramura_de_varsta_slugified %>.png" />
+                                <img src = "{% get_static_prefix %}images/icon-<%= eveniment.structuri[j].ramura_de_varsta_slugified %>.png" />
                             <% } %>
                             <a href = "<%= eveniment.structuri[j].urls.detail %>"><%= eveniment.structuri[j].nume %></a>
                         </strong>
@@ -60,7 +60,7 @@
 
                     <% _.each(eveniment.ramuri_de_varsta, function (e, i) { %>
                         <% if (e.count != 0) { %>
-                           <strong><%= e.count %></strong> <img src = "{{ STATIC_URL }}images/icon-<%= e.ramura_de_varsta %>.png">
+                           <strong><%= e.count %></strong> <img src = "{% get_static_prefix %}images/icon-<%= e.ramura_de_varsta %>.png">
                         <% } %>
                     <% }); %>
 
@@ -85,7 +85,7 @@
                         Eveniment pentru <% for (j = 0; j < eveniment.structuri.length; j++) { %>
                             <strong>
                                 <% if (eveniment.structuri[j].ramura_de_varsta) { %>
-                                    <img src = "{{ STATIC_URL }}images/icon-<%= eveniment.structuri[j].ramura_de_varsta_slugified %>.png" />
+                                    <img src = "{% get_static_prefix %}images/icon-<%= eveniment.structuri[j].ramura_de_varsta_slugified %>.png" />
                                 <% } %>
                                 <a href = "<%= eveniment.structuri[j].urls.detail %>"><%= eveniment.structuri[j].nume %></a>
                             </strong>
@@ -152,7 +152,7 @@
                     Pentru <% for (j = 0; j < eveniment.structuri.length; j++) { %>
                         <strong>
                             <% if (eveniment.structuri[j].ramura_de_varsta) { %>
-                                <img src = "{{ STATIC_URL }}images/icon-<%= eveniment.structuri[j].ramura_de_varsta_slugified %>.png" />
+                                <img src = "{% get_static_prefix %}images/icon-<%= eveniment.structuri[j].ramura_de_varsta_slugified %>.png" />
                             <% } %>
                             <a href = "<%= eveniment.structuri[j].urls.detail %>"><%= eveniment.structuri[j].nume %></a>
                         </strong>
@@ -160,7 +160,7 @@
                 <% } %>participanți
                     <% _.each(eveniment.ramuri_de_varsta, function (e, i) { %>
                         <% if (e.count != 0) { %>
-                           <strong><%= e.count %></strong> <img src = "{{ STATIC_URL }}images/icon-<%= e.ramura_de_varsta %>.png">
+                           <strong><%= e.count %></strong> <img src = "{% get_static_prefix %}images/icon-<%= e.ramura_de_varsta %>.png">
                         <% } %>
                     <% }); %></p>
             <p style = "text-align: center"><span class = "label label-<% if (eveniment.scor_calitate < 0) { %>important<% } else { %><% if (eveniment.scor_calitate == 0) { %>warning<% } else { %>success<% }} %>">
@@ -349,7 +349,7 @@
             <a href = "#" class = "disabled btn">Unități: </a>
             <a href = "{% url "album:index"  %}?unitate=0" class = "btn {% if 'unitate' not in request.session or request.session.unitate == '0' %}disabled{% endif %}">Toate</a>
             {% for unitate in unitati %}
-                <a href = "{% url "album:index"  %}?unitate={{ unitate.id }}" class = "btn {% if request.session.unitate and request.session.unitate == unitate.id %}disabled{% endif %}" data-id = "{{ unitate.id }}"><img style="height: 18px" src = "{{ STATIC_URL }}images/icon-{{ unitate.ramura_de_varsta|slugify }}.png" /> {{ unitate.nume }}</a>
+                <a href = "{% url "album:index"  %}?unitate={{ unitate.id }}" class = "btn {% if request.session.unitate and request.session.unitate == unitate.id %}disabled{% endif %}" data-id = "{{ unitate.id }}"><img style="height: 18px" src = "{% get_static_prefix %}images/icon-{{ unitate.ramura_de_varsta|slugify }}.png" /> {{ unitate.nume }}</a>
             {% endfor %}
             {% if patrula %}
                 <a href = "#" class = "btn disabled">{{ patrula }}</a>

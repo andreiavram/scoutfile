@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django.db.models.deletion
 from django.db import models, migrations
 import taggit.managers
 
@@ -27,7 +28,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='FisaActivitate',
             fields=[
-                ('document_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Document')),
+                ('document_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='documente.Document', on_delete=django.db.models.deletion.CASCADE)),
                 ('descriere_joc', models.TextField(null=True, verbose_name='Descriere', blank=True)),
                 ('materiale_necesare', models.TextField(help_text='C\xe2te unul pe linie, f\u0103r\u0103 numerotare adi\u021bional\u0103', null=True, blank=True)),
                 ('min_participanti', models.PositiveIntegerField(null=True, verbose_name='Minim participan\u021bi', blank=True)),
@@ -37,7 +38,7 @@ class Migration(migrations.Migration):
                 ('obiective_educative', models.TextField(help_text='C\xe2te unul pe linie, f\u0103r\u0103 numerotare (se va face automat)', null=True, blank=True)),
                 ('sursa', models.CharField(help_text='De unde a\u021bi adus jocul / activitatea asta \xeen grupul vostru', max_length=255, null=True, blank=True)),
                 ('is_draft', models.BooleanField(default=True, help_text='Dac\u0103 nu e\u0219ti chiar gata, marcheaz\u0103 bifa aici ca s\u0103 \u0219tie \u0219i ceilal\u021bi', verbose_name='Este incomplet?')),
-                ('categorie', models.ForeignKey(to='jocuri.CategorieFiseActivitate')),
+                ('categorie', models.ForeignKey(to='jocuri.CategorieFiseActivitate', on_delete=django.db.models.deletion.CASCADE)),
                 ('editori', models.ManyToManyField(to='structuri.Membru')),
                 ('ramuri_de_varsta', models.ManyToManyField(to='structuri.RamuraDeVarsta', null=True, blank=True)),
                 ('tags', taggit.managers.TaggableManager(to='taggit.Tag', through='taggit.TaggedItem', help_text='A comma-separated list of tags.', verbose_name='Tags')),

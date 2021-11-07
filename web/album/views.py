@@ -1,4 +1,9 @@
 # coding: utf-8
+from __future__ import division
+from builtins import str
+from builtins import range
+from past.utils import old_div
+from builtins import object
 import datetime
 import json
 import logging
@@ -11,7 +16,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.files.base import File
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models.aggregates import Count
 from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponseRedirect, HttpResponse, \
@@ -111,7 +116,7 @@ class EvenimentFiltruMixin(object):
 
     def filters_context_data(self):
         data = {}
-        if self.request.user.is_authenticated():
+        if self.request.user.is_authenticated:
             centru_local = self.request.user.utilizator.membru.centru_local
             data['unitati'] = centru_local.unitate_set.all()
         data['tipuri_activitate'] = [t for t in TipEveniment.objects.all() if t.eveniment_set.count() > 0]
@@ -159,7 +164,7 @@ class EvenimentList(EvenimentFiltruMixin, ListView):
             self.per_page = int(request.POST.get("per_page", 5))
             self.offset = int(request.POST.get("offset", 0))
 
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             self.centru_local = request.user.utilizator.membru.centru_local
         else:
             self.centru_local = CentruLocal.objects.get(id=settings.CENTRU_LOCAL_IMPLICIT)
@@ -201,7 +206,7 @@ class EvenimentList(EvenimentFiltruMixin, ListView):
             data['current_offset'] = self.offset
 
         an_curent = datetime.datetime.now().year
-        data['ani_activitati'] = range(an_curent - 2, an_curent + 1)
+        data['ani_activitati'] = list(range(an_curent - 2, an_curent + 1))
         data['ani_activitati'].reverse()
         data['centru_local'] = self.centru_local
         data.update(self.filters_context_data())
@@ -244,7 +249,7 @@ class ZiDetail(DetailView):
     template_name = "album/zi_detail.html"
 
     def dispatch(self, request, *args, **kwargs):
-        if request.GET.has_key("autor"):
+        if "autor" in request.GET:
             self.autor = request.GET['autor']
         else:
             self.autor = None
@@ -260,7 +265,7 @@ class ZiDetail(DetailView):
         centru_local = self.object.eveniment.centru_local
         calitate = TipAsociereMembruStructura.objects.get(nume__iexact=u"Păstrător al amintirilor", content_types__in=[
             ContentType.objects.get_for_model(centru_local)])
-        if self.request.user.is_authenticated() and (self.request.user.utilizator.membru.are_calitate(calitate,
+        if self.request.user.is_authenticated and (self.request.user.utilizator.membru.are_calitate(calitate,
                                                                                                          centru_local) or self.request.user.is_superuser):
             current.update({"media_manager": True})
 
@@ -290,7 +295,7 @@ class PozaDetail(DetailView):
 
     def dispatch(self, request, *args, **kwargs):
         self.autor = None
-        if request.GET.has_key("autor"):
+        if "autor" in request.GET:
             self.autor = request.GET['autor']
 
         self.object = get_object_or_404(Imagine, id=kwargs.get("pk"))
@@ -316,14 +321,14 @@ class PozaDetail(DetailView):
         if self.autor is not None:
             photo = photo.filter(set_poze__autor__icontains=self.autor)
 
-        zi_page = ((photo.count()) / 30) + 1
+        zi_page = (old_div((photo.count()), 30)) + 1
         current.update({"zi_page": zi_page})
         current.update({"visibility_states": IMAGINE_PUBLISHED_STATUS})
 
         centru_local = self.object.set_poze.eveniment.centru_local
         calitate = TipAsociereMembruStructura.objects.get(nume__iexact=u"Păstrător al amintirilor", content_types__in=[
             ContentType.objects.get_for_model(centru_local)])
-        if self.request.user.is_authenticated() and (self.request.user.utilizator.membru.are_calitate(calitate,
+        if self.request.user.is_authenticated and (self.request.user.utilizator.membru.are_calitate(calitate,
                                                                                                       centru_local) or self.request.user.is_superuser):
             current.update({"media_manager": True})
 
@@ -425,7 +430,7 @@ class FlagImageAjax(JSONView):
     def clean_imagine(self, value):
         try:
             return Imagine.objects.get(id=int(value))
-        except Exception, e:
+        except Exception as e:
             raise ScoutFileAjaxException(extra_message="This image does not exist", exception=e)
 
     def clean_motiv(self, value):
@@ -509,7 +514,7 @@ class SetImaginiUpload(CreateView):
 
     def get(self, request, *args, **kwargs):
         #   Cleanup residual uploads here
-        for key in request.session.keys():
+        for key in list(request.session.keys()):
             if len(key.split("-")) > 1 and key.split("-")[0] == request.user.id:
                 del request.session[key]
 
@@ -561,7 +566,7 @@ class SetImaginiUpload(CreateView):
                            'size': int(byte_ranges[0][2]),
                            'type': "application/zip",
                            #'descriere' : self.object.descriere,
-                           'delete_url': "http://" + Site.objects.get_current().domain + reverse("album:set_poze_delete_ajax",
+                           'delete_url': "https://" + Site.objects.get_current().domain + reverse("album:set_poze_delete_ajax",
                                                                      kwargs={"pk": self.object.id}),
                            'delete_type': "DELETE"}]}
 
@@ -604,7 +609,7 @@ class SetImaginiDeleteAjax(View):
                 id=request.user.utilizator.id) == self.set_poze.autor_user:
             try:
                 os.unlink(self.set_poze.zip_file)
-            except Exception, e:
+            except Exception as e:
                 logger.info("%s - could not delete file, file does not exit" % self.__class__.__name__)
             self.set_poze.delete()
         else:
@@ -706,12 +711,12 @@ class ChangeImagineVisibility(JSONView):
     def clean_imagine(self, value):
         try:
             return Imagine.objects.get(id=int(value))
-        except Exception, e:
+        except Exception as e:
             raise ScoutFileAjaxException(extra_message="This image does not exist", exception=e)
 
     def clean_new_status(self, value):
         #TODO: change this from range to actual valid values
-        if int(value) not in range(1, 5):
+        if int(value) not in list(range(1, 5)):
             raise ScoutFileAjaxException(extra_message="The status is invalid")
         return int(value)
 
@@ -763,7 +768,7 @@ class FileUploadMixin(object):
         if form_field_name in self.request.FILES:
             try:
                 path = self.handle_uploaded_file(self.request.FILES[form_field_name])
-            except Exception, e:
+            except Exception as e:
                 return
 
             target_object = self.get_target_object()
@@ -771,11 +776,12 @@ class FileUploadMixin(object):
                 try:
                     getattr(target_object, object_field_name).image.delete()
                     getattr(target_object, object_field_name).delete()
-                except Exception, e:
+                except Exception as e:
                     logger.error("%s: Could not delete photo %s" % (self.__class__.__name__, e))
-            filehandler = open(path, "r")
+            filehandler = open(path, "rb")
             cover_photo = image_class()
-            cover_photo.image.save(os.path.join(settings.PHOTOLOGUE_DIR, folder_path, self.request.FILES[form_field_name].name), File(filehandler), save=False)
+            cover_photo_path = os.path.join(settings.PHOTOLOGUE_DIR, folder_path, self.request.FILES[form_field_name].name)
+            cover_photo.image.save(cover_photo_path, File(filehandler), save=False)
             cover_photo.save(**self.get_save_kwargs(file_handler=filehandler, local_file_name=path))
             setattr(target_object, object_field_name, cover_photo)
 
@@ -931,7 +937,7 @@ class ImagineSearchJSON(JSONView):
         try:
             limit = int(value)
             return limit if limit > 0 else 10
-        except Exception, e:
+        except Exception as e:
             raise ScoutFileAjaxException("Bad limit", original_exception=e)
 
     def clean_ordering(self, value):
@@ -941,19 +947,19 @@ class ImagineSearchJSON(JSONView):
         try:
             offset = int(value)
             return offset if offset > 0 else 0
-        except Exception, e:
+        except Exception as e:
             raise ScoutFileAjaxException("Bad offset", original_exception=e)
 
     def clean_eveniment(self, value):
         try:
             return Eveniment.objects.get(id=int(value))
-        except Exception, e:
+        except Exception as e:
             raise ScoutFileAjaxException(u"Nu există evenimentul", original_exception=e)
 
     def clean_zi(self, value):
         try:
             return ZiEveniment.objects.get(id=int(value))
-        except Exception, e:
+        except Exception as e:
             raise ScoutFileAjaxException(u"Nu există ziua pentru eveniment", original_exception=e)
 
     def clean_tags(self, value):
@@ -1021,7 +1027,7 @@ class ZiDetailBeta(DetailView):
     template_name = "album/zi_detail_infinite.html"
 
     def dispatch(self, request, *args, **kwargs):
-        if request.GET.has_key("autor"):
+        if "autor" in request.GET:
             self.autor = request.GET['autor']
         else:
             self.autor = None
@@ -1036,7 +1042,7 @@ class ZiDetailBeta(DetailView):
         centru_local = self.object.eveniment.centru_local
         calitate = TipAsociereMembruStructura.objects.get(nume__iexact=u"Păstrător al amintirilor", content_types__in=[
             ContentType.objects.get_for_model(centru_local)])
-        if self.request.user.is_authenticated() and (self.request.user.utilizator.membru.are_calitate(calitate,
+        if self.request.user.is_authenticated and (self.request.user.utilizator.membru.are_calitate(calitate,
                                                                                                          centru_local) or self.request.user.is_superuser):
             current.update({"media_manager": True})
 
@@ -1193,7 +1199,7 @@ class RaportStatus(ListView):
         data = super(RaportStatus, self).get_context_data(**kwargs)
         data['scor_anual'] = sum(e.scor_calitate() for e in self.object_list)
         data['an'] = self.an
-        data['ani'] = range(self.an - 1, self.an + 2)
+        data['ani'] = list(range(self.an - 1, self.an + 2))
         return data
 
 
@@ -1353,7 +1359,7 @@ class EvenimentParticipantiExport(FormView):
     def get_queryset(self, filters=None, status_list=()):
         qs = self.eveniment.participareeveniment_set.filter(status_participare__in=status_list)
 
-        for camp, valoare in filters.items():
+        for camp, valoare in list(filters.items()):
             instante_filters = dict(camp=camp, valoare_text="%s" % valoare)
             instante = InstantaCampArbitrarParticipareEveniment.objects.filter(**instante_filters)
             qs = qs.filter(id__in=instante.values_list("participare_id", flat=True))
@@ -1651,7 +1657,7 @@ class PozaVot(APIView):
         request.session["has_voted_%d" % img.id] = True
 
         score = int(request.data.get("score"))
-        score = score / abs(score)
+        score = old_div(score, abs(score))
 
         img.vote_photo(score)
         json_data = {"picture_id": img.id, "current_score": img.score}

@@ -1,6 +1,5 @@
-#coding: utf8
-from django.conf.urls import patterns
-
+# coding: utf8
+from django.urls import path, include
 from documente.views import DeclaratieCotizatieSocialaAdauga, DeclaratieCotizatieSocialaModifica, MembruAlteDocumente
 from structuri.views import CentruLocalCreate, CentruLocalUpdate,\
     CentruLocalDetail, CentruLocalList, CentruLocalMembruCreate,\
@@ -29,129 +28,128 @@ from structuri.views import CentruLocalCreate, CentruLocalUpdate,\
     MembruAdreseStatus, UnitatiListAPI, UpdateContentObjects, MembruInformatieCreate, MembruInformatieUpdate, \
     MembruTabAlteInformatii, ListaMembriiDreptVot
 
-urlpatterns = patterns('structuri.views',
-                       (r'centrulocal/adauga/$', CentruLocalCreate.as_view(), {}, "cl_add"),
-                       (r'centrulocal/(?P<pk>\d+)/schimba/$', CentruLocalUpdate.as_view(), {}, "cl_edit"),
-                       (r'centrulocal/(?P<pk>\d+)/schimba/special/$', SetariSpecialeCentruLocal.as_view(), {}, "cl_edit_special"),
-                       (r'centrulocal/(?P<pk>\d+)/$', CentruLocalDetail.as_view(), {}, "cl_detail"),
-                       (r'centrulocal/list/$', CentruLocalList.as_view(), {}, "cl_list"),
-                       (r'centrulocal/(?P<pk>\d+)/sterge/$', CentruLocalDelete.as_view(), {}, "cl_delete"),
+urlpatterns = [
+                       path('centrulocal/adauga/', CentruLocalCreate.as_view(), name="cl_add"),
+                       path('centrulocal/<int:pk>/schimba/', CentruLocalUpdate.as_view(), name="cl_edit"),
+                       path('centrulocal/<int:pk>/schimba/special/', SetariSpecialeCentruLocal.as_view(), name="cl_edit_special"),
+                       path('centrulocal/<int:pk>/', CentruLocalDetail.as_view(), name="cl_detail"),
+                       path('centrulocal/list/', CentruLocalList.as_view(), name="cl_list"),
+                       path('centrulocal/<int:pk>/sterge/', CentruLocalDelete.as_view(), name="cl_delete"),
 
-                       (r'centrulocal/(?P<pk>\d+)/membri/pending/$', CentruLocalMembriPending.as_view(), {}, "cl_membri_pending"),
+                       path('centrulocal/<int:pk>/membri/pending/', CentruLocalMembriPending.as_view(), name="cl_membri_pending"),
 
-                       (r'centrulocal/(?P<pk>\d+)/membru/adauga/$', CentruLocalMembruCreate.as_view(), {}, "cl_membru_add"),
-                       (r'centrulocal/(?P<pk>\d+)/lider/adauga/$', CentruLocalLiderCreate.as_view(), {}, "cl_lider_add"),
-                       (r'centrulocal/membru/asociaza/$', CentruLocalMembruAsociaza.as_view(), {}, "cl_membru_asociaza"),
+                       path('centrulocal/<int:pk>/membru/adauga/', CentruLocalMembruCreate.as_view(), name="cl_membru_add"),
+                       path('centrulocal/<int:pk>/lider/adauga/', CentruLocalLiderCreate.as_view(), name="cl_lider_add"),
+                       path('centrulocal/membru/asociaza/', CentruLocalMembruAsociaza.as_view(), name="cl_membru_asociaza"),
 
-                       (r'centrulocal/(?P<pk>\d+)/tab/brief/$', CentruLocalTabBrief.as_view(), {}, "cl_tab_brief"),
-                       (r'centrulocal/(?P<pk>\d+)/tab/unitati/$', CentruLocalTabUnitati.as_view(), {}, "cl_tab_unitati"),
-                       (r'centrulocal/(?P<pk>\d+)/tab/lideri/$', CentruLocalTabLideri.as_view(), {}, "cl_tab_lideri"),
-                       (r'centrulocal/(?P<pk>\d+)/tab/contact/$', CentruLocalTabContact.as_view(), {}, "cl_tab_contact"),
-                       (r'centrulocal/(?P<pk>\d+)/tab/membri/$', CentruLocalTabMembri.as_view(), {}, "cl_tab_membri"),
-                       (r'centrulocal/(?P<pk>\d+)/tab/membri/de_suspendat/$', CentruLocalTabMembriDeSuspendat.as_view(), {}, "cl_tab_membri_de_suspendat"),
+                       path('centrulocal/<int:pk>/tab/brief/', CentruLocalTabBrief.as_view(), name="cl_tab_brief"),
+                       path('centrulocal/<int:pk>/tab/unitati/', CentruLocalTabUnitati.as_view(), name="cl_tab_unitati"),
+                       path('centrulocal/<int:pk>/tab/lideri/', CentruLocalTabLideri.as_view(), name="cl_tab_lideri"),
+                       path('centrulocal/<int:pk>/tab/contact/', CentruLocalTabContact.as_view(), name="cl_tab_contact"),
+                       path('centrulocal/<int:pk>/tab/membri/', CentruLocalTabMembri.as_view(), name="cl_tab_membri"),
+                       path('centrulocal/<int:pk>/tab/membri/de_suspendat/', CentruLocalTabMembriDeSuspendat.as_view(), name="cl_tab_membri_de_suspendat"),
 
-                       (r'centrulocal/(?P<pk>\d+)/membri/$', CentruLocalMembri.as_view(), {}, "cl_membri"),
-                       (r'centrulocal/(?P<pk>\d+)/contact/add/$', CentruLocalContactCreate.as_view(), {}, "cl_contact_add"),
-                       (r'centrulocal/contact/(?P<pk>\d+)/edit/$', CentruLocalContactUpdate.as_view(), {}, "cl_contact_edit"),
+                       path('centrulocal/<int:pk>/membri/', CentruLocalMembri.as_view(), name="cl_membri"),
+                       path('centrulocal/<int:pk>/contact/add/', CentruLocalContactCreate.as_view(), name="cl_contact_add"),
+                       path('centrulocal/contact/<int:pk>/edit/', CentruLocalContactUpdate.as_view(), name="cl_contact_edit"),
 
-                       #     (r'centrulocal/(?P<pk>\d+)/documente/cotizatii/$', CentruLocalCotizatii.as_view(), {}, "cl_cotizatii"),
-#     (r'centrulocal/(?P<pk>\d+)/documente/registre/$', CentruLocalRegistre.as_view(), {}, "cl_registre"),
-#     (r'centrulocal/(?P<pk>\d+)/documente/altele/$', CentruLocalAlteDocumente.as_view(), {}, "cl_alte_documente"),
+                       #     path('centrulocal/<int:pk>/documente/cotizatii/', CentruLocalCotizatii.as_view(), name="cl_cotizatii"),
+#     path('centrulocal/<int:pk>/documente/registre/', CentruLocalRegistre.as_view(), name="cl_registre"),
+#     path('centrulocal/<int:pk>/documente/altele/', CentruLocalAlteDocumente.as_view(), name="cl_alte_documente"),
     
-    (r'centrulocal/(?P<pk>\d+)/unitate/adauga/$', CentruLocalUnitateCreate.as_view(), {}, "cl_unitate_add"),
-                       (r'centrulocal/unitate/(?P<pk>\d+)/schimba/$', UnitateUpdate.as_view(), {}, "unitate_edit"),
-                       (r'centrulocal/unitate/(?P<pk>\d+)/$', UnitateDetail.as_view(), {}, "unitate_detail"),
-                       (r'centrulocal/unitate/(?P<pk>\d+)/sterge/$', UnitateDelete.as_view(), {}, "unitate_delete"),
+    path('centrulocal/<int:pk>/unitate/adauga/', CentruLocalUnitateCreate.as_view(), name="cl_unitate_add"),
+                       path('centrulocal/unitate/<int:pk>/schimba/', UnitateUpdate.as_view(), name="unitate_edit"),
+                       path('centrulocal/unitate/<int:pk>/', UnitateDetail.as_view(), name="unitate_detail"),
+                       path('centrulocal/unitate/<int:pk>/sterge/', UnitateDelete.as_view(), name="unitate_delete"),
 
-                       (r'centrulocal/unitate/(?P<pk>\d+)/tab/brief/$', UnitateTabBrief.as_view(), {}, "unitate_tab_brief"),
-                       (r'centrulocal/unitate/(?P<pk>\d+)/tab/patrule/$', UnitateTabPatrule.as_view(), {}, "unitate_tab_patrule"),
-                       (r'centrulocal/unitate/(?P<pk>\d+)/tab/patrule/inactive/$', UnitateTabPatruleInactive.as_view(), {}, "unitate_tab_patrule_inactive"),
-                       (r'centrulocal/unitate/(?P<pk>\d+)/tab/membri/$', UnitateTabMembri.as_view(), {}, "unitate_tab_membri"),
-                       (r'centrulocal/unitate/(?P<pk>\d+)/tab/membri/farapatrula/$', UnitateTabMembriFaraPatrula.as_view(), {}, "unitate_tab_membri_fara_patrula"),
+                       path('centrulocal/unitate/<int:pk>/tab/brief/', UnitateTabBrief.as_view(), name="unitate_tab_brief"),
+                       path('centrulocal/unitate/<int:pk>/tab/patrule/', UnitateTabPatrule.as_view(), name="unitate_tab_patrule"),
+                       path('centrulocal/unitate/<int:pk>/tab/patrule/inactive/', UnitateTabPatruleInactive.as_view(), name="unitate_tab_patrule_inactive"),
+                       path('centrulocal/unitate/<int:pk>/tab/membri/', UnitateTabMembri.as_view(), name="unitate_tab_membri"),
+                       path('centrulocal/unitate/<int:pk>/tab/membri/farapatrula/', UnitateTabMembriFaraPatrula.as_view(), name="unitate_tab_membri_fara_patrula"),
 
-                       (r'centrulocal/unitate/(?P<pk>\d+)/membru/adauga/$', UnitateMembruCreate.as_view(), {}, "unitate_membru_add"),
-                       (r'centrulocal/unitate/(?P<pk>\d+)/membru/asociaza/$', UnitateMembruAsociaza.as_view(), {}, "unitate_membru_asociaza"),
+                       path('centrulocal/unitate/<int:pk>/membru/adauga/', UnitateMembruCreate.as_view(), name="unitate_membru_add"),
+                       path('centrulocal/unitate/<int:pk>/membru/asociaza/', UnitateMembruAsociaza.as_view(), name="unitate_membru_asociaza"),
 
-                       (r'centrulocal/unitate/(?P<pk>\d+)/patrula/adauga/$', UnitatePatrulaCreate.as_view(), {}, "unitate_patrula_add"),
-                       (r'centrulocal/unitate/patrula/(?P<pk>\d+)/edit/$', PatrulaUpdate.as_view(), {}, 'patrula_edit'),
-                       (r'centrulocal/unitate/patrula/(?P<pk>\d+)/$', PatrulaDetail.as_view(), {}, 'patrula_detail'),
+                       path('centrulocal/unitate/<int:pk>/patrula/adauga/', UnitatePatrulaCreate.as_view(), name="unitate_patrula_add"),
+                       path('centrulocal/unitate/patrula/<int:pk>/edit/', PatrulaUpdate.as_view(), {}, 'patrula_edit'),
+                       path('centrulocal/unitate/patrula/<int:pk>/', PatrulaDetail.as_view(), {}, 'patrula_detail'),
 
-                       (r'centrulocal/unitate/patrula/(?P<pk>\d+)/tab/brief/$', PatrulaTabBrief.as_view(), {}, 'patrula_tab_brief'),
-                       (r'centrulocal/unitate/patrula/(?P<pk>\d+)/tab/membri/$', PatrulaTabMembri.as_view(), {}, 'patrula_tab_membri'),
+                       path('centrulocal/unitate/patrula/<int:pk>/tab/brief/', PatrulaTabBrief.as_view(), {}, 'patrula_tab_brief'),
+                       path('centrulocal/unitate/patrula/<int:pk>/tab/membri/', PatrulaTabMembri.as_view(), {}, 'patrula_tab_membri'),
 
-                       (r'centrulocal/unitate/patrula/(?P<pk>\d+)/membru/adauga/$', PatrulaMembruCreate.as_view(), {}, 'patrula_membru_adauga'),
-                       (r'centrulocal/unitate/patrula/(?P<pk>\d+)/membru/asociaza/$', PatrulaMembruAsociaza.as_view(), {}, 'patrula_membru_asociaza'),
-                       (r'centrulocal/unitate/patrula/(?P<pk>\d+)/delete/$', PatrulaDelete.as_view(), {}, "patrula_delete"),
+                       path('centrulocal/unitate/patrula/<int:pk>/membru/adauga/', PatrulaMembruCreate.as_view(), {}, 'patrula_membru_adauga'),
+                       path('centrulocal/unitate/patrula/<int:pk>/membru/asociaza/', PatrulaMembruAsociaza.as_view(), {}, 'patrula_membru_asociaza'),
+                       path('centrulocal/unitate/patrula/<int:pk>/delete/', PatrulaDelete.as_view(), name="patrula_delete"),
 
-                       (r'centrulocal/unitate/(?P<pk>\d+)/membru/adauga/$', UnitateMembruCreate.as_view(), {}, "unitate_membru_add"),
-                       (r'centrulocal/unitate/(?P<pk>\d+)/lider/adauga/$', UnitateLiderCreate.as_view(), {}, "unitate_lider_add"),
+                       path('centrulocal/unitate/<int:pk>/membru/adauga/', UnitateMembruCreate.as_view(), name="unitate_membru_add"),
+                       path('centrulocal/unitate/<int:pk>/lider/adauga/', UnitateLiderCreate.as_view(), name="unitate_lider_add"),
 
-                       (r'membru/(?P<pk>\d+)/schimba/$', MembruUpdate.as_view(), {}, "membru_edit"),
-                       (r'membru/(?P<pk>\d+)/$', MembruDetail.as_view(), {}, "membru_detail"),
-                       (r'membru/(?P<pk>\d+)/card/$', MembruCard.as_view(), {}, "membru_card"),
-                       (r'membru/(?P<pk>\d+)/progres_personal/$', MembruProgresPersonal.as_view(), {}, "membru_pp"),
-
-
-                       (r'membru/(?P<pk>\d+)/tab/brief/$', MembruTabBrief.as_view(), {}, "membru_tab_brief"),
-                       (r'membru/(?P<pk>\d+)/tab/conexiuni/$', MembruTabConexiuni.as_view(), {}, "membru_tab_afilieri"),
-                       (r'membru/(?P<pk>\d+)/tab/istoric/$', MembruTabIstoric.as_view(), {}, "membru_tab_istoric"),
-                       (r'membru/(?P<pk>\d+)/tab/contact/$', MembruTabContact.as_view(), {}, "membru_tab_contact"),
-                       (r'membru/(?P<pk>\d+)/tab/alteinfo/$', MembruTabAlteInformatii.as_view(), {}, "membru_tab_altele"),
-                       (r'membru/(?P<pk>\d+)/tab/familie/$', MembruTabFamilie.as_view(), {}, "membru_tab_familie"),
-                       (r'membru/(?P<pk>\d+)/tab/documente/$', MembruTabDocumente.as_view(), {}, "membru_tab_documente"),
-                       (r'membru/(?P<pk>\d+)/tab/activitati/$', MembruTabActivitati.as_view(), {}, "membru_tab_activitati"),
-
-                       (r'membru/(?P<pk>\d+)/recalculeaza_acoperire/$', MembruRecalculeazaAcoperire.as_view(), {}, "membru_recalculeaza_acoperire"),
-                       (r'membru/(?P<pk>\d+)/reseteaza_acoperire/$', MembruStergeAcoperire.as_view(), {}, "membru_reseteaza_acoperire"),
-                       (r'membru/(?P<pk>\d+)/contact/add/$', MembruContactCreate.as_view(), {}, "membru_contact_add"),
-                       (r'membru/contact/(?P<pk>\d+)/edit/$', MembruContactUpdate.as_view(), {}, "membru_contact_edit"),
-                       (r'membru/(?P<pk>\d+)/alteinfo/add/$', MembruInformatieCreate.as_view(), {}, "membru_altele_add"),
-                       (r'membru/alteinfo/(?P<pk>\d+)/edit/$', MembruInformatieUpdate.as_view(), {}, "membru_altele_edit"),
-                       (r'membru/(?P<pk>\d+)/picture/$', MembruEditProfilePicture.as_view(), {}, "membru_admin_edit_profile_picture"),
-
-                       (r'membru/inregistrare/$', RegisterMembru.as_view(), {}, "membru_register"),
-                       (r'membru/inregistrare/confirmare/(?P<hash>[0-9a-zA-Z]+)/', ConfirmMembruRegistration.as_view(), {}, "membru_confirm_registration"),
-                       (r'membru/(?P<pk>\d+)/adminconfirm/$', ConfirmMembruAdmin.as_view(), {}, "membru_confirm_admin"),
-                       (r'membru/inregistrare/resetpassword/$', ForgotPassword.as_view(), {}, "membru_forgot_password"),
-                       (r'membru/inregistrare/resetpassword/(?P<hash>[0-9a-zA-Z]+)/$', ConfirmForgotPassword.as_view(), {}, "membru_confirm_forgot_password"),
-                       (r'membru/changepassword/$', ChangePassword.as_view(), {}, "membru_change_password"),
-
-                       (r'membru/profile/$', UtilizatorHome.as_view(), {}, "membru_profil"),
-                       (r'membru/profile/tab/brief/$', UtilizatorHomeTabsBrief.as_view(), {}, "membru_profil_tab_brief"),
-                       (r'membru/profile/tab/afiliere/$', UtilizatorHomeTabsAfiliere.as_view(), {}, "membru_profil_tab_afiliere"),
-                       (r'membru/profile/tab/activitati/$', UtilizatorHomeTabsActivitati.as_view(), {}, "membru_profil_tab_activitati"),
-                       (r'membru/profile/tab/documente/$', UtilizatorHomeTabsDocumente.as_view(), {}, "membru_profil_tab_documente"),
-
-                       (r'membru/profile/edit/$', UtilizatorEditProfile.as_view(), {}, "membru_edit_profile"),
-                       (r'membru/profile/edit/picture/$', UtilizatorEditProfilePicture.as_view(), {}, "membru_edit_profile_picture"),
-
-                       (r'membru/(?P<pk>\d+)/afiliere/adauga/$', AsociereCreate.as_view(), {}, "membru_afiliere_add"),
-                       (r'membru/afiliere/(?P<pk>\d+)/modifica/$', AsociereUpdate.as_view(), {}, "membru_afiliere_edit"),
-
-                       (r'membru/(?P<pk>\d+)/familie/adauga/$', MembruAddFamilie.as_view(), {}, "membru_add_familie"),
-                       (r'membru/(?P<mpk>\d+)/(?P<pk>\d+)/familie/edit/$', MembruEditFamilie.as_view(), {}, "membru_edit_familie"),
-                       (r'membru/(?P<pk>\d+)/pdc/adauga/$', MembruPersoanaDeContactCreate.as_view(), {}, "membru_add_pdc"),
-                       (r'membru/(?P<mpk>\d+)/pdc/(?P<pk>\d+)/edit/$', MembruPersoanaDeContactUpdate.as_view(), {}, "membru_edit_pdc"),
-
-                       (r'membru/(?P<pk>\d+)/alte_documente/$', MembruAlteDocumente.as_view(), {}, "membru_alte_documente"),
-                       (r'membru/(?P<pk>\d+)/cotizatie-sociala/adauga/$', DeclaratieCotizatieSocialaAdauga.as_view(), {}, "membru_cotizatiesociala_adauga"),
-                       (r'membru/cotizatie-sociala/(?P<pk>\d+)/modifica/$', DeclaratieCotizatieSocialaModifica.as_view(), {}, "membru_cotizatiesociala_modifica"),
-
-                       (r'membru/fb/confirm/$', MembruConfirmaFacebook.as_view(), {}, "membru_confirma_facebook"),
+                       path('membru/<int:pk>/schimba/', MembruUpdate.as_view(), name="membru_edit"),
+                       path('membru/<int:pk>/', MembruDetail.as_view(), name="membru_detail"),
+                       path('membru/<int:pk>/card/', MembruCard.as_view(), name="membru_card"),
+                       path('membru/<int:pk>/progres_personal/', MembruProgresPersonal.as_view(), name="membru_pp"),
 
 
-                       (r'ajax/membri/list/$', MembriForPatrocle.as_view(), {}, "ajax_patrocle_membri"),
-                       (r'ajax/membri/detail/$', MembruDestinatarRepr.as_view(), {}, "ajax_membru_detail"),
-                       (r'ajax/persoanacontact/detail/$', PersoanaContactDestinatarRepr.as_view(), {}, "ajax_persoana_contact_detail"),
-                       #(r'contact/(?P<pk>\d+)/delete/$', ContactDelete.as_view(), {}, "contact_delete"),
+                       path('membru/<int:pk>/tab/brief/', MembruTabBrief.as_view(), name="membru_tab_brief"),
+                       path('membru/<int:pk>/tab/conexiuni/', MembruTabConexiuni.as_view(), name="membru_tab_afilieri"),
+                       path('membru/<int:pk>/tab/istoric/', MembruTabIstoric.as_view(), name="membru_tab_istoric"),
+                       path('membru/<int:pk>/tab/contact/', MembruTabContact.as_view(), name="membru_tab_contact"),
+                       path('membru/<int:pk>/tab/alteinfo/', MembruTabAlteInformatii.as_view(), name="membru_tab_altele"),
+                       path('membru/<int:pk>/tab/familie/', MembruTabFamilie.as_view(), name="membru_tab_familie"),
+                       path('membru/<int:pk>/tab/documente/', MembruTabDocumente.as_view(), name="membru_tab_documente"),
+                       path('membru/<int:pk>/tab/activitati/', MembruTabActivitati.as_view(), name="membru_tab_activitati"),
+
+                       path('membru/<int:pk>/recalculeaza_acoperire/', MembruRecalculeazaAcoperire.as_view(), name="membru_recalculeaza_acoperire"),
+                       path('membru/<int:pk>/reseteaza_acoperire/', MembruStergeAcoperire.as_view(), name="membru_reseteaza_acoperire"),
+                       path('membru/<int:pk>/contact/add/', MembruContactCreate.as_view(), name="membru_contact_add"),
+                       path('membru/contact/<int:pk>/edit/', MembruContactUpdate.as_view(), name="membru_contact_edit"),
+                       path('membru/<int:pk>/alteinfo/add/', MembruInformatieCreate.as_view(), name="membru_altele_add"),
+                       path('membru/alteinfo/<int:pk>/edit/', MembruInformatieUpdate.as_view(), name="membru_altele_edit"),
+                       path('membru/<int:pk>/picture/', MembruEditProfilePicture.as_view(), name="membru_admin_edit_profile_picture"),
+
+                       path('membru/inregistrare/', RegisterMembru.as_view(), name="membru_register"),
+                       path('membru/inregistrare/confirmare/<str:hash>/', ConfirmMembruRegistration.as_view(), name="membru_confirm_registration"),
+                       path('membru/<int:pk>/adminconfirm/', ConfirmMembruAdmin.as_view(), name="membru_confirm_admin"),
+                       path('membru/inregistrare/resetpassword/', ForgotPassword.as_view(), name="membru_forgot_password"),
+                       path('membru/inregistrare/resetpassword/<str:hash>/', ConfirmForgotPassword.as_view(), name="membru_confirm_forgot_password"),
+                       path('membru/changepassword/', ChangePassword.as_view(), name="membru_change_password"),
+
+                       path('membru/profile/', UtilizatorHome.as_view(), name="membru_profil"),
+                       path('membru/profile/tab/brief/', UtilizatorHomeTabsBrief.as_view(), name="membru_profil_tab_brief"),
+                       path('membru/profile/tab/afiliere/', UtilizatorHomeTabsAfiliere.as_view(), name="membru_profil_tab_afiliere"),
+                       path('membru/profile/tab/activitati/', UtilizatorHomeTabsActivitati.as_view(), name="membru_profil_tab_activitati"),
+                       path('membru/profile/tab/documente/', UtilizatorHomeTabsDocumente.as_view(), name="membru_profil_tab_documente"),
+
+                       path('membru/profile/edit/', UtilizatorEditProfile.as_view(), name="membru_edit_profile"),
+                       path('membru/profile/edit/picture/', UtilizatorEditProfilePicture.as_view(), name="membru_edit_profile_picture"),
+
+                       path('membru/<int:pk>/afiliere/adauga/', AsociereCreate.as_view(), name="membru_afiliere_add"),
+                       path('membru/afiliere/<int:pk>/modifica/', AsociereUpdate.as_view(), name="membru_afiliere_edit"),
+
+                       path('membru/<int:pk>/familie/adauga/', MembruAddFamilie.as_view(), name="membru_add_familie"),
+                       path('membru/<int:mpk>/<int:pk>/familie/edit/', MembruEditFamilie.as_view(), name="membru_edit_familie"),
+                       path('membru/<int:pk>/pdc/adauga/', MembruPersoanaDeContactCreate.as_view(), name="membru_add_pdc"),
+                       path('membru/<int:mpk>/pdc/<int:pk>/edit/', MembruPersoanaDeContactUpdate.as_view(), name="membru_edit_pdc"),
+
+                       path('membru/<int:pk>/alte_documente/', MembruAlteDocumente.as_view(), name="membru_alte_documente"),
+                       path('membru/<int:pk>/cotizatie-sociala/adauga/', DeclaratieCotizatieSocialaAdauga.as_view(), name="membru_cotizatiesociala_adauga"),
+                       path('membru/cotizatie-sociala/<int:pk>/modifica/', DeclaratieCotizatieSocialaModifica.as_view(), name="membru_cotizatiesociala_modifica"),
+
+                       path('membru/fb/confirm/', MembruConfirmaFacebook.as_view(), name="membru_confirma_facebook"),
+
+
+                       path('ajax/membri/list/', MembriForPatrocle.as_view(), name="ajax_patrocle_membri"),
+                       path('ajax/membri/detail/', MembruDestinatarRepr.as_view(), name="ajax_membru_detail"),
+                       path('ajax/persoanacontact/detail/', PersoanaContactDestinatarRepr.as_view(), name="ajax_persoana_contact_detail"),
+                       #path('contact/<int:pk>/delete/', ContactDelete.as_view(), name="contact_delete"),
     
-    (r'membru/list/lost/$', MembriFaraAfilieri.as_view(), {}, "membri_pierduti_list"),
-                       (r'ajax/speeddial/$', GetSpeedList.as_view(), {}, "speedlist"),
+    path('membru/list/lost/', MembriFaraAfilieri.as_view(), name="membri_pierduti_list"),
+                       path('ajax/speeddial/', GetSpeedList.as_view(), name="speedlist"),
 
-                       (r'adrese/status/$', MembruAdreseStatus.as_view(), {}, "membru_adrese_status"),
-                       (r'dreptvot/(?P<rdv_slug>[\w\-]+)/$', ListaMembriiDreptVot.as_view(), {}, "membrii_drept_vot"),
+                       path('adrese/status/', MembruAdreseStatus.as_view(), name="membru_adrese_status"),
+                       path('dreptvot/<str:rdv_slug>/', ListaMembriiDreptVot.as_view(), name="membrii_drept_vot"),
 
-                       (r'api/get_unitati/$', UnitatiListAPI.as_view(), {}, "get_unitati"),
-                       (r'api/update_content_objects/$', UpdateContentObjects.as_view(), {}, "update_content_objects")
-
-                       )
+                       path('api/get_unitati/', UnitatiListAPI.as_view(), name="get_unitati"),
+                       path('api/update_content_objects/', UpdateContentObjects.as_view(), name="update_content_objects")
+]

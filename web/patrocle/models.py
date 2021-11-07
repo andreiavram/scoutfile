@@ -1,8 +1,10 @@
 # coding: utf-8
+from future import standard_library
+standard_library.install_aliases()
 import datetime
 import logging
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -36,7 +38,7 @@ ERROR_CODES = { 1 : ("Insufficient arguments for gateway", "Acest mesaj de eroar
 
 
 class SMSMessage(models.Model):
-    expeditor = models.ForeignKey("structuri.Utilizator")
+    expeditor = models.ForeignKey("structuri.Utilizator", on_delete=models.CASCADE)
     destinatar = models.CharField(max_length = 1024)
     mesaj = models.CharField(max_length = 1024, null = True, blank = True)
     
@@ -49,7 +51,7 @@ class SMSMessage(models.Model):
     eroare_confirmare = models.CharField(max_length = 1024, null = True, blank = True)
     
     sender = models.CharField(max_length = 255, null = True, blank = True)
-    credit = models.ForeignKey("Credit", null = True, blank = True)
+    credit = models.ForeignKey("Credit", null = True, blank = True, on_delete=models.SET_NULL)
     
     cod_grup = models.CharField(max_length = 255, null = True, blank = True) #    fixes #42
     
@@ -73,7 +75,7 @@ class SMSMessage(models.Model):
             
             if data.count():
                 return data[0].content_object
-        except Exception, e:
+        except Exception as e:
             logger.error("%s: Exceptie la resolvarea destinatarului %s" % (self.__class__.__name__, e))
             return None
         
@@ -104,13 +106,13 @@ class SMSMessage(models.Model):
         if settings.DEBUG:
             values.update({"test" : "1"})
         
-        data = urllib.urlencode(values)
+        data = urllib.parse.urlencode(values)
         url_to_send = settings.SMSLINK_URL + "?" + data
         #logger.debug("%s: url: %s" % (cls.__name__, url_to_send))
         
         try:
-            response = urllib2.urlopen(url_to_send)
-        except Exception, e:
+            response = urllib.request.urlopen(url_to_send)
+        except Exception as e:
             logger.error("%s: eroare la trimiterea unui mesaj: %s" % (cls.__name__, e))
             raise Exception(u"Eroare la trimiterea mesajului!")
         
@@ -153,7 +155,7 @@ class SMSMessage(models.Model):
         return mesaj
 
 class Credit(models.Model):
-    content_type = models.ForeignKey(ContentType, null = True, blank = True, verbose_name = "Clasă")
+    content_type = models.ForeignKey(ContentType, null = True, blank = True, verbose_name = "Clasă", on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
     
@@ -161,7 +163,7 @@ class Credit(models.Model):
     epuizat = models.BooleanField(default=False)
     
     timestamp = models.DateTimeField(auto_now_add = True)
-    creat_de = models.ForeignKey("structuri.Utilizator", null = True, blank = True)
+    creat_de = models.ForeignKey("structuri.Utilizator", null = True, blank = True, on_delete=models.CASCADE)
     comentarii = models.TextField(null = True, blank = True)
     
     tip = models.CharField(max_length  = 2, choices = ((1, "Real"), (2, "Intern")))
@@ -208,7 +210,7 @@ class Credit(models.Model):
         except cls.MultipleObjectsReturned:
             cls.objects.filter(content_type__isnull = True, tip = 1).delete()
             return cls.sync_system_credit()
-        except Exception, e:
+        except Exception as e:
             logger.error("%s: get_system_credit : %s" % (cls.__name__, e))
             return 0
 
@@ -220,10 +222,9 @@ def check_credit_epuizat(sender, instance, **kwargs):
         instance.credit.save()
         
 class RezervareCredit(models.Model):
-    credit = models.ForeignKey(Credit)
+    credit = models.ForeignKey(Credit, on_delete=models.CASCADE)
     
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     
     timestamp = models.DateTimeField(auto_now_add = True)        
-    
