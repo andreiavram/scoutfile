@@ -179,7 +179,7 @@ class Eveniment(models.Model):
         else:
             #   check if days have to be recreated
             zile_eveniment = self.zieveniment_set.all().order_by("index")
-            if zile_eveniment[0].date == self.start_date and zile_eveniment[zile_eveniment.count() - 1].date == self.end_date:
+            if zile_eveniment and zile_eveniment[0].date == self.start_date and zile_eveniment[zile_eveniment.count() - 1].date == self.end_date:
                 #   same dates means do nothing
                 return retval
 
