@@ -1,7 +1,7 @@
-<div class="input-append date datetimepicker" data-date="{{ value|date:"d.m.Y H:i A" }}"
-     data-date-format="dd.mm.yyyy - HH:ii p" data-link-field="id_{{ name }}">
-    <input size="16" type="text" value="{{ value|date:"d.m.Y H:i A" }}" readonly>
+<div class="input-append date datetimepicker" data-date="{{ value|date:"SHORT_DATETIME_FORMAT" }}"
+     data-date-format="dd.mm.yyyy, hh:ii" data-link-field="id_{{ name }}">
+    <input size="16" type="text" value="{{ value|date:"SHORT_DATETIME_FORMAT" }}" readonly>
     <span class="add-on"><i class="icon-remove"></i></span>
     <span class="add-on"><i class="icon-th"></i></span>
 </div>
-<input type="hidden" id="id_{{ name }}" name="{{ name }}" value="{{ value|date:"d.m.Y H:i A" }}"/><br/>
+<input type="hidden" id="id_{{ name }}" name="{{ name }}" value="{{ value|date:"SHORT_DATETIME_FORMAT" }}"/><br/>

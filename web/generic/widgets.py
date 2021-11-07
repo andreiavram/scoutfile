@@ -7,9 +7,10 @@ from django.db.models.aggregates import Count
 from django.template.loader import render_to_string
 from taggit.models import Tag
 
-DATETIME_INPUT_FORMATS = getattr(settings, 'DATETIME_INPUT_FORMATS', None)
-if DATETIME_INPUT_FORMATS:
-    DATETIME_INPUT_FORMATS = DATETIME_INPUT_FORMATS[0]
+# DATETIME_INPUT_FORMATS = getattr(settings, 'DATETIME_INPUT_FORMATS', None)
+# if DATETIME_INPUT_FORMATS:
+#     DATETIME_INPUT_FORMATS = DATETIME_INPUT_FORMATS[0]
+
 
 class BootstrapDateTimeInput(forms.DateTimeInput):
     """ This is based on the awesome work from http://www.malot.fr/bootstrap-datetimepicker/
@@ -31,6 +32,7 @@ class BootstrapDateTimeInput(forms.DateTimeInput):
     def render(self, name, value, attrs=None, renderer=None):
         context_data = {"value": value, "attrs": attrs, "name" : name, "date_only" : self.date_only}
         return render_to_string("generic/bootstrapdatetime_widget.html", context_data)
+
 
 class BootstrapDateInput(forms.DateInput):
     """ This is based on http://www.eyecon.ro/bootstrap-datepicker/
@@ -63,6 +65,7 @@ class GeoCoordinatesInput(forms.TextInput):
     def render(self, name, value, attrs=None, renderer=None):
         return render_to_string("generic/map_widget.html", {"value": value, "attrs":
             attrs, "name": name})
+
 
 class FacebookLinkWidget(forms.TextInput):
     def render(self, name, value, attrs=None, renderer=None):

@@ -778,9 +778,10 @@ class FileUploadMixin(object):
                     getattr(target_object, object_field_name).delete()
                 except Exception as e:
                     logger.error("%s: Could not delete photo %s" % (self.__class__.__name__, e))
-            filehandler = open(path, "r")
+            filehandler = open(path, "rb")
             cover_photo = image_class()
-            cover_photo.image.save(os.path.join(settings.PHOTOLOGUE_DIR, folder_path, self.request.FILES[form_field_name].name), File(filehandler), save=False)
+            cover_photo_path = os.path.join(settings.PHOTOLOGUE_DIR, folder_path, self.request.FILES[form_field_name].name)
+            cover_photo.image.save(cover_photo_path, File(filehandler), save=False)
             cover_photo.save(**self.get_save_kwargs(file_handler=filehandler, local_file_name=path))
             setattr(target_object, object_field_name, cover_photo)
 
