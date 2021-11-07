@@ -566,7 +566,7 @@ class SetImaginiUpload(CreateView):
                            'size': int(byte_ranges[0][2]),
                            'type': "application/zip",
                            #'descriere' : self.object.descriere,
-                           'delete_url': "http://" + Site.objects.get_current().domain + reverse("album:set_poze_delete_ajax",
+                           'delete_url': "https://" + Site.objects.get_current().domain + reverse("album:set_poze_delete_ajax",
                                                                      kwargs={"pk": self.object.id}),
                            'delete_type': "DELETE"}]}
 
