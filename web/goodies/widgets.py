@@ -58,7 +58,7 @@ class BootstrapDateInput(forms.DateInput):
 class GeoCoordinatesInput(forms.TextInput):
     class Media(object):
         js = (
-            "http://maps.googleapis.com/maps/api/js?key={0}&sensor=true".format(settings.GOOGLE_API_KEY),
+            "https://maps.googleapis.com/maps/api/js?key={0}&sensor=true".format(settings.GOOGLE_API_KEY),
             "goodies/js/map_widget.js",
         )
         css = {
