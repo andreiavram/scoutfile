@@ -30,9 +30,9 @@ class BootstrapDateTimeInput(forms.DateTimeInput):
 
     def __init__(self, *args, **kwargs):
         self.date_only = kwargs.pop("date_only", False)
-        return super(BootstrapDateTimeInput, self).__init__(*args, **kwargs)
+        super(BootstrapDateTimeInput, self).__init__(*args, **kwargs)
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         context_data = {"value": value, "attrs": attrs, "name": name, "date_only": self.date_only}
         return render_to_string("goodies/bootstrapdatetime_widget.html", context_data)
 
@@ -50,7 +50,7 @@ class BootstrapDateInput(forms.DateInput):
             "screen": ("goodies/css/datepicker.css", )
         }
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         context_data = {"value": value, "attrs": attrs, "name": name}
         return render_to_string("goodies/bootstrapdate_widget.html", context_data)
 
@@ -65,13 +65,13 @@ class GeoCoordinatesInput(forms.TextInput):
             "screen": (settings.STATIC_URL + "goodies/css/map_widget.css", )
         }
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         return render_to_string("goodies/map_widget.html", {"value": value, "attrs":
             attrs, "name": name})
 
 
 class FacebookLinkWidget(forms.TextInput):
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         return render_to_string("goodies/facebook_link_widget.html", {"value": value, "attrs": attrs, "name": name})
 
 
@@ -93,9 +93,9 @@ class TaggitTagsInput(forms.TextInput):
     def __init__(self, *args, **kwargs):
         self.show_available_tags = kwargs.pop("show_available_tags", False)
         self.tag_limit = kwargs.pop("tag_limit", 20)
-        return super(TaggitTagsInput, self).__init__(*args, **kwargs)
+        super(TaggitTagsInput, self).__init__(*args, **kwargs)
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         tags = None
         if self.show_available_tags:
             tags = Tag.objects.all().annotate(num_times=Count("taggit_taggeditem_items")).order_by("-num_times")[
