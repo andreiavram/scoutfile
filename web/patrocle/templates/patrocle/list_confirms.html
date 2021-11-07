@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
-{% load pagination_tags %}
+{% load pagination_tags %} {% load bs_pagination %}
 
 
 {% block context_menu %}
@@ -76,3 +76,4 @@
 	</table>
 	{% paginate_bs2 %}
 {% endblock %}
+
