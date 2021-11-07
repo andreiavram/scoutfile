@@ -24,9 +24,7 @@
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/jquery-ui.min.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/jquery-ui.min.js"></script>
     <link href="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.24/themes/smoothness/jquery-ui.css" rel='stylesheet'/>
-{#      <script src="{{ STATIC_URL }}js/jquery-1.7.2.min.js" type = "text/javascript" charset="utf-8"></script>#}
 
     <!-- Le styles -->
     <link href="{% static "css/bootstrap.css" %}" rel="stylesheet" type="text/css">
@@ -114,7 +112,7 @@
     <div id="footer-inner">
         &copy; 2017 <a href="https://yeti.albascout.ro">yeti</a>. Gata oricând! - Versiunea <a
             href="{{ REDMINE_VERSION_URL }}"><i class="icon-cogs"></i> {{ MAJOR_VERSION }}.{{ MINOR_VERSION }}</a> - <a
-            href="{% url "issues"  %}"><i class="icon-exclamation-sign"></i> Ai dat de o problemă?</a></a>
+            href="{% url "issues"  %}"><i class="icon-exclamation-sign"></i> Ai dat de o problemă?</a>
     </div>
 </div>
 

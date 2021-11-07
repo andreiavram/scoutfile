@@ -18,6 +18,7 @@ from album.models import FlagReport, FLAG_MOTIVES, RaportEveniment, ParticipareE
     CampArbitrarParticipareEveniment, STATUS_PARTICIPARE
 from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
 from generic.widgets import BootstrapDateTimeInput, BootstrapDateInput
+from structuri.fields import NonAdminAutoCompleteSelectField
 
 
 class ReportForm(CrispyBaseModelForm):
@@ -70,8 +71,8 @@ class EvenimentCreateForm(CrispyBaseModelForm):
     facebook_event_link = forms.URLField(widget=FacebookLinkWidget, required=False, label=u"Link eveniment Facebook")
     cover_photo = forms.FileField(label=u"Cover photo", required=False)
 
-    responsabil_articol = AutoCompleteSelectField("membri", label=u"Responsabil articol", required=False)
-    responsabil_raport = AutoCompleteSelectField("lideri", label=u"Responsabil raport", required=False)
+    responsabil_articol = NonAdminAutoCompleteSelectField("membri", label=u"Responsabil articol", required=False)
+    responsabil_raport = NonAdminAutoCompleteSelectField("lideri", label=u"Responsabil raport", required=False)
 
     adauga_persoane = forms.BooleanField(required=False, label=u"Adaugă membri la eveniment?")
     adauga_lideri = forms.BooleanField(required=False, label=u"Adaugă liderii la eveniment?")
