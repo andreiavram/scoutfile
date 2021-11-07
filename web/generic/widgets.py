@@ -21,7 +21,7 @@ class BootstrapDateTimeInput(forms.DateTimeInput):
         )
 
         css = {
-            "screen" : (settings.STATIC_URL + "generic/css/datetimepicker.css", )
+            "screen" : ("generic/css/datetimepicker.css", )
         }
 
     def __init__(self, *args, **kwargs):
@@ -54,10 +54,10 @@ class GeoCoordinatesInput(forms.TextInput):
     class Media(object):
         js = (
             "http://maps.googleapis.com/maps/api/js?key={0}&sensor=true".format(settings.GOOGLE_API_KEY),
-            settings.STATIC_URL + "generic/js/map_widget.js",
+            "generic/js/map_widget.js",
         )
         css = {
-            "screen" : (settings.STATIC_URL + "generic/css/map_widget.css", )
+            "screen": ("generic/css/map_widget.css", )
         }
 
     def render(self, name, value, attrs=None, renderer=None):
