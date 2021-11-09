@@ -173,8 +173,9 @@ class CotizatieMembruAdauga(CreateView):
         return reverse("structuri:membru_detail", kwargs={"pk": self.target.id}) + "#documente"
 
     def get_context_data(self, **kwargs):
-        kwargs.update({"object": self.target})
-        return kwargs
+        data = super(CotizatieMembruAdauga, self).get_context_data(**kwargs)
+        data.update({"object": self.target})
+        return data
 
 
 #class NumarInregistrareUrmatorJSON(View):
