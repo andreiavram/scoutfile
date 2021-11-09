@@ -668,7 +668,7 @@ class AdeziuneMembruAdauga(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.uploader = self.request.user
-        self.object.titlu = u"Adeziune %s" % self.membru.__unicode__()
+        self.object.titlu = f"Adeziune {self.membru}"
         if self.object.data_inregistrare is None:
             self.object.data_inregistrare = datetime.date.today()
         self.object.save()
@@ -767,11 +767,11 @@ class ChitantaPrintare(DetailView):
         if hasattr(self.object, "chitantacotizatie"):
             reprezinta = []
             for p in self.object.chitantacotizatie.platacotizatietrimestru_set.all().order_by("index"):
-                date_reprezinta = (p.trimestru.__unicode__(), p.suma, u"- parțial" if p.partial else "")
+                date_reprezinta = (str(p.trimestru), p.suma, u"- parțial" if p.partial else "")
                 reprezinta.append("{0} ({1} RON{2})".format(*date_reprezinta))
             reprezinta = ", ".join(reprezinta)
             reprezinta = u"cotizație membru pentru {0}".format(reprezinta)
-        date_chitanta = (self.object.platitor().__unicode__(), self.object.suma, suma2text(self.object.suma).strip(), reprezinta)
+        date_chitanta = (str(self.object.platitor()), self.object.suma, suma2text(self.object.suma).strip(), reprezinta)
         text_chitanta = u"Am primit de la <strong>{0}</strong> suma de {1} lei, adică {2}, reprezentând {3}.".format(*date_chitanta)
 
         style_sheet = getSampleStyleSheet()
@@ -791,9 +791,8 @@ class ChitantaPrintare(DetailView):
         pdf.drawString(12.5 * cm, 18.2 * cm, u"Casier, ")
 
         trezorier = self.object.registru.centru_local.ocupant_functie(u"Trezorier Centru Local")
-        pdf.drawString(12.5 * cm, 3.8 * cm, trezorier.__unicode__())
-        pdf.drawString(12.5 * cm, 17.5 * cm, trezorier.__unicode__())
-
+        pdf.drawString(12.5 * cm, 3.8 * cm, str(trezorier))
+        pdf.drawString(12.5 * cm, 17.5 * cm, str(trezorier))
 
         pdf.showPage()
         pdf.save()

@@ -224,8 +224,8 @@ class Trimestru(models.Model):
     def __json__(self):
         return {"ordine" : self.ordine_locala,
                 "ordine_globala" : self.ordine_globala,
-                "an" : self.data_inceput.strftime("%Y"),
-                "text" : self.__unicode__()}
+                "an": self.data_inceput.strftime("%Y"),
+                "text": str(self)}
 
     @classmethod
     def get_trimestru(cls, year, order):
