@@ -47,8 +47,8 @@ class SendSMS(FormView):
         import hashlib
         grup_id = None
         if len(form.cleaned_data['destinatari']) > 1:
-            grup_id = "%d-%s" % (self.request.user.utilizator.id, hashlib.md5("%s" % datetime.datetime.now()).hexdigest())
-            
+            date_string = f"{datetime.datetime.now()}".encode('utf-8')
+            grup_id = f"{self.request.user.utilizator.id}-{hashlib.md5(date_string).hexdigest()}"
             
         for d in form.cleaned_data['destinatari']:
             try:
@@ -195,4 +195,3 @@ class ListaCredite(ListView):
         data.update({"credit_curent_sistem" : self.credit_curent_sistem, 
                      "credit_sistem_nealocat" : self.credit_sistem_nealocat})
         return data
-        
