@@ -25,3 +25,6 @@ web/scoutfile3/local_settings.local.py.bkp
 /web/yarn.lock
 /web/package-lock.json
 /web/package.json
+
+.env
+.envrc
