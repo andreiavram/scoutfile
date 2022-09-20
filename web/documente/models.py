@@ -43,7 +43,7 @@ class Document(models.Model):
     is_folder = models.BooleanField(default=False)
     fragment = models.IntegerField(default=0)
 
-    uploader = models.ForeignKey(User, on_delete=models.CASCADE)
+    uploader = models.ForeignKey(User, on_delete=models.CASCADE, related_name="uploaded_documents")
     tip_document = models.ForeignKey("TipDocument", on_delete=models.CASCADE, null=True, blank=True)
 
     registru = models.ForeignKey("Registru", on_delete=models.SET_NULL, null=True, blank=True)
