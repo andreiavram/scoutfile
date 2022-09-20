@@ -433,7 +433,10 @@ ROL_PARTICIPARE = (("participant", u"Participant"), ("insotitor", u"Lider înso�
                    ("coordonator", u"Coordonator"), ("staff", u"Membru staff"))
 
 
-STATUS_PARTICIPARE = ((1, u"Cu semnul întrebării"), (2, u"Confirmat"), (3, u"Avans plătit"), (4, u"Participare efectivă"),
+STATUS_PARTICIPARE = ((1, u"Cu semnul întrebării"), (2, u"Confirmat"), (3, u"Avans plătit"),
+                      (4, u"Participare efectivă"),
+                      (6, "Participare efectivă (online)"),
+                      (7, "Participare efectivă (fizic)"),
                       (5, u"Participare anulată"))
 
 
