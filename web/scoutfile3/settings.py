@@ -299,6 +299,7 @@ FIXTURE_DIRS = ["%s/fixtures" % BASE_DIR, ]
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/edit/"
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 SYSTEM_EMAIL = "sistem@albascout.ro"
 SERVER_EMAIL = "sistem@albascout.ro"
 EMAIL_HOST =     "smtp.gmail.com"
