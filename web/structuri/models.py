@@ -51,11 +51,11 @@ class Structura(models.Model):
     data_infiintare = models.DateField(null=True, blank=True)
     activa = models.BooleanField(default=True)
 
-    def delete(self, using=None):
+    def delete(self, **kwargs):
         AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(self),
                                                object_id=self.id).delete()
 
-        return super(Structura, self).delete(using)
+        return super(Structura, self).delete(**kwargs)
 
     def ocupant_functie(self, nume_functie=None):
         search_kwargs = dict(
@@ -223,6 +223,14 @@ class Patrula(Structura):
 
     def get_absolute_url(self):
         return ("structuri:patrula_detail", [], {"pk": self.id})
+
+
+class Echipa(Structura):
+    class Meta:
+        verbose_name = "Echipă"
+        verbose_name_plural = "Echipe"
+
+    centru_local = models.ForeignKey(CentruLocal, on_delete=models.CASCADE, related_name="echipe")
 
 
 class Utilizator(models.Model):

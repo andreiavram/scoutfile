@@ -84,6 +84,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django_pagination_bootstrap.middleware.PaginationMiddleware",
     'scoutfile3.middleware.ImpersonateUserMiddleware',
+
+    'wagtail.contrib.redirects.middleware.RedirectMiddleware',
+
 ]
 
 CACHES = {
@@ -144,6 +147,7 @@ INSTALLED_APPS = (
     'photologue',
     'crispy_forms',
     'rest_framework',
+    'rest_framework_sso',
     'captcha',
     'ajax_select',
     "taggit",
@@ -161,29 +165,43 @@ INSTALLED_APPS = (
     'django_ace',
     'qrcode',
 
-    #   ecosystem apps
-    'goodies',
+    'wagtail.contrib.forms',
+    'wagtail.contrib.redirects',
+    'wagtail.embeds',
+    'wagtail.sites',
+    'wagtail.users',
+    'wagtail.snippets',
+    'wagtail.documents',
+    'wagtail.images',
+    'wagtail.search',
+    'wagtail.admin',
+    'wagtail',
 
-    #   internal scoutfile3 apps
-    'structuri',
-    'generic',
-    'album',
-    'patrocle',
-    'documente',
-    'extra',
-    'utils',
-    'proiecte',
-    'cantece',
-    'jocuri',
-    'badge',
-    'adrese_postale',
-    'inventar',
-)
+    'modelcluster',
+
+        #   ecosystem apps
+        'goodies',
+
+        #   internal scoutfile3 apps
+        'structuri',
+        'generic',
+        'album',
+        'patrocle',
+        'documente',
+        'extra',
+        'utils',
+        'proiecte',
+        'cantece',
+        'jocuri',
+        'badge',
+        'adrese_postale',
+        'inventar',
+    )
 
 WSGI_APPLICATION = 'scoutfile3.wsgi.application'
 
-# AJAX_LOOKUP_CHANNELS = {
-#     'membri': ('structuri.lookups', 'MembriLookup'),
+    # AJAX_LOOKUP_CHANNELS = {
+    #     'membri': ('structuri.lookups', 'MembriLookup'),
 #     'lideri': ('structuri.lookups', 'LideriLookup'),
 # }
 
@@ -283,7 +301,7 @@ LOGIN_REDIRECT_URL = "/edit/"
 
 SYSTEM_EMAIL = "sistem@albascout.ro"
 SERVER_EMAIL = "sistem@albascout.ro"
-EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST =     "smtp.gmail.com"
 EMAIL_PORT = "587"
 EMAIL_HOST_USER = "sistem@albascout.ro"
 EMAIL_HOST_PASSWORD = ""
@@ -371,6 +389,28 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# WAGTAIL SETTINGS
+
+# This is the human-readable name of your Wagtail install
+# which welcomes users upon login to the Wagtail admin.
+WAGTAIL_SITE_NAME = 'Scoutfile'
+
+# Replace the search backend
+#WAGTAILSEARCH_BACKENDS = {
+#  'default': {
+#    'BACKEND': 'wagtail.search.backends.elasticsearch5',
+#    'INDEX': 'myapp'
+#  }
+#}
+
+# Wagtail email notifications from address
+# WAGTAILADMIN_NOTIFICATION_FROM_EMAIL = 'wagtail@myhost.io'
+
+# Wagtail email notification format
+# WAGTAILADMIN_NOTIFICATION_USE_HTML = True
+
+# Reverse the default case-sensitive handling of tags
+TAGGIT_CASE_INSENSITIVE = True
 
 try:
     from scoutfile3.local_settings import *

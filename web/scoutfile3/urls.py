@@ -1,13 +1,17 @@
 from django.conf import settings
-from django.urls import path, include
-from django.contrib import admin
 from django.conf.urls.static import static
+from django.contrib import admin
+from django.urls import path, include, re_path
 
 from generic.views import Logout, Login, IndexView, Issues, CreateIssue
 
 admin.autodiscover()
 
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from rest_framework_sso.views import obtain_session_token, obtain_authorization_token
+
+from wagtail import urls as wagtail_urls
+from wagtail.admin import urls as wagtailadmin_urls
+from wagtail.documents import urls as wagtaildocs_urls
 
 urlpatterns = [path(r'admin/doc/', include('django.contrib.admindocs.urls')),
                path('admin/', admin.site.urls),
@@ -37,6 +41,20 @@ urlpatterns = [path(r'admin/doc/', include('django.contrib.admindocs.urls')),
                # url('^markdown/', include('django_markdown.urls')),
                path('api-auth/', include(('rest_framework.urls', 'rest_framework'),  namespace='rest_framework'))
                ]
+
+urlpatterns += [
+    path('session/', obtain_session_token, name="session_token"),
+    path('authorize/', obtain_authorization_token, name="authorization_token"),
+]
+
+urlpatterns += [
+    path('wagtail-admin/', include(wagtailadmin_urls)),
+    path('wagtail-documents/', include(wagtaildocs_urls)),
+
+    # Wagtail's serving mechanism
+    re_path(r'', include(wagtail_urls)),
+]
+
 
 # urlpatterns += staticfiles_urlpatterns()
 
