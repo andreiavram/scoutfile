@@ -371,8 +371,30 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_sso.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ]
 }
+
+REST_FRAMEWORK_SSO = {
+    'CREATE_AUTHORIZATION_PAYLOAD': 'utils.authentication.create_authorization_payload',
+    'AUTHENTICATE_PAYLOAD': 'utils.authentication.authenticate_payload',
+    'IDENTITY': 'scoutfile',
+    'SESSION_AUDIENCE': ['scoutfile', ],
+    'AUTHORIZATION_AUDIENCE': ['scoutfile', 'organizer'],
+    'ACCEPTED_ISSUERS': ['scoutfile'],
+    'KEY_STORE_ROOT': PROJECT_ROOT / 'keys',
+    'PUBLIC_KEYS': {
+        'scoutfile': ['scoutfile-2023.pem']
+    },
+    'PRIVATE_KEYS': {
+        'scoutfile': ['scoutfile-2023.pem']
+    }
+}
+
 
 #   from django 3.2 config
 AUTH_PASSWORD_VALIDATORS = [
