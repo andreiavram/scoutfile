@@ -370,7 +370,7 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        'rest_framework.permissions.IsAuthenticated'
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_sso.authentication.JWTAuthentication',
@@ -384,7 +384,7 @@ REST_FRAMEWORK_SSO = {
     'AUTHENTICATE_PAYLOAD': 'utils.authentication.authenticate_payload',
     'IDENTITY': 'scoutfile',
     'SESSION_AUDIENCE': ['scoutfile', ],
-    'AUTHORIZATION_AUDIENCE': ['scoutfile', 'organizer'],
+    'AUTHORIZATION_AUDIENCE': ['scoutfile', 'organizer', 'geogame'],
     'ACCEPTED_ISSUERS': ['scoutfile'],
     'KEY_STORE_ROOT': PROJECT_ROOT / 'keys',
     'PUBLIC_KEYS': {

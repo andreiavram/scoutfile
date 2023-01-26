@@ -40,7 +40,8 @@ urlpatterns = [path(r'admin/doc/', include('django.contrib.admindocs.urls')),
                path('logout/', Logout.as_view(), name="logout"),
 
                # url('^markdown/', include('django_markdown.urls')),
-               path('api-auth/', include(('rest_framework.urls', 'rest_framework'),  namespace='rest_framework'))
+               path('api-auth/', include(('rest_framework.urls', 'rest_framework'),  namespace='rest_framework')),
+               path('api/v1/', include('scoutfile3.api.urls', namespace='api')),
                ]
 
 urlpatterns += [
@@ -48,13 +49,13 @@ urlpatterns += [
     path('authorize/', ObtainAuthorizationTokenView.as_view(), name="authorization_token"),
 ]
 
-urlpatterns += [
-    path('wagtail-admin/', include(wagtailadmin_urls)),
-    path('wagtail-documents/', include(wagtaildocs_urls)),
-
-    # Wagtail's serving mechanism
-    re_path(r'', include(wagtail_urls)),
-]
+# urlpatterns += [
+#     path('wagtail-admin/', include(wagtailadmin_urls)),
+#     path('wagtail-documents/', include(wagtaildocs_urls)),
+#
+#     # Wagtail's serving mechanism
+#     re_path(r'', include(wagtail_urls)),
+# ]
 
 
 # urlpatterns += staticfiles_urlpatterns()

@@ -455,7 +455,7 @@ class PlataCotizatieTrimestru(models.Model):
             for plata in plati:
                 plata.save()
 
-            #   daca exista plati incomplete pentru trimestrul asta de la membri ai familiei
+            #   daca exista plati incomplete pentru trimestrul asta de la membri api familiei
             #   recalculeaza platile pentru trimestru avand in vedere ca s-ar putea sa se fi
             #   modificat pozitia in ierarhia de reduceri pentru unii din ei
             logger.debug("calculeaza_acoperire: recalculez acoperire pentru familie")

@@ -20,7 +20,7 @@ from structuri.models import CentruLocal, Patrula, Unitate, Membru,\
 logger = logging.getLogger()
 
 def redirect_with_error(request, msg = None):
-    messages.error(request, u"Nu ai suficiente drepturi pentru această acțiune (%s)" % msg)
+    messages.error(request, u"Nu api suficiente drepturi pentru această acțiune (%s)" % msg)
     return HttpResponseRedirect(reverse("login") + "?err")
 
 
