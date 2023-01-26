@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 
 from generic.views import Logout, Login, IndexView, Issues, CreateIssue
+from utils.api.views import ObtainAuthorizationTokenView
 
 admin.autodiscover()
 
@@ -44,7 +45,7 @@ urlpatterns = [path(r'admin/doc/', include('django.contrib.admindocs.urls')),
 
 urlpatterns += [
     path('session/', obtain_session_token, name="session_token"),
-    path('authorize/', obtain_authorization_token, name="authorization_token"),
+    path('authorize/', ObtainAuthorizationTokenView.as_view(), name="authorization_token"),
 ]
 
 urlpatterns += [
