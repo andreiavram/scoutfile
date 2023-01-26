@@ -971,7 +971,7 @@ class Membru(Utilizator):
         """ determina daca un membru plateste sau nu cotizatie
         din notele de implementare curente, neplatitori de cotizatie pentru un anumit trimestru sunt
         1) membrii inactivi, marcati ca atare
-        2) membrii adulti, marcati ca atare si membrii ai unei unitati de adulti
+        2) membrii adulti, marcati ca atare si membrii api unei unitati de adulti
         toate celalalte categorii de membrii sunt platitori de cotizatie
         """
 
