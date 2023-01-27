@@ -1,7 +1,6 @@
-import rest_framework_sso
+from rest_framework_sso import views as sso_views
+from utils.api.serializers import ScoutfileAuthorizationTokenSerializer
 
-from utils.api.serializers import AuthorizationTokenSerializer
 
-
-class ObtainAuthorizationTokenView(rest_framework_sso.views.ObtainAuthorizationTokenView):
-    serializer_class = AuthorizationTokenSerializer
+class ObtainAuthorizationTokenView(sso_views.ObtainAuthorizationTokenView):
+    serializer_class = ScoutfileAuthorizationTokenSerializer

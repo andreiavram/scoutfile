@@ -381,7 +381,7 @@ REST_FRAMEWORK = {
 
 REST_FRAMEWORK_SSO = {
     'CREATE_AUTHORIZATION_PAYLOAD': 'utils.authentication.create_authorization_payload',
-    'AUTHENTICATE_PAYLOAD': 'utils.authentication.authenticate_payload',
+    # 'AUTHENTICATE_PAYLOAD': 'utils.authentication.authenticate_payload',
     'IDENTITY': 'scoutfile',
     'SESSION_AUDIENCE': ['scoutfile', ],
     'AUTHORIZATION_AUDIENCE': ['scoutfile', 'organizer', 'geogame'],
