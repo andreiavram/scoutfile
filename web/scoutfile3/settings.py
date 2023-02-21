@@ -75,6 +75,7 @@ NODE_MODULES_ROOT = os.path.join(PROJECT_ROOT, 'node_modules')
 SECRET_KEY = '^bhel7)sli5=u125nc2a-%$&%ucd)gd-p5@u9cn-o)^w+==jk&'
 
 MIDDLEWARE = [
+    'django_hosts.middleware.HostsRequestMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -84,9 +85,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django_pagination_bootstrap.middleware.PaginationMiddleware",
     'scoutfile3.middleware.ImpersonateUserMiddleware',
-
     'wagtail.contrib.redirects.middleware.RedirectMiddleware',
-
+    'django_hosts.middleware.HostsResponseMiddleware'
 ]
 
 CACHES = {
