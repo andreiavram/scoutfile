@@ -84,6 +84,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django_pagination_bootstrap.middleware.PaginationMiddleware",
     'scoutfile3.middleware.ImpersonateUserMiddleware',
+
+    'wagtail.contrib.redirects.middleware.RedirectMiddleware',
+
 ]
 
 CACHES = {
@@ -101,6 +104,9 @@ CACHES = {
 }
 
 ROOT_URLCONF = 'scoutfile3.urls'
+ROOT_HOSTCONF = 'scoutfile3.hosts'
+DEFAULT_HOST = "scoutfile.albascout.ro"
+
 
 TEMPLATES = [
     {
@@ -144,6 +150,7 @@ INSTALLED_APPS = (
     'photologue',
     'crispy_forms',
     'rest_framework',
+    'rest_framework_sso',
     'captcha',
     'ajax_select',
     "taggit",
@@ -160,6 +167,20 @@ INSTALLED_APPS = (
     # 'django_markdown',
     'django_ace',
     'qrcode',
+
+    'wagtail.contrib.forms',
+    'wagtail.contrib.redirects',
+    'wagtail.embeds',
+    'wagtail.sites',
+    'wagtail.users',
+    'wagtail.snippets',
+    'wagtail.documents',
+    'wagtail.images',
+    'wagtail.search',
+    'wagtail.admin',
+    'wagtail',
+
+    'modelcluster',
 
     #   ecosystem apps
     'goodies',
@@ -178,12 +199,14 @@ INSTALLED_APPS = (
     'badge',
     'adrese_postale',
     'inventar',
-)
+    'pages',
+
+    )
 
 WSGI_APPLICATION = 'scoutfile3.wsgi.application'
 
-# AJAX_LOOKUP_CHANNELS = {
-#     'membri': ('structuri.lookups', 'MembriLookup'),
+    # AJAX_LOOKUP_CHANNELS = {
+    #     'membri': ('structuri.lookups', 'MembriLookup'),
 #     'lideri': ('structuri.lookups', 'LideriLookup'),
 # }
 
@@ -284,7 +307,7 @@ LOGIN_REDIRECT_URL = "/edit/"
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 SYSTEM_EMAIL = "sistem@albascout.ro"
 SERVER_EMAIL = "sistem@albascout.ro"
-EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST =     "smtp.gmail.com"
 EMAIL_PORT = "587"
 EMAIL_HOST_USER = "sistem@albascout.ro"
 EMAIL_HOST_PASSWORD = ""
@@ -352,9 +375,31 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        'rest_framework.permissions.IsAuthenticated'
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_sso.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ]
 }
+
+REST_FRAMEWORK_SSO = {
+    'CREATE_AUTHORIZATION_PAYLOAD': 'utils.authentication.create_authorization_payload',
+    # 'AUTHENTICATE_PAYLOAD': 'utils.authentication.authenticate_payload',
+    'IDENTITY': 'scoutfile',
+    'SESSION_AUDIENCE': ['scoutfile', ],
+    'AUTHORIZATION_AUDIENCE': ['scoutfile', 'organizer', 'geogame'],
+    'ACCEPTED_ISSUERS': ['scoutfile'],
+    'KEY_STORE_ROOT': PROJECT_ROOT / 'keys',
+    'PUBLIC_KEYS': {
+        'scoutfile': ['scoutfile-2023.pem']
+    },
+    'PRIVATE_KEYS': {
+        'scoutfile': ['scoutfile-2023.pem']
+    }
+}
+
 
 #   from django 3.2 config
 AUTH_PASSWORD_VALIDATORS = [
@@ -371,6 +416,29 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# WAGTAIL SETTINGS
+
+# This is the human-readable name of your Wagtail install
+# which welcomes users upon login to the Wagtail admin.
+WAGTAIL_SITE_NAME = 'Scoutfile'
+
+# Replace the search backend
+#WAGTAILSEARCH_BACKENDS = {
+#  'default': {
+#    'BACKEND': 'wagtail.search.backends.elasticsearch5',
+#    'INDEX': 'myapp'
+#  }
+#}
+
+# Wagtail email notifications from address
+# WAGTAILADMIN_NOTIFICATION_FROM_EMAIL = 'wagtail@myhost.io'
+
+# Wagtail email notification format
+# WAGTAILADMIN_NOTIFICATION_USE_HTML = True
+
+# Reverse the default case-sensitive handling of tags
+TAGGIT_CASE_INSENSITIVE = True
 
 
 try:

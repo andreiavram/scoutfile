@@ -1178,7 +1178,7 @@ class ForgotPassword(FormView):
         try:
             utilizator = Utilizator.objects.get(email=form.cleaned_data['email'])
         except Utilizator.DoesNotExist:
-            messages.error(self.request, u"Nu am găsit niciun utilizator care sa aibă adresa pe care ai introdus-o")
+            messages.error(self.request, u"Nu am găsit niciun utilizator care sa aibă adresa pe care api introdus-o")
             return HttpResponseRedirect(reverse("structuri:membru_forgot_password"))
 
         if utilizator.timestamp_accepted is None:

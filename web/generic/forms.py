@@ -29,9 +29,9 @@ class LoginForm(forms.Form):
         user = authenticate(username = self.cleaned_data['username'], password = self.cleaned_data['password'])
         if user is not None:
             if not user.is_active:
-                raise ValidationError(u"Contul tău există, dar fie nu l-ai activat, fie a fost blocat de un administrator")
+                raise ValidationError(u"Contul tău există, dar fie nu l-api activat, fie a fost blocat de un administrator")
         else:
-            raise ValidationError(u"Emailul și parola sunt incorecte. Dacă ți-ai uitat parola poți să folosești link-ul de mai jos ca să o resetezi")
+            raise ValidationError(u"Emailul și parola sunt incorecte. Dacă ți-api uitat parola poți să folosești link-ul de mai jos ca să o resetezi")
         
         return self.cleaned_data
 
@@ -47,7 +47,7 @@ class LoginForm(forms.Form):
 
 class IssueCreateForm(CrispyBaseForm):
     subject = forms.CharField(label = u"Titlu", help_text = u"Un text concis care descrie problema")
-    description = forms.CharField(widget = Textarea(), label = u"Descriere", required = False, help_text = u"Descrie pe larg problema, și cum ai ajuns la ea, astfel încât să o putem reproduce și repara")
+    description = forms.CharField(widget = Textarea(), label = u"Descriere", required = False, help_text = u"Descrie pe larg problema, și cum api ajuns la ea, astfel încât să o putem reproduce și repara")
     category = forms.ChoiceField(label = u"Categorie", required = False)
     
     def __init__(self, *args, **kwargs):

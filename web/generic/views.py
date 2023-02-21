@@ -54,7 +54,7 @@ class Login(FormView):
     def form_valid(self, form):
         user = authenticate(username = form.cleaned_data['username'], password = form.cleaned_data['password'])
         login(self.request, user)
-        messages.success(self.request, "User și parolă corecte, bine ai venit!")
+        messages.success(self.request, "User și parolă corecte, bine api venit!")
         return HttpResponseRedirect(self.get_success_url())
     
     def get_success_url(self):

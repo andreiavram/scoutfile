@@ -1,5 +1,5 @@
 # coding: utf-8
-
+import rest_framework_sso.views
 from future import standard_library
 standard_library.install_aliases()
 import logging
