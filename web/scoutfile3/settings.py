@@ -179,23 +179,25 @@ INSTALLED_APPS = (
 
     'modelcluster',
 
-        #   ecosystem apps
-        'goodies',
+    #   ecosystem apps
+    'goodies',
 
-        #   internal scoutfile3 apps
-        'structuri',
-        'generic',
-        'album',
-        'patrocle',
-        'documente',
-        'extra',
-        'utils',
-        'proiecte',
-        'cantece',
-        'jocuri',
-        'badge',
-        'adrese_postale',
-        'inventar',
+    #   internal scoutfile3 apps
+    'structuri',
+    'generic',
+    'album',
+    'patrocle',
+    'documente',
+    'extra',
+    'utils',
+    'proiecte',
+    'cantece',
+    'jocuri',
+    'badge',
+    'adrese_postale',
+    'inventar',
+    'pages',
+
     )
 
 WSGI_APPLICATION = 'scoutfile3.wsgi.application'
@@ -434,6 +436,7 @@ WAGTAIL_SITE_NAME = 'Scoutfile'
 
 # Reverse the default case-sensitive handling of tags
 TAGGIT_CASE_INSENSITIVE = True
+
 
 try:
     from scoutfile3.local_settings import *
