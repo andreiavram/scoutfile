@@ -49,15 +49,6 @@ urlpatterns += [
     path('authorize/', ObtainAuthorizationTokenView.as_view(), name="authorization_token"),
 ]
 
-# urlpatterns += [
-#     path('wagtail-admin/', include(wagtailadmin_urls)),
-#     path('wagtail-documents/', include(wagtaildocs_urls)),
-#
-#     # Wagtail's serving mechanism
-#     re_path(r'', include(wagtail_urls)),
-# ]
-
-
 # urlpatterns += staticfiles_urlpatterns()
 
 #    temp media fix
@@ -68,6 +59,14 @@ if settings.DEBUG:
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns.append(path('__debug__/', include(debug_toolbar.urls)))
+
+urlpatterns += [
+    path('wagtail/admin/', include(wagtailadmin_urls)),
+    path('wagtail/documents/', include(wagtaildocs_urls)),
+
+    # Wagtail's serving mechanism
+    re_path(r'wagtail/', include(wagtail_urls)),
+]
 
 
 handler500 = "generic.views.custom_500"
