@@ -434,10 +434,10 @@ ROL_PARTICIPARE = (("participant", u"Participant"), ("insotitor", u"Lider înso�
 
 
 STATUS_PARTICIPARE = ((1, u"Cu semnul întrebării"), (2, u"Confirmat"), (3, u"Avans plătit"),
-                      (4, u"Participare efectivă"),
+                      (4, "Participare efectivă"),
                       (6, "Participare efectivă (online)"),
                       (7, "Participare efectivă (fizic)"),
-                      (5, u"Participare anulată"))
+                      (5, "Participare anulată"))
 
 
 class ParticipantEveniment(models.Model):
@@ -517,7 +517,7 @@ class ParticipareEveniment(models.Model):
 
 
 
-TIPURI_CAMP_PARTICIPARE = (("text", u"Text"), ("number", u"Număr"), ("bool", u"Bifă"), ("date", u"Dată"))
+TIPURI_CAMP_PARTICIPARE = (("text", "Text"), ("number", "Număr"), ("bool", "Bifă"), ("date", "Dată"))
 
 
 class CampArbitrarParticipareEveniment(models.Model):
@@ -631,14 +631,14 @@ class ZiEveniment(models.Model):
     index = models.IntegerField(default=1)
 
     class Meta(object):
-        verbose_name = u"Zi eveniment"
-        verbose_name_plural = u"Zile eveniment"
+        verbose_name = "Zi eveniment"
+        verbose_name_plural = "Zile eveniment"
         ordering = ["index", "date"]
 
     def __str__(self):
         if self.titlu is not None and self.titlu != "":
             return self.titlu
-        return u"Ziua %d" % self.index
+        return "Ziua %d" % self.index
 
     def filter_photos(self, autor=None, user=None, **kwargs):
         backward_limit = datetime.datetime.combine(self.date, datetime.time(0, 0, 0)) + datetime.timedelta(hours=3)
@@ -691,17 +691,17 @@ class SetPoze(models.Model):
     default_visibility_level = models.IntegerField(default=-1, choices=IMAGINE_PUBLISHED_STATUS, null=True, blank=True)
 
     class Meta(object):
-        verbose_name = u"Set poze"
+        verbose_name = "Set poze"
         verbose_name_plural = "seturi poze"
         ordering = ["-date_uploaded"]
 
     def __str__(self):
-        return u"Set %s (%s)" % (self.autor, self.eveniment)
+        return "Set %s (%s)" % (self.autor, self.eveniment)
 
     def get_autor(self):
         if self.autor:
-            return u"%s" % self.autor.strip()
-        return u"%s" % self.autor_user
+            return "%s" % self.autor.strip()
+        return "%s" % self.autor_user
 
     def process_zip_file(self):
         self.status = 2
@@ -763,7 +763,7 @@ class SetPoze(models.Model):
         except Exception as e:
             self.status = 4
             send_mail(u"Eroare la procesarea fisierului %s" % os.path.basename(self.zip_file),
-                      u"Arhiva încărcată de tine în evenimentul {0} nu a putut fi procesată. Eroarea a fost\n{1}".format(
+                      "Arhiva încărcată de tine în evenimentul {0} nu a putut fi procesată. Eroarea a fost\n{1}".format(
                           self.eveniment, e),
                       settings.SYSTEM_EMAIL,
                       [self.autor_user.email, ])
@@ -779,7 +779,7 @@ class SetPoze(models.Model):
         self.save()
 
         send_mail(u"Arhivă procesată cu succes %s" % os.path.basename(self.zip_file),
-                  u"Arhiva încărcată de tine în evenimentul {0} a fost procesată cu succes și este disponibilă pe ScoutFile.".format(
+                  "Arhiva încărcată de tine în evenimentul {0} a fost procesată cu succes și este disponibilă pe ScoutFile.".format(
                       self.eveniment),
                   settings.SYSTEM_EMAIL,
                   [self.autor_user.email, ])
@@ -805,8 +805,8 @@ class Imagine(ImageModel):
     tags = TaggableManager()
 
     class Meta(object):
-        verbose_name = u"Imagine"
-        verbose_name_plural = u"Imagini"
+        verbose_name = "Imagine"
+        verbose_name_plural = "Imagini"
         ordering = ["date_taken", ]
 
     #   override for the original method of getting the filename
@@ -908,10 +908,10 @@ class Imagine(ImageModel):
                 if info is not None:
                     for tag, value in list(info.items()):
                         decoded = ExifTags.TAGS.get(tag, tag)
-                        if decoded == u"Maker Note":
+                        if decoded == "Maker Note":
                             continue
 
-                        if decoded == u"DateTimeOriginal":
+                        if decoded == "DateTimeOriginal":
                             self.data = datetime.datetime.strptime(value[0], "%Y:%m:%d %H:%M:%S")
 
                         exif_data[decoded] = value[0] if len(value) else None
@@ -996,7 +996,7 @@ class Imagine(ImageModel):
             "url_thumb": self.get_thumbnail_url(),
             "url_detail": reverse("album:poza_detail", kwargs={"pk": self.id}),
             "url_detail_img": self.get_large_url(),
-            "titlu": u"%s - %s" % (self.set_poze.eveniment.nume, self.titlu),
+            "titlu": "%s - %s" % (self.set_poze.eveniment.nume, self.titlu),
             "descriere": self.descriere or "",
             "autor": self.set_poze.get_autor(),
             "data": self.data.strftime("%d %B %Y %H:%M:%S") if self.data else datetime.datetime.now().strftime("%d %B %Y %H:%M:%S"),
@@ -1024,17 +1024,17 @@ class EXIFData(models.Model):
     value = models.CharField(max_length=255)
 
     class Meta(object):
-        verbose_name = u"EXIFData"
-        verbose_name_plural = u"EXIFData"
+        verbose_name = "EXIFData"
+        verbose_name_plural = "EXIFData"
 
     def __str__(self):
         return "%s: %s" % (self.key, self.value)
 
 
-FLAG_MOTIVES = (("personal", u"Sunt în poză și nu sunt de acord să apară aici"),
+FLAG_MOTIVES = (("personal", "Sunt în poză și nu sunt de acord să apară aici"),
                 ("ofensa", "Consider că poza este ofensatoare"),
                 ("nonscout", "Poza conține un comportament necercetășesc și nu ar trebui listată aici"),
-                ("calitateslaba", u"Poza este de calitate slabă și nu merită păstrată"),
+                ("calitateslaba", "Poza este de calitate slabă și nu merită păstrată"),
                 ("altul", "Alt motiv"))
 
 
@@ -1045,8 +1045,8 @@ class FlagReport(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta(object):
-        verbose_name = u"Raport poză"
-        verbose_name_plural = u"Rapoarte poze"
+        verbose_name = "Raport poză"
+        verbose_name_plural = "Rapoarte poze"
         ordering = ["-timestamp", "motiv"]
 
     def __str__(self):

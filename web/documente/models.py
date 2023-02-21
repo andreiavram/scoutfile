@@ -43,7 +43,7 @@ class Document(models.Model):
     is_folder = models.BooleanField(default=False)
     fragment = models.IntegerField(default=0)
 
-    uploader = models.ForeignKey(User, on_delete=models.CASCADE)
+    uploader = models.ForeignKey(User, on_delete=models.CASCADE, related_name="uploaded_documents")
     tip_document = models.ForeignKey("TipDocument", on_delete=models.CASCADE, null=True, blank=True)
 
     registru = models.ForeignKey("Registru", on_delete=models.SET_NULL, null=True, blank=True)
@@ -455,7 +455,7 @@ class PlataCotizatieTrimestru(models.Model):
             for plata in plati:
                 plata.save()
 
-            #   daca exista plati incomplete pentru trimestrul asta de la membri ai familiei
+            #   daca exista plati incomplete pentru trimestrul asta de la membri api familiei
             #   recalculeaza platile pentru trimestru avand in vedere ca s-ar putea sa se fi
             #   modificat pozitia in ierarhia de reduceri pentru unii din ei
             logger.debug("calculeaza_acoperire: recalculez acoperire pentru familie")

@@ -67,7 +67,7 @@ class CodPostal(models.Model):
         for s in words:
             codes = codes.filter(strada__icontains=s)
 
-        #   cazul in care ai strada Traian, si strada Traian Vuia
+        #   cazul in care api strada Traian, si strada Traian Vuia
 
         if codes.count() == 0:
             raise ValueError(u"Could not identify any codes matching %s" % words)

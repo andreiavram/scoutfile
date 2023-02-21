@@ -1,0 +1,11 @@
+{% extends "pages/base_pages.html" %}
+
+{% load wagtailcore_tags %}
+
+{% block body_class %}homepage{% endblock %}
+
+{% block content %}
+    <h1>{{ page.title }}</h1>
+    Posted by {{ page.owner }} on {{ page.last_published_at|date }}
+    {{ page.body|richtext }}
+{% endblock %}

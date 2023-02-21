@@ -37,7 +37,7 @@ class ReportForm(CrispyBaseModelForm):
     def clean(self):
         if "motiv" in self.cleaned_data and self.cleaned_data['motiv'] == "altul":
             if "alt_motiv" not in self.cleaned_data or len(self.cleaned_data["alt_motiv"].strip()) == 0:
-                raise ValidationError(u"Daca ai selectat 'alt motiv' trebuie să spui și care este acesta")
+                raise ValidationError(u"Daca api selectat 'alt motiv' trebuie să spui și care este acesta")
 
         return self.cleaned_data
 

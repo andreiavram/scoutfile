@@ -30,3 +30,6 @@ web/scoutfile3/local_settings.local.py.bkp
 .envrc
 
 web/scoutfile3/local_settings_ye
+
+
+*.pem
