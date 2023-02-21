@@ -8,7 +8,7 @@ from utils.api.views import ObtainAuthorizationTokenView
 
 admin.autodiscover()
 
-from rest_framework_sso.views import obtain_session_token, obtain_authorization_token
+from rest_framework_sso.views import obtain_session_token
 
 from wagtail import urls as wagtail_urls
 from wagtail.admin import urls as wagtailadmin_urls
