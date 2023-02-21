@@ -104,6 +104,9 @@ CACHES = {
 }
 
 ROOT_URLCONF = 'scoutfile3.urls'
+ROOT_HOSTCONF = 'scoutfile3.hosts'
+DEFAULT_HOST = "scoutfile.albascout.ro"
+
 
 TEMPLATES = [
     {
