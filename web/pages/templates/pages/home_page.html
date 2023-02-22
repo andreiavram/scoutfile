@@ -20,9 +20,8 @@
     {% endif %}
     </nav>
 
+    <p>Author: <strong>{{ page.owner }}</strong>. Last edited on {{ page.last_published_at|date }}</p>
 
 
-
-    Posted by {{ page.owner }} on {{ page.last_published_at|date }}
     {{ page.body|richtext }}
 {% endblock %}
