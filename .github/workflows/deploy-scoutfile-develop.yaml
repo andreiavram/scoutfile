@@ -39,7 +39,7 @@ jobs:
         run: ssh staging 'cd releases/develop && git fetch && git reset --hard origin/develop'
 
       - name: Make sure to update python packages
-        run: ssh staging 'cd releases/develop && pip install -r deploy/requirements.txt'
+        run: ssh staging 'cd releases/develop && ../.venv/bin/pip install -r deploy/requirements.txt'
 
       - name: Run migrations
         run: ssh staging 'cd releases/develop/web && ../.venv/bin/python manage.py migrate'
