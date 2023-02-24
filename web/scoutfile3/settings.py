@@ -45,6 +45,7 @@ STATICFILES_STORAGE = 'scoutfile3.s3utils.StaticFilesStorage'
 MEDIAFILES_STORAGE = 'scoutfile3.s3utils.MediaFilesStorage'
 
 AWS_DEFAULT_ACL = "public-read"
+AWS_S3_FILE_OVERWRITE = False
 
 LOCAL_MEDIA_ROOT = os.path.join(PROJECT_ROOT, "media")
 LOCAL_MEDIA_URL = "/media/"
@@ -170,6 +171,7 @@ INSTALLED_APPS = (
 
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',
+    "wagtail.contrib.table_block",
     'wagtail.embeds',
     'wagtail.sites',
     'wagtail.users',
