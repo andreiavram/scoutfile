@@ -23,9 +23,9 @@ jobs:
             StrictHostKeyChecking no
           END
         env:
-          SSH_USER: ${{ vars.STAGING_SSH_USER }}
-          SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
-          SSH_HOST: ${{ vars.STAGING_SSH_HOST }}
+          SSH_USER: ${{ vars.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ vars.SSH_HOST }}
           SSH_PORT: ${{ vars.SSH_PORT }}
 
       - name: Stop the server
