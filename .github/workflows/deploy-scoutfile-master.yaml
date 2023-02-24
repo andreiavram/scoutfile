@@ -1,0 +1,46 @@
+name: deploy-to-production
+on: [push, pull_request]
+jobs:
+  # test:
+  #   ...
+  deploy:
+    name: "Deploy to production"
+    runs-on: ubuntu-latest
+    environment: production
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    # needs: test
+    steps:
+      - name: Configure SSH
+        env:
+          SSH_USER: ${{ vars.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ vars.SSH_HOST }}
+          SSH_PORT: ${{ vars.SSH_PORT }}
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/production.key
+          chmod 600 ~/.ssh/production.key
+          cat >>~/.ssh/config <<END
+          Host production
+            HostName $SSH_HOST
+            Port $SSH_PORT
+            User $SSH_USER
+            IdentityFile ~/.ssh/production.key
+            StrictHostKeyChecking no
+          END
+
+      - name: Stop the server
+        run: ssh production 'sudo supervisorctl stop scoutfile-master'
+
+      - name: Check out the source
+        run: ssh production 'cd releases/master && git fetch && git reset --hard origin/master'
+
+      - name: Make sure to update python packages
+        run: ssh production 'cd releases/master && .venv/bin/pip install -r deploy/requirements.txt'
+
+      - name: Run migrations
+        run: ssh production 'cd releases/master/web && ../.venv/bin/python manage.py migrate'
+
+      - name: Start the server
+        if: ${{ always() }}
+        run: ssh production 'sudo supervisorctl start scoutfile-master'
