@@ -20,6 +20,7 @@ jobs:
           mkdir -p ~/.ssh/
           echo "$SSH_KEY" > ~/.ssh/staging.key
           chmod 600 ~/.ssh/staging.key
+          cat ~/.ssh/staging.key
           cat >>~/.ssh/config <<END
           Host staging
             HostName $SSH_HOST
@@ -28,6 +29,8 @@ jobs:
             IdentityFile ~/.ssh/staging.key
             StrictHostKeyChecking no
           END
+          cat ~/.ssh/config
+          ssh staging 'ls'
 
       - name: Stop the server
         run: ssh staging 'sudo supervisorctl stop scoutfile-develop'
