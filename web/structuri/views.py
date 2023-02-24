@@ -1192,7 +1192,7 @@ class ForgotPassword(FormView):
         if not settings.DEBUG or settings.USE_EMAIL_CONFIRMATION:
             message = render_to_string("structuri/inregistrare/password_reset.txt",
                                        {"utilizator": utilizator, "form": form},
-                                       context_instance=RequestContext(self.request))
+                                       request=self.request)
             send_mail(u"Solicitare resetare parola ScoutFile", message, settings.SYSTEM_EMAIL, [utilizator.email, ])
 
         logger.debug("%s: email sent" % self.__class__.__name__)
@@ -1227,7 +1227,7 @@ class ConfirmForgotPassword(TemplateView):
         if not settings.DEBUG or settings.USE_EMAIL_CONFIRMATION:
             message = render_to_string("structuri/inregistrare/password_reset_confirm.txt",
                                        {"utilizator": self.utilizator, "password": new_password},
-                                       context_instance=RequestContext(request))
+                                       request=self.request)
             send_mail("Parola noua pentru ScoutFile", message, settings.SYSTEM_EMAIL, [self.utilizator.email, ])
 
         messages.success(request,
@@ -1279,7 +1279,7 @@ class RegisterMembru(CreateView):
             body = render_to_string("structuri/inregistrare/registration_email.txt",
                                     {"utilizator": self.object, "centru_local": form.cleaned_data['centrul_local'],
                                      "unitate": form.cleaned_data['unitate']},
-                                    context_instance=RequestContext(self.request))
+                                    request=self.request)
             send_mail("Inregistrare ScoutFile", body, settings.SYSTEM_EMAIL, [self.object.email, ])
 
         messages.success(self.request,
@@ -1335,7 +1335,7 @@ class ConfirmMembruAdmin(UpdateView):
         if "reject" in self.request.POST:
             #    creating message here, the Membru object does not exist anymore when sending email
             message = render_to_string("structuri/inregistrare/registration_deny.txt", {"membru": self.object},
-                                       context_instance=RequestContext(self.request)),
+                                       request=self.request),
 
             for asociere in AsociereMembruStructura.objects.filter(membru=self.object):
                 asociere.delete()
