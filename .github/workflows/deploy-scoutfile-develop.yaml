@@ -44,9 +44,6 @@ jobs:
       - name: Run migrations
         run: ssh staging 'cd releases/develop/web && ../.venv/bin/python manage.py migrate'
 
-      - name: Gather static files
-        run: ssh staging 'cd releases/develop/web && ../.venv/bin/python manage.py collectstatic --noinput'
-
       - name: Start the server
         if: ${{ always() }}
         run: ssh staging 'sudo supervisorctl start scoutfile-develop'
