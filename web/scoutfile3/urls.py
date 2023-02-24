@@ -45,8 +45,8 @@ urlpatterns = [path(r'admin/doc/', include('django.contrib.admindocs.urls')),
                ]
 
 urlpatterns += [
-    path('session/', obtain_session_token, name="session_token"),
-    path('authorize/', ObtainAuthorizationTokenView.as_view(), name="authorization_token"),
+    path('api/session/', obtain_session_token, name="session_token"),
+    path('api/authorize/', ObtainAuthorizationTokenView.as_view(), name="authorization_token"),
 ]
 
 # urlpatterns += staticfiles_urlpatterns()
