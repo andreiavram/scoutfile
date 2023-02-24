@@ -1,0 +1,96 @@
+{% extends "pages/base_pages.html" %}
+
+{% load wagtailcore_tags %}
+{% wagtail_site as current_site %}
+
+{% block body_class %}homepage{% endblock %}
+
+
+<ul class="navbar-nav">
+    {% for menu_page in blog_page.get_children.live.in_menu %}
+        <li>
+            <a href="{{ menu_page.url }}" class="nav-link">{{ menu_page.title }}</a>
+        </li>
+    {% endfor %}
+</ul>
+
+{% block side-menu %}
+    <ul class="nav flex-column">
+    <li class="nav-item">
+        <a class="nav-link" aria-current="page" href="{{ current_site.root_page.url }}">
+            <span data-feather="home"></span> {{ current_site.root_page.title }}</a>
+    </li>
+
+    {% for menu_page in current_site.root_page.get_children.live.in_menu %}
+        <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="{{ menu_page.url }}">
+                <span data-feather="book"></span> {{ menu_page.title }}</a>
+        </li>
+    {% endfor %}
+
+    {% if page.get_children.live.exists %}
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1">
+            <span>Sub pagini</span>
+        </h6>
+        <ul class="nav flex-column mb-2">
+            {% for menu_page in page.get_children.live %}
+                <li class="nav-item">
+                    <a class="nav-link sub-page" aria-current="page" href="{{ menu_page.url }}">
+                        <span data-feather="file-text"></span> {{ menu_page.title }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if page.related_links.exists %}
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1">
+            <span>Relevante</span>
+        </h6>
+        <ul class="nav flex-column mb-2">
+            {% for menu_page in page.related_links.all %}
+                <li class="nav-item">
+                    <a class="nav-link related-link" aria-current="page" href="{{ menu_page.url }}">
+                        <span data-feather="bookmark"></span> {{ menu_page.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}
+
+
+{% block content %}
+    <h1>{{ page.title }}</h1>
+    <div id="breadcrumbs">
+    <nav aria-label="breadcrumb"=>
+        {% if self.get_ancestors|length > 1 %}
+            <ol class="breadcrumb">
+                {% for p in self.get_ancestors %}
+                    {% if p.is_root == False %}
+                        <li class="breadcrumb-item"><a href="{{ p.url }}">{{ p.title }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                <li class="breadcrumb-item active">{{ self.title }}</li>
+            </ol>
+        {% endif %}
+    </nav>
+    </div>
+
+    <p>{% if page.owner and page.owner.utilizator and page.owner.utilizator.membru and page.owner.utilizator.membru.poza_profil %}
+        <img src = "{{ page.owner.utilizator.membru.poza_profil.get_thumbnail_url }}">
+        {% endif %}<strong>{{ page.owner }}</strong> |  Last edited on {{ page.last_published_at|date }}</p>
+
+
+    {% include_block page.body %}
+
+
+
+    {% if page.tags.count %}
+        <p class = "tags"><strong>Tags</strong>
+        {% for tag in page.tags.all %}
+
+            <a href="{{ self.get_parent.url }}?tag={{ tag.slug }}"><span class="badge bg-primary">{{ tag }}</span></a><br/>
+        {% endfor %}
+        </p>
+    {% endif %}
+{% endblock %}
