@@ -54,7 +54,8 @@ logger = logging.getLogger(__name__)
 
 class EvenimentFiltruMixin(object):
     def process_request_filters(self, request):
-        if not request.is_ajax():
+
+        if not request.accepts("application/json"):
             if "qnume" in request.GET:
                 request.session['qnume'] = request.GET['qnume']
             elif "qnume" in request.session:
@@ -160,7 +161,7 @@ class EvenimentList(EvenimentFiltruMixin, ListView):
     template_name = "album/eveniment_list.html"
 
     def dispatch(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.accepts("application/json"):
             self.per_page = int(request.POST.get("per_page", 5))
             self.offset = int(request.POST.get("offset", 0))
 
@@ -184,7 +185,7 @@ class EvenimentList(EvenimentFiltruMixin, ListView):
 
         qs = self.apply_filters(qs)
 
-        if self.request.is_ajax():
+        if self.request.accepts("application/json"):
             self.total_count = qs.count()
             qs = qs[self.offset:self.offset + self.per_page]
             self.current_count = qs.count()
@@ -192,14 +193,14 @@ class EvenimentList(EvenimentFiltruMixin, ListView):
         return qs
 
     def get_template_names(self):
-        if self.request.is_ajax():
+        if self.request.accepts("application/json"):
             return "album/json/eveniment_list.json"
         return self.template_name
 
     def get_context_data(self, **kwargs):
         data = super(EvenimentList, self).get_context_data(**kwargs)
 
-        if self.request.is_ajax():
+        if self.request.accepts("application/json"):
             data['total_count'] = self.total_count
             data['current_count'] = self.current_count
             data['requested_count'] = self.per_page
