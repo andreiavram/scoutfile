@@ -1090,6 +1090,12 @@ class AsociereMembruStructura(models.Model):
         self.confirmata_de = user
         self.save()
 
+    def documents(self):
+        return AsociereDocument.objects.filter(
+            content_object=ContentType.objects.get_for_model(self),
+            object_id=self.id
+        )
+
 #    def save(self, *args, **kwargs):
 #        retval = super(AsociereMembruStructura, self).save(*args, **kwargs)
 #
