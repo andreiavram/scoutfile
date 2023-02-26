@@ -20,6 +20,7 @@
   z-index: 100; /* Behind the navbar */
   padding: 48px 0 0; /* Height of navbar */
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+  background-color: #0b0925;
 }
 
 @media (max-width: 767.98px) {
@@ -39,16 +40,24 @@
 
 .sidebar .nav-link {
   font-weight: 500;
-  color: #333;
+  color: #dddddd;
 }
 
 .sidebar .nav-link .feather {
   margin-right: 4px;
-  color: #727272;
+  color: #dddddd;
 }
 
 .sidebar .nav-link.active {
-  color: #2470dc;
+  color: #FFF;
+}
+
+.sidebar .nav-link.sub-page {
+  font-weight: 350;
+}
+
+.sidebar .nav-ling.related-link {
+  font-weight: 350;
 }
 
 .sidebar .nav-link:hover .feather,
@@ -59,7 +68,16 @@
 .sidebar-heading {
   font-size: .75rem;
   text-transform: uppercase;
+  color: #999;
 }
+
+.sidebar .logo img {
+  position: fixed;
+  bottom: 10px;
+  padding: 5px;
+  width: 50px;
+}
+
 
 /*
  * Navbar
@@ -93,4 +111,26 @@
 .form-control-dark:focus {
   border-color: transparent;
   box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
+}
+
+#content h1, #content h2, #content h3, #content h4 {
+  padding-top: 0.7em;
+}
+
+#content p {
+  line-height: 32px;
+}
+
+
+#breadcrumbs {
+  background-color: #EAEAEA;
+}
+
+#breadcrumbs ol {
+  padding: 5px;
+  padding-left: 10px;
+}
+
+#breadcrumbs a {
+  text-decoration: none;
 }
