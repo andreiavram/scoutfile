@@ -872,7 +872,9 @@ class Membru(Utilizator):
 
         #   daca membrul este in categorii speciale care sunt scutite de la plata cotizatiei, atunci:
         #   - daca asocierea e in continuare activa, membrul nu datoreaza cotizatie
-        #   - daca membrul s-a intors la statutul de membru activ, atunci datoreaza cotizatie pe ultima perioada de activitate
+        #   - daca membrul s-a intors la statutul de membru activ, atunci datoreaza cotizatie pe ultima
+        #   perioada de activitate
+
         afilieri_scutite = self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, trimestru=trimestru_initial, qs=True)
         if afilieri_scutite.filter(moment_incheiere__isnull=True).exists():
             trimestru_initial = Trimestru.urmatorul_trimestru(Trimestru.trimestru_pentru_data(datetime.date.today()))
