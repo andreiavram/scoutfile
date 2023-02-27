@@ -322,7 +322,7 @@ class AsociereMembruFamilie(models.Model):
 
 
 class Membru(Utilizator):
-    CALITATI_SCUTITE_COTIZATIE = ("Membru inactiv", "Membru adult")
+    CALITATI_SCUTITE_COTIZATIE = ("Membru inactiv", "Membru adult", "Alumnus")
 
     cnp = models.CharField(max_length=255, null=True, blank=True, verbose_name=u"CNP", unique=True)
     telefon = models.CharField(max_length=10, null=True, blank=True)
@@ -448,7 +448,7 @@ class Membru(Utilizator):
         determinarea se face pentru un trimestru, implicit fiind cel din ziua curenta
         metoda ar trebui sa fie folosita oriunde se incearca determinari de apartenente si calitati
         """
-        if not isinstance(calitate, type([])):
+        if not isinstance(calitate, list) and not isinstance(calitate, tuple):
             calitate = [calitate, ]
 
         if not structura:
@@ -857,6 +857,9 @@ class Membru(Utilizator):
             return u"avans pentru %d %s" % (abs(status), trimestru_string)
 
     def get_ultimul_trimestru_cotizatie(self, return_plati_partiale=False):
+        # TODO: dacă membrul este alumn sau inactiv pentru o anumită perioadă, atunci el nu plătește cotizație
+        # TODO: perioadele de inactivitate se pot interacala in perioade de activitate, cazuri care trebuie luate in
+        #  considerare
         plati_membru = self.platacotizatietrimestru_set.all().order_by("-trimestru__ordine_globala", "-index")
         plati_partiale = None
         if plati_membru.count() == 0:
@@ -866,6 +869,19 @@ class Membru(Utilizator):
             plati_partiale = self.platacotizatietrimestru_set.filter(trimestru=trimestru_initial)
         else:
             trimestru_initial = Trimestru.urmatorul_trimestru(plati_membru[0].trimestru)
+
+        #   daca membrul este in categorii speciale care sunt scutite de la plata cotizatiei, atunci:
+        #   - daca asocierea e in continuare activa, membrul nu datoreaza cotizatie
+        #   - daca membrul s-a intors la statutul de membru activ, atunci datoreaza cotizatie pe ultima
+        #   perioada de activitate
+
+        afilieri_scutite = self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, trimestru=trimestru_initial, qs=True)
+        if afilieri_scutite.filter(moment_incheiere__isnull=True).exists():
+            trimestru_initial = Trimestru.urmatorul_trimestru(Trimestru.trimestru_pentru_data(datetime.date.today()))
+
+        afilieri_scutite = afilieri_scutite.order_by("-moment_incheiere")
+        if afilieri_scutite.exists():
+            trimestru_initial = Trimestru.urmatorul_trimestru(Trimestru.trimestru_pentru_data(afilieri_scutite[0].moment_incheiere))
 
         if return_plati_partiale:
             return trimestru_initial, plati_partiale
@@ -941,6 +957,9 @@ class Membru(Utilizator):
     def is_lider(self):
         return self._proprietati_comune().get("Lider", False)
 
+    def is_alumnus(self):
+        return self._proprietati_comune().get("Alumnus", False)
+
     def is_lider_asistent(self):
         return self._proprietati_comune().get("Lider asistent", False)
 
@@ -983,7 +1002,7 @@ class Membru(Utilizator):
 
         #   daca exista o relatie de scutire de cotizatie care nu e inca inchisa, putem prepopula de la primul apel
         #   pentru toate trimestrele pana la cel curent relevante
-        if self.is_adult() or self.is_inactiv():
+        if self.is_adult() or self.is_inactiv() or self.is_alumnus():
             qs = self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, qs=True)
             asociere_deschisa = qs.filter(moment_incheiere__isnull=True).first()
             if asociere_deschisa:
@@ -997,17 +1016,6 @@ class Membru(Utilizator):
         if self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, trimestru=trimestru):
             self._plateste_cotizatie[trimestru.ordine_globala] = False
             return False
-
-        # if self.are_calitate(["Lider", "Lider asistent"], self.centru_local, trimestru=trimestru):
-        #     self._plateste_cotizatie[trimestru] = True
-        #     return True
-
-        # unitate = self.get_unitate(trimestru=trimestru)
-        # if unitate is None:
-        #     #   orice membru care nu este in nicio unitate este un caz special care va fi tratat ca platitor
-        #     #   nu ar trebui sa existe un asemenea caz
-        #     logger.info("Membru: membru care nu este lider, si nu apartine niciunei unitati %s" % self)
-        #     return True
 
         self._plateste_cotizatie[trimestru.ordine_globala] = result = True
         return result
@@ -1089,6 +1097,12 @@ class AsociereMembruStructura(models.Model):
         self.confirmata_pe = datetime.datetime.now()
         self.confirmata_de = user
         self.save()
+
+    def documents(self):
+        return AsociereDocument.objects.filter(
+            content_object=ContentType.objects.get_for_model(self),
+            object_id=self.id
+        )
 
 #    def save(self, *args, **kwargs):
 #        retval = super(AsociereMembruStructura, self).save(*args, **kwargs)
