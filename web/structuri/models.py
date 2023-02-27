@@ -162,7 +162,7 @@ class CentruLocal(Structura):
         return super(CentruLocal, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return ("structuri:cl_detail", [], {"pk": self.id})
+        return reverse("structuri:cl_detail", kwargs={"pk": self.id})
 
     def adeziuni_lipsa(self):
         cnt_membri = self.cercetasi(qs=True).count()
@@ -198,8 +198,9 @@ class Unitate(Structura):
                                                       tip_asociere__nume__icontains=u"Membru",
                                                       moment_inceput__isnull=False,
                                                       moment_incheiere__isnull=True).count()
+
     def get_absolute_url(self):
-        return ("structuri:unitate_detail", [], {"pk": self.id})
+        return reverse("structuri:unitate_detail", kwargs={"pk": self.id})
 
 
 class Patrula(Structura):
@@ -222,7 +223,7 @@ class Patrula(Structura):
         return u"Patrula %s" % self.nume
 
     def get_absolute_url(self):
-        return ("structuri:patrula_detail", [], {"pk": self.id})
+        return reverse("structuri:patrula_detail", kwargs={"pk": self.id})
 
 
 class Echipa(Structura):
@@ -588,7 +589,7 @@ class Membru(Utilizator):
         return badges
 
     def get_absolute_url(self):
-        return ("structuri:membru_detail", [], {"pk": self.id})
+        return reverse("structuri:membru_detail", {"pk": self.id})
 
     #    Patrocle specific code
     def rezerva_credit(self):

@@ -1,27 +1,24 @@
 # coding: utf-8
-from builtins import object
-import types
-from django.views.generic.base import TemplateView, View
-from django.contrib.contenttypes.models import ContentType
-from django.views.generic.list import ListView
-import logging
-from django.views.generic.edit import DeleteView
-from django.contrib import messages
-from taggit.models import Tag
-from django.http import HttpResponse
-import traceback
 import json
-import zipfile
+import logging
 import os
-from rest_framework.views import APIView
+import traceback
+import zipfile
+from builtins import object
+
+from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
+from django.http import HttpResponse
+from django.views.generic.base import TemplateView, View
+from django.views.generic.edit import DeleteView
+from django.views.generic.list import ListView
 from rest_framework import permissions
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from taggit.models import Tag
 
-from goodies.svg import output_svg_planner
-
-from goodies.tabs import Tab
 from goodies.forms import CrispyBaseDeleteForm
-
+from goodies.tabs import Tab
 
 logger = logging.getLogger(__file__)
 
@@ -42,9 +39,11 @@ class GenericDeleteJavaScript(TemplateView):
         current = super(GenericDeleteJavaScript, self).get_context_data(*args, **kwargs)
 
         try:
-            ctype = ContentType.objects.get(app_label=self.ctype_app, model=self.ctype_model)
+            print(self.ctype_app, self.ctype_model)
+            ctype = ContentType.objects.get(app_label=self.ctype_app, model__iexact=self.ctype_model)
             current.update({"ctype": ctype})
         except Exception as e:
+            print(e)
             logger.debug(e)
 
         current.update({"prefix": self.prefix})
