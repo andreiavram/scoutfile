@@ -95,14 +95,14 @@
 
 
                         <div class="btn-group">
-                            <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+                            <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="">
                                 <i class="icon-eye-open"> </i> <span
                                     id="current_visibility_{{ image.id }}">{{ image.get_published_status_display }}</span>
                                 <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu">
                                 {% for state in visibility_states %}
-                                    <li><a href="#" data-imagine="{{ image.id }}" data-value="{{ state.0 }}"
+                                    <li><a href="" data-imagine="{{ image.id }}" data-value="{{ state.0 }}"
                                            class="visibility_action">{{ state.1 }}</a></li>
                                 {% endfor %}
                             </ul>

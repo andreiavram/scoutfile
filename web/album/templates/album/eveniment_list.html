@@ -324,7 +324,7 @@
             <form class = "form-inline" style="margin:0"><input class = "search-query" {% if request.session.qnume %}value = "{{ request.session.qnume }}"{% endif %} type = "text" placeholder="Caută după nume" name="qnume"></form>
         </div>
         <div class = "btn-group">
-            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class = "icon-th-large"></i> Categorie {% if tip_activitate %}({{ tip_activitate }}){% endif %} <span class="caret"></span></a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href=""><i class = "icon-th-large"></i> Categorie {% if tip_activitate %}({{ tip_activitate }}){% endif %} <span class="caret"></span></a>
             <ul class="dropdown-menu">
                 {% for tip in tipuri_activitate %}
                     <li><a tabindex="-1" href = "{% url "album:index"  %}?tip={{ tip.id }}">{{ tip }} {% if request.session.tip == tip.id %}<i class = "icon-ok"></i>{% endif %}</a></li>
@@ -335,7 +335,7 @@
         </div>
 
         <div class = "btn-group">
-            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class = "icon-time"></i> Status ({{ status }}) <span class="caret"></span></a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href=""><i class = "icon-time"></i> Status ({{ status }}) <span class="caret"></span></a>
             <ul class="dropdown-menu">
                 {% for status in status_activitate %}
                     <li><a tabindex="-1" href = "{% url "album:index"  %}?status={{ status.0 }}">{{ status.1 }} {% if request.session.status == status.0 %}<i class = "icon-ok"></i>{% endif %}</a></li>

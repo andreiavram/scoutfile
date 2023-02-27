@@ -121,7 +121,7 @@
     <div class="page-header">
         <div class="pull-right form-inline btn-toolbar">
             <div class = "btn-group">
-                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class = "icon-th-large"></i> Categorie {% if tip_activitate %}({{ tip_activitate }}){% endif %} <span class="caret"></span></a>
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href=""><i class = "icon-th-large"></i> Categorie {% if tip_activitate %}({{ tip_activitate }}){% endif %} <span class="caret"></span></a>
                 <ul class="dropdown-menu">
                     {% for tip in tipuri_activitate %}
                         <li><a tabindex="-1" href = "{% url "album:calendar_centru_local"  pk=object.id %}?tip={{ tip.id }}">{{ tip }} {% if request.session.tip == tip.id %}<i class = "icon-ok"></i>{% endif %}</a></li>
@@ -132,7 +132,7 @@
             </div>
 
             <div class = "btn-group">
-                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class = "icon-time"></i> Status ({{ status }}) <span class="caret"></span></a>
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href=""><i class = "icon-time"></i> Status ({{ status }}) <span class="caret"></span></a>
                 <ul class="dropdown-menu">
                     {% for status in status_activitate %}
                         <li><a tabindex="-1" href = "{% url "album:calendar_centru_local"  pk=object.id %}?status={{ status.0 }}">{{ status.1 }} {% if request.session.status == status.0 %}<i class = "icon-ok"></i>{% endif %}</a></li>
@@ -179,7 +179,7 @@
         <div class="modal-body" style="height: 400px">
         </div>
         <div class="modal-footer">
-            <a href="#" data-dismiss="modal" class="btn">Închide</a>
+            <a href="" data-dismiss="modal" class="btn">Închide</a>
         </div>
     </div>
 {% endblock %}
