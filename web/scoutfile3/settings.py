@@ -306,14 +306,12 @@ FIXTURE_DIRS = ["%s/fixtures" % BASE_DIR, ]
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/edit/"
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django_ses.SESBackend'
+AWS_SES_REGION_NAME = 'eu-west-1'
+AWS_SES_REGION_ENDPOINT = 'email.eu-west-1.amazonaws.com'
+
 SYSTEM_EMAIL = "sistem@albascout.ro"
 SERVER_EMAIL = "sistem@albascout.ro"
-EMAIL_HOST =     "smtp.gmail.com"
-EMAIL_PORT = "587"
-EMAIL_HOST_USER = "sistem@albascout.ro"
-EMAIL_HOST_PASSWORD = ""
-EMAIL_USE_TLS = True
 
 # django_less doesn't do well with python3
 # LESS_OUTPUT_DIR = "less_cache"

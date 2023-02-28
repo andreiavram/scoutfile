@@ -48,7 +48,8 @@
                     <i style = "color: red" class = "icon-exclamation-sign"></i>
                 {% endif %}
             </td>
-			<td><ul class = "unstyled" style="{% if object.membru.is_aspirant %}opacity: 0.3{% endif %}">{% for badge in object.membru.get_badges_rdv %}
+			<td>
+                <ul class = "unstyled" style="{% if object.membru.is_aspirant %}opacity: 0.3{% endif %}">{% for badge in object.membru.get_badges_rdv %}
 				<li><img src = "{% get_static_prefix %}images/icon-{{ badge }}.png" /></li>
 				{% endfor %}</ul>
             </td>
