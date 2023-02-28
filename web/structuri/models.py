@@ -73,8 +73,9 @@ class Structura(models.Model):
         asociere = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(self),
                                                           object_id=self.id,
                                                           moment_incheiere__isnull=True)
+        asociere = asociere.select_related("membru", "tip_asociere", "content_type").prefetch_related("content_object")
 
-        if isinstance(tip_asociere, type([])) or isinstance(tip_asociere, type(())):
+        if isinstance(tip_asociere, list) or isinstance(tip_asociere, tuple):
             asociere = asociere.filter(tip_asociere__nume__in=tip_asociere)
         else:
             asociere = asociere.filter(tip_asociere__nume__iexact=tip_asociere)
