@@ -510,33 +510,33 @@ class CentruLocalMembri(CentruLocalTabMembri):
 
     def get_queryset(self, *args, **kwargs):
         qs = super(CentruLocalMembri, self).get_queryset(*args, **kwargs)
-        #
-        # if self.q:
-        #     qs = qs.filter(Q(membru__nume__icontains=self.q) | Q(membru__prenume__icontains=self.q))
-        #
-        # if self.rdv:
-        #     if self.rdv in ("lupisori", "exploratori", "seniori", "temerari", "adulti"):
-        #         membri = [a.membru for a in qs]
-        #         membri_final = []
-        #         for membru in membri:
-        #             if membru.is_lider():
-        #                 continue
-        #             unitate = membru.get_unitate()
-        #             if unitate and unitate.ramura_de_varsta.slug == self.rdv:
-        #                 membri_final.append(membru)
-        #         qs = qs.filter(membru__in=membri_final)
-        #     elif self.rdv in ("lideri",):
-        #         membri_final = []
-        #         for membru in [a.membru for a in qs]:
-        #             if membru.is_lider():
-        #                 membri_final.append(membru)
-        #
-        #         qs = qs.filter(membru__in=membri_final)
-        # qs = qs.order_by("membru__nume", "membru__prenume")
-        #
-        # #   verifica daca toate categoriile sunt selectate
-        # if sum([s.get("value") for s in list(self.switches.values())]) != len(list(self.switches.keys())):
-        #     qs = AsociereMembruStructura.objects.filter(id__in=[a.id for a in qs if self.check_switches(a)])
+
+        if self.q:
+            qs = qs.filter(Q(membru__nume__icontains=self.q) | Q(membru__prenume__icontains=self.q))
+
+        if self.rdv:
+            if self.rdv in ("lupisori", "exploratori", "seniori", "temerari", "adulti"):
+                membri = [a.membru for a in qs]
+                membri_final = []
+                for membru in membri:
+                    if membru.is_lider():
+                        continue
+                    unitate = membru.get_unitate()
+                    if unitate and unitate.ramura_de_varsta.slug == self.rdv:
+                        membri_final.append(membru)
+                qs = qs.filter(membru__in=membri_final)
+            elif self.rdv in ("lideri",):
+                membri_final = []
+                for membru in [a.membru for a in qs]:
+                    if membru.is_lider():
+                        membri_final.append(membru)
+
+                qs = qs.filter(membru__in=membri_final)
+        qs = qs.order_by("membru__nume", "membru__prenume")
+
+        #   verifica daca toate categoriile sunt selectate
+        if sum([s.get("value") for s in list(self.switches.values())]) != len(list(self.switches.keys())):
+            qs = AsociereMembruStructura.objects.filter(id__in=[a.id for a in qs if self.check_switches(a)])
         return qs
 
     def get_context_data(self, **kwargs):
