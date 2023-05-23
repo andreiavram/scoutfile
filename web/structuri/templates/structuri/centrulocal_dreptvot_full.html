@@ -2,7 +2,7 @@
 {% load pagination_tags %} {% load bs_pagination %}
 
 {% block page_title %}
-	Membri cu drept de vot ({{ rdv_slug }})
+	Membri cu drept de vot {{ centru_local }}
 {% endblock %}
 
 {% block extrahead %}
@@ -18,14 +18,12 @@
 {% endblock %}
 
 
-
 {% block content %}
     <table class="table table-striped">
 	<thead>
 		<tr>
 			<th>#</th>
 			<th>Nume</th>
-            <th>Patrula</th>
             <th>Vârsta</th>
 			<th>Drept de vot teoretic<br><small>are 16 ani, are promisiune</small></th>
             <th>Drept de vot curent<br><small>are cotizatia la zi, nu e suspendat</small></th>
@@ -36,8 +34,7 @@
     {% for membru in object_list %}
     <tr {% if membru.drept_vot %}class = "success"{% endif %}>
         <td>{{ forloop.counter }}</td>
-        <td>{{ membru }}</td>
-        <td>{% if membru.get_patrula %}{{ membru.get_patrula }}{% endif %}</td>
+        <td>{{ membru }}<br><small>{{ membru.email }}</small></td>
         <td>{{ membru.data_nasterii|timesince }}</td>
         <td>{% if membru.drept_vot_teoretic %}DA{% else %}NU{% endif %}</td>
         <td>{% if membru.drept_vot %}<strong>DA</strong>{% else %}NU{% endif %} <br><small>cotizatie {{ membru.status_cotizatie }}</small>{% if membru.is_suspendat %}<br><small>suspendat</small>{% endif %}</td>
