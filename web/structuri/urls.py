@@ -1,32 +1,32 @@
 # coding: utf8
 from django.urls import path, include
 from documente.views import DeclaratieCotizatieSocialaAdauga, DeclaratieCotizatieSocialaModifica, MembruAlteDocumente
-from structuri.views import CentruLocalCreate, CentruLocalUpdate,\
-    CentruLocalDetail, CentruLocalList, CentruLocalMembruCreate,\
-    CentruLocalMembruAsociaza, CentruLocalTabBrief, CentruLocalTabUnitati,\
-    CentruLocalTabLideri, CentruLocalTabMembri, CentruLocalUnitateCreate,\
-    UnitateUpdate, UnitateDetail, UnitateTabBrief, UnitateTabMembri,\
-    UnitateTabPatrule, UnitateMembruCreate, UnitateMembruAsociaza,\
-    UnitatePatrulaCreate, PatrulaUpdate, PatrulaDetail, PatrulaTabBrief,\
-    PatrulaTabMembri, PatrulaMembruCreate, PatrulaMembruAsociaza, MembruUpdate,\
-    MembruDetail, MembruCard, MembruProgresPersonal, MembruTabBrief,\
-    MembruTabConexiuni, MembruTabIstoric, CentruLocalDelete, UnitateDelete,\
-    RegisterMembru, ConfirmMembruRegistration, CentruLocalMembriPending,\
-    ForgotPassword, ChangePassword, ConfirmMembruAdmin, ConfirmForgotPassword,\
-    UtilizatorHome, UtilizatorEditProfile, UtilizatorEditProfilePicture,\
-    UtilizatorHomeTabsBrief, UtilizatorHomeTabsAfiliere, CentruLocalLiderCreate,\
-    UnitateLiderCreate, AsociereCreate, AsociereUpdate, PatrulaDelete,\
+from structuri.views import CentruLocalCreate, CentruLocalUpdate, \
+    CentruLocalDetail, CentruLocalList, CentruLocalMembruCreate, \
+    CentruLocalMembruAsociaza, CentruLocalTabBrief, CentruLocalTabUnitati, \
+    CentruLocalTabLideri, CentruLocalTabMembri, CentruLocalUnitateCreate, \
+    UnitateUpdate, UnitateDetail, UnitateTabBrief, UnitateTabMembri, \
+    UnitateTabPatrule, UnitateMembruCreate, UnitateMembruAsociaza, \
+    UnitatePatrulaCreate, PatrulaUpdate, PatrulaDetail, PatrulaTabBrief, \
+    PatrulaTabMembri, PatrulaMembruCreate, PatrulaMembruAsociaza, MembruUpdate, \
+    MembruDetail, MembruCard, MembruProgresPersonal, MembruTabBrief, \
+    MembruTabConexiuni, MembruTabIstoric, CentruLocalDelete, UnitateDelete, \
+    RegisterMembru, ConfirmMembruRegistration, CentruLocalMembriPending, \
+    ForgotPassword, ChangePassword, ConfirmMembruAdmin, ConfirmForgotPassword, \
+    UtilizatorHome, UtilizatorEditProfile, UtilizatorEditProfilePicture, \
+    UtilizatorHomeTabsBrief, UtilizatorHomeTabsAfiliere, CentruLocalLiderCreate, \
+    UnitateLiderCreate, AsociereCreate, AsociereUpdate, PatrulaDelete, \
     CentruLocalMembri, CentruLocalTabContact, CentruLocalContactCreate, \
-    MembruContactCreate, CentruLocalContactUpdate,\
-    MembruContactUpdate, MembruTabContact, MembruEditProfilePicture,\
-    MembruAddFamilie, MembruEditFamilie, MembruTabFamilie,\
-    MembruPersoanaDeContactCreate, MembruPersoanaDeContactUpdate,\
-    MembriForPatrocle, MembruDestinatarRepr, PersoanaContactDestinatarRepr,\
+    MembruContactCreate, CentruLocalContactUpdate, \
+    MembruContactUpdate, MembruTabContact, MembruEditProfilePicture, \
+    MembruAddFamilie, MembruEditFamilie, MembruTabFamilie, \
+    MembruPersoanaDeContactCreate, MembruPersoanaDeContactUpdate, \
+    MembriForPatrocle, MembruDestinatarRepr, PersoanaContactDestinatarRepr, \
     MembriFaraAfilieri, GetSpeedList, MembruTabDocumente, SetariSpecialeCentruLocal, MembruConfirmaFacebook, \
     UnitateTabMembriFaraPatrula, MembruTabActivitati, MembruRecalculeazaAcoperire, UnitateTabPatruleInactive, \
     UtilizatorHomeTabsDocumente, UtilizatorHomeTabsActivitati, MembruStergeAcoperire, CentruLocalTabMembriDeSuspendat, \
     MembruAdreseStatus, UnitatiListAPI, UpdateContentObjects, MembruInformatieCreate, MembruInformatieUpdate, \
-    MembruTabAlteInformatii, ListaMembriiDreptVot
+    MembruTabAlteInformatii, ListaMembriiDreptVot, ListaMembriiDreptVotCentruLocal
 
 urlpatterns = [
                        path('centrulocal/adauga/', CentruLocalCreate.as_view(), name="cl_add"),
@@ -144,10 +144,11 @@ urlpatterns = [
                        path('ajax/persoanacontact/detail/', PersoanaContactDestinatarRepr.as_view(), name="ajax_persoana_contact_detail"),
                        #path('contact/<int:pk>/delete/', ContactDelete.as_view(), name="contact_delete"),
     
-    path('membru/list/lost/', MembriFaraAfilieri.as_view(), name="membri_pierduti_list"),
+                       path('membru/list/lost/', MembriFaraAfilieri.as_view(), name="membri_pierduti_list"),
                        path('ajax/speeddial/', GetSpeedList.as_view(), name="speedlist"),
 
                        path('adrese/status/', MembruAdreseStatus.as_view(), name="membru_adrese_status"),
+                       path('dreptvot/', ListaMembriiDreptVotCentruLocal.as_view(), name="membrii_drept_vot_full"),
                        path('dreptvot/<str:rdv_slug>/', ListaMembriiDreptVot.as_view(), name="membrii_drept_vot"),
 
                        path('api/get_unitati/', UnitatiListAPI.as_view(), name="get_unitati"),
