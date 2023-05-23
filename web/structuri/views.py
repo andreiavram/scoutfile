@@ -2194,7 +2194,6 @@ class ListaMembriiDreptVot(ListView):
         return data
 
 
-
 class ListaMembriiDreptVotCentruLocal(ListView):
     model = Membru
     template_name = "structuri/centrulocal_dreptvot_full.html"
@@ -2211,7 +2210,16 @@ class ListaMembriiDreptVotCentruLocal(ListView):
             moment_incheiere__isnull=True,
             membru__data_nasterii__lt=datetime.date.today() - relativedelta(years=+16)
         ).values_list("membru_id", flat=True)
-        return Membru.objects.filter(pk__in=member_ids)
+
+
+        tip_inactiv = TipAsociereMembruStructura.objects.get(nume="Membru inactiv")
+        exclusion_ids = AsociereMembruStructura.objects.filter(
+            content_type=ContentType.objects.get_for_model(self.centru_local),
+            object_id=self.centru_local.id,
+            tip_asociere__in=[tip_inactiv, ],
+        ).values_list("membru_id", flat=True)
+
+        return Membru.objects.filter(pk__in=member_ids).exclude(pk__in=exclusion_ids)
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
