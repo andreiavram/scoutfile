@@ -2193,34 +2193,3 @@ class ListaMembriiDreptVot(ListView):
         data["rdv_slug"] = self.rdv_slug
         return data
 
-
-class ListaMembriiDreptVotCentruLocal(ListView):
-    model = Membru
-    template_name = "structuri/centrulocal_dreptvot_full.html"
-    centru_local_id = 1
-
-    def get_queryset(self):
-        tip_asociere = TipAsociereMembruStructura.objects.get(nume="Membru")
-        self.centru_local = CentruLocal.objects.get(pk=self.centru_local_id)
-
-        member_ids = AsociereMembruStructura.objects.filter(
-            content_type=ContentType.objects.get_for_model(self.centru_local),
-            object_id=self.centru_local.id,
-            tip_asociere=tip_asociere,
-            moment_incheiere__isnull=True,
-            membru__data_nasterii__lt=datetime.date.today() - relativedelta(years=+16)
-        ).values_list("membru_id", flat=True)
-        return Membru.objects.filter(pk__in=member_ids)
-
-    def get_context_data(self, **kwargs):
-        data = super().get_context_data(**kwargs)
-
-        if "valid" in self.request.GET:
-            data["object_list"] = [o for o in data["object_list"] if o.drept_vot_teoretic()]
-
-        data["centru_local"] = self.centru_local
-        data["object"] = self.centru_local
-        data["total_drept_vot"] = sum(1 for m in data['object_list'] if m.drept_vot())
-        data["total_drept_vot_teoretic"] = sum(1 for m in data['object_list'] if m.drept_vot_teoretic())
-        return data
-
