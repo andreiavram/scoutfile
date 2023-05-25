@@ -147,7 +147,6 @@ urlpatterns = [
                        path('ajax/speeddial/', GetSpeedList.as_view(), name="speedlist"),
 
                        path('adrese/status/', MembruAdreseStatus.as_view(), name="membru_adrese_status"),
-
                        path('dreptvot/', ListaMembriiDreptVotCentruLocal.as_view(), name="membrii_drept_vot_full"),
                        path('dreptvot/<str:rdv_slug>/', ListaMembriiDreptVot.as_view(), name="membrii_drept_vot"),
 
