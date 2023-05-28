@@ -134,7 +134,7 @@ TEMPLATES = [
 INTERNAL_IPS = ("192.168.33.1", "127.0.0.1", "95.77.249.243")
 ALLOWED_HOSTS = []
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django_redis',
 
     # django apps
@@ -202,8 +202,11 @@ INSTALLED_APPS = (
     'adrese_postale',
     'inventar',
     'pages',
+    ]
 
-    )
+# if DEBUG:
+#     INSTALLED_APPS += ['silk']
+#     MIDDLEWARE += ['silk.middleware.SilkyMiddleware']
 
 WSGI_APPLICATION = 'scoutfile3.wsgi.application'
 
