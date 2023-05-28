@@ -457,8 +457,8 @@ class Membru(Utilizator):
             ]
         else:
             conditions += [
-                item.get('moment_incheiere') is not None and (item.get('moment_incheiere') < trimestru.data_inceput),
-                item.get('moment_inceput') is not None and (item.get('moment_inceput') > trimestru.data_sfarsit)
+                item.get('moment_incheiere') is not None and (datetime.date(item.get('moment_incheiere')) < trimestru.data_inceput),
+                item.get('moment_inceput') is not None and (datetime.date(item.get('moment_inceput')) > trimestru.data_sfarsit)
             ]
 
         if any(conditions):
