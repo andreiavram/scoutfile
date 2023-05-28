@@ -94,6 +94,17 @@ class Command(BaseCommand):
 
             try:
                 m.calculeaza_necesar_cotizatie(force_real=True)
+            except Exception as e:
+                logger.error(f"Eroare calculare necesar cotizatie: {m}: {e}")
+
+            try:
                 m._status_cotizatie(force_real=True)
             except Exception as e:
-                logger.error(u"%s" % e)
+                logger.error(f"Eroare calculare status cotizatie: {m}: {e}")
+
+            try:
+                m.create_structuri_cache()
+            except Exception as e:
+                logger.error(f"Eroare cache structuri: {m}: {e}")
+
+

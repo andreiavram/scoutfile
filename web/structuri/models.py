@@ -5,6 +5,7 @@ from builtins import object
 import datetime
 import json
 import logging
+from functools import partial
 
 import unidecode
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -325,8 +326,10 @@ class AsociereMembruFamilie(models.Model):
 
 class Membru(Utilizator):
     CALITATI_SCUTITE_COTIZATIE = ("Membru inactiv", "Membru adult", "Alumnus")
+    CALITATI_COMUNE = ["Membru suspendat", "Membru aspirant", "Membru inactiv", "Membru Consiliul Centrului Local",
+                       "Lider", "Lider asistent", "Membru adult", "Șef Centru Local"]
 
-    cnp = models.CharField(max_length=255, null=True, blank=True, verbose_name=u"CNP", unique=True)
+    cnp = models.CharField(max_length=255, null=True, blank=True, verbose_name="CNP", unique=True)
     telefon = models.CharField(max_length=10, null=True, blank=True)
     adresa = models.CharField(max_length=2048, null=True, blank=True)
     data_nasterii = models.DateField(null=True, blank=True)
@@ -342,6 +345,7 @@ class Membru(Utilizator):
     def __init__(self, *args, **kwargs):
         super(Membru, self).__init__(*args, **kwargs)
         self._plateste_cotizatie = {}
+        self._afilieri = None
 
     def save(self, *args, **kwargs):
         """
@@ -371,6 +375,39 @@ class Membru(Utilizator):
 
         return super(Membru, self).save(*args, **kwargs)
 
+    def create_structuri_cache(self):
+        db_data = self.afilieri.all().select_related("tip_asociere").prefetch_related("tip_asociere__content_types")
+        data = []
+        for item in db_data:
+            data.append({
+                "id": item.id,
+                "membru_id": item.membru_id,
+                "content_type": item.content_type_id,
+                "object_id": item.object_id,
+                "tip_asociere": item.tip_asociere_id,
+                "tip_asociere_ctypes": [ctype.id for ctype in item.tip_asociere.content_types.all()],
+                "tip_asociere_nume": item.tip_asociere.nume,
+                "moment_inceput": item.moment_inceput.strftime("%d.%m.%Y %H:%M:%S") if item.moment_inceput else None,
+                "moment_incheiere": item.moment_incheiere.strftime("%d.%m.%Y %H:%M:%S") if item.moment_incheiere else None,
+            })
+
+        self.save_to_cache("asocieri", json.dumps(data), timeout=60 * 60 * 24 * 31)
+        return data
+
+    def load_structuri_from_cache(self):
+        cached_asocieri = self.get_from_cache("asocieri")
+        if cached_asocieri is None:
+            asocieri_json = self.create_structuri_cache()
+        else:
+            asocieri_json = json.loads(cached_asocieri)
+
+        for item in asocieri_json:
+            item['moment_inceput'] = datetime.datetime.strptime(item['moment_inceput'], "%d.%m.%Y %H:%M:%S") if item['moment_inceput'] else None,
+            item['moment_incheiere'] = datetime.datetime.strptime(item['moment_incheiere'], "%d.%m.%Y %H:%M:%S") if item['moment_incheiere'] else None
+
+        self._afilieri = asocieri_json
+
+
     @property
     def adresa_postala(self):
         adresa = self.get_contact(u"Adresa corespondență")
@@ -396,34 +433,94 @@ class Membru(Utilizator):
     def centru_local(self):
         return self.get_centru_local()
 
+    @staticmethod
+    def get_afilieri_filter(item, trimestru, content_type_structura=None, rol=None, membru=None, structura=None):
+        if not isinstance(rol, (list, tuple)):
+            rol = [rol, ]
+
+        conditions = [
+            item.get('content_type') != content_type_structura.id,
+            content_type_structura.id not in item.get('tip_asociere_ctypes'),
+            item.get('tip_asociere_nume') not in rol,
+        ]
+
+        if membru:
+            conditions.append(item.get('membru_id') != membru.id)
+
+        if structura:
+            conditions.append(item.get('object_id') != structura.id)
+
+        if trimestru is None:
+            conditions += [
+                item.get('moment_inceput') is None,
+                item.get('moment_incheiere') is not None
+            ]
+        else:
+            conditions += [
+                item.get('moment_incheiere') is not None or item.get('moment_incheiere') < trimestru.data_inceput,
+                item.get('moment_inceput') > trimestru.data_sfarsit
+            ]
+
+        if any(conditions):
+            return False
+        return True
+
     def get_structura(self, qs=False, rol=(u"Membru", ), single=True, structura_model=None, trimestru=None):
         if self.is_lider and not single:
             rol = list(rol) + [u"Lider", u"Lider asistent"]
 
-        kwargs = {"content_type": ContentType.objects.get_for_model(structura_model),
-                  "tip_asociere__nume__in": rol,
-                  "tip_asociere__content_types__in": (ContentType.objects.get_for_model(structura_model), ),
-                  "membru": self}
+        if self._afilieri is None:
+            self.load_structuri_from_cache()
 
-        asocieri = AsociereMembruStructura.objects.filter(**kwargs).order_by("-moment_inceput")
+        content_type_structura = ContentType.objects.get_for_model(structura_model)
 
-        if trimestru is None:
-            asocieri = asocieri.filter(moment_inceput__isnull=False, moment_incheiere__isnull=True)
-        else:
-            asocieri = asocieri.filter(Q(moment_incheiere__isnull=True) | Q(moment_incheiere__gte=trimestru.data_inceput))
-            asocieri = asocieri.filter(moment_inceput__lte=trimestru.data_sfarsit)
+        filter_asocieri = partial(
+            Membru.get_afilieri_filter,
+            trimestru=trimestru,
+            content_type_structura=content_type_structura,
+            rol=rol,
+            membru=self
+        )
 
-        if asocieri.exists():
-            #   switch on qs, single
-            results = {
-                (True, True): asocieri[0],
-                (True, False): asocieri,
-                (False, True): asocieri[0].content_object,
-                (False, False): structura_model.objects.filter(id__in=asocieri.values_list("object_id", flat=True).all())
-            }
-            return results[(qs, single)]
+        afilieri = list(filter(filter_asocieri, self._afilieri))
+        afilieri.sort(key=lambda item: item.get("moment_inceput"), reverse=True)
 
-        return None
+        if len(afilieri) == 0:
+            return None
+
+        results = {
+            (True, True): AsociereMembruStructura.objects.get(pk=afilieri[0].get('id')),
+            (True, False): AsociereMembruStructura.objects.filter(pk__in=[a.get('id') for a in afilieri]),
+            (False, True): AsociereMembruStructura.objects.get(pk=afilieri[0].get('id')).content_object,
+            (False, False): structura_model.objects.filter(id__in=[a.get("object_id") for a in afilieri])
+        }
+
+        return results[(qs, single)]
+
+        # kwargs = {"content_type": content_type_structura,
+        #           "tip_asociere__nume__in": rol,
+        #           "tip_asociere__content_types__in": (content_type_structura, ),
+        #           "membru": self}
+        #
+        # asocieri = AsociereMembruStructura.objects.filter(**kwargs).order_by("-moment_inceput")
+        #
+        # if trimestru is None:
+        #     asocieri = asocieri.filter(moment_inceput__isnull=False, moment_incheiere__isnull=True)
+        # else:
+        #     asocieri = asocieri.filter(Q(moment_incheiere__isnull=True) | Q(moment_incheiere__gte=trimestru.data_inceput))
+        #     asocieri = asocieri.filter(moment_inceput__lte=trimestru.data_sfarsit)
+        #
+        # if asocieri.exists():
+        #     #   switch on qs, single
+        #     results = {
+        #         (True, True): asocieri[0],
+        #         (True, False): asocieri,
+        #         (False, True): asocieri[0].content_object,
+        #         (False, False): structura_model.objects.filter(id__in=asocieri.values_list("object_id", flat=True).all())
+        #     }
+        #     return results[(qs, single)]
+        #
+        # return None
     
     def get_centru_local(self, qs=False, rol=(u"Membru", ), single=True, trimestru=None):
         return self.get_structura(qs=qs, rol=rol, single=single, structura_model=CentruLocal, trimestru=trimestru)
@@ -450,34 +547,46 @@ class Membru(Utilizator):
         determinarea se face pentru un trimestru, implicit fiind cel din ziua curenta
         metoda ar trebui sa fie folosita oriunde se incearca determinari de apartenente si calitati
         """
-        if not isinstance(calitate, list) and not isinstance(calitate, tuple):
+        if isinstance(calitate, (list, tuple)):
             calitate = [calitate, ]
 
         if not structura:
-            if qs:
-                return AsociereMembruStructura.objects.none()
-            return False
+            return AsociereMembruStructura.objects.none() if qs else False
 
-        ams_filter = dict(content_type=ContentType.objects.get_for_model(structura),
-                          object_id=structura.id,
-                          tip_asociere__content_types__in=(ContentType.objects.get_for_model(structura), ),
-                          tip_asociere__nume__in=calitate,
-                          membru=self)
+        if self._afilieri is None:
+            self.load_structuri_from_cache()
 
-        asocieri = AsociereMembruStructura.objects.filter(**ams_filter)
-        if trimestru is None:
-            asocieri = asocieri.filter(moment_inceput__isnull=False, moment_incheiere__isnull=True)
-        else:
-            asocieri = asocieri.filter(Q(moment_incheiere__isnull=True) | Q(moment_incheiere__gte=trimestru.data_inceput))
-            asocieri = asocieri.filter(moment_inceput__lte=trimestru.data_sfarsit)
+        content_type_structura = ContentType.objects.get_for_model(structura)
 
-        if qs:
-            return asocieri
 
-        return asocieri.count() != 0
+        filter_asocieri = partial(
+            Membru.get_afilieri_filter,
+            trimestru=trimestru,
+            content_type_structura=content_type_structura,
+            rol=calitate,
+            structura=structura
+        )
 
-    CALITATI_COMUNE = ["Membru suspendat", "Membru aspirant", "Membru inactiv", "Membru Consiliul Centrului Local",
-                       "Lider", "Lider asistent", "Membru adult", u"Șef Centru Local"]
+        afilieri = list(filter(filter_asocieri, self._afilieri))
+        return self.afilieri.filter(id__in = [a.id for a in afilieri]) if qs else len(afilieri) != 0
+
+        #
+        # ams_filter = dict(content_type=ContentType.objects.get_for_model(structura),
+        #                   object_id=structura.id,
+        #                   tip_asociere__content_types__in=(ContentType.objects.get_for_model(structura), ),
+        #                   tip_asociere__nume__in=calitate,
+        #                   membru=self)
+        #
+        # asocieri = AsociereMembruStructura.objects.filter(**ams_filter)
+        # if trimestru is None:
+        #     asocieri = asocieri.filter(moment_inceput__isnull=False, moment_incheiere__isnull=True)
+        # else:
+        #     asocieri = asocieri.filter(Q(moment_incheiere__isnull=True) | Q(moment_incheiere__gte=trimestru.data_inceput))
+        #     asocieri = asocieri.filter(moment_inceput__lte=trimestru.data_sfarsit)
+        #
+        # if qs:
+        #     return asocieri
+        # return asocieri.count() != 0
 
     def _proprietati_comune(self):
         if hasattr(self, "_proprietati") and self._proprietati is not None:
@@ -639,11 +748,14 @@ class Membru(Utilizator):
 
         return data
 
-    def clear_cache(self, index):
-        mapping = {"asociere": ["trimestru_initial", "proprietati", "badges_rdv"],
-                   "cotizatie_sociala": ["are_cotizatie_sociala", "status_cotizatie", "necesar_cotizatie"],
-                   "cotizatie": ["status_cotizatie", "necesar_cotizatie"],}
-        to_clear = mapping.get(index, None)
+    def clear_cache(self, index_category):
+        mapping = {
+            "asociere": ["trimestru_initial", "proprietati", "badges_rdv"],
+            "cotizatie_sociala": ["are_cotizatie_sociala", "status_cotizatie", "necesar_cotizatie"],
+            "cotizatie": ["status_cotizatie", "necesar_cotizatie"],
+            "asocieri": ["asocieri"]
+        }
+        to_clear = mapping.get(index_category, None)
         if to_clear is not None:
             for idx in to_clear:
                 redis_cache.delete("m:%d:%s" % (self.id, idx))
@@ -652,8 +764,9 @@ class Membru(Utilizator):
         val = redis_cache.get("m:%d:%s" % (self.id, index))
         return val
 
-    def save_to_cache(self, index, value, timeout=0):
-        return redis_cache.set("m:%d:%s" % (self.id, index), value, timeout)
+    def save_to_cache(self, index, value, timeout=60 * 60 * 24 * 30):
+        redis_cache.delete(f"m:{self.id}:{index}")
+        return redis_cache.set(f"m:{self.id}:{index}", value, timeout)
 
     #    Cotizatie specific code
     def get_trimestru_initial_cotizatie(self):
@@ -986,7 +1099,7 @@ class Membru(Utilizator):
         return age_condition and membership_condition
 
     def is_sef_centru(self):
-        return self._proprietati_comune().get(u"Șef Centru Local", False)
+        return self._proprietati_comune().get("Șef Centru Local", False)
 
     def plateste_cotizatie(self, trimestru=None):
         """ determina daca un membru plateste sau nu cotizatie
@@ -1077,6 +1190,10 @@ class AsociereMembruStructura(models.Model):
 
     def __str__(self):
         return u"%s - %s - %s" % (self.membru, self.tip_asociere, self.content_object)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.membru.create_structuri_cache()
 
     def get_structura(self, ctype):
         lookups = {"centrulocal": {"centrulocal": lambda: self.content_object},
@@ -1282,3 +1399,8 @@ class NotaTargetEtapaProgres(models.Model):
     target_atins = models.BooleanField(default=False)
 
     activitate = models.ForeignKey("album.Eveniment", on_delete=models.SET_NULL, null=True, blank=True)
+
+
+
+
+TIPURI_ASOCIERE = TipAsociereMembruStructura.objects.all().select_related("content_types")

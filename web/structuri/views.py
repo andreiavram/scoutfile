@@ -1860,6 +1860,7 @@ class MembruDestinatarRepr(DetailView):
         kwargs.update({"pk": request.GET['pk']})
         return super(MembruDestinatarRepr, self).dispatch(request, *args, **kwargs)
 
+
     def get_context_data(self, **kwargs):
         kwargs.update({"telefon": self.object.telefon})
         return super(MembruDestinatarRepr, self).get_context_data(**kwargs)
