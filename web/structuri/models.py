@@ -402,7 +402,7 @@ class Membru(Utilizator):
             asocieri_json = json.loads(cached_asocieri)
 
         for item in asocieri_json:
-            item['moment_inceput'] = datetime.datetime.strptime(item['moment_inceput'], "%d.%m.%Y %H:%M:%S") if item['moment_inceput'] else None,
+            item['moment_inceput'] = datetime.datetime.strptime(item['moment_inceput'], "%d.%m.%Y %H:%M:%S") if item['moment_inceput'] else None
             item['moment_incheiere'] = datetime.datetime.strptime(item['moment_incheiere'], "%d.%m.%Y %H:%M:%S") if item['moment_incheiere'] else None
 
         self._afilieri = asocieri_json
