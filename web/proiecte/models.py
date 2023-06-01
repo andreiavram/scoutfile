@@ -1,19 +1,24 @@
 # coding: utf-8
 from builtins import object
 from django.db import models
+from django.db.models import Sum, IntegerChoices
+
+from taxonomy.models import CategorizedModelMixin
 
 # Create your models here.
 
 
-PROJECT_VISIBILITY_STATUSES = ((1, u"Secret"), (2, u"Centrul Local"), (3, u"Organizație"), (4, u"Public"))
+PROJECT_VISIBILITY_STATUSES = ((1, "Secret"), (2, "Centrul Local"), (3, "Organizație"), (4, "Public"))
 
 
-class Project(models.Model):
+class Project(CategorizedModelMixin, models.Model):
     name = models.CharField(max_length=254)
     description = models.TextField(null=True, blank=True)
     visibility = models.IntegerField(choices=PROJECT_VISIBILITY_STATUSES)
     slug = models.SlugField(unique=True)
 
+
+# --------------- People & Teams -------------------
 
 class ProjectRole(models.Model):
     name = models.CharField(max_length=254)
@@ -25,13 +30,61 @@ class ProjectPosition(models.Model):
     role = models.ForeignKey(ProjectRole, on_delete=models.CASCADE)
     starting_on = models.DateTimeField(null=True, blank=True)
     ending_on = models.DateTimeField(null=True, blank=True)
-    member = models.ForeignKey("structuri.Membru", on_delete=models.CASCADE)
+
+    # TODO: deal with team ownership / assignments here as well
+    member = models.ForeignKey("structuri.Membru", on_delete=models.CASCADE, related_name="projects")
+
+
+# --------------- Budgets & Money -------------------
+
+class ProjectBudgetLine(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    parent = models.ForeignKey("proiecte.ProjectBudgetLine", null=True, blank=True, related_name="sublines", on_delete=models.CASCADE)
+
+    def total_sum(self):
+        sum = self.entries.all().aggregate(Sum("sum")).get("sum__sum")
+        parent_list = list(self.sublines.all())
+        while parent_list:
+            line = parent_list.pop()
+            sum += line.total_sum()
+        return sum
+
+
+class ProjectBudgetEntry(models.Model):
+    budget_line = models.ForeignKey(ProjectBudgetLine, on_delete=models.CASCADE, related_name="entries")
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    sum = models.FloatField()
+
+
+# --------------- Objectives & Activities -------------------
+
+class ProjectObjective(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    short_form = models.CharField(max_length=5)
+
+
+class ProjectActivity(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    date_start = models.DateField()
+    date_end = models.DateField()
+
+    event = models.ForeignKey("album.Eveniment", null=True, blank=True, on_delete=models.SET_NULL)
+    task_item = models.ForeignKey("proiecte.TaskItem", null=True, blank=True, on_delete=models.SET_NULL)
 
 
 TAKSITEM_STATUSES = ()
 
 
 class TaskItem(models.Model):
+    class PriorityOptions(IntegerChoices):
+        LOW = 1, "Joasă"
+        NORMAL = 2, "Normală"
+        HIGH = 3, "Înaltă"
+
     title = models.CharField(max_length=1024)
     description = models.TextField(null=True, blank=True)
     start_date = models.DateTimeField(null=True, blank=True)
@@ -43,14 +96,17 @@ class TaskItem(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     changed_date = models.DateTimeField(auto_now=True)
 
-    #status = models.CharField(max_length=255, choices=TAKSITEM_STATUSES, default="idea")
+    current_state = models.ForeignKey("proiecte.TaskState", null=True, blank=True, on_delete=models.SET_NULL)
+    completed = models.BooleanField(default=False)
+    priority = models.PositiveSmallIntegerField(choices=PriorityOptions.choices, default=PriorityOptions.NORMAL)
+
     owner = models.ForeignKey("structuri.Membru", null=True, blank=True, on_delete=models.CASCADE)
 
     class Meta(object):
         ordering = ["-start_date"]
 
     def __str__(self):
-        return self.titled
+        return self.title
 
 
 class Workflow(models.Model):
