@@ -1063,3 +1063,26 @@ class DetectedFace(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     content_object = GenericForeignKey()
+
+
+class TrackEveniment(models.Model):
+    eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE)
+    titlu = models.CharField(max_length=255)
+    color = models.CharField(max_length=6, default="FFFFFF")
+
+    responsabil = models.ForeignKey("structuri.Membru", null=True, blank=True, on_delete=models.SET_NULL)
+
+
+class ProgramEveniment(models.Model):
+    titlu = models.CharField(max_length=255)
+    descriere = models.TextField()
+    color = models.CharField(max_length=6, default="FFFFFF")
+
+    tracks = models.ManyToManyField(TrackEveniment)
+    parent = models.ForeignKey("album.ProgramEveniment", null=True, blank=True, on_delete=models.CASCADE)
+    moment_inceput = models.DateTimeField()
+    moment_sfarsit = models.DateTimeField()
+
+    materiale = models.TextField()
+    responsabil = models.ForeignKey("structuri.Membru", null=True, blank=True, on_delete=models.SET_NULL)
+
