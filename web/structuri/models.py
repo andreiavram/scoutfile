@@ -249,6 +249,8 @@ class Utilizator(models.Model):
     timestamp_accepted = models.DateTimeField(null=True, blank=True)
     requested_password_reset = models.BooleanField(default=False)
 
+    slack_email = models.EmailField(null=True, blank=True)
+
     def nume_complet(self):
         return "%s %s" % (self.prenume.title(), self.nume.upper())
 
@@ -261,6 +263,10 @@ class Utilizator(models.Model):
     def facebook_connected(self):
         #   TODO: add expiration check on facebook session manager
         return FacebookSession.objects.filter(user=self.user).exists()
+
+
+    def get_slack_email(self):
+        return self.slack_email if self.slack_email else self.email
 
 
 class ImagineProfil(ImageModel):
