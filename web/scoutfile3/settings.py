@@ -202,6 +202,8 @@ INSTALLED_APPS = [
     'adrese_postale',
     'inventar',
     'pages',
+    'taxonomy',
+    'financiar',
     ]
 
 # if DEBUG:
