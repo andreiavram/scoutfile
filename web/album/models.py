@@ -100,6 +100,12 @@ class Eveniment(models.Model):
 
     oncr_id = models.CharField(max_length=255, null=True, blank=True, verbose_name=u"ONCR ID")
 
+    frecventa = models.DurationField(null=True, blank=True)
+    instanta_anterioare = models.ForeignKey("album.Eveniment", null=True, blank=True, on_delete=models.CASCADE)
+    instanta_urmatoare = models.ForeignKey("album.Eveniment", null=True, blank=True, on_delete=models.CASCADE)
+    instante_extra = models.PositiveSmallIntegerField(default=0, null=True, blank=True)
+
+
     class Meta(object):
         verbose_name = u"Eveniment"
         verbose_name_plural = u"Evenimente"
