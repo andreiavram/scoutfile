@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('structuri', '0009_alter_imagineprofil_effect'),
+        ('structuri', '0008_echipa'),
         ('inventar', '0002_auto_20211031_2218'),
     ]
 

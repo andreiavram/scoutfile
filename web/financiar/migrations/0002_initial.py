@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         ('proiecte', '0005_projectobjective_taskitem_completed_and_more'),
         ('financiar', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('structuri', '0009_alter_imagineprofil_effect'),
+        ('structuri', '0008_echipa'),
     ]
 
     operations = [

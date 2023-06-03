@@ -146,6 +146,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.admindocs',
+    'django.contrib.gis',
 
     #   third party pluggables
     'photologue',
@@ -168,6 +169,7 @@ INSTALLED_APPS = [
     # 'django_markdown',
     'django_ace',
     'qrcode',
+    'leaflet',
 
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',
@@ -204,6 +206,7 @@ INSTALLED_APPS = [
     'pages',
     'taxonomy',
     'financiar',
+    'locuri',
     ]
 
 # if DEBUG:
@@ -394,7 +397,7 @@ REST_FRAMEWORK_SSO = {
     # 'AUTHENTICATE_PAYLOAD': 'utils.authentication.authenticate_payload',
     'IDENTITY': 'scoutfile',
     'SESSION_AUDIENCE': ['scoutfile', ],
-    'AUTHORIZATION_AUDIENCE': ['scoutfile', 'organizer', 'geogame'],
+    'AUTHORIZATION_AUDIENCE': ['scoutfile', 'organizer', 'geo   game'],
     'ACCEPTED_ISSUERS': ['scoutfile'],
     'KEY_STORE_ROOT': PROJECT_ROOT / 'keys',
     'PUBLIC_KEYS': {

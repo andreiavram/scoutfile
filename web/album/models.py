@@ -100,6 +100,12 @@ class Eveniment(models.Model):
 
     oncr_id = models.CharField(max_length=255, null=True, blank=True, verbose_name=u"ONCR ID")
 
+    frecventa = models.DurationField(null=True, blank=True)
+    instanta_anterioare = models.ForeignKey("album.Eveniment", null=True, blank=True, on_delete=models.CASCADE)
+    instanta_urmatoare = models.ForeignKey("album.Eveniment", null=True, blank=True, on_delete=models.CASCADE)
+    instante_extra = models.PositiveSmallIntegerField(default=0, null=True, blank=True)
+
+
     class Meta(object):
         verbose_name = u"Eveniment"
         verbose_name_plural = u"Evenimente"
@@ -469,6 +475,9 @@ class ParticipareEveniment(models.Model):
 
     ultima_modificare = models.DateTimeField(auto_now=True)
     user_modificare = models.ForeignKey("structuri.Membru", on_delete=models.SET_NULL, null=True, blank=True, related_name="participari_responsabil")
+
+    contribution_option = models.ForeignKey("album.EventContributionOption", on_delete=models.SET_NULL, null=True)
+    contribution_payments = models.ManyToManyField("financiar.PaymentDocument", related_name="payments")
 
     class Meta(object):
         ordering = ["-data_sosire", "status_participare"]
@@ -1063,6 +1072,32 @@ class DetectedFace(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     content_object = GenericForeignKey()
+
+
+class EventContributionOption(models.Model):
+    eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE, related_name="contribution_options")
+    value = models.FloatField()
+    description = models.TextField()
+    is_default = models.BooleanField(default=False)
+    config = models.JSONField(default=dict)
+    per_diem = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        try:
+            option = self.eveniment.contribution_options.get(is_default=True)
+        except EventContributionOption.DoesNotExist:
+            option = None
+
+        delayed_option_save = False
+        if self.is_default is False and option is None:
+            self.is_default = True
+        if self.is_default and option is not None and option.id != self.id:
+            option.is_default = False
+            delayed_option_save = True
+        super().save(*args, **kwargs)
+
+        if option and delayed_option_save:
+            option.save()
 
 
 class TrackEveniment(models.Model):
