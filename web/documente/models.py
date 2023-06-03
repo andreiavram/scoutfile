@@ -316,7 +316,9 @@ class PlataCotizatieTrimestru(models.Model):
     final = models.BooleanField(default=False)
     suma = models.FloatField()
     membru = models.ForeignKey("structuri.Membru", on_delete=models.CASCADE)
+
     chitanta = models.ForeignKey("ChitantaCotizatie", on_delete=models.CASCADE, null=True, blank=True)
+    payment_reference = models.ForeignKey("financiar.PaymentDocument", on_delete=models.CASCADE, null=True, blank=True)
     index = models.IntegerField()
 
     tip_inregistrare = models.CharField(max_length=255, choices=MOTIVE_INREGISTRARE_PLATA_COTIZATIE, default="normal")
