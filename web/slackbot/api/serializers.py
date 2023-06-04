@@ -10,3 +10,7 @@ class SlackEventSerializer(serializers.Serializer):
 
     class Meta:
         fields = ["token", "type", "challenge"]
+
+    def create(self, validated_data):
+        # TODO: add queue mechanism here to deal with pubsub messages
+        return validated_data
