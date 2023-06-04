@@ -17,8 +17,10 @@ from django import forms
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.gis.db.models import PointField
 from django.core.files.base import File, ContentFile
 from django.core.mail import send_mail
+from django.db.models import IntegerChoices, TextChoices
 from django.urls import reverse
 from django.db import models
 from django.db.models.aggregates import Sum
@@ -84,6 +86,7 @@ class Eveniment(models.Model):
     locatie_text = models.CharField(max_length=1024, null=True, blank=True, verbose_name = u"Locație")
     #   TODO: implementează situatia în care evenimentul are mai mult de o singură locație
     locatie_geo = models.CharField(max_length=1024)
+    locatie = PointField()
 
     #   TODO: add visibility settings to events
     published_status = models.IntegerField(default=2, choices=IMAGINE_PUBLISHED_STATUS, verbose_name=u"Vizibilitate")
@@ -105,6 +108,8 @@ class Eveniment(models.Model):
     instanta_urmatoare = models.ForeignKey("album.Eveniment", null=True, blank=True, on_delete=models.CASCADE, related_name="previous_occurrences")
     instante_extra = models.PositiveSmallIntegerField(default=0, null=True, blank=True)
 
+    text_invitatie = models.TextField()
+    slack_id = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta(object):
         verbose_name = u"Eveniment"
@@ -363,12 +368,14 @@ class Eveniment(models.Model):
         if not ParticipareEveniment.objects.filter(eveniment=self, membru=membru).exists():
             pe = ParticipareEveniment.objects.create(**pe_args)
 
+
 class AsociereEvenimentStructura(models.Model):
     content_type = models.ForeignKey(ContentType, verbose_name=u"Tip structură", on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(verbose_name=u"Structură")
     content_object = GenericForeignKey()
 
     eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE)
+    slack_invite_sent_at = models.DateTimeField(null=True, blank=True)
 
 
 class RaportEveniment(models.Model):
@@ -435,15 +442,26 @@ class RaportEveniment(models.Model):
         self.is_locked = False
         self.save(*args, **kwargs)
 
-ROL_PARTICIPARE = (("participant", u"Participant"), ("insotitor", u"Lider însoțitor"), ("invitat", u"Invitat"),
-                   ("coordonator", u"Coordonator"), ("staff", u"Membru staff"))
+
+class RolParticipare(TextChoices):
+    PARTICIPANT = "participant", "Participant"
+    INSOTITOR = "insotitor", "Lider însoțitor"
+    INVITAT = "invitat", "Invitat"
+    COORDONATOR = "coordonator", "Coordonator"
+    STAFF = "staff", "Membru staff"
 
 
-STATUS_PARTICIPARE = ((1, u"Cu semnul întrebării"), (2, u"Confirmat"), (3, u"Avans plătit"),
-                      (4, "Participare efectivă"),
-                      (6, "Participare efectivă (online)"),
-                      (7, "Participare efectivă (fizic)"),
-                      (5, "Participare anulată"))
+class StatusParticipare(IntegerChoices):
+    MAYBE = 1, "Cu semnul întrebării"
+    CONFIRMED = 2, "Confirmat"
+    REFUSED = 8, "Refuzat invitația"
+    DOWNPAYMENT_RECEIVED = 3, "Avans plătit"
+    COMPLETED_OLD = 4, "Participare efectivă"
+    COMPLETED_REAL = 7, "Participare efectivă (fizic)"
+    COMPLETED_ONLINE = 6, "Participare efectivă (online)"
+    CANCELLED = 5, "Participare anulată"
+    UNKNOWN = 9, "Necunoscut"
+    PAYMENT_CONFIRMED = 10, "Plata confirmată"
 
 
 class ParticipantEveniment(models.Model):
@@ -469,9 +487,9 @@ class ParticipareEveniment(models.Model):
     data_sosire = models.DateTimeField(null=True, blank=True)
     data_plecare = models.DateTimeField(null=True, blank=True)
 
-    status_participare = models.IntegerField(default=1, choices=STATUS_PARTICIPARE)
+    status_participare = models.IntegerField(default=StatusParticipare.UNKNOWN, choices=StatusParticipare.choices)
     detalii = models.TextField(null=True, blank=True)
-    rol = models.CharField(max_length=255, default="participant", choices=ROL_PARTICIPARE)
+    rol = models.CharField(max_length=255, default=RolParticipare.PARTICIPANT, choices=RolParticipare.choices)
 
     ultima_modificare = models.DateTimeField(auto_now=True)
     user_modificare = models.ForeignKey("structuri.Membru", on_delete=models.SET_NULL, null=True, blank=True, related_name="participari_responsabil")
@@ -523,17 +541,18 @@ class ParticipareEveniment(models.Model):
             return None
 
 
-
-
-
-TIPURI_CAMP_PARTICIPARE = (("text", "Text"), ("number", "Număr"), ("bool", "Bifă"), ("date", "Dată"))
+class TipCampParticipare(TextChoices):
+    TEXT = "text", "Text"
+    NUMBER = "number", "Număr"
+    BOOL = "bool", "Bifă"
+    DATE = "date", "Dată"
 
 
 class CampArbitrarParticipareEveniment(models.Model):
     eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE)
     nume = models.CharField(max_length=255)
     slug = models.SlugField()
-    tip_camp = models.CharField(max_length=255, choices=TIPURI_CAMP_PARTICIPARE)
+    tip_camp = models.CharField(max_length=255, choices=TipCampParticipare.choices)
     implicit = models.CharField(max_length=255, null=True, blank=True)
     optional = models.BooleanField(default=True)
     explicatii_suplimentare = models.CharField(max_length=255, null=True, blank=True, help_text=u"Instrucțiuni despre cum să fie completat acest câmp, format, ...")

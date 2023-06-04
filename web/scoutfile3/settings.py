@@ -186,6 +186,8 @@ INSTALLED_APPS = [
     'wagtail',
 
     'modelcluster',
+    'django_celery_results',
+
 
     #   ecosystem apps
     'goodies',
@@ -211,6 +213,8 @@ INSTALLED_APPS = [
     'slackbot',
     'program',
     'procedure',
+    'booking',
+    'properties',
     ]
 
 # if DEBUG:
@@ -454,6 +458,15 @@ TAGGIT_CASE_INSENSITIVE = True
 
 SLACK_APP_SECRET = ""
 SLACK_BOT_TOKEN = ""
+
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+CELERY_BROKER_URL = 'redis://localhost:6379/1'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+
+
 
 try:
     from scoutfile3.local_settings import *

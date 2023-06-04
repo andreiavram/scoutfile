@@ -9,7 +9,6 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('album', '0012_alter_imagine_effect'),
         ('contenttypes', '0002_remove_content_type_name'),
         ('structuri', '0011_remove_badgemeritmembru_badge_and_more'),
     ]

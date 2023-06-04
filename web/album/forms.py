@@ -5,19 +5,19 @@ Created on Aug 31, 2012
 @author: yeti
 '''
 from builtins import object
-from ajax_select.fields import AutoCompleteSelectField
+
 from crispy_forms.layout import Fieldset, Layout, Field
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms.widgets import RadioSelect, Textarea, CheckboxSelectMultiple
-from goodies.forms import CrispyBaseModelForm, CrispyBaseForm
-from goodies.widgets import BootstrapDateTimeInput, GeoCoordinatesInput, FacebookLinkWidget, TaggitTagsInput
 from taggit.forms import TagField
 
 from album.models import FlagReport, FLAG_MOTIVES, RaportEveniment, ParticipareEveniment, \
-    CampArbitrarParticipareEveniment, STATUS_PARTICIPARE
+    CampArbitrarParticipareEveniment, StatusParticipare
 from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
 from generic.widgets import BootstrapDateTimeInput, BootstrapDateInput
+from goodies.forms import CrispyBaseModelForm, CrispyBaseForm
+from goodies.widgets import GeoCoordinatesInput, FacebookLinkWidget, TaggitTagsInput
 from structuri.fields import NonAdminAutoCompleteSelectField
 
 
@@ -228,7 +228,7 @@ class CampArbitrarForm(CrispyBaseModelForm):
 class EvenimentParticipantFilterForm(CrispyBaseForm):
     tip_export = forms.ChoiceField(choices=(), label=u"Export")
     filter_expression = forms.CharField(required=False, label=u"Filtru", help_text=u"Expresie pentru filtrarea participantilor, cu sintaxa camp1=valoare_camp1,camp2=valoare_camp2")
-    status_participare = forms.MultipleChoiceField(choices=STATUS_PARTICIPARE, widget=CheckboxSelectMultiple())
+    status_participare = forms.MultipleChoiceField(choices=StatusParticipare.choices, widget=CheckboxSelectMultiple())
 
     VALORI_BOOL = {"da": True, "nu": False}
 
