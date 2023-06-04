@@ -1,5 +1,6 @@
 from rest_framework import status
 from rest_framework.generics import GenericAPIView, CreateAPIView
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from slackbot.api.permissions import SlackVerifiedRequestPermission
@@ -10,11 +11,6 @@ from slackbot.slack_constants import SlackEventTypes
 class SlackEventHook(CreateAPIView, GenericAPIView):
     serializer_class = SlackEventSerializer
     permission_classes = [SlackVerifiedRequestPermission, ]
-
-    def __int__(self, *args, **kwargs):
-        self.verifier = None
-        super().__init__(*args, **kwargs)
-
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
