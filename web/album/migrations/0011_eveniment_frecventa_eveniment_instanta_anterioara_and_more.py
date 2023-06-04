@@ -7,7 +7,6 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('photologue', '0013_alter_photo_image_alter_watermark_image'),
         ('financiar', '0006_alter_bankstatementitem_unique_together'),
         ('album', '0010_trackeveniment_programeveniment'),
     ]
@@ -37,11 +36,6 @@ class Migration(migrations.Migration):
             model_name='participareeveniment',
             name='contribution_payments',
             field=models.ManyToManyField(related_name='payments', to='financiar.paymentdocument'),
-        ),
-        migrations.AlterField(
-            model_name='imagine',
-            name='effect',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='%(class)s_related', to='photologue.photoeffect', verbose_name='effect'),
         ),
         migrations.AlterField(
             model_name='participareeveniment',
