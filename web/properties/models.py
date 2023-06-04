@@ -14,6 +14,9 @@ class Property(models.Model):
     ha_base_url = models.URLField(null=True, blank=True)
     ha_access_token = models.CharField(max_length=1024, blank=True)
 
+    def __str__(self):
+        return self.name
+
 
 class PropertyControlElement(models.Model):
     name = models.CharField(max_length=255)

@@ -28,7 +28,7 @@ class ServiceUnit(models.Model):
         KITCHEN_SPACE = 7, "Loc de gătit în bucătărie"
 
     name = models.CharField(max_length=255)
-    type = models.PositiveSmallIntegerField(choices=Types, default=Types.BED)
+    type = models.PositiveSmallIntegerField(choices=Types.choices, default=Types.BED)
 
 
 # this is not easy. In the end, you'll end up with a model that is a Reservation, that should model a person
