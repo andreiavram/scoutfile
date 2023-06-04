@@ -1,26 +1,21 @@
 from rest_framework import status
 from rest_framework.generics import GenericAPIView, CreateAPIView
-from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from slackbot.api.permissions import SlackVerifiedRequestPermission
-from slackbot.api.serializers import SlackEventSerializer
 from slackbot.slack_constants import SlackEventTypes
+from slackbot.tasks import process_slack_message
 
 
 class SlackEventHook(CreateAPIView, GenericAPIView):
-    serializer_class = SlackEventSerializer
     permission_classes = [SlackVerifiedRequestPermission, ]
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        if request.data.get("type") == SlackEventTypes.URL_VERIFICATION:
+            # pass Slack initial Challenge for URLs
+            data = {"challenge": request.data.get("challenge")}
+            return Response(data, status=status.HTTP_200_OK)
 
-        data = serializer.data
-        if serializer.data.get("type") == SlackEventTypes.URL_VERIFICATION:
-            data = {"challenge": serializer.data.get("challenge")}
-
-        headers = self.get_success_headers(serializer.data)
-        return Response(data, status=status.HTTP_200_OK, headers=headers)
+        process_slack_message.apply_async(kwargs={'data': request.data}, queue="process_slack_messages")
+        return Response({"received": True}, status=status.HTTP_200_OK)
 
