@@ -9,15 +9,12 @@ from slackbot.slack_constants import SlackEventTypes
 
 class SlackEventHook(CreateAPIView, GenericAPIView):
     serializer_class = SlackEventSerializer
+    permission_classes = [SlackVerifiedRequestPermission, ]
 
     def __int__(self, *args, **kwargs):
         self.verifier = None
         super().__init__(*args, **kwargs)
 
-    def get_permissions(self):
-        permissions = super().get_permissions()
-        permissions.append(SlackVerifiedRequestPermission())
-        return permissions
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
