@@ -209,6 +209,8 @@ INSTALLED_APPS = [
     'financiar',
     'locuri',
     'slackbot',
+    'program',
+    'procedure',
     ]
 
 # if DEBUG:
