@@ -451,6 +451,7 @@ WAGTAIL_SITE_NAME = 'Scoutfile'
 TAGGIT_CASE_INSENSITIVE = True
 
 SLACK_APP_SECRET = ""
+SLACK_BOT_TOKEN = ""
 
 try:
     from scoutfile3.local_settings import *
