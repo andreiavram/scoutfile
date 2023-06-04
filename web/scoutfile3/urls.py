@@ -27,6 +27,7 @@ urlpatterns = [path(r'admin/doc/', include('django.contrib.admindocs.urls')),
                path('jocuri/', include(('jocuri.urls', 'jocuri'),  namespace='jocuri')),
                path('badge/', include(('badge.urls', 'badge'),  namespace='badge')),
                path('inventar/', include(('inventar.urls', 'inventar'),  namespace='inventar')),
+               path('slack/', include(("slackbot.urls", "slack"), namespace="slack")),
 
                path('issues/', Issues.as_view(), name="issues"),
                path('issues/create/', CreateIssue.as_view(), name="create_issue"),
