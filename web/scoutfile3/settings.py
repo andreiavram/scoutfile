@@ -207,6 +207,7 @@ INSTALLED_APPS = [
     'taxonomy',
     'financiar',
     'locuri',
+    'slackbot',
     ]
 
 # if DEBUG:
@@ -448,6 +449,7 @@ WAGTAIL_SITE_NAME = 'Scoutfile'
 # Reverse the default case-sensitive handling of tags
 TAGGIT_CASE_INSENSITIVE = True
 
+SLACK_APP_SECRET = ""
 
 try:
     from scoutfile3.local_settings import *

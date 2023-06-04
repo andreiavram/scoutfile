@@ -114,3 +114,4 @@ URLObject==2.4.3
 wagtail==4.2
 webencodings==0.5.1
 Willow==1.4.1
+slack_sdk==3.21.3

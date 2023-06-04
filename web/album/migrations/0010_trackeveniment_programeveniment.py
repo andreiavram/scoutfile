@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('structuri', '0010_utilizator_slack_email'),
-        ('album', '0009_alter_imagine_effect_and_more'),
+        ('album', '0008_auto_20211031_2218'),
     ]
 
     operations = [

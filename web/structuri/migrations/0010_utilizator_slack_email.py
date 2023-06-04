@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('structuri', '0009_alter_imagineprofil_effect'),
+        ('structuri', '0008_echipa'),
     ]
 
     operations = [
