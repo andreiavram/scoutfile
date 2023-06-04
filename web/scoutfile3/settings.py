@@ -152,6 +152,7 @@ INSTALLED_APPS = [
     'photologue',
     'crispy_forms',
     'rest_framework',
+    'rest_framework.authtoken',
     'rest_framework_sso',
     'captcha',
     'ajax_select',

@@ -1,21 +1,10 @@
 from rest_framework import status
 from rest_framework.generics import GenericAPIView, CreateAPIView
 from rest_framework.response import Response
-from slack_sdk.signature import SignatureVerifier
-from django.conf import settings
 
+from slackbot.api.permissions import SlackVerifiedRequestPermission
 from slackbot.api.serializers import SlackEventSerializer
-from rest_framework.permissions import BasePermission
-
 from slackbot.slack_constants import SlackEventTypes
-
-
-class SlackVerifiedRequestPermission(BasePermission):
-    def has_permission(self, request, view):
-        verifier = SignatureVerifier(signing_secret=settings.SLACK_APP_SECRET)
-        timestamp = request.headers.get("x-slack-request-timestamp", ["0"])[0]
-        signature = request.headers.get("x-slack-signature", [""])[0]
-        return verifier.is_valid(request.body, timestamp, signature)
 
 
 class SlackEventHook(CreateAPIView, GenericAPIView):
@@ -27,7 +16,7 @@ class SlackEventHook(CreateAPIView, GenericAPIView):
 
     def get_permissions(self):
         permissions = super().get_permissions()
-        permissions.append(SlackVerifiedRequestPermission)
+        permissions.append(SlackVerifiedRequestPermission())
         return permissions
 
     def create(self, request, *args, **kwargs):
