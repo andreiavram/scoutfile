@@ -86,7 +86,7 @@ class Eveniment(models.Model):
     locatie_text = models.CharField(max_length=1024, null=True, blank=True, verbose_name = u"Locație")
     #   TODO: implementează situatia în care evenimentul are mai mult de o singură locație
     locatie_geo = models.CharField(max_length=1024)
-    locatie = PointField()
+    locatie = PointField(null=True, blank=True)
 
     #   TODO: add visibility settings to events
     published_status = models.IntegerField(default=2, choices=IMAGINE_PUBLISHED_STATUS, verbose_name=u"Vizibilitate")
@@ -108,7 +108,7 @@ class Eveniment(models.Model):
     instanta_urmatoare = models.ForeignKey("album.Eveniment", null=True, blank=True, on_delete=models.CASCADE, related_name="previous_occurrences")
     instante_extra = models.PositiveSmallIntegerField(default=0, null=True, blank=True)
 
-    text_invitatie = models.TextField()
+    text_invitatie = models.TextField(blank=True)
     slack_id = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta(object):
