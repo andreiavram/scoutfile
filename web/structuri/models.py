@@ -333,7 +333,7 @@ class AsociereMembruFamilie(models.Model):
 class Membru(Utilizator):
     CALITATI_SCUTITE_COTIZATIE = ("Membru inactiv", "Membru adult", "Alumnus")
     CALITATI_COMUNE = ["Membru suspendat", "Membru aspirant", "Membru inactiv", "Membru Consiliul Centrului Local",
-                       "Lider", "Lider asistent", "Membru adult", "Șef Centru Local"]
+                       "Lider", "Lider asistent", "Membru adult", "Șef Centru Local", "Alumnus"]
 
     cnp = models.CharField(max_length=255, null=True, blank=True, verbose_name="CNP", unique=True)
     telefon = models.CharField(max_length=10, null=True, blank=True)
