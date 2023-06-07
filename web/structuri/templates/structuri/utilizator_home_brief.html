@@ -23,13 +23,17 @@
             <tr>
                 <td>Status</td>
                 <td>
-                    {% if membru.is_aspirant %}
+                    {% if object.is_aspirant %}
                         <span style = "color: #6699CC"><i class = "icon-warning-sign"></i> Membru aspirant</span>
                     {% else %}
-                        {% if membru.is_suspendat %}
+                        {% if object.is_suspendat %}
                             <span style="color: red"><i class = "icon-remove"></i> Membru suspendat</span>
                         {% else %}
-                            Membru cu drepturi depline
+                            {% if object.is_alumnus %}
+                                Membru alumnus
+                            {% else %}
+                                Membru cu drepturi depline
+                            {% endif %}
                         {% endif %}
                     {% endif %}
                 </td>
@@ -48,7 +52,15 @@
 {#            </tr>#}
             <tr>
                 <td>Ramura de vârstă</td>
-                <td><img src="{% get_static_prefix %}images/icon-{{ object.get_ramura_de_varsta|slugify }}.png" /> {{ object.get_ramura_de_varsta }}</td>
+                <td>
+                    {% if object.is_alumnus %}
+                        Alumnus
+                    {% elif object.is_adult %}
+                        Adult
+                    {% else %}
+                        <img src="{% get_static_prefix %}images/icon-{{ object.get_ramura_de_varsta|slugify }}.png" /> {{ object.get_ramura_de_varsta }}
+                    {% endif %}
+                </td>
             </tr>
 {#            <tr>#}
 {#                <td>Data nașterii</td>#}
