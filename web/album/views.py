@@ -819,10 +819,6 @@ class EvenimentCreate(CreateView, EvenimentEditMixin):
 
         return super(CreateView, self).dispatch(request, *args, **kwargs)
 
-    def get_initial(self):
-        data = super(EvenimentCreate, self).get_initial()
-        return data
-
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.centru_local = self.centru_local
@@ -853,7 +849,6 @@ class EvenimentCreate(CreateView, EvenimentEditMixin):
                     _ = [self.object.creaza_participare(c) for c in self.target_obj.cercetasi()]
                 if adauga_lideri:
                     _ = [self.object.creaza_participare(l) for l in self.target_obj.lideri()]
-
 
 
 class UnitateEvenimentCreate(EvenimentCreate):
