@@ -39,8 +39,10 @@ from taggit.models import Tag
 from taggit.utils import parse_tags
 
 from album.exporters.envelopes import C5Envelopes
-from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipareEveniment, AsociereEvenimentStructura, TipEveniment, STATUS_EVENIMENT, SetPoze, IMAGINE_PUBLISHED_STATUS, \
-    CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment, FLAG_MOTIVES, ParticipantEveniment
+from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipareEveniment, \
+    AsociereEvenimentStructura, TipEveniment, SetPoze, IMAGINE_PUBLISHED_STATUS, \
+    CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment, FLAG_MOTIVES, ParticipantEveniment, \
+    StatusEveniment
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm, \
     EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm, CampArbitrarForm, EvenimentParticipareUpdateForm, \
     ReportFormNoButtons, EvenimentParticipareNonMembruForm, EvenimentParticipareNonmembruUpdateForm, \
@@ -120,12 +122,12 @@ class EvenimentFiltruMixin(object):
             centru_local = self.request.user.utilizator.membru.centru_local
             data['unitati'] = centru_local.unitate_set.all()
         data['tipuri_activitate'] = [t for t in TipEveniment.objects.all() if t.eveniment_set.count() > 0]
-        data['status_activitate'] = STATUS_EVENIMENT
+        data['status_activitate'] = StatusEveniment.choices
         data['tip_activitate'] = self.tip_activitate
         data['unitate'] = self.unitate
         data['patrula'] = self.patrula
         status = "Toate"
-        for s in STATUS_EVENIMENT:
+        for s in StatusEveniment.choices:
             if s[0] == self.request.session["status"]:
                 status = s[1]
                 break

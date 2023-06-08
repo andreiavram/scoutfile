@@ -46,13 +46,37 @@ class ParticipantiEveniment(models.Model):
     numar = models.IntegerField()
 
 
-TIPURI_EVENIMENT = (("camp", "Camp"), ("intalnire", u"Întâlnire"), ("hike", "Hike"), ("social", "Proiect social"),
-                    ("comunitate", u"Proiect de implicare în comunitate"), ("citychallange", u"City Challange"),
-                    ("international", u"Proiect internațional"), ("festival", u"Festival"),
-                    ("ecologic", u"Proiect ecologic"), ("alta", u"Alt tip de eveniment"), ("training", u"Stagiu / training"))
+class TipuriEveniment(TextChoices):
+    CAMP = "camp", "Camp"
+    INTALNIRE = "intalnire", "Întâlnire"
+    INTALNIRE_UNITATE = "intalnire_unitate", "Întâlnire unitate"
+    INTALNIRE_PATRULA = "intalnire_patrula", "Întâlnire patrulă"
+    INTALNIRE_ORGANIZARE = "intalnire_organizare", "Întâlnire organizare"
+    HIKE = "hike", "Hike"
+    SOCIAL = "social", "Proiect social"
+    COMUNITATE = "comunitate", "Proiect de implicare în comunitate"
+    CITY_CHALLENGE = "citychallange", "City Challange"
+    INTERNATIONAL = "international", "Proiect internațional"
+    FESTIVAL = "festival", "Festival"
+    ECOLOGIC = "ecologic", "Proiect ecologic"
+    TRAINING = "training", "Stagiu / training"
+    OTHER = "alta", "Alt tip de eveniment"
 
 
-STATUS_EVENIMENT = (("propus", u"Propus"), ("confirmat", u"Confirmat"), ("derulare", u"În derulare"), ("terminat", u"Încheiat"))
+class StatusEveniment(TextChoices):
+    PROPOSAL = "propus", "Propus"
+    CONFIRMAT = "confirmat", "Confirmat"
+    ONGOING = "derulare", "În derulare"
+    FINISHED = "terminat", "Încheiat"
+    CANCELLED = "anulat", "Anulat"
+
+
+class RolParticipare(TextChoices):
+    PARTICIPANT = "participant", "Participant"
+    INSOTITOR = "insotitor", "Lider însoțitor"
+    INVITAT = "invitat", "Invitat"
+    COORDONATOR = "coordonator", "Coordonator"
+    STAFF = "staff", "Membru staff"
 
 
 class TipEveniment(models.Model):
@@ -76,12 +100,12 @@ class Eveniment(models.Model):
     slug = models.SlugField(max_length=255, unique=True)
     custom_cover_photo = models.ForeignKey("Imagine", on_delete=models.CASCADE, null=True, blank=True)
 
-    tip_eveniment_text = models.CharField(default="alta", max_length=255, null=True, blank=True, choices=TIPURI_EVENIMENT)
+    tip_eveniment_text = models.CharField(default="alta", max_length=255, null=True, blank=True, choices=TipuriEveniment.choices)
     tip_eveniment = models.ForeignKey(TipEveniment, on_delete=models.CASCADE)
     facebook_event_link = models.URLField(null=True, blank=True, verbose_name=u"Link eveniment Facebook", help_text=u"Folosește copy/paste pentru a lua link-ul din Facebook")
     articol_site_link = models.URLField(null=True, blank=True, verbose_name=u"Link articol site", help_text=u"Link-ul de la articolul de pe site-ul Centrului Local")
 
-    status = models.CharField(max_length=255, null=True, blank=True, choices=STATUS_EVENIMENT)
+    status = models.CharField(max_length=255, null=True, blank=True, choices=StatusEveniment.choices)
 
     locatie_text = models.CharField(max_length=1024, null=True, blank=True, verbose_name = u"Locație")
     #   TODO: implementează situatia în care evenimentul are mai mult de o singură locație
@@ -369,6 +393,20 @@ class Eveniment(models.Model):
             pe = ParticipareEveniment.objects.create(**pe_args)
 
 
+class EventCertification(models.Model):
+    class RoleOptions(TextChoices):
+        REQUIRED_FOR = "required", "Necesar pentru participare la"
+        OFFERED_BY = "offered", "Oferit de"
+
+    event = models.ForeignKey("album.Eveniment", on_delete=models.CASCADE, related_name="certificari")
+    certification = models.ForeignKey("certificari.CertificationType", on_delete=models.CASCADE)
+    role = models.CharField(max_length=255, choices=RoleOptions.choices)
+    limited_for_role = models.CharField(max_length=255, choices=RolParticipare.choices)
+
+    def __str__(self):
+        return f"{self.certification} este {self.get_role_display().lower} {self.event.nume}"
+
+
 class AsociereEvenimentStructura(models.Model):
     content_type = models.ForeignKey(ContentType, verbose_name=u"Tip structură", on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(verbose_name=u"Structură")
@@ -441,14 +479,6 @@ class RaportEveniment(models.Model):
         self.is_leaf = True
         self.is_locked = False
         self.save(*args, **kwargs)
-
-
-class RolParticipare(TextChoices):
-    PARTICIPANT = "participant", "Participant"
-    INSOTITOR = "insotitor", "Lider însoțitor"
-    INVITAT = "invitat", "Invitat"
-    COORDONATOR = "coordonator", "Coordonator"
-    STAFF = "staff", "Membru staff"
 
 
 class StatusParticipare(IntegerChoices):
