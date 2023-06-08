@@ -52,10 +52,15 @@ class ProjectBudgetLine(models.Model):
 
 
 class ProjectBudgetEntry(models.Model):
+    class BudgetDirection(IntegerChoices):
+        INCOME = 1, "Income"
+        EXPENDITURE = 2, "Expediture"
+
     budget_line = models.ForeignKey(ProjectBudgetLine, on_delete=models.CASCADE, related_name="entries")
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     sum = models.FloatField()
+    direction = models.PositiveSmallIntegerField(choices=BudgetDirection.choices, default=BudgetDirection.EXPENDITURE)
 
 
 # --------------- Objectives & Activities -------------------

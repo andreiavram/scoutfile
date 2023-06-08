@@ -13,6 +13,9 @@ class CertificationType(models.Model):
     icon = models.ImageField(upload_to="certificari/icons/", null=True, blank=True)
     source = models.CharField(max_length=100, choices=SourceOptions.choices, default=SourceOptions.INTERNAL)
 
+    def __str__(self):
+        return self.title
+
 
 class Certificate(models.Model):
     issued_to = models.ForeignKey("structuri.Membru", on_delete=models.CASCADE, related_name="certificari")

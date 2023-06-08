@@ -57,6 +57,8 @@
                         Alumnus
                     {% elif object.is_adult %}
                         Adult
+                    {% elif object.is_lider %}
+                        <img src="{% get_static_prefix %}images/icon-lideri.png" /> Lider
                     {% else %}
                         <img src="{% get_static_prefix %}images/icon-{{ object.get_ramura_de_varsta|slugify }}.png" /> {{ object.get_ramura_de_varsta }}
                     {% endif %}
@@ -103,6 +105,18 @@
                     {% endif %}">{{ object.get_scor_credit_display }}</span>
                 </td>
             </tr>
+            {% if object.certificari.count %}
+            <tr>
+                <td>Certificări</td>
+                <td>
+                    <ul class="unstyled">
+                        {% for c in object.certificari.all %}
+                            <li><strong>{{ c.certificate_type }}</strong> începând cu {{ c.issued_on|date:'d.m.Y' }} emis de {{ c.issued_by }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            {% endif %}
         </tbody>
         </table>
 	</div>
