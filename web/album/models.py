@@ -494,8 +494,8 @@ class ParticipareEveniment(models.Model):
     ultima_modificare = models.DateTimeField(auto_now=True)
     user_modificare = models.ForeignKey("structuri.Membru", on_delete=models.SET_NULL, null=True, blank=True, related_name="participari_responsabil")
 
-    contribution_option = models.ForeignKey("album.EventContributionOption", on_delete=models.SET_NULL, null=True)
-    contribution_payments = models.ManyToManyField("financiar.PaymentDocument", related_name="payments")
+    contribution_option = models.ForeignKey("album.EventContributionOption", on_delete=models.SET_NULL, null=True, blank=True, help_text="Tip contribuție")
+    contribution_payments = models.ManyToManyField("financiar.PaymentDocument", related_name="payments", blank=True, help_text="Plăți contribuție")
 
     class Meta(object):
         ordering = ["-data_sosire", "status_participare"]
