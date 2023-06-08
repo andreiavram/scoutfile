@@ -151,7 +151,7 @@ class EvenimentParticipareBaseForm(CrispyBaseModelForm):
 class EvenimentParticipareForm(EvenimentParticipareBaseForm):
     class Meta(object):
         model = ParticipareEveniment
-        exclude = ["eveniment", "user_modificare", "nonmembru"]
+        exclude = ["eveniment", "user_modificare", "nonmembru", "contribution_option", "contribution_payments"]
 
     membru = NonAdminAutoCompleteSelectField("membri", label=u"Cercetaș")
 
