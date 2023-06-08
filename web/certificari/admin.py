@@ -10,6 +10,6 @@ class CertificationTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Certificate)
 class CertificateAdmin(admin.ModelAdmin):
-    list_display = ["issued_to", "issued_on", "issued_by", "certificate_type", "events_received", "document"]
-    list_filter = ["certificate_type", "events_received", "issued_to"]
-    autocomplete_fields = ["events_received", "issued_to", "events"]
+    list_display = ["issued_to", "issued_on", "issued_by", "certificate_type", "event_received", "document"]
+    list_filter = ["certificate_type", "event_received", "issued_to"]
+    autocomplete_fields = ["event_received", "issued_to", "events"]
