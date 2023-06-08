@@ -19,7 +19,12 @@ admin.site.register(Unitate)
 admin.site.register(Patrula)
 admin.site.register(TipAsociereMembruStructura)
 admin.site.register(AsociereMembruStructura)
-admin.site.register(Membru)
+
+
+@admin.register(Membru)
+class MembruAdmin(admin.ModelAdmin):
+    search_fields = ["nume", "prenume", "email"]
+
 
 class TipInformatieContactAdmin(ModelAdmin):
     class Meta(object):

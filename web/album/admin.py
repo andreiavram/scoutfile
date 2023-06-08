@@ -9,7 +9,12 @@ from django.contrib import admin
 from album.models import Eveniment, ZiEveniment, Imagine, SetPoze,\
     EXIFData, DetectedFace, TipEveniment, FlagReport
 
-admin.site.register(Eveniment)
+
+@admin.register(Eveniment)
+class EvenimentAdmin(admin.ModelAdmin):
+    search_fields = ["nume", ]
+
+
 admin.site.register(ZiEveniment)
 admin.site.register(Imagine)
 admin.site.register(SetPoze)
