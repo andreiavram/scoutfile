@@ -92,6 +92,18 @@
                     {% endif %}">{{ object.membru.get_scor_credit_display }}</span>
                 </td>
             </tr>
+            {% if object.certificari.count %}
+            <tr>
+                <td>Certificări</td>
+                <td>
+                    <ul class="unstyled">
+                        {% for c in object.certificari.all %}
+                            <li><strong>{{ c.certificate_type }}</strong> începând cu {{ c.issued_on|date:'d.m.Y' }} emis de {{ c.issued_by }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            {% endif %}
         </tbody>
         </table>
 	</div>
