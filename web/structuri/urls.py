@@ -143,7 +143,6 @@ urlpatterns = [
                        path('ajax/membri/detail/', MembruDestinatarRepr.as_view(), name="ajax_membru_detail"),
                        path('ajax/persoanacontact/detail/', PersoanaContactDestinatarRepr.as_view(), name="ajax_persoana_contact_detail"),
                        #path('contact/<int:pk>/delete/', ContactDelete.as_view(), name="contact_delete"),
-    
                        path('membru/list/lost/', MembriFaraAfilieri.as_view(), name="membri_pierduti_list"),
                        path('ajax/speeddial/', GetSpeedList.as_view(), name="speedlist"),
 
