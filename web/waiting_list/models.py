@@ -18,6 +18,7 @@ class WaitingListActions(IntegerChoices):
 
 
 class WaitingListPerson(models.Model):
+    group = models.ForeignKey("structuri.CentruLocal", on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=255)
     date_of_birth = models.DateField()
