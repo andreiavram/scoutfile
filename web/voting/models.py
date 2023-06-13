@@ -37,8 +37,8 @@ class Topic(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     status = models.PositiveSmallIntegerField(choices=TopicStatus.choices, default=TopicStatus.PENDING)
-    owner = models.ForeignKey(get_user_model(), null=True, blank=True)
-    sessions = models.ManyToManyField(TopicGroup, null=True, blank=True)
+    owner = models.ForeignKey(get_user_model(), null=True, blank=True, on_delete=models.SET_NULL)
+    sessions = models.ManyToManyField(TopicGroup, blank=True)
 
     created = models.DateTimeField()
     source = models.PositiveSmallIntegerField(choices=TopicSource.choices, default=TopicSource.ORGANIC)
@@ -63,7 +63,7 @@ class DiscussionItem(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True, blank=True)
 
     comment = models.TextField()
-    documents = models.ManyToManyField(Document, null=True, blank=True)
+    documents = models.ManyToManyField(Document, blank=True)
     vote = models.ForeignKey(VotingOptions, on_delete=models.CASCADE, related_name="votes")
 
     source = models.PositiveSmallIntegerField(DiscussionSource.choices, default=DiscussionSource.ORGANIC)

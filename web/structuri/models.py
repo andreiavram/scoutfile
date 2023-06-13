@@ -17,6 +17,8 @@ from django.db.models.aggregates import Sum
 from django.db.models.query_utils import Q
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
+from localflavor.generic.models import IBANField
+
 from patrocle.models import Credit
 from patrocle.models import RezervareCredit
 from photologue.models import ImageModel
@@ -344,6 +346,9 @@ class Membru(Utilizator):
     familie = models.ManyToManyField("self", through=AsociereMembruFamilie, symmetrical=False, blank=True)
     scout_id = models.CharField(max_length=255, null=True, blank=True, verbose_name="ID ONCR")
     scor_credit = models.IntegerField(default=2, choices=((0, u"Rău"), (1, u"Neutru"), (2, u"Bun")), verbose_name=u"Credit", help_text=u"Această valoare reprezintă încrederea Centrului Local într-un membru de a-și respecta angajamentele financiare (dacă Centrul are sau nu încredere să pună bani pentru el / ea)")
+
+
+    cont_bancar = IBANField(null=True, blank=True)
 
     #TODO: find some smarter way to do this
     poza_profil = models.ForeignKey(ImagineProfil, null=True, blank=True, on_delete=models.SET_NULL)
