@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('structuri', '0012_membru_cont_bancar_alter_imagineprofil_effect'),
+        ('structuri', '0012_membru_cont_bancar'),
     ]
 
     operations = [
