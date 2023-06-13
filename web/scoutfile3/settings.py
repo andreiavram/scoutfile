@@ -216,6 +216,8 @@ INSTALLED_APPS = [
     'booking',
     'properties',
     'certificari',
+    "waiting_list",
+    "voting",
     ]
 
 # if DEBUG:
