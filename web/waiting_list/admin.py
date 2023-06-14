@@ -9,8 +9,8 @@ class WaitingListActionInline(admin.TabularInline):
 
 @admin.register(WaitingListPerson)
 class WaitingListPersonAdmin(admin.ModelAdmin):
-    list_display = ["name", "timestamp", "date_of_birth", "contact_person_name", "contact_phone", "contact_email", "status", "has_family", "has_member_recommendation"]
-    list_filter = ["status", ]
+    list_display = ["name", "timestamp", "group", "date_of_birth", "contact_person_name", "contact_phone", "contact_email", "status", "has_family", "has_member_recommendation"]
+    list_filter = ["status", "group"]
     inlines = [WaitingListActionInline, ]
 
     @admin.display(boolean=True, description='Familie')
