@@ -170,6 +170,7 @@ INSTALLED_APPS = [
     # 'django_markdown',
     'django_ace',
     'qrcode',
+    'qr_code',
     'leaflet',
 
     'wagtail.contrib.forms',
@@ -218,6 +219,7 @@ INSTALLED_APPS = [
     'certificari',
     "waiting_list",
     "voting",
+    "redirects",
     ]
 
 # if DEBUG:
