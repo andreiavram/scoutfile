@@ -148,12 +148,15 @@ INSTALLED_APPS = [
     'django.contrib.admindocs',
     'django.contrib.gis',
 
+    'django_filters',
+
     #   third party pluggables
     'photologue',
     'crispy_forms',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_sso',
+    'rest_framework_gis',
     'captcha',
     'ajax_select',
     "taggit",
@@ -172,6 +175,7 @@ INSTALLED_APPS = [
     'qrcode',
     'qr_code',
     'leaflet',
+    'drf_spectacular',
 
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',
@@ -402,7 +406,11 @@ REST_FRAMEWORK = {
         'rest_framework_sso.authentication.JWTAuthentication',
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-    ]
+    ],
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 REST_FRAMEWORK_SSO = {
@@ -471,6 +479,14 @@ CELERY_BROKER_URL = 'redis://localhost:6379/1'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Scoutfile3 API',
+    'DESCRIPTION': 'Scoutfile3 - Software for Scout Groups',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
+}
 
 
 try:
