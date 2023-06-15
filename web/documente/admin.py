@@ -8,7 +8,13 @@ admin.site.register(PlataCotizatieTrimestru)
 admin.site.register(ChitantaCotizatie)
 admin.site.register(Registru)
 admin.site.register(Adeziune)
-admin.site.register(Document)
+
+
+@admin.register(Document)
+class DocumentAdmin(admin.ModelAdmin):
+    search_fields = ["titlu", "descriere"]
+
+
 admin.site.register(DocumentCotizatieSociala)
 admin.site.register(AsociereDocument)
 admin.site.register(TipDocument)

@@ -116,8 +116,13 @@ Willow==1.4.1
 slack_sdk==3.21.3
 slack-bolt==1.18.0
 celery==5.2.7
+django-celery-results==2.5.1
 
 django-qr-code==3.1.1
 pydantic==1.10.9
 segno==1.5.2
 typing-extensions==4.6.3
+uritemplate==4.1.1
+djangorestframework-gis==1.0
+drf-spectacular==0.26.2
+drf-nested-routers==0.93.4
