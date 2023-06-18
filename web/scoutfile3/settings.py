@@ -79,6 +79,7 @@ MIDDLEWARE = [
     'django_hosts.middleware.HostsRequestMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -176,6 +177,7 @@ INSTALLED_APPS = [
     'qr_code',
     'leaflet',
     'drf_spectacular',
+    'corsheaders',
 
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',

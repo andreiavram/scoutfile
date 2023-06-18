@@ -20,6 +20,6 @@ class TopicAdmin(admin.ModelAdmin):
 
 @admin.register(DiscussionItem)
 class DiscussionItemAdmin(admin.ModelAdmin):
-    list_display = ["timestamp", "topic", "user", "comment", "vote", "source", "parent_topic"]
+    list_display = ["timestamp", "topic", "user", "comment", "vote", "source", "parent_item"]
     autocomplete_fields = ['documents']
 

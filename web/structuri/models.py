@@ -242,8 +242,10 @@ class Echipa(Structura):
 class Utilizator(models.Model):
     user = models.OneToOneField("auth.User", null=True, blank=True, on_delete=models.CASCADE)
     email = models.EmailField(unique=True)
+    email_confirmed = models.BooleanField(default=True)
 
     nume = models.CharField(max_length=255)
+    nume_nastere = models.CharField(max_length=255, blank=True)
     prenume = models.CharField(max_length=255)
 
     hash = models.CharField(max_length=32, null=True, blank=True, unique=True)
@@ -255,7 +257,10 @@ class Utilizator(models.Model):
     slack_email = models.EmailField(null=True, blank=True)
 
     def nume_complet(self):
-        return "%s %s" % (self.prenume.title(), self.nume.upper())
+        nume = f"{self.prenume.title()} {self.nume.upper()}"
+        if self.nume_nastere:
+            nume += f" ({self.nume_nastere})"
+        return nume
 
     def __str__(self):
         return self.nume_complet()
@@ -269,6 +274,13 @@ class Utilizator(models.Model):
 
     def get_slack_email(self):
         return self.slack_email if self.slack_email else self.email
+
+
+class AlternateEmail(models.Model):
+    utilizator = models.ForeignKey(Utilizator, on_delete=models.CASCADE, related_name="alternate_emails")
+    email = models.EmailField()
+    confirmed = models.BooleanField(default=False)
+    confirmed_on = models.DateTimeField()
 
 
 class ImagineProfil(ImageModel):
