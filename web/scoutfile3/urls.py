@@ -2,14 +2,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include, re_path
-from django.views.generic import TemplateView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-from rest_framework.routers import DefaultRouter
-from rest_framework.schemas import get_schema_view
 
 from generic.views import Logout, Login, IndexView, Issues, CreateIssue
 from utils.api.views import ObtainAuthorizationTokenView
-from voting.api.viewsets import TopicViewSet, DiscussionItemViewSet
 
 admin.autodiscover()
 
@@ -20,42 +16,44 @@ from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
 
-urlpatterns = [path(r'admin/doc/', include('django.contrib.admindocs.urls')),
-               path('admin/', admin.site.urls),
-               path('structuri/', include(('structuri.urls', 'structuri'), namespace='structuri')),
-               path('album/', include(('album.urls', 'album'),  namespace='album')),
-               path('goodies/', include(('goodies.urls', 'goodies'),  namespace='goodies')),
-               path('patrocle/', include(('patrocle.urls', 'patrocle'),  namespace='patrocle')),
-               path('documente/', include(('documente.urls', 'documente'),  namespace='documente')),
-               path('extra/', include(('extra.urls', 'extra'),  namespace='extra')),
-               path('utils/', include(('utils.urls', 'utils'),  namespace='utils')),
-               path('cantece/', include(('cantece.urls', 'cantece'),  namespace='cantece')),
-               path('jocuri/', include(('jocuri.urls', 'jocuri'),  namespace='jocuri')),
-               path('badge/', include(('badge.urls', 'badge'),  namespace='badge')),
-               path('inventar/', include(('inventar.urls', 'inventar'),  namespace='inventar')),
-               path('slack/', include(("slackbot.urls", "slack"), namespace="slack")),
-               path('redirect/', include(("redirects.urls", "redirects"), namespace="redirects")),
+urlpatterns = [
+    path(r'admin/doc/', include('django.contrib.admindocs.urls')),
+    path('admin/', admin.site.urls),
+    path('structuri/', include(('structuri.urls', 'structuri'), namespace='structuri')),
+    path('album/', include(('album.urls', 'album'), namespace='album')),
+    path('goodies/', include(('goodies.urls', 'goodies'), namespace='goodies')),
+    path('patrocle/', include(('patrocle.urls', 'patrocle'), namespace='patrocle')),
+    path('documente/', include(('documente.urls', 'documente'), namespace='documente')),
+    path('extra/', include(('extra.urls', 'extra'), namespace='extra')),
+    path('utils/', include(('utils.urls', 'utils'), namespace='utils')),
+    path('cantece/', include(('cantece.urls', 'cantece'), namespace='cantece')),
+    path('jocuri/', include(('jocuri.urls', 'jocuri'), namespace='jocuri')),
+    path('badge/', include(('badge.urls', 'badge'), namespace='badge')),
+    path('inventar/', include(('inventar.urls', 'inventar'), namespace='inventar')),
+    path('slack/', include(("slackbot.urls", "slack"), namespace="slack")),
+    path('redirect/', include(("redirects.urls", "redirects"), namespace="redirects")),
 
-               path('issues/', Issues.as_view(), name="issues"),
-               path('issues/create/', CreateIssue.as_view(), name="create_issue"),
+    path('issues/', Issues.as_view(), name="issues"),
+    path('issues/create/', CreateIssue.as_view(), name="create_issue"),
 
-               path('', IndexView.as_view(template_name="home.html"), name="index"),
+    path('', IndexView.as_view(template_name="home.html"), name="index"),
 
-               path('ajax_select/', include('ajax_select.urls')),
-               path('photologue/', include('photologue.urls')),
+    path('ajax_select/', include('ajax_select.urls')),
+    path('photologue/', include('photologue.urls')),
 
-               path('login/', Login.as_view(), name="login"),
-               path('logout/', Logout.as_view(), name="logout"),
+    path('login/', Login.as_view(), name="login"),
+    path('logout/', Logout.as_view(), name="logout"),
 
-               # url('^markdown/', include('django_markdown.urls')),
-               path('api-auth/', include(('rest_framework.urls', 'rest_framework'),  namespace='rest_framework')),
-               path('api/v1/', include('scoutfile3.api.urls', namespace='api')),
-               ]
+    # url('^markdown/', include('django_markdown.urls')),
+    path('api-auth/', include(('rest_framework.urls', 'rest_framework'), namespace='rest_framework')),
+    path('api/v1/auth/', include('dj_rest_auth.urls')),
+    path('api/v1/', include('scoutfile3.api.urls', namespace='api')),
+]
 
 
 urlpatterns += [
-    path('api/session/', obtain_session_token, name="session_token"),
-    path('api/authorize/', ObtainAuthorizationTokenView.as_view(), name="authorization_token"),
+    path('api/v1/session/', obtain_session_token, name="session_token"),
+    path('api/v1/authorize/', ObtainAuthorizationTokenView.as_view(), name="authorization_token"),
 ]
 
 urlpatterns += [

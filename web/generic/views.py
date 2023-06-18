@@ -38,7 +38,8 @@ class GenericDeleteView(DeleteView):
         current = super(GenericDeleteView, self).get_context_data(**kwargs)
         current.update({"form" : CrispyBaseDeleteForm(instance = self.object)})
         return current
-    
+
+
 class Login(FormView):
     template_name = "accounts/login.html"
     form_class = LoginForm
@@ -52,7 +53,7 @@ class Login(FormView):
         return super(Login, self).dispatch(request, *args, **kwargs)
     
     def form_valid(self, form):
-        user = authenticate(username = form.cleaned_data['username'], password = form.cleaned_data['password'])
+        user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
         login(self.request, user)
         messages.success(self.request, "User și parolă corecte, bine api venit!")
         return HttpResponseRedirect(self.get_success_url())

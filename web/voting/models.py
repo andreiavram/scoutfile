@@ -78,8 +78,8 @@ class DiscussionItem(models.Model):
     source = models.PositiveSmallIntegerField(choices=DiscussionSource.choices, default=DiscussionSource.ORGANIC)
     external_id = models.CharField(max_length=255, null=True, blank=True)
 
-    parent_topic = models.ForeignKey("DiscussionItem", null=True, blank=True, on_delete=models.CASCADE, related_name="replies")
-    topic_path = models.CharField(max_length=1024, db_index=True, blank=True)
+    parent_item = models.ForeignKey("DiscussionItem", null=True, blank=True, on_delete=models.CASCADE, related_name="replies")
+    path = models.CharField(max_length=1024, db_index=True, blank=True)
 
     class Meta:
         ordering = ["-timestamp"]
@@ -87,10 +87,10 @@ class DiscussionItem(models.Model):
     def save(self, *args, **kwargs):
         new_path = f"{self.pk}" if self.pk else "?"
 
-        if self.parent_topic:
-            new_path = f"{self.parent_topic.topic_path}:{new_path}"
+        if self.parent_item:
+            new_path = f"{self.parent_item.path}:{new_path}"
 
-        if self.topic_path != new_path:
-            self.topic_path = new_path
+        if self.path != new_path:
+            self.path = new_path
 
         super().save(*args, **kwargs)

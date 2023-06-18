@@ -8,5 +8,6 @@ app_name = 'api'
 
 urlpatterns = [
     path('badges/', include('badge.api.urls')),
+    path('structuri/', include('structuri.api.urls')),
     path('voting/', include('voting.api.urls')),
 ]
