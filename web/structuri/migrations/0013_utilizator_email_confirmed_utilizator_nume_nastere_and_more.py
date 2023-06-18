@@ -7,7 +7,6 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('photologue', '0013_alter_photo_image_alter_watermark_image'),
         ('structuri', '0012_membru_cont_bancar'),
     ]
 
