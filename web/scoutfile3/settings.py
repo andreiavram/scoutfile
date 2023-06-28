@@ -351,8 +351,12 @@ VALOARE_IMPLICITA_COTIZATIE_NATIONAL_SOCIAL = 12
 
 
 SCOUTFILE_ALBUM_STORAGE_ROOT = "album"
+
+
 def photologue_path(instance, filename):
     return os.path.join(SCOUTFILE_ALBUM_STORAGE_ROOT, filename)
+
+
 PHOTOLOGUE_PATH = photologue_path
 
 

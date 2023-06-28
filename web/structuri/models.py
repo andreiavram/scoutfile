@@ -359,7 +359,6 @@ class Membru(Utilizator):
     scout_id = models.CharField(max_length=255, null=True, blank=True, verbose_name="ID ONCR")
     scor_credit = models.IntegerField(default=2, choices=((0, u"Rău"), (1, u"Neutru"), (2, u"Bun")), verbose_name=u"Credit", help_text=u"Această valoare reprezintă încrederea Centrului Local într-un membru de a-și respecta angajamentele financiare (dacă Centrul are sau nu încredere să pună bani pentru el / ea)")
 
-
     cont_bancar = IBANField(null=True, blank=True)
 
     #TODO: find some smarter way to do this
@@ -1207,6 +1206,8 @@ class AsociereMembruStructura(models.Model):
     confirmata = models.BooleanField(default=False)
     confirmata_pe = models.DateTimeField(null=True, blank=True)
     confirmata_de = models.ForeignKey(Utilizator, null=True, blank=True, related_name="asocieri_confirmate", on_delete=models.SET_NULL)
+
+    documente = models.ManyToManyField("documente.Document", blank=True)
 
     objects = AsocierePublicManager()
     all_objects = models.Manager()
