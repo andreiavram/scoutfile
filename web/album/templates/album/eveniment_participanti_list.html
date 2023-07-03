@@ -53,6 +53,7 @@
             <th>Rol</th>
             <th>Status</th>
             <th>Parțial</th>
+            <th>Tip Contribuție</th>
             <th>Detalii</th>
             {% for camp in campuri_arbitrare %}
                 <th>{{ camp.nume }}<br/><small style="color: #999999">{{ camp.slug }}</small></th>
@@ -86,6 +87,7 @@
                 <td>{{ participare.get_rol_display }}</td>
                 <td>{{ participare.get_status_participare_display }}</td>
                 <td>{% if participare.is_partiala %}<i class = "icon-ok"></i>{% endif %}</td>
+                <td>{{ participare.contribution_option.value }} {% if participare.contribution_option.per_diem %} / zi {% endif %} <small>{{ participare.contribution_option.description }}</small></td>
                 <td>{% if participare.detalii %}{{ participare.detalii|linebreaksbr }}{% endif %}</td>
                 {% for camp in campuri_arbitrare %}
                     <td>{% valoare_camp camp participare %}</td>
@@ -119,7 +121,8 @@
             <td>{% participare_breakdown "rol" %}</td>
             <td>{% participare_breakdown "status_participare" %}</td>
             <td>{% participare_breakdown "is_partial" %}</td>
-            <td>&nbsp;</td>
+            <td>{% participare_breakdown "contribution_option" %}</td>
+            <td> </td>
             {% for camp in campuri_arbitrare %}
                 <td>{% participare_breakdown "camp" camp %}</td>
             {% endfor %}

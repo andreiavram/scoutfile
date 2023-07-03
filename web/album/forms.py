@@ -79,11 +79,11 @@ class EvenimentCreateForm(CrispyBaseModelForm):
 
     def __init__(self, *args, **kwargs):
         super(EvenimentCreateForm, self).__init__(*args, **kwargs)
-        self.helper.layout = Layout("nume", Field("descriere", style="width:100%"), "status", "tip_eveniment", "start_date", "end_date",
+        self.helper.layout = Layout("nume", "slug", Field("descriere", style="width:100%"), "status", "tip_eveniment", "start_date", "end_date",
                                     "facebook_event_link", "articol_site_link", "locatie_text", "locatie_geo",
                                     "organizator", "organizator_cercetas", "international", "published_status", "cover_photo",
                                     Fieldset(u"Responsabili", "responsabil_articol", "responsabil_raport"),
-                                    Fieldset(u"Altele", "oncr_id"), Fieldset(u"Participați impliciți", "adauga_persoane", "adauga_lideri"))
+                                    Fieldset(u"Altele", "oncr_id", "external_album_link"), Fieldset(u"Participați impliciți", "adauga_persoane", "adauga_lideri"))
 
 
 class EvenimentUpdateForm(EvenimentCreateForm):
@@ -151,18 +151,20 @@ class EvenimentParticipareBaseForm(CrispyBaseModelForm):
 class EvenimentParticipareForm(EvenimentParticipareBaseForm):
     class Meta(object):
         model = ParticipareEveniment
-        exclude = ["eveniment", "user_modificare", "nonmembru", "contribution_option", "contribution_payments"]
+        exclude = ["eveniment", "user_modificare", "nonmembru", "contribution_payments"]
 
     membru = NonAdminAutoCompleteSelectField("membri", label=u"Cercetaș")
 
     def __init__(self, **kwargs):
         super(EvenimentParticipareForm, self).__init__(**kwargs)
+        self.fields["contribution_option"].queryset = self.eveniment.contribution_options.all()
 
     def clean_membru(self):
         membru = self.cleaned_data.get("membru")
         if self.eveniment.participareeveniment_set.filter(membru=membru).count() > 0:
             raise ValidationError(u"Membrul există deja în lista de participanți (eventual verificați membrii care au anulat participarea?)")
         return membru
+
 
 
 class EvenimentParticipareNonMembruForm(EvenimentParticipareBaseForm):
