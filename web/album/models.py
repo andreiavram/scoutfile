@@ -134,6 +134,7 @@ class Eveniment(models.Model):
 
     text_invitatie = models.TextField(blank=True)
     slack_id = models.CharField(max_length=255, null=True, blank=True)
+    external_album_link = models.URLField(null=True, blank=True, verbose_name="Link album extern")
 
     class Meta(object):
         verbose_name = u"Eveniment"
@@ -524,7 +525,7 @@ class ParticipareEveniment(models.Model):
     ultima_modificare = models.DateTimeField(auto_now=True)
     user_modificare = models.ForeignKey("structuri.Membru", on_delete=models.SET_NULL, null=True, blank=True, related_name="participari_responsabil")
 
-    contribution_option = models.ForeignKey("album.EventContributionOption", on_delete=models.SET_NULL, null=True, blank=True, help_text="Tip contribuție")
+    contribution_option = models.ForeignKey("album.EventContributionOption", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Tip contribuție")
     contribution_payments = models.ManyToManyField("financiar.PaymentDocument", related_name="payments", blank=True, help_text="Plăți contribuție")
 
     class Meta(object):
@@ -1126,9 +1127,9 @@ class DetectedFace(models.Model):
 class EventContributionOption(models.Model):
     eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE, related_name="contribution_options")
     value = models.FloatField()
-    description = models.TextField()
+    description = models.TextField(blank=True)
     is_default = models.BooleanField(default=False)
-    config = models.JSONField(default=dict)
+    config = models.JSONField(default=dict, null=True, blank=True)
     per_diem = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
@@ -1147,6 +1148,14 @@ class EventContributionOption(models.Model):
 
         if option and delayed_option_save:
             option.save()
+
+    def __str__(self):
+        value = f"{self.value}"
+        if self.per_diem:
+            value += " / pe zi"
+        if self.description:
+            value += f"({self.description})"
+        return value
 
 
 class TrackEveniment(models.Model):

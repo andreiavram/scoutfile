@@ -128,6 +128,12 @@
                 </p>
             {% if object.descriere %}{{ object.descriere|safe|linebreaks }}<br/>{% endif %}
 
+            {% if object.external_album_link %}
+            <p><a href = "{{ object.external_album_link }}" target="_blank"><i class = "icon-globe"></i> Album Extern</a>
+            </p>
+            {% endif %}
+
+
             <p>{% if object.total_poze != 0 %}<strong>Conține {{ object.total_poze }} fotografii de la {{ object.get_autori|length }} fotografi <i
                     class="icon-star"></i>{% endif %}
                 {% if object.is_one_day %}A avut loc pe {{ object.start_date|date:"l, d F Y" }}, între {{ object.start_date|date:"H:i" }} și {{ object.end_date|date:"H:i"}}
@@ -147,6 +153,16 @@
                             <a href = "{% url "structuri:membru_detail"  pk=cercetas.id %}">{{ cercetas }}</a></li>{% endwith %}{% endif %}</p>
 
             <p>{% if object.international %}<span class = "label label-info">Internațional</span> {% endif %}</p>
+
+            {% if object.contribution_options.all.count %}
+            <p><strong>Tipuri contribuție</strong>:
+                <ul>
+                    {% for option in object.contribution_options.all %}
+                        <li>{{ option.value }} {% if option.per_diem %} / zi{% endif %} {% if option.description %} - {{ option.description }}{% endif %}</li>
+                    {% endfor %}
+                </ul>
+            </p>
+            {% endif %}
         </div>
         <div class="span3">
             <div class="map-canvas thumbnail" id="map_canvas"
