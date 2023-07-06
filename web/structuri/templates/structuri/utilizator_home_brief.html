@@ -111,7 +111,11 @@
                 <td>
                     <ul class="unstyled">
                         {% for c in object.certificari.all %}
-                            <li><strong>{{ c.certificate_type }}</strong> începând cu {{ c.issued_on|date:'d.m.Y' }} emis de {{ c.issued_by }}</li>
+                            {% if c.document and c.document.fisier %}
+                                <li><strong><a href="{{ c.document.fisier.url }}">{{ c.certificate_type }}</a></strong> începând cu {{ c.issued_on|date:'d.m.Y' }} emis de {{ c.issued_by }}</li>
+                            {% else %}
+                                <li><strong>{{ c.certificate_type }}</strong> începând cu {{ c.issued_on|date:'d.m.Y' }} emis de {{ c.issued_by }}</li>
+                            {% endif %}
                         {% endfor %}
                     </ul>
                 </td>
