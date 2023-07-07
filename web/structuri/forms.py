@@ -4,11 +4,10 @@ Created on Jun 9, 2012
 
 @author: yeti
 '''
-from builtins import range
-from builtins import object
 import datetime
+from builtins import object
+from builtins import range
 
-from ajax_select.fields import AutoCompleteSelectField
 from captcha.fields import ReCaptchaField
 from captcha.widgets import ReCaptchaV2Checkbox
 from crispy_forms.layout import Fieldset, Layout, Submit, Field
@@ -17,14 +16,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models.query_utils import Q
 from django.forms.widgets import Textarea, PasswordInput
-from goodies.forms import CrispyBaseModelForm, CrispyBaseForm,\
-    CrispyBaseDeleteForm
-from goodies.widgets import BootstrapDateInput
 
 from album.models import AsociereEvenimentStructura
+from goodies.forms import CrispyBaseModelForm, CrispyBaseForm, \
+    CrispyBaseDeleteForm
+from goodies.widgets import BootstrapDateInput
 from structuri.fields import BetterROCNPField, NonAdminAutoCompleteSelectField
-from structuri.models import Membru, CentruLocal, Unitate, Patrula,\
-    AsociereMembruStructura, InformatieContact, TipInformatieContact,\
+from structuri.models import Membru, CentruLocal, Unitate, Patrula, \
+    AsociereMembruStructura, InformatieContact, TipInformatieContact, \
     AsociereMembruFamilie, PersoanaDeContact
 
 
@@ -50,13 +49,18 @@ class UnitateMembruCreateForm(CrispyBaseModelForm):
 
     def __init__(self, *args, **kwargs):
         self.centru_local = kwargs.pop("centru_local")
-        super(UnitateMembruCreateForm, self).__init__(*args, **kwargs)
-        
-        self.helper.layout = Layout(Fieldset(u"Date personale", "nume", "prenume", "cnp"),
-                                    Fieldset(u"Informații de contact", "email", "telefon", "adresa"),
-                                    Fieldset(u"Afilieri", 
-                                             Field("data_start_membru", css_class = "datepicker", template = "fields/datepicker.html"), 
-                                             Field("data_start_unitate", css_class = "datepicker", template = "fields/datepicker.html"), "lider_asistent"))
+        super().__init__(*args, **kwargs)
+
+        self.helper.layout = Layout(
+            Fieldset("Date personale", "nume", "prenume", "cnp"),
+            Fieldset("Informații de contact", "email", "telefon", "adresa"),
+            Fieldset(
+                "Afilieri",
+                Field("data_start_membru", css_class="datepicker", template="fields/datepicker.html"),
+                Field("data_start_unitate", css_class="datepicker", template="fields/datepicker.html"),
+                "lider_asistent"
+            )
+        )
 
 
 class UnitateLiderCreateForm(UnitateMembruCreateForm):
@@ -105,7 +109,7 @@ class LiderCreateForm(UnitateLiderCreateForm):
 class MembruUpdateForm(CrispyBaseModelForm):
     class Meta(object):
         model = Membru
-        fields = ["nume", "prenume", "cnp", "email", "scout_id", "scor_credit", "cont_bancar"]
+        fields = ["nume", "nume_nastere", "prenume", "porecla", "cnp", "email", "scout_id", "scor_credit", "cont_bancar"]
 
     email = forms.EmailField(label=u"Email", help_text=u"Schimbarea email-ului aici implicâ schimbarea utilizatorului!")
         
@@ -429,11 +433,26 @@ class InformatieGenericDeleteForm(CrispyBaseDeleteForm):
 class AsociereMembruFamilieForm(CrispyBaseModelForm):
     class Meta(object):
         model = AsociereMembruFamilie
-        fields = ["persoana_destinatie", "tip_relatie"]
+        fields = ["persoana_destinatie", "tip_relatie", "same_budget", "start_date", "end_date"]
     
-    persoana_destinatie = NonAdminAutoCompleteSelectField("membri", required = True, help_text = u"Introduceți câteva litere pentru a căuta un membru",
-                                            label = u"Persoana")
-    
+    persoana_destinatie = NonAdminAutoCompleteSelectField(
+        "membri",
+        required=True,
+        help_text="Introduceți câteva litere pentru a căuta un membru",
+        label="Persoana"
+    )
+
+    start_date = forms.DateField(
+        input_formats=['%d.%m.%Y', ],
+        widget=BootstrapDateInput(format="%d.%m.%Y"),
+        required=False)
+    end_date = forms.DateField(
+        input_formats=['%d.%m.%Y', ],
+        widget=BootstrapDateInput(format="%d.%m.%Y"),
+        required=False
+    )
+
+
 class PersoanaDeContactForm(CrispyBaseModelForm):
     class Meta(object):
         model = PersoanaDeContact
