@@ -20,11 +20,13 @@ class MeasurementUnit(TextChoices):
     KILOGRAM = "kilogram", "Kg"
     MILILITER = "milliliter", "ml"
     PIECE = "piece", "bucată"
+    CUP = "cup", "cană"
+    SPOON = "spoon", "lingură"
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=255)
     quantity = models.FloatField()
-    quantity_unit = models.CharField(max_length=255, choices=)
+    quantity_unit = models.CharField(max_length=255, choices=MeasurementUnit.choices)
 
 
 

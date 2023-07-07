@@ -245,8 +245,9 @@ class Utilizator(models.Model):
     email_confirmed = models.BooleanField(default=True)
 
     nume = models.CharField(max_length=255)
-    nume_nastere = models.CharField(max_length=255, blank=True)
+    nume_nastere = models.CharField(max_length=255, blank=True, verbose_name="Nume anterior", help_text="Nume înainte de căsătorie / schimbare")
     prenume = models.CharField(max_length=255)
+    porecla = models.CharField(max_length=255, blank=True)
 
     hash = models.CharField(max_length=32, null=True, blank=True, unique=True)
     timestamp_registered = models.DateTimeField(null=True, blank=True)
@@ -259,7 +260,9 @@ class Utilizator(models.Model):
     def nume_complet(self):
         nume = f"{self.prenume.title()} {self.nume.upper()}"
         if self.nume_nastere:
-            nume += f" ({self.nume_nastere})"
+            nume += f" (née {self.nume_nastere})"
+        if self.porecla:
+            nume += f" - {self.porecla}"
         return nume
 
     def __str__(self):
@@ -325,15 +328,24 @@ class AsociereMembruFamilie(models.Model):
     persoana_sursa = models.ForeignKey("Membru", on_delete=models.CASCADE)
     persoana_destinatie = models.ForeignKey("Membru", related_name="membru_destinatie", on_delete=models.CASCADE)
 
+    start_date = models.DateField(help_text="Pentru relații care intervin după obținerea calității de membru", verbose_name="Data început", null=True, blank=True)
+    end_date = models.DateField(help_text="Pentru relații care încetează după obținerea calității de membru", verbose_name="Data sfârșit", null=True, blank=True)
+
+    same_budget = models.BooleanField(default=True, verbose_name="Același buget", help_text="Cercetașii membri ai aceleiași familii care se întrețin din același buget sunt eligibili pentru sprijin financiar")
+
     @classmethod
-    def rude_cercetasi(cls, membru, exclude_self=False):
+    def rude_cercetasi(cls, membru, same_budget=True, exclude_self=False):
         """ Intoarce toate persoanele din familie, inclusiv persoana sursa
         
         Se poate folosi pentru calculul diferentiat al cotizatiilor, si a altor taxe
         """
         people = [membru, ]
         for person in people:
-            for con in list(cls.objects.filter(Q(persoana_sursa=person) | Q(persoana_destinatie=person))):
+            next_people = cls.objects.filter(Q(persoana_sursa=person) | Q(persoana_destinatie=person))
+            if same_budget:
+                next_people = next_people.filter(same_budget=True)
+
+            for con in list(next_people):
                 if con.persoana_sursa not in people:
                     people.append(con.persoana_sursa)
                 if con.persoana_destinatie not in people:

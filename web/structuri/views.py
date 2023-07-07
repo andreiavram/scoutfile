@@ -1725,7 +1725,9 @@ class MembruAddFamilie(CreateView):
         if self.object.tip_relatie.reverse_relationship:
             kwargs = {"persoana_sursa": self.object.persoana_destinatie,
                       "persoana_destinatie": self.object.persoana_sursa,
-                      "tip_relatie": self.object.tip_relatie.reverse_relationship}
+                      "tip_relatie": self.object.tip_relatie.reverse_relationship,
+                      "start_date": self.object.start_date,
+                      "same_budget": self.object.same_budget}
             AsociereMembruFamilie(**kwargs).save()
 
         messages.success(self.request, u"Relația a fost adăugată")
@@ -1755,8 +1757,19 @@ class MembruEditFamilie(UpdateView):
                       "persoana_destinatie": self.object.persoana_sursa,
                       "tip_relatie": self.object.tip_relatie.reverse_relationship}
 
-            if AsociereMembruFamilie.objects.filter(**kwargs).count() == 0:
-                AsociereMembruFamilie(**kwargs).save()
+            reverse_associations = AsociereMembruFamilie.objects.filter(**kwargs)
+            compare_fields = ["same_budget", "start_date", "end_date"]
+            if not reverse_associations.exists():
+                AsociereMembruFamilie.objects.create(**kwargs)
+            else:
+                for association in reverse_associations:
+                    dirty = False
+                    for field in compare_fields:
+                        if getattr(association, field) != getattr(self.object, field):
+                            setattr(association, field, getattr(self.object, field))
+                            dirty = True
+                    if dirty:
+                        association.save()
 
         return HttpResponseRedirect(self.get_success_url())
 

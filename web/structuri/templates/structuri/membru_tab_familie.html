@@ -21,6 +21,11 @@
 			<td style = "width: 10px">{% for badge in obj.persoana_destinatie.get_badges_rdv %}<img src = "{% get_static_prefix %}images/icon-{{ badge }}.png" /> {% endfor %}
 			<td> <a href = "{% url "structuri:membru_detail"  pk=obj.persoana_destinatie.id %}#familie">{{ obj.persoana_destinatie }}</a>, {{ obj.tip_relatie|lower }}
 			{% for badge in obj.persoana_destinatie.get_extra_badges %}<img src = "{% get_static_prefix %}images/icon-{{ badge }}.png" />{% endfor %}
+            <div class = "familie-same-budget">
+            {% if obj.same_budget %}
+                același buget
+            {% endif %}
+            </div>
 			
 			</td>
 			<td>
