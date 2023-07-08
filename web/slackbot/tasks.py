@@ -4,14 +4,13 @@ from django.conf import settings
 
 from structuri.models import Membru
 
-slack_app = App(
-    token=settings.SLACK_BOT_TOKEN,
-    signing_secret=settings.SLACK_APP_SECRET
-)
-
-
 @shared_task
 def process_slack_message(data=None):
+    slack_app = App(
+        token=settings.SLACK_BOT_TOKEN,
+        signing_secret=settings.SLACK_APP_SECRET
+    )
+
     user = slack_app.client.users_profile_get(user=data["event"]["user"])
 
     email = user["profile"]["email"]
