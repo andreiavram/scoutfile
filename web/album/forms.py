@@ -13,7 +13,7 @@ from django.forms.widgets import RadioSelect, Textarea, CheckboxSelectMultiple
 from taggit.forms import TagField
 
 from album.models import FlagReport, FLAG_MOTIVES, RaportEveniment, ParticipareEveniment, \
-    CampArbitrarParticipareEveniment, StatusParticipare
+    CampArbitrarParticipareEveniment, StatusParticipare, EventContributionOption
 from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
 from generic.widgets import BootstrapDateTimeInput, BootstrapDateInput
 from goodies.forms import CrispyBaseModelForm, CrispyBaseForm
@@ -266,3 +266,9 @@ class EvenimentParticipantFilterForm(CrispyBaseForm):
                 raise ValidationError(u"Nu există niciun câmp %s!" % camp)
 
         return cond_parsed
+
+
+class EventContributionOptionForm(CrispyBaseModelForm):
+    class Meta:
+        model = EventContributionOption
+        fields = ['value', 'description', 'is_default', 'config', 'per_diem']

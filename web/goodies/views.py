@@ -25,6 +25,7 @@ logger = logging.getLogger(__file__)
 
 class GenericDeleteJavaScript(TemplateView):
     template_name = "goodies/generic_delete.js"
+    content_type = 'text/javascript'
 
     def dispatch(self, request, *args, **kwargs):
         self.ctype_model = kwargs.pop("model")

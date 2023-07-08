@@ -9,7 +9,8 @@ from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     EvenimentParticipantiCreate, EvenimentParticipantiUpdate, UnitateEvenimentCreate, PatrulaEvenimentCreate, \
     EvenimentCampuriArbitrare, EvenimentCampuriArbitrareCreate, EvenimentCampuriArbitrareUpdate, PozaUpdateTags, \
     FlagImageAjax, EvenimentUpdateCampuriAditionale, EvenimentParticipantNonMembruCreate, \
-    EvenimentParticipantNonMembruUpdate, EvenimentParticipantiExport, PozaVot, PozaMakeCover
+    EvenimentParticipantNonMembruUpdate, EvenimentParticipantiExport, PozaVot, PozaMakeCover, EventContributionList, \
+    EventContributionCreate, EventContributionUpdate
 from album.views import ChangeImagineVisibility
 
 urlpatterns = [
@@ -54,6 +55,10 @@ urlpatterns = [
          name="eveniment_campuri_create"),
     path('eveniment/campuri/<int:pk>/modifica/', EvenimentCampuriArbitrareUpdate.as_view(),
          name="eveniment_campuri_update"),
+
+    path('eveniment/<slug:slug>/tipcontributii/', EventContributionList.as_view(), name="eveniment_tipcontributii_list"),
+    path('eveniment/<slug:slug>/tipcontributii/adauga/', EventContributionCreate.as_view(), name="eveniment_tipcontributii_create"),
+    path('eveniment/tipcontributii/<int:pk>/modifica/', EventContributionUpdate.as_view(), name="eveniment_tipcontributii_update"),
 
     path('eveniment/<slug:slug>/participanti/export/', EvenimentParticipantiExport.as_view(),
          name="eveniment_participanti_export"),

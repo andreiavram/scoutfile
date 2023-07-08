@@ -8,6 +8,8 @@
 
         <li><a href = "{% url "album:eveniment_asociere_structura_create"  slug=eveniment.slug %}"><i class = "icon-link"></i> Conexiuni interne</a></li>
         <li><a href = "{% url "album:eveniment_participanti_list"  slug=eveniment.slug %}"><i class = "icon-group"></i> Participanți</a></li>
+        <li><a href = "{% url "album:eveniment_tipcontributii_list" slug=eveniment.slug %}"><i class = "icon-list-alt"></i> Tipuri contribuție</a></li>
+
 
         <li class = "nav-header">Acțiuni</li>
 {#		<li class = "disabled"><a href = ""><i class = "icon-download"></i> Download toate</a>#}
@@ -20,13 +22,13 @@
         {% if user.is_authenticated %}
         <li class = "nav-header">Administrare</li>
         <li><a href = "{% url "album:eveniment_update"  slug=eveniment.slug %}"><i class = "icon-pencil"></i> Editează</a></li>
-        <li><a class = "delete" href = "{% url "album:eveniment_delete"  slug=eveniment.slug %}"><i class = "icon-trash"></i> Șterge</a></li>
-        <li><a href = "{% url "album:eveniment_campuri_list"  slug=eveniment.slug %}"><i class = "icon-list-alt"></i> Câmpuri speciale</a></li>
+        <li><a class = "delete" href = "{% url "album:eveniment_delete" slug=eveniment.slug %}"><i class = "icon-trash"></i> Șterge</a></li>
+        <li><a href = "{% url "album:eveniment_campuri_list" slug=eveniment.slug %}"><i class = "icon-list-alt"></i> Câmpuri speciale</a></li>
         <li class = "nav-header">Raportare</li>
-            <li><a href = "{% url "album:eveniment_raport_detail"  slug=eveniment.slug %}"><i class = "icon-file"></i> Raport curent</a></li>
-            <li><a href = "{% url "album:eveniment_raport_update"  slug=eveniment.slug %}"><i class = "icon-edit"></i> Editează raport</a></li>
-            <li><a href = "{% url "album:eveniment_raport_history"  slug=eveniment.slug %}"><i class = "icon-list"></i> Listă versiuni</a></li>
-            <li><a href = "{% url "album:eveniment_raport_complet"  slug=eveniment.slug %}"><i class = "icon-file"></i> Raport complet (ONCR)</a></li>
+            <li><a href = "{% url "album:eveniment_raport_detail" slug=eveniment.slug %}"><i class = "icon-file"></i> Raport curent</a></li>
+            <li><a href = "{% url "album:eveniment_raport_update" slug=eveniment.slug %}"><i class = "icon-edit"></i> Editează raport</a></li>
+            <li><a href = "{% url "album:eveniment_raport_history" slug=eveniment.slug %}"><i class = "icon-list"></i> Listă versiuni</a></li>
+            <li><a href = "{% url "album:eveniment_raport_complet" slug=eveniment.slug %}"><i class = "icon-file"></i> Raport complet (ONCR)</a></li>
         {% endif %}
 
         <li class = "nav-header">Căutare foto</li>

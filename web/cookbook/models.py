@@ -8,6 +8,8 @@ class RecipeSuitability(models.Model):
 
 class Recipe(models.Model):
     base_multiplier = models.IntegerField(default=10)
+
+    #   could be wood fire, indoor, outdoor, gas, camp stove
     suitability = models.ManyToManyField(RecipeSuitability)
 
 
@@ -22,6 +24,7 @@ class MeasurementUnit(TextChoices):
     PIECE = "piece", "bucată"
     CUP = "cup", "cană"
     SPOON = "spoon", "lingură"
+
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=255)
