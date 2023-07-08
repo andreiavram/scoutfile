@@ -53,7 +53,9 @@
             <th>Rol</th>
             <th>Status</th>
             <th>Parțial</th>
-            <th>Tip Contribuție</th>
+            {% if eveniment.contribution_options.exists %}
+            <th>Contribuție</th>
+            {% endif %}
             <th>Detalii</th>
             {% for camp in campuri_arbitrare %}
                 <th>{{ camp.nume }}<br/><small style="color: #999999">{{ camp.slug }}</small></th>
@@ -87,13 +89,32 @@
                 <td>{{ participare.get_rol_display }}</td>
                 <td>{{ participare.get_status_participare_display }}</td>
                 <td>{% if participare.is_partiala %}<i class = "icon-ok"></i>{% endif %}</td>
-                <td>{{ participare.contribution_option.value }} {% if participare.contribution_option.per_diem %} / zi {% endif %} <small>{{ participare.contribution_option.description }}</small></td>
+                {% if eveniment.contribution_options.exists %}
+                <td>
+                    Contribuție: {{ participare.total_cost }}
+                    <br>
+                    {% if participare.payment_due > 0 %}
+                        <span class="text text-warning">Rest de plată {{ participare.payment_due }}</span>
+                    {% else %}
+                        <span class="text text-success">Plătit integral</span>
+                    {% endif %}
+                    {% if participare.contribution_payments.exists %}<br><strong>Plăți:</strong>
+                    <ul class="unstyled small">
+                        {% for plata in participare.contribution_payments.all %}
+                            <li>{{ plata.value }} pe {{ plata.registered_at|date:"d.m" }} ({{ plata.get_document_type_display }})</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </td>
+                {% endif %}
                 <td>{% if participare.detalii %}{{ participare.detalii|linebreaksbr }}{% endif %}</td>
                 {% for camp in campuri_arbitrare %}
                     <td>{% valoare_camp camp participare %}</td>
                 {% endfor %}
                 <td>
                     <div class = "btn-group pull-right">
+                        <a class="btn btn-mini" href = "{% url "album:eveniment_payment" pk=participare.id %}"><i class="icon-money"></i></a>
+
                         <a href = "{% if participare.membru_id %}{% url "album:eveniment_participanti_modifica"  pk=participare.id %}{% else %}{% url "album:eveniment_participanti_nonmembru_modifica"  pk=participare.id %}{% endif %}" class = "btn btn-mini"><i class = "icon-pencil"></i></a>
                         <a href = "#" id="delete_{{ participare.id }}" class = "btn btn-mini"><i class = "icon-trash"></i></a>
                     </div>
@@ -121,7 +142,9 @@
             <td>{% participare_breakdown "rol" %}</td>
             <td>{% participare_breakdown "status_participare" %}</td>
             <td>{% participare_breakdown "is_partial" %}</td>
+            {% if eveniment.contribution_options.exists %}
             <td>{% participare_breakdown "contribution_option" %}</td>
+            {% endif %}
             <td> </td>
             {% for camp in campuri_arbitrare %}
                 <td>{% participare_breakdown "camp" camp %}</td>

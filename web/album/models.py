@@ -394,6 +394,13 @@ class Eveniment(models.Model):
             pe = ParticipareEveniment.objects.create(**pe_args)
 
 
+    @property
+    def default_contribution(self, per_diem=False):
+        if self.contribution_options.exists():
+            return self.contribution_options.filter(is_default=True, per_diem=per_diem).first()
+        return None
+
+
 class EventCertification(models.Model):
     class RoleOptions(TextChoices):
         REQUIRED_FOR = "required", "Necesar pentru participare la"
@@ -507,7 +514,7 @@ class ParticipantEveniment(models.Model):
 
     def __str__(self):
         return self.get_full_name()
-    
+
 
 class ParticipareEveniment(models.Model):
     #TODO: a better way to implement this relationship needs to exist
@@ -570,6 +577,23 @@ class ParticipareEveniment(models.Model):
     def ramura_de_varsta_in_eveniment(self):
         if self.membru is None:
             return None
+
+
+    @property
+    def total_payments(self):
+        total_value = self.contribution_payments.aggregate(Sum('value'))
+        return total_value['value__sum'] or 0
+
+    @property
+    def total_cost(self):
+        contribution_option = self.contribution_option or self.eveniment.default_contribution
+        if contribution_option.per_diem:
+            return (self.data_plecare - self.data_sosire).days * contribution_option.value
+        else:
+            return contribution_option.value
+    def payment_due(self):
+        return self.total_cost - self.total_payments
+
 
 
 class TipCampParticipare(TextChoices):
@@ -1154,7 +1178,9 @@ class EventContributionOption(models.Model):
         if self.per_diem:
             value += " / pe zi"
         if self.description:
-            value += f"({self.description})"
+            value += f" ({self.description})"
+        if self.is_default:
+            value += " - implicit"
         return value
 
 
