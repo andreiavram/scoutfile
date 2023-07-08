@@ -33,3 +33,6 @@ web/scoutfile3/local_settings_ye
 
 
 *.pem
+/web/github_actions.key
+/web/github_actions.key.pub
+/web/scoutfile3/local_settings_yeti.py
