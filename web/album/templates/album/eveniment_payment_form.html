@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block page_title %}
+    {{ eveniment.nume }} <span style = "font-weight: normal">| Înregistrează plată contribuție</span>
+{% endblock %}
+
+{% block context_menu %}
+    {% include "album/eveniment_context_menu.html" %}
+{% endblock %}
+
+{% block content %}
+    <p class="alert alert-info">Poți înregistra plata (completă sau parțială) pentru <strong>{{ participare.membru }}</strong> la acest eveniment.  {% if participare.contribution_option %}
+    {{ participare.membru.prenume }} are configurată contribuția {{ participare.contribution_option }}
+    {% else %}
+        {{ participare.membru.prenume }} nu are configurată o contribuție pentru acest eveniment. Contribuția implicită este {{ participare.eveniment.default_contribution.value }}.
+    {% endif %}
+    {% if participare.contribution_payments.exists %}
+    <p class="alert alert-warning">Există plăți anterioare în valoare de {{ participare.total_payments }}.</p>
+    {% endif %}
+
+        <p class="alert alert-success">Rest de plată azi <strong>{{ participare.payment_due }}</strong>.</p>
+    {% crispy form form.helper %}
+
+
+{% endblock %}

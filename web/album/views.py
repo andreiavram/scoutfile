@@ -2,6 +2,8 @@
 from __future__ import division
 from builtins import str
 from builtins import range
+
+from django.db.models import Sum
 from past.utils import old_div
 from builtins import object
 import datetime
@@ -28,6 +30,8 @@ from django.views.generic.base import View, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, CreateView, FormView
 from django.views.generic.list import ListView
+
+from financiar.models import PaymentDocument, Currency
 from goodies.views import GenericDeleteView, CalendarViewMixin
 from goodies.views import JSONView
 from rest_framework import permissions
@@ -46,7 +50,7 @@ from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEven
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm, \
     EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm, CampArbitrarForm, EvenimentParticipareUpdateForm, \
     ReportFormNoButtons, EvenimentParticipareNonMembruForm, EvenimentParticipareNonmembruUpdateForm, \
-    EvenimentParticipantFilterForm, EventContributionOptionForm
+    EvenimentParticipantFilterForm, EventContributionOptionForm, EventPaymentDocumentForm
 from album.exporters.table import TabularExport
 from generic.views import ScoutFileAjaxException
 from structuri.decorators import allow_by_afiliere
@@ -1729,3 +1733,50 @@ class EventContributionUpdate(UpdateView):
 
     def get_success_url(self):
         return reverse("album:eveniment_tipcontributii_list", kwargs={"slug": self.object.eveniment.slug})
+
+
+@method_decorator(login_required, name="dispatch")
+class EventPaymentCreate(CreateView):
+    model = PaymentDocument
+    form_class = EventPaymentDocumentForm
+    template_name = "album/eveniment_payment_form.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.participation = ParticipareEveniment.objects.select_related("eveniment", "membru", "contribution_option").get(pk=self.kwargs.get("pk"))
+        except ParticipareEveniment.DoesNotExist:
+            raise Http404()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super().get_initial()
+        if self.participation.contribution_option:
+            if self.participation.contribution_payments.exists():
+                total_value = self.participation.contribution_payments.aggregate(Sum('value'))
+                initial['value'] = self.participation.contribution_option.value - total_value['value__sum']
+            else:
+                initial['value'] = self.participation.contribution_option.value
+
+        initial['notes'] = f"Contribuție participare pentru {self.participation.eveniment.nume}"
+        return initial
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.currency = Currency.RON
+        self.object.registration_status = PaymentDocument.RegistrationType.PAYMENT
+        self.object.registered_by = self.request.user
+        self.object.direction = PaymentDocument.RegistrationDirection.ISSUER
+        if self.participation.membru:
+            self.object.third_party_internal = self.participation.membru
+        self.object.save()
+        self.participation.contribution_payments.add(self.object)
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("album:eveniment_participanti_list", kwargs={"slug": self.participation.eveniment.slug})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['eveniment'] = self.participation.eveniment
+        context['participare'] = self.participation
+        return context

@@ -49,15 +49,15 @@ class PaymentDocument(models.Model):
         ISSUER = 1, "Noi emitem documentul"
         RECEIVER = 2, "Noi primim documentul"
 
-    document_type = models.CharField(max_length=255, choices=PaymentDocumentType.choices)
+    document_type = models.CharField(max_length=255, choices=PaymentDocumentType.choices, verbose_name="Tip înregistrare")
     registration_status = models.CharField(max_length=255, choices=RegistrationType.choices, default=RegistrationType.PAYMENT)
 
-    value = models.FloatField()
+    value = models.FloatField(verbose_name="Valoare")
     currency = models.CharField(choices=Currency.choices, default=Currency.RON, max_length=3)
 
-    document_number = models.CharField(max_length=255)
-    document_date = models.DateField()
-    internal_reference = models.CharField(max_length=255, null=True, blank=True)
+    document_number = models.CharField(max_length=255, blank=True)
+    document_date = models.DateField(null=True, blank=True)
+    internal_reference = models.CharField(max_length=255, blank=True)
 
     registered_by = models.ForeignKey(get_user_model(), null=True, blank=True, on_delete=models.SET_NULL)
     registered_at = models.DateTimeField(auto_now_add=True)
@@ -71,7 +71,7 @@ class PaymentDocument(models.Model):
 
     direction = models.PositiveSmallIntegerField(choices=RegistrationDirection.choices, default=RegistrationDirection.RECEIVER)
 
-    notes = models.TextField()
+    notes = models.TextField(verbose_name="Note")
 
     # TODO: reorganise this somehow else if we're to make this app standalone (maybe model inheritance)
     third_party_internal = models.ForeignKey("structuri.Membru", null=True, blank=True, on_delete=models.SET_NULL)
@@ -95,6 +95,8 @@ class PaymentDocument(models.Model):
 class PaymentDocumentFile(models.Model):
     payment_document = models.ForeignKey(PaymentDocument, on_delete=models.CASCADE)
     uploaded_file = models.FileField(upload_to="financiar/document")
+
+
 
 
 class BankAccount(models.Model):

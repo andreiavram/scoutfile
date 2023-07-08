@@ -15,6 +15,7 @@ from taggit.forms import TagField
 from album.models import FlagReport, FLAG_MOTIVES, RaportEveniment, ParticipareEveniment, \
     CampArbitrarParticipareEveniment, StatusParticipare, EventContributionOption
 from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
+from financiar.models import PaymentDocument
 from generic.widgets import BootstrapDateTimeInput, BootstrapDateInput
 from goodies.forms import CrispyBaseModelForm, CrispyBaseForm
 from goodies.widgets import GeoCoordinatesInput, FacebookLinkWidget, TaggitTagsInput
@@ -272,3 +273,11 @@ class EventContributionOptionForm(CrispyBaseModelForm):
     class Meta:
         model = EventContributionOption
         fields = ['value', 'description', 'is_default', 'config', 'per_diem']
+
+
+class EventPaymentDocumentForm(CrispyBaseModelForm):
+    class Meta:
+        model = PaymentDocument
+        fields = ["document_type", "value", "notes"]
+
+
