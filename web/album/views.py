@@ -42,11 +42,11 @@ from album.exporters.envelopes import C5Envelopes
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipareEveniment, \
     AsociereEvenimentStructura, TipEveniment, SetPoze, IMAGINE_PUBLISHED_STATUS, \
     CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment, FLAG_MOTIVES, ParticipantEveniment, \
-    StatusEveniment
+    StatusEveniment, EventContributionOption
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm, \
     EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm, CampArbitrarForm, EvenimentParticipareUpdateForm, \
     ReportFormNoButtons, EvenimentParticipareNonMembruForm, EvenimentParticipareNonmembruUpdateForm, \
-    EvenimentParticipantFilterForm
+    EvenimentParticipantFilterForm, EventContributionOptionForm
 from album.exporters.table import TabularExport
 from generic.views import ScoutFileAjaxException
 from structuri.decorators import allow_by_afiliere
@@ -1672,3 +1672,60 @@ class PozaMakeCover(APIView):
         img.set_poze.eveniment.save()
 
         return Response({"message": u"Imaginea a fost setată ca poza de copertă pentru album"})
+
+
+@method_decorator(login_required, name="dispatch")
+class EventContributionList(ListView):
+    model = EventContributionOption
+    template_name = "album/eveniment_tipcontributii_list.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.event = Eveniment.objects.get(slug=kwargs.pop("slug"))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+        context['eveniment'] = self.event
+        return context
+
+
+class EventContributionCreate(CreateView):
+    models = EventContributionOption
+    form_class = EventContributionOptionForm
+    template_name = "album/eveniment_tipcontributii_form.html"
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.eveniment = self.event
+        self.object.save()
+        messages.success(
+            self.request,
+            "Tip Contribuție creat"
+        )
+        return HttpResponseRedirect(self.get_success_url())
+
+    def dispatch(self, request, *args, **kwargs):
+        self.event = Eveniment.objects.get(slug=kwargs.pop("slug"))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['eveniment'] = self.event
+        return context
+
+    def get_success_url(self):
+        return reverse("album:eveniment_tipcontributii_list", kwargs={"slug": self.event.slug})
+
+
+class EventContributionUpdate(UpdateView):
+    model = EventContributionOption
+    form_class = EventContributionOptionForm
+    template_name = "album/eveniment_tipcontributii_form.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['eveniment'] = self.object.eveniment
+        return context
+
+    def get_success_url(self):
+        return reverse("album:eveniment_tipcontributii_list", kwargs={"slug": self.object.eveniment.slug})

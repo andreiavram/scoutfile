@@ -1126,11 +1126,11 @@ class DetectedFace(models.Model):
 
 class EventContributionOption(models.Model):
     eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE, related_name="contribution_options")
-    value = models.FloatField()
-    description = models.TextField(blank=True)
-    is_default = models.BooleanField(default=False)
+    value = models.FloatField(verbose_name="Valoare")
+    description = models.TextField(blank=True, verbose_name="Descriere", help_text="Explicație pentru situațiile în care se aplică această contribuție")
+    is_default = models.BooleanField(default=False, verbose_name="Implicit")
     config = models.JSONField(default=dict, null=True, blank=True)
-    per_diem = models.BooleanField(default=False)
+    per_diem = models.BooleanField(default=False, verbose_name="Pe zi")
 
     def save(self, *args, **kwargs):
         try:
