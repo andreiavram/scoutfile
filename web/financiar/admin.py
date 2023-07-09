@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from financiar.models import BankAccount, BankStatement, BankStatementItem
+from financiar.models import BankAccount, BankStatement, BankStatementItem, PaymentDomain
 
 
 # Register your models here.
@@ -53,3 +53,8 @@ class BankStatementItemAdmin(admin.ModelAdmin):
     @admin.display(description="Currency Date", ordering="currency_date")
     def get_currency_date(self, obj):
         return obj.currency_date.date()
+
+
+@admin.register(PaymentDomain)
+class PaymentDomainAdmin(admin.ModelAdmin):
+    fields = ["name"]
