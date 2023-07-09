@@ -154,6 +154,8 @@ class CentruLocal(Structura):
     logo = models.ImageField(null=True, blank=True, upload_to=upload_to_centru_local_logo)
     antet = models.ImageField(null=True, blank=True, upload_to=upload_to_centru_local_antent)
 
+    default_payment_domain = models.ForeignKey("financiar.PaymentDomain", null=True, blank=True, related_name="centru_local", on_delete=models.SET_NULL)
+
     def nume_complet(self):
         if self.denumire is not None and self.denumire != "":
             return u"Centrul Local \"%s\" %s" % (self.denumire, self.localitate)

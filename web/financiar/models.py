@@ -40,6 +40,10 @@ class LegalEntity(models.Model):
     contact_person_email = models.EmailField(null=True, blank=True)
 
 
+class PaymentDomain(models.Model):
+    name = models.CharField(max_length=255)
+
+
 class PaymentDocument(models.Model):
     class RegistrationType(TextChoices):
         PAYMENT_REQUEST = "request", "Obligație de plată"
@@ -49,6 +53,7 @@ class PaymentDocument(models.Model):
         ISSUER = 1, "Noi emitem documentul"
         RECEIVER = 2, "Noi primim documentul"
 
+    domain = models.ForeignKey(PaymentDomain, null=True, blank=True, on_delete=models.CASCADE, related_name="payments")
     document_type = models.CharField(max_length=255, choices=PaymentDocumentType.choices, verbose_name="Tip înregistrare")
     registration_status = models.CharField(max_length=255, choices=RegistrationType.choices, default=RegistrationType.PAYMENT)
 
