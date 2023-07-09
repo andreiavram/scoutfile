@@ -92,6 +92,8 @@ class Command(BaseCommand):
             if not afilieri.count():
                 continue
 
+            m.clear_asocieri_cache()
+
             try:
                 m.calculeaza_necesar_cotizatie(force_real=True)
             except Exception as e:

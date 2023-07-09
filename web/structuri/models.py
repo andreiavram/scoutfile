@@ -441,6 +441,10 @@ class Membru(Utilizator):
 
         self._afilieri = asocieri_json
 
+    def clear_asocieri_cache(self):
+        self._proprietati = None
+        self.save_to_cache("proprietati", None)
+        self.create_structuri_cache()
 
     @property
     def adresa_postala(self):
@@ -1226,7 +1230,7 @@ class AsociereMembruStructura(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        self.membru.create_structuri_cache()
+        self.membru.clear_asocieri_cache()
 
     def get_structura(self, ctype):
         lookups = {"centrulocal": {"centrulocal": lambda: self.content_object},
