@@ -1,5 +1,3 @@
-#   coding: utf-8
-
 from builtins import range
 from builtins import object
 import datetime
@@ -497,9 +495,7 @@ class Membru(Utilizator):
                 item.get('moment_inceput') is not None and (item.get('moment_inceput').date() > trimestru.data_sfarsit)
             ]
 
-        if any(conditions):
-            return False
-        return True
+        return not any(conditions)
 
     def get_structura(self, qs=False, rol=(u"Membru", ), single=True, structura_model=None, trimestru=None):
         if self.is_lider and not single:
@@ -583,7 +579,7 @@ class Membru(Utilizator):
         determinarea se face pentru un trimestru, implicit fiind cel din ziua curenta
         metoda ar trebui sa fie folosita oriunde se incearca determinari de apartenente si calitati
         """
-        if isinstance(calitate, (list, tuple)):
+        if not isinstance(calitate, (list, tuple)):
             calitate = [calitate, ]
 
         if not structura:
@@ -594,7 +590,6 @@ class Membru(Utilizator):
 
         content_type_structura = ContentType.objects.get_for_model(structura)
 
-
         filter_asocieri = partial(
             Membru.get_afilieri_filter,
             trimestru=trimestru,
@@ -604,7 +599,7 @@ class Membru(Utilizator):
         )
 
         afilieri = list(filter(filter_asocieri, self._afilieri))
-        return self.afilieri.filter(id__in = [a.id for a in afilieri]) if qs else len(afilieri) != 0
+        return self.afilieri.filter(id__in=[a['id'] for a in afilieri]) if qs else len(afilieri) != 0
 
         #
         # ams_filter = dict(content_type=ContentType.objects.get_for_model(structura),
