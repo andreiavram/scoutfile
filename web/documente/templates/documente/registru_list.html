@@ -52,19 +52,19 @@
         <tr id="row_{{ obj.id }}">
             <td>#{{ obj.id }}</td>
             <td><i class = "icon-{% if obj.editabil %}unlock{% else %}lock{% endif %}"></i></td>
-            <td><i class = "icon-{% if obj.mod_functionare = 'auto' %}repeat{% else %}{% endif %}"></i></td>
+            <td><i class = "icon-{% if obj.mod_functionare == 'auto' %}repeat{% else %}{% endif %}"></i></td>
             <td><a href = "{% url "documente:registru_detail"  pk=obj.id %}">{{ obj.get_tip_registru_display }}</a></td>
             <td>{{ obj.serie }}</td>
             <td>{{ obj.document_set.all.count }}</td>
             <td><i class = "icon-{% if obj.valabil %}ok{% else %}remove{% endif %}"></i></td>
 
             <td>{{ obj.numar_inceput }} /
-                {% if obj.mod_functionare = 'auto' %}
+                {% if obj.mod_functionare == 'auto' %}
                 {{ obj.numar_curent }}
             {% else %}<em>manual</em>
                 {% endif %} /
                 {%  if obj.numar_sfarsit %}{{ obj.numar_sfarsit }}{% else %}<em>deschis</em>{% endif %}<br />
-            {% if obj.mod_functionare = 'auto' %}
+            {% if obj.mod_functionare == 'auto' %}
                 {% if obj.numar_sfarsit %}<span style = "font-size: 80%"><em>Disponibile: </em>{{ obj.numere_ramase }}</span>{% endif %}
             {% endif %}
             </td>

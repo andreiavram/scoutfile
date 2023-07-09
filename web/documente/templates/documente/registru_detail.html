@@ -26,7 +26,7 @@
         {% if object.mod_functionare == "auto" %}<li><strong>Următorul număr disponibil</strong>: {{ object.numar_curent }}</li>{% endif %}
     </ul>
 
-    {% autopaginate object.documente as documente 10 %}
+    {% autopaginate object.documente as documente 50 %}
 
     <table class = "table table-striped">
         <tr>
