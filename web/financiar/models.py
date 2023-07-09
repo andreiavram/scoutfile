@@ -102,8 +102,6 @@ class PaymentDocumentFile(models.Model):
     uploaded_file = models.FileField(upload_to="financiar/document")
 
 
-
-
 class BankAccount(models.Model):
     class BankOptions(TextChoices):
         BT = "bt", "Banca Transilvania"

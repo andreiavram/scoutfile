@@ -1763,6 +1763,7 @@ class EventPaymentCreate(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.currency = Currency.RON
+        self.object.domain = self.participation.eveniment.centru_local.default_payment_domain
         self.object.registration_status = PaymentDocument.RegistrationType.PAYMENT
         self.object.registered_by = self.request.user
         self.object.direction = PaymentDocument.RegistrationDirection.ISSUER

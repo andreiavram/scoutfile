@@ -1158,7 +1158,7 @@ class EventContributionOption(models.Model):
 
     def save(self, *args, **kwargs):
         try:
-            option = self.eveniment.contribution_options.get(is_default=True)
+            option = self.eveniment.contribution_options.get(is_default=True, per_diem=self.per_diem)
         except EventContributionOption.DoesNotExist:
             option = None
 
