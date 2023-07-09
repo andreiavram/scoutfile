@@ -1,0 +1,45 @@
+<script type="text/javascript" src="{% url "goodies:js_delete" app_label='documente' model='PlataCotizatieTrimestru' %}"></script>
+<h4>Plăți cotizație (debug)</h4>
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>Trimestru</th>
+			<th>Partial</th>
+            <th>Final</th>
+            <th>Suma</th>
+            <th>Index</th>
+            <th>Chitanță</th>
+            <th>Motiv</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for pct in object_list %}
+		<tr id="row_{{ object.id }}">
+			<td>{{ forloop.counter }}</td>
+			<td>{{ pct.trimestru }}</td>
+			<td>{% if pct.partial %}<i class = "icon-check-sign"></i>{% endif %}</td>
+            <td>{% if pct.final %}<i class = "icon-check-sign"></i>{% endif %}</td>
+            <td>{{ pct.suma }}</td>
+            <td>{{ pct.index }}</td>
+            <td>{{ pct.chitanta }}</td>
+            <td>{{ pct.get_tip_inregistrare_display }}</td>
+			<td>
+				<div class="btn-group pull-right">
+					<a class="btn btn-mini" id="delete_{{ pct.id }}" href="javascript:void()"><i class="icon-trash"></i></a>
+				</div>
+			</td>
+		</tr>
+		{% empty %}
+		<tr>
+			<td>&nbsp;</td>
+			<td><em>Nu există plăți cotizație trimestru pentru acest membru.</em></td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>

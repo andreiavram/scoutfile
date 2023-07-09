@@ -26,7 +26,7 @@ from structuri.views import CentruLocalCreate, CentruLocalUpdate, \
     UnitateTabMembriFaraPatrula, MembruTabActivitati, MembruRecalculeazaAcoperire, UnitateTabPatruleInactive, \
     UtilizatorHomeTabsDocumente, UtilizatorHomeTabsActivitati, MembruStergeAcoperire, CentruLocalTabMembriDeSuspendat, \
     MembruAdreseStatus, UnitatiListAPI, UpdateContentObjects, MembruInformatieCreate, MembruInformatieUpdate, \
-    MembruTabAlteInformatii, ListaMembriiDreptVot, ListaMembriiDreptVotCentruLocal
+    MembruTabAlteInformatii, ListaMembriiDreptVot, ListaMembriiDreptVotCentruLocal, MembruTabPlatiCotizatie
 
 urlpatterns = [
     path('centrulocal/adauga/', CentruLocalCreate.as_view(), name="cl_add"),
@@ -104,6 +104,7 @@ urlpatterns = [
     path('membru/<int:pk>/tab/familie/', MembruTabFamilie.as_view(), name="membru_tab_familie"),
     path('membru/<int:pk>/tab/documente/', MembruTabDocumente.as_view(), name="membru_tab_documente"),
     path('membru/<int:pk>/tab/activitati/', MembruTabActivitati.as_view(), name="membru_tab_activitati"),
+    path('membru/<int:pk>/tab/platicotizatie/', MembruTabPlatiCotizatie.as_view(), name="membru_tab_plati_cotizatie"),
 
     path('membru/<int:pk>/recalculeaza_acoperire/', MembruRecalculeazaAcoperire.as_view(),
          name="membru_recalculeaza_acoperire"),

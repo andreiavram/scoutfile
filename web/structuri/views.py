@@ -52,7 +52,7 @@ from utils.views import FacebookUserConnectView
 from adrese_postale.adrese import AdresaPostala
 from album.views import FileUploadMixin
 from album.models import ParticipareEveniment
-from documente.models import AsociereDocument
+from documente.models import AsociereDocument, PlataCotizatieTrimestru
 from documente.models import Trimestru, DecizieCotizatie
 from structuri.decorators import allow_by_afiliere
 
@@ -1003,20 +1003,20 @@ class MembruDetail(DetailView, TabbedViewMixin):
         return super(MembruDetail, self).dispatch(request, *args, **kwargs)
 
     def get_tabs(self):
-        self.tabs = (("brief", u"Sumar", reverse("structuri:membru_tab_brief", kwargs={"pk": self.object.id}), "", 1),
-                     ("afilieri", u"Afilieri", reverse("structuri:membru_tab_afilieri", kwargs={"pk": self.object.id}),
-                      "", 2),
-                     ("contact", u"Contact", reverse("structuri:membru_tab_contact", kwargs={"pk": self.object.id}), "",
-                      3),
-                     ("altele", u"Alte informații",
-                      reverse("structuri:membru_tab_altele", kwargs={"pk": self.object.id}), "", 4),
-                     ("familie", u"Familie", reverse("structuri:membru_tab_familie", kwargs={"pk": self.object.id}), "",
-                      5),
-                     ('documente', u"Documente",
-                      reverse("structuri:membru_tab_documente", kwargs={"pk": self.object.id}), "", 6),
-                     ('activitati', u"Activități",
-                      reverse("structuri:membru_tab_activitati", kwargs={"pk": self.object.id}), "icon-calendar", 7),
-                     )
+        self.tabs = [
+            ("brief", "Sumar", reverse("structuri:membru_tab_brief", kwargs={"pk": self.object.id}), "", 1),
+            ("afilieri", "Afilieri", reverse("structuri:membru_tab_afilieri", kwargs={"pk": self.object.id}), "", 2),
+            ("contact", "Contact", reverse("structuri:membru_tab_contact", kwargs={"pk": self.object.id}), "", 3),
+            ("altele", "Alte informații", reverse("structuri:membru_tab_altele", kwargs={"pk": self.object.id}), "", 4),
+            ("familie", "Familie", reverse("structuri:membru_tab_familie", kwargs={"pk": self.object.id}), "", 5),
+            ('documente', "Documente", reverse("structuri:membru_tab_documente", kwargs={"pk": self.object.id}), "", 6),
+            ('activitati', "Activități", reverse("structuri:membru_tab_activitati", kwargs={"pk": self.object.id}), "icon-calendar", 7),
+        ]
+        if self.request.user.is_superuser:
+            self.tabs.append(
+                ("plata_cotizatie", "Plăți cotizație", reverse("structuri:membru_tab_plati_cotizatie", kwargs={"pk": self.object.id}), "", 8)
+            )
+
         return super(MembruDetail, self).get_tabs()
 
     def get_context_data(self, **kwargs):
@@ -1133,6 +1133,20 @@ class MembruTabActivitati(ListView):
     def dispatch(self, request, *args, **kwargs):
         self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
         return super(MembruTabActivitati, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.model.objects.filter(membru=self.membru)
+
+
+class MembruTabPlatiCotizatie(ListView):
+    model = PlataCotizatieTrimestru
+    template_name = "structuri/membru_tab_plati_cotizatie.html"
+
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent"),
+                        ("Membru, Centru Local", "Membru Consiliul Centrului Local")])
+    def dispatch(self, request, *args, **kwargs):
+        self.membru = get_object_or_404(Membru, id=kwargs.pop("pk"))
+        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         return self.model.objects.filter(membru=self.membru)
