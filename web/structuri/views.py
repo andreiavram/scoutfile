@@ -11,7 +11,6 @@ import traceback
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
-from django.conf.global_settings import SERVER_EMAIL
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth.models import User
@@ -956,7 +955,7 @@ class MembruUpdate(UpdateView):
             if not settings.DEBUG or settings.USE_EMAIL_CONFIRMATION:
                 send_mail(u"Schimbare cont ScoutFile",
                           u"Utilizatorul tau pentru ScoutFile a fost schimbat pe această adresa.\n\nNumai bine,\nyeti",
-                          SERVER_EMAIL,
+                          settings.SERVER_EMAIL,
                           [self.object.email, ])
 
         self.object.save()
@@ -1014,7 +1013,7 @@ class MembruDetail(DetailView, TabbedViewMixin):
         ]
         if self.request.user.is_superuser:
             self.tabs.append(
-                ("plata_cotizatie", "Plăți cotizație", reverse("structuri:membru_tab_plati_cotizatie", kwargs={"pk": self.object.id}), "", 8)
+                ("plata_cotizatie", "Plăți cotizație", reverse("structuri:membru_tab_plati_cotizatie", kwargs={"pk": self.object.id}), "icon-cog", 8)
             )
 
         return super(MembruDetail, self).get_tabs()
@@ -1485,7 +1484,7 @@ class UtilizatorEditProfile(UpdateView):
             if not settings.DEBUG or settings.USE_EMAIL_CONFIRMATION:
                 send_mail(u"Schimbare cont ScoutFile",
                           u"Utilizatorul tau pentru ScoutFile a fost schimbat pe această adresa.\n\nNumai bine,\nyeti",
-                          SERVER_EMAIL,
+                          settings.SERVER_EMAIL,
                           [self.object.email, ])
 
             messages.success(self.request, u"Numele tău de utilizator a fost schimbat")
