@@ -43,6 +43,9 @@ class LegalEntity(models.Model):
 class PaymentDomain(models.Model):
     name = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.name
+
 
 class PaymentDocument(models.Model):
     class RegistrationType(TextChoices):
@@ -91,7 +94,7 @@ class PaymentDocument(models.Model):
         }
 
         return (
-            f"{self.get_document_type_display()} {self.document_number} / {self.document_date.strptime('%d.%m.%Y')} " 
+            f"{self.get_document_type_display()} {self.document_number} / {self.document_date.strptime('%d.%m.%Y') if self.document_date else ''} " 
             f"{direction.get(self.direction, '?')} {self.third_party if self.third_party else self.third_party_text}"
             f"în valoare de {self.value} {self.currency}"
         )

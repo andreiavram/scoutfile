@@ -1,9 +1,11 @@
 from django.contrib import admin
 
-from financiar.models import BankAccount, BankStatement, BankStatementItem, PaymentDomain
+from financiar.models import BankAccount, BankStatement, BankStatementItem, PaymentDomain, PaymentDocument
 
 
-# Register your models here.
+@admin.register(PaymentDocument)
+class PaymentDocumentAdmin(admin.ModelAdmin):
+    list_display = ["direction", "domain", "document_type", "registration_status", "value", "currency", "registered_by", "registered_at", ]
 
 
 @admin.register(BankAccount)
