@@ -442,7 +442,6 @@ class CentruLocalTabMembriDeSuspendat(CentruLocalTabMembri):
 
     def membru_fits_query(self, membru):
         status_cotizatie = membru._status_cotizatie()
-        print(status_cotizatie)
         return not membru.is_suspendat() and status_cotizatie[0] >= 2
 
     def get_queryset(self, *args, **kwargs):

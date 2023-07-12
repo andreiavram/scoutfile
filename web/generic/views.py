@@ -85,7 +85,6 @@ class IndexView(TemplateView):
 
     def loggedin_dispatcher(self, request):
         if request.user.is_authenticated:
-            print(request.user.utilizator.membru.get_home_link())
             return HttpResponseRedirect(request.user.utilizator.membru.get_home_link())
         return None
 

@@ -40,11 +40,9 @@ class GenericDeleteJavaScript(TemplateView):
         current = super(GenericDeleteJavaScript, self).get_context_data(*args, **kwargs)
 
         try:
-            print(self.ctype_app, self.ctype_model)
             ctype = ContentType.objects.get(app_label=self.ctype_app, model__iexact=self.ctype_model)
             current.update({"ctype": ctype})
         except Exception as e:
-            print(e)
             logger.debug(e)
 
         current.update({"prefix": self.prefix})

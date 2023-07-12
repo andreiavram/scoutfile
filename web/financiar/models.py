@@ -164,7 +164,6 @@ class BankStatement(models.Model):
 
         order_cursor = 0
         for row in csv_reader:
-            print(row)
             if not row:
                 continue
             if not transaction_line_found:
@@ -201,8 +200,6 @@ class BankStatement(models.Model):
                 )
             except IntegrityError as e:
                 log.error(f"Reference {row[3]} duplicated and will not be re-imported")
-                print(f"Reference {row[3]} duplicated and will not be re-imported")
-                print(f"{e}")
 
         # this also takes care of saving changes to the model up to this point, like start / end dates
         self.update_processing_status(status=BankStatement.StatementProcessingStatus.PROCESSED)

@@ -3,12 +3,14 @@ from builtins import object
 import datetime
 import json
 import logging
+from datetime import timedelta
 from functools import partial
 
 import unidecode
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import caches
+from django.db.models import ExpressionWrapper, F, DurationField
 from django.urls import reverse
 from django.db import models
 from django.db.models.aggregates import Sum
@@ -445,6 +447,8 @@ class Membru(Utilizator):
         self._proprietati = None
         self.save_to_cache("proprietati", None)
         self.create_structuri_cache()
+        self.clear_cache("cotizatie")
+        self.clear_cache("cotizatie_sociala")
 
     @property
     def adresa_postala(self):
@@ -472,7 +476,7 @@ class Membru(Utilizator):
         return self.get_centru_local()
 
     @staticmethod
-    def get_afilieri_filter(item, trimestru, content_type_structura=None, rol=None, membru=None, structura=None):
+    def get_afilieri_filter(item, trimestru, content_type_structura=None, rol=None, membru=None, structura=None, before_date=None, after_date=None):
         if not isinstance(rol, (list, tuple)):
             rol = [rol, ]
 
@@ -489,10 +493,23 @@ class Membru(Utilizator):
             conditions.append(item.get('object_id') != structura.id)
 
         if trimestru is None:
-            conditions += [
-                item.get('moment_inceput') is None,
-                item.get('moment_incheiere') is not None
-            ]
+            if before_date:
+                conditions += [
+                    not(
+                       item.get("moment_inceput") is not None and (item.get('moment_inceput').date() > before_date)
+                    )
+                ]
+            elif after_date:
+                conditions += [
+                    not(
+                        item.get("moment_incheiere") is None or (item.get("moment_incheiere") is not None and item.get("moment_incheiere").date() >= after_date)
+                    )
+                ]
+            else:
+                conditions += [
+                    item.get('moment_inceput') is None,
+                    item.get('moment_incheiere') is not None
+                ]
         else:
             conditions += [
                 item.get('moment_incheiere') is not None and (item.get('moment_incheiere').date() < trimestru.data_inceput),
@@ -578,7 +595,7 @@ class Membru(Utilizator):
             return CentruLocal.objects.all()
         return [self.centru_local, ]
 
-    def are_calitate(self, calitate, structura, trimestru=None, qs=False):
+    def are_calitate(self, calitate, structura, trimestru=None, qs=False, before=None, after=None):
         """ determina daca membrul are o calitate intr-un din structurile locale (Centru Local, Unitate, Patrula)
         determinarea se face pentru un trimestru, implicit fiind cel din ziua curenta
         metoda ar trebui sa fie folosita oriunde se incearca determinari de apartenente si calitati
@@ -599,11 +616,13 @@ class Membru(Utilizator):
             trimestru=trimestru,
             content_type_structura=content_type_structura,
             rol=calitate,
-            structura=structura
+            structura=structura,
+            before_date=before,
+            after_date=after
         )
 
         afilieri = list(filter(filter_asocieri, self._afilieri))
-        return self.afilieri.filter(id__in=[a['id'] for a in afilieri]) if qs else len(afilieri) != 0
+        return self.afilieri.filter(id__in=[a['id'] for a in afilieri]).select_related("tip_asociere") if qs else len(afilieri) != 0
 
         #
         # ams_filter = dict(content_type=ContentType.objects.get_for_model(structura),
@@ -964,33 +983,46 @@ class Membru(Utilizator):
         return return_value
 
     def _trimestre_scutite(self, trimestru_start, trimestru_end):
-        start = trimestru_start.ordine_globala
-        end = trimestru_end.ordine_globala
-        trimestre = list(range(start, end + 1))
+        qs = self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, after=trimestru_start.data_inceput, qs=True)
+        duration = ExpressionWrapper(F('moment_incheiere') - F('moment_inceput'), output_field=DurationField())
+        qs = qs.annotate(duration=duration).exclude(tip_asociere__nume='Membru inactiv', duration__gt=timedelta(days=365))
 
-        ctype_centru_local = ContentType.objects.get_for_model(CentruLocal)
-        ams_filter = dict(content_type=ctype_centru_local,
-                          object_id=self.centru_local.id,
-                          tip_asociere__content_types__in=(ctype_centru_local, ),
-                          tip_asociere__nume__in=self.CALITATI_SCUTITE_COTIZATIE,
-                          membru=self,)
-
-        asocieri = AsociereMembruStructura.objects.filter(**ams_filter)
-        if not asocieri.exists():
-            return 0
-
-        scutite = 0
-        for a in asocieri:
-            t_start = Trimestru.trimestru_pentru_data(a.moment_inceput)
-            if a.moment_incheiere is None:
-                de_scutit = set(range(t_start.ordine_globala, end + 1))
+        if qs.count():
+            if qs.filter(moment_incheiere__isnull=True).exists():
+                return trimestru_end.ordine_globala - trimestru_start.ordine_globala - 1
             else:
-                t_end = Trimestru.trimestru_pentru_data(a.moment_incheiere)
-                de_scutit = set(range(t_start.ordine_globala, t_end.ordine_globala + 1))
-            scutite += len(list(set.intersection(de_scutit, set(trimestre))))
-            trimestre = set.difference(set(trimestre), de_scutit)
+                last_discount_date = qs.order_by('-moment_incheiere').first().moment_incheiere
+                reference_quarter = Trimestru.trimestru_pentru_data(last_discount_date)
+                return reference_quarter.ordine_globala - trimestru_start.ordine_globala
+        return 0
 
-        return scutite
+        # start = trimestru_start.ordine_globala
+        # end = trimestru_end.ordine_globala
+        # trimestre = list(range(start, end + 1))
+        #
+        # ctype_centru_local = ContentType.objects.get_for_model(CentruLocal)
+        # ams_filter = dict(content_type=ctype_centru_local,
+        #                   object_id=self.centru_local.id,
+        #                   tip_asociere__content_types__in=(ctype_centru_local, ),
+        #                   tip_asociere__nume__in=self.CALITATI_SCUTITE_COTIZATIE,
+        #                   membru=self,)
+        #
+        # asocieri = AsociereMembruStructura.objects.filter(**ams_filter)
+        # if not asocieri.exists():
+        #     return 0
+        #
+        # scutite = 0
+        # for a in asocieri:
+        #     t_start = Trimestru.trimestru_pentru_data(a.moment_inceput)
+        #     if a.moment_incheiere is None:
+        #         de_scutit = set(range(t_start.ordine_globala, end + 1))
+        #     else:
+        #         t_end = Trimestru.trimestru_pentru_data(a.moment_incheiere)
+        #         de_scutit = set(range(t_start.ordine_globala, t_end.ordine_globala + 1))
+        #     scutite += len(list(set.intersection(de_scutit, set(trimestre))))
+        #     trimestre = set.difference(set(trimestre), de_scutit)
+        #
+        # return scutite
 
     def status_cotizatie(self, for_diff=None):
         if for_diff is None:
@@ -1150,22 +1182,53 @@ class Membru(Utilizator):
         if trimestru.ordine_globala in self._plateste_cotizatie:
             return self._plateste_cotizatie[trimestru.ordine_globala]
 
+        # daca a existat sau exista una sau mai multe relatii de scutire de cotizatie,
+        # poate fi prepopulata scutirea pana la data incheierii celei mai noi perioade de
+        # scutire, cu conditia ca daca membrul a fost inactiv, perioada de inactivitate sa fie
+        # de macar un an
+
+        # - verifica daca are asocieri scutite de cotizatie dupa trimestrul asta, inchise sau deschise
+        # - daca sunt deschise, pune "plateste_cotizatie" fals pana la capat
+        # - daca sunt inchise, pune "plateste_cotizatie" fals pana la finalul celei mai recente
+        # - pentru membru inactiv, exclude asocierile pe mai putin de un an
+        qs = self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, after=trimestru.data_inceput, qs=True)
+        duration = ExpressionWrapper(F('moment_incheiere') - F('moment_inceput'), output_field=DurationField())
+        qs = qs.annotate(duration=duration).exclude(tip_asociere__nume='Membru inactiv', duration__gt=timedelta(days=365))
+
+        if qs.count():
+            if qs.filter(moment_incheiere__isnull=True).exists():
+                trimestru_curent = Trimestru.trimestru_pentru_data(datetime.date.today())
+                if trimestru.ordine_globala == trimestru_curent.ordine_globala:
+                    trimestre_actualizate = [trimestru.ordine_globala]
+                else:
+                    trimestre_actualizate = range(trimestru.ordine_globala, trimestru_curent.ordine_globala + 1)
+            else:
+                last_discount_date = qs.order_by('-moment_incheiere').first().moment_incheiere
+                reference_quarter = Trimestru.trimestru_pentru_data(last_discount_date)
+                trimestre_actualizate = range(trimestru.ordine_globala, reference_quarter.ordine_globala + 1)
+
+            self._plateste_cotizatie.update({k: False for k in trimestre_actualizate})
+            return self._plateste_cotizatie[trimestru.ordine_globala]
+
         #   daca exista o relatie de scutire de cotizatie care nu e inca inchisa, putem prepopula de la primul apel
         #   pentru toate trimestrele pana la cel curent relevante
-        if self.is_adult() or self.is_inactiv() or self.is_alumnus():
-            qs = self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, qs=True)
-            asociere_deschisa = qs.filter(moment_incheiere__isnull=True).first()
-            if asociere_deschisa:
-                trimestru_end = Trimestru.trimestru_pentru_data(datetime.date.today()).ordine_globala
-                trimestru_curent = Trimestru.trimestru_pentru_data(asociere_deschisa.moment_inceput).ordine_globala
-                self._plateste_cotizatie.update({k: False for k in range(trimestru_curent, trimestru_end + 1)})
 
-                if trimestru.ordine_globala in self._plateste_cotizatie:
-                    return self._plateste_cotizatie[trimestru.ordine_globala]
+        # yeti: codul de deasupra ar trebui sa rezolve problema asta mai general
+        # if self.is_adult() or self.is_inactiv() or self.is_alumnus():
+        #     qs = self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, qs=True)
+        #     asociere_deschisa = qs.filter(moment_incheiere__isnull=True).first()
+        #     if asociere_deschisa:
+        #         trimestru_end = Trimestru.trimestru_pentru_data(datetime.date.today()).ordine_globala
+        #         trimestru_curent = Trimestru.trimestru_pentru_data(asociere_deschisa.moment_inceput).ordine_globala
+        #         self._plateste_cotizatie.update({k: False for k in range(trimestru_curent, trimestru_end + 1)})
+        #
+        #         if trimestru.ordine_globala in self._plateste_cotizatie:
+        #             return self._plateste_cotizatie[trimestru.ordine_globala]
 
         if self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, trimestru=trimestru):
             self._plateste_cotizatie[trimestru.ordine_globala] = False
             return False
+
 
         self._plateste_cotizatie[trimestru.ordine_globala] = result = True
         return result

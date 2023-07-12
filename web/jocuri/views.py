@@ -196,7 +196,6 @@ class DocumentActivitateAdauga(FileUploadMixin, CreateView):
         self.object.folder = self.activitate
 
         import os
-        print("numefisier ", os.path.splitext(form.cleaned_data.get("fisier").name))
         fname, fextension = os.path.splitext(form.cleaned_data.get("fisier").name)
         fextension = fextension[1:]
         if fextension.lower() in ["jpg", "jpeg", "png", "gif"]:
