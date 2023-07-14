@@ -6,6 +6,7 @@ from financiar.models import BankAccount, BankStatement, BankStatementItem, Paym
 @admin.register(PaymentDocument)
 class PaymentDocumentAdmin(admin.ModelAdmin):
     list_display = ["direction", "domain", "document_type", "registration_status", "value", "currency", "registered_by", "registered_at", ]
+    list_filter = ["direction", "domain", "document_type", "registration_status"]
 
 
 @admin.register(BankAccount)

@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 from builtins import object
 from django.db import models
 from django.db.models import Sum, IntegerChoices
@@ -33,6 +34,16 @@ class ProjectPosition(models.Model):
 
     # TODO: deal with team ownership / assignments here as well
     member = models.ForeignKey("structuri.Membru", on_delete=models.CASCADE, related_name="projects")
+    
+    def is_active(self):
+        condition = {
+            (False, False): True,
+            (True, False): self.starting_on < datetime.datetime.now(),
+            (False, True): self.ending_on > datetime.datetime.now(),
+            (True, True): self.ending_on > datetime.datetime.now() > self.starting_on
+        }
+
+        return condition[(bool(self.starting_on), bool(self.ending_on))]
 
 
 # --------------- Budgets & Money -------------------
@@ -67,12 +78,14 @@ class ProjectBudgetEntry(models.Model):
 
 class ProjectObjective(models.Model):
     title = models.CharField(max_length=255)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="objectives")
     description = models.TextField()
     short_form = models.CharField(max_length=5)
 
 
 class ProjectActivity(models.Model):
     title = models.CharField(max_length=255)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="activities")
     description = models.TextField()
     date_start = models.DateField()
     date_end = models.DateField()

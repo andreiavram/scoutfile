@@ -181,6 +181,7 @@ class Chitanta(Document):
     #numar = models.IntegerField(default=0)
     suma = models.FloatField(default=0)
     printata = models.BooleanField(default=False)
+    payment_document = models.ForeignKey("financiar.PaymentDocument", null=True, blank=True, on_delete=models.CASCADE)
 
     def save(self, force_insert=False, force_update=False, using=None):
         if not self.tip_document:
