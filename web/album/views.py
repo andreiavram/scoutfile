@@ -1687,6 +1687,12 @@ class EventContributionList(ListView):
         self.event = Eveniment.objects.get(slug=kwargs.pop("slug"))
         return super().dispatch(request, *args, **kwargs)
 
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        qs = qs.filter(eveniment=self.event)
+        return qs
+
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
         context['eveniment'] = self.event
