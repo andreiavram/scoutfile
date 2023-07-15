@@ -47,7 +47,7 @@ class PaymentDomain(models.Model):
         return self.name
 
 
-class PaymentDocument(models.Model):
+class   PaymentDocument(models.Model):
     class RegistrationType(TextChoices):
         PAYMENT_REQUEST = "request", "Obligație de plată"
         PAYMENT = "payment", "Dovadă de plată"

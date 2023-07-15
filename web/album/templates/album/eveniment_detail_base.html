@@ -128,10 +128,9 @@
                 </p>
             {% if object.descriere %}{{ object.descriere|safe|linebreaks }}<br/>{% endif %}
 
-            {% if object.external_album_link %}
-            <p><a href = "{{ object.external_album_link }}" target="_blank"><i class = "icon-globe"></i> Album Extern</a>
-            </p>
-            {% endif %}
+            {% for url in eveniment.external_links.all %}
+                <p><a href="{{ url.url }}" target="_blank"><i class="{% if url.role.icon %}{{ url.role.icon }}{% else %}icon-globe{% endif %}"></i> {% if url.title %}{{ url.title }}{% else %}{{ url.role }}{% endif %}</a></p>
+            {% endfor %}
 
 
             <p>{% if object.total_poze != 0 %}<strong>Conține {{ object.total_poze }} fotografii de la {{ object.get_autori|length }} fotografi <i

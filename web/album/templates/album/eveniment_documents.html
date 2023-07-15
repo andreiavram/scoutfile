@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load pagination_tags %} {% load bs_pagination %}
+
+{% block page_title %}
+    {{ eveniment }} <span style="font-weight: normal">| documente</span>
+    <div class = "btn-group pull-right">
+        <a class = "btn btn-primary" href = "{% url "album:eveniment_tipcontributii_create"  slug=eveniment.slug %}"><i class = "icon-plus"></i> Adaugă tip contributie</a>
+    </div>
+{% endblock %}
+
+{% block context_menu %}
+    {% include "album/eveniment_context_menu.html" %}
+{% endblock %}
+
+{% block extrahead %}
+    <script type="text/javascript" src="{% url "goodies:js_delete" app_label='documente' model='Document' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>&nbsp;</th>
+            <th>Tip Document</th>
+            <th>Titlu</th>
+            <th>Data / Uploader</th>
+            <th>&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for document in object_list %}
+            <tr>
+                <td>#{{ document.id }}</td>
+                <td>{{ document.tip_document.nume }}</td>
+                <td>
+                    {% if document.fisier %}
+                        <a href="{{ document.fisier.url }}"><i class="icon-file"></i> {{ document.titlu }}</a>
+                    {% elif document.url %}
+                        <a href="{{ document.url }}"><i class="icon-globe"></i> {{ document.titlu }}</a>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ document.date_created|date:"d.m.Y" }}<br><small>{{ document.uploader }}</small>
+                <td>
+                    <div class = "btn-group pull-right">
+{#                        <a href = "{% url "album:eveniment_tipcontributii_update"  pk=option.id %}" class = "btn btn-mini"><i class = "icon-pencil"></i></a>#}
+                        <a href = "#" id="delete_{{ document.id }}" class = "btn btn-mini"><i class = "icon-trash"></i></a>
+                    </div>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td>&nbsp;</td>
+                <td colspan="4">
+                    <em>Nu există încă documente atașate acestui eveniment.
+{#                        Adaugă de <a href = "{% url "album:eveniment_tipcontributii_create" slug=eveniment.slug %}">aici</a>#}
+                    </em>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+
+
+    </table>
+
+{% endblock %}
+

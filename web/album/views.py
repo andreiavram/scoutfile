@@ -31,6 +31,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, CreateView, FormView
 from django.views.generic.list import ListView
 
+from documente.models import Document
 from financiar.models import PaymentDocument, Currency
 from goodies.views import GenericDeleteView, CalendarViewMixin
 from goodies.views import JSONView
@@ -1787,3 +1788,24 @@ class EventPaymentCreate(CreateView):
         context['eveniment'] = self.participation.eveniment
         context['participare'] = self.participation
         return context
+
+
+class EvenimentDetailMixin:
+    def dispatch(self, request, *args, **kwargs):
+        self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop('slug'))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['eveniment'] = self.eveniment
+        return context
+
+
+
+@method_decorator(allow_by_afiliere([("Eveniment, Centru Local", "Lider"), ("Eveniment, Centru Local", "Lider asistent")], pkname="slug"), name="dispatch")
+class EventDocumentsView(EvenimentDetailMixin, ListView):
+    model = Document
+    template_name = "album/eveniment_documents.html"
+
+    def get_queryset(self):
+        return self.model.objects.filter(evenimente__in=[self.eveniment, ])

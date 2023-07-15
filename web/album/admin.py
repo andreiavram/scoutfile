@@ -7,12 +7,19 @@ Created on Aug 28, 2012
 from django.contrib import admin
 
 from album.models import Eveniment, ZiEveniment, Imagine, SetPoze, \
-    EXIFData, DetectedFace, TipEveniment, FlagReport, ProgramEveniment, TrackEveniment, EventContributionOption
+    EXIFData, DetectedFace, TipEveniment, FlagReport, ProgramEveniment, TrackEveniment, EventContributionOption, \
+    LinkType, EventURL
+from documente.models import Document
+
+
+class EvenimentDocumentsInline(admin.StackedInline):
+    model = Eveniment.documents.through
 
 
 @admin.register(Eveniment)
 class EvenimentAdmin(admin.ModelAdmin):
     search_fields = ["nume", ]
+    inlines = [EvenimentDocumentsInline, ]
 
 
 admin.site.register(ZiEveniment)
@@ -26,3 +33,5 @@ admin.site.register(FlagReport)
 admin.site.register(ProgramEveniment)
 admin.site.register(TrackEveniment)
 admin.site.register(EventContributionOption)
+admin.site.register(LinkType)
+admin.site.register(EventURL)

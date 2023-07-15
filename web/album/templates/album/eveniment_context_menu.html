@@ -9,6 +9,9 @@
         <li><a href = "{% url "album:eveniment_asociere_structura_create"  slug=eveniment.slug %}"><i class = "icon-link"></i> Conexiuni interne</a></li>
         <li><a href = "{% url "album:eveniment_participanti_list"  slug=eveniment.slug %}"><i class = "icon-group"></i> Participanți</a></li>
         <li><a href = "{% url "album:eveniment_tipcontributii_list" slug=eveniment.slug %}"><i class = "icon-list-alt"></i> Tipuri contribuție</a></li>
+        {% if user.is_authenticated %}
+            <li><a href = "{% url "album:eveniment_documents" slug=eveniment.slug %}"><i class = "icon-file"></i> Documente</a></li>
+        {% endif %}
 
 
         <li class = "nav-header">Acțiuni</li>

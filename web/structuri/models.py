@@ -1058,12 +1058,13 @@ class Membru(Utilizator):
         #   perioada de activitate
 
         afilieri_scutite = self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, trimestru=trimestru_initial, qs=True)
+
         if afilieri_scutite.filter(moment_incheiere__isnull=True).exists():
             trimestru_initial = Trimestru.urmatorul_trimestru(Trimestru.trimestru_pentru_data(datetime.date.today()))
-
-        afilieri_scutite = afilieri_scutite.order_by("-moment_incheiere")
-        if afilieri_scutite.exists():
-            trimestru_initial = Trimestru.urmatorul_trimestru(Trimestru.trimestru_pentru_data(afilieri_scutite[0].moment_incheiere))
+        else:
+            afilieri_scutite = afilieri_scutite.order_by("-moment_incheiere")
+            if afilieri_scutite.exists():
+                trimestru_initial = Trimestru.urmatorul_trimestru(Trimestru.trimestru_pentru_data(afilieri_scutite.first().moment_incheiere))
 
         if return_plati_partiale:
             return trimestru_initial, plati_partiale

@@ -15,6 +15,8 @@ from django.db import models
 from django.db.models.aggregates import Sum
 from django.db.models.signals import post_delete
 from django.dispatch.dispatcher import receiver
+
+from financiar.models import PaymentDocument
 from scoutfile3.s3utils import LocalStorage
 
 logger = logging.getLogger(__name__)
@@ -186,6 +188,7 @@ class Chitanta(Document):
     def save(self, force_insert=False, force_update=False, using=None):
         if not self.tip_document:
             self.tip_document = TipDocument.objects.get(slug="chitanta")
+
         return super(Chitanta, self).save(force_insert=force_insert, force_update=force_update, using=using)
 
     def referinta(self):

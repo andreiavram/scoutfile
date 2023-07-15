@@ -136,6 +136,8 @@ class Eveniment(models.Model):
     slack_id = models.CharField(max_length=255, null=True, blank=True)
     external_album_link = models.URLField(null=True, blank=True, verbose_name="Link album extern")
 
+    documents = models.ManyToManyField("documente.Document", blank=True, related_name="evenimente")
+
     class Meta(object):
         verbose_name = u"Eveniment"
         verbose_name_plural = u"Evenimente"
@@ -1205,3 +1207,21 @@ class ProgramEveniment(models.Model):
     materiale = models.TextField()
     responsabil = models.ForeignKey("structuri.Membru", null=True, blank=True, on_delete=models.SET_NULL)
 
+
+class LinkType(models.Model):
+    name = models.CharField(max_length=255)
+    icon = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+class EventURL(models.Model):
+    url = models.URLField()
+    title = models.CharField(max_length=255, null=True, blank=True)
+    role = models.ForeignKey(LinkType, null=True, blank=True, on_delete=models.SET_NULL)
+    eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE, related_name="external_links")
+
+    def __str__(self):
+        if self.title:
+            return f"URL {self.title}: {self.url}"
+        return f"URL {self.role}: {self.url}"

@@ -10,7 +10,7 @@ from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     EvenimentCampuriArbitrare, EvenimentCampuriArbitrareCreate, EvenimentCampuriArbitrareUpdate, PozaUpdateTags, \
     FlagImageAjax, EvenimentUpdateCampuriAditionale, EvenimentParticipantNonMembruCreate, \
     EvenimentParticipantNonMembruUpdate, EvenimentParticipantiExport, PozaVot, PozaMakeCover, EventContributionList, \
-    EventContributionCreate, EventContributionUpdate, EventPaymentCreate
+    EventContributionCreate, EventContributionUpdate, EventPaymentCreate, EventDocumentsView
 from album.views import ChangeImagineVisibility
 
 urlpatterns = [
@@ -38,6 +38,7 @@ urlpatterns = [
     path('eveniment/<slug:slug>/edit/', EvenimentUpdate.as_view(), name="eveniment_update"),
     path('eveniment/<slug:slug>/delete/', EvenimentDelete.as_view(), name="eveniment_delete"),
     path('eveniment/<slug:slug>/', EvenimentDetail.as_view(), name="eveniment_detail"),
+    path('eveniment/<slug:slug>/documents/', EventDocumentsView.as_view(), name="eveniment_documents"),
 
     path('eveniment/<slug:slug>/participanti/list/', EvenimentParticipanti.as_view(),
          name="eveniment_participanti_list"),

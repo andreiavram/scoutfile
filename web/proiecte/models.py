@@ -18,6 +18,9 @@ class Project(CategorizedModelMixin, models.Model):
     visibility = models.IntegerField(choices=PROJECT_VISIBILITY_STATUSES)
     slug = models.SlugField(unique=True)
 
+    def __str__(self):
+        return self.name
+
 
 # --------------- People & Teams -------------------
 
@@ -53,6 +56,9 @@ class ProjectBudgetLine(models.Model):
     name = models.CharField(max_length=255)
     parent = models.ForeignKey("proiecte.ProjectBudgetLine", null=True, blank=True, related_name="sublines", on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.name
+
     def total_sum(self):
         sum = self.entries.all().aggregate(Sum("sum")).get("sum__sum")
         parent_list = list(self.sublines.all())
@@ -73,6 +79,8 @@ class ProjectBudgetEntry(models.Model):
     sum = models.FloatField()
     direction = models.PositiveSmallIntegerField(choices=BudgetDirection.choices, default=BudgetDirection.EXPENDITURE)
 
+    def __str__(self):
+        return self.title
 
 # --------------- Objectives & Activities -------------------
 
@@ -81,6 +89,9 @@ class ProjectObjective(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="objectives")
     description = models.TextField()
     short_form = models.CharField(max_length=5)
+
+    def __str__(self):
+        return self.title
 
 
 class ProjectActivity(models.Model):
