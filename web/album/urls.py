@@ -10,7 +10,8 @@ from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     EvenimentCampuriArbitrare, EvenimentCampuriArbitrareCreate, EvenimentCampuriArbitrareUpdate, PozaUpdateTags, \
     FlagImageAjax, EvenimentUpdateCampuriAditionale, EvenimentParticipantNonMembruCreate, \
     EvenimentParticipantNonMembruUpdate, EvenimentParticipantiExport, PozaVot, PozaMakeCover, EventContributionList, \
-    EventContributionCreate, EventContributionUpdate, EventPaymentCreate, EventDocumentsView
+    EventContributionCreate, EventContributionUpdate, EventPaymentCreate, EventDocumentsView, EventLinkCreate, \
+    EventLinkUpdate, EventLinkList
 from album.views import ChangeImagineVisibility
 
 urlpatterns = [
@@ -60,6 +61,10 @@ urlpatterns = [
     path('eveniment/<slug:slug>/tipcontributii/', EventContributionList.as_view(), name="eveniment_tipcontributii_list"),
     path('eveniment/<slug:slug>/tipcontributii/adauga/', EventContributionCreate.as_view(), name="eveniment_tipcontributii_create"),
     path('eveniment/tipcontributii/<int:pk>/modifica/', EventContributionUpdate.as_view(), name="eveniment_tipcontributii_update"),
+
+    path('eveniment/<slug:slug>/urls/', EventLinkList.as_view(), name="eveniment_url_list"),
+    path('eveniment/<slug:slug>/urls/adauga/', EventLinkCreate.as_view(), name="eveniment_url_create"),
+    path('eveniment/urls/<int:pk>/modifica/', EventLinkUpdate.as_view(), name="eveniment_url_update"),
 
     path('eveniment/participanti/<int:pk>/plata/', EventPaymentCreate.as_view(), name="eveniment_payment"),
 

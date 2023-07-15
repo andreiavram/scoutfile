@@ -47,11 +47,11 @@ from album.exporters.envelopes import C5Envelopes
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipareEveniment, \
     AsociereEvenimentStructura, TipEveniment, SetPoze, IMAGINE_PUBLISHED_STATUS, \
     CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment, FLAG_MOTIVES, ParticipantEveniment, \
-    StatusEveniment, EventContributionOption
+    StatusEveniment, EventContributionOption, EventURL
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm, \
     EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm, CampArbitrarForm, EvenimentParticipareUpdateForm, \
     ReportFormNoButtons, EvenimentParticipareNonMembruForm, EvenimentParticipareNonmembruUpdateForm, \
-    EvenimentParticipantFilterForm, EventContributionOptionForm, EventPaymentDocumentForm
+    EvenimentParticipantFilterForm, EventContributionOptionForm, EventPaymentDocumentForm, EventURLForm
 from album.exporters.table import TabularExport
 from generic.views import ScoutFileAjaxException
 from structuri.decorators import allow_by_afiliere
@@ -1801,11 +1801,60 @@ class EvenimentDetailMixin:
         return context
 
 
+class EventLinkList(EvenimentDetailMixin, ListView):
+    model = EventURL
+    template_name = "album/eveniment_url_list.html"
+    @allow_by_afiliere([("Eveniment, Centru Local", "Lider"), ("Eveniment, Centru Local", "Lider asistent")], pkname="slug")
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
-@method_decorator(allow_by_afiliere([("Eveniment, Centru Local", "Lider"), ("Eveniment, Centru Local", "Lider asistent")], pkname="slug"), name="dispatch")
+    def get_queryset(self):
+        return super().get_queryset().filter(eveniment=self.eveniment)
+
+
+class EventLinkCreate(EvenimentDetailMixin, CreateView):
+    model = EventURL
+    form_class = EventURLForm
+    template_name = "album/eveniment_url_form.html"
+    @allow_by_afiliere([("Eveniment, Centru Local", "Lider"), ("Eveniment, Centru Local", "Lider asistent")], pkname="slug")
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.eveniment = self.eveniment
+        obj.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("album:eveniment_url_list", kwargs={"slug": self.eveniment.slug})
+
+
+class EventLinkUpdate(UpdateView):
+    model = EventURL
+    form_class = EventURLForm
+    template_name = "album/eveniment_url_form.html"
+
+    @allow_by_afiliere([("Eveniment, Centru Local", "Lider"), ("Eveniment, Centru Local", "Lider asistent")], pkname="slug")
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['eveniment'] = self.object.eveniment
+        return context
+
+    def get_success_url(self):
+        return reverse("album:eveniment_url_list", kwargs={"slug": self.object.eveniment.slug})
+
+
 class EventDocumentsView(EvenimentDetailMixin, ListView):
     model = Document
     template_name = "album/eveniment_documents.html"
+
+    @allow_by_afiliere([("Eveniment, Centru Local", "Lider"), ("Eveniment, Centru Local", "Lider asistent")], pkname="slug")
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         return self.model.objects.filter(evenimente__in=[self.eveniment, ])

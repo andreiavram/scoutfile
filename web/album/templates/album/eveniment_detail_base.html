@@ -128,10 +128,6 @@
                 </p>
             {% if object.descriere %}{{ object.descriere|safe|linebreaks }}<br/>{% endif %}
 
-            {% for url in eveniment.external_links.all %}
-                <p><a href="{{ url.url }}" target="_blank"><i class="{% if url.role.icon %}{{ url.role.icon }}{% else %}icon-globe{% endif %}"></i> {% if url.title %}{{ url.title }}{% else %}{{ url.role }}{% endif %}</a></p>
-            {% endfor %}
-
 
             <p>{% if object.total_poze != 0 %}<strong>Conține {{ object.total_poze }} fotografii de la {{ object.get_autori|length }} fotografi <i
                     class="icon-star"></i>{% endif %}
@@ -153,8 +149,8 @@
 
             <p>{% if object.international %}<span class = "label label-info">Internațional</span> {% endif %}</p>
 
-            {% if object.contribution_options.all.count %}
-            <p><strong>Tipuri contribuție</strong>:
+            {% if object.contribution_options.all.exists %}
+            <p><h4>Tipuri contribuție</h4>
                 <ul>
                     {% for option in object.contribution_options.all %}
                         <li>{{ option.value }} {% if option.per_diem %} / zi{% endif %} {% if option.description %} - {{ option.description }}{% endif %}</li>
@@ -162,6 +158,14 @@
                 </ul>
             </p>
             {% endif %}
+
+            {% if eveniment.external_links.exists %}
+            <h4>Link-uri externe</h4>
+            {% for url in eveniment.external_links.all %}
+                <p><a href="{{ url.url }}" target="_blank"><i class="{% if url.role.icon %}{{ url.role.icon }}{% else %}icon-globe{% endif %}"></i> {% if url.title %}{{ url.title }}{% else %}{{ url.role }}{% endif %}</a></p>
+            {% endfor %}
+            {% endif %}
+
         </div>
         <div class="span3">
             <div class="map-canvas thumbnail" id="map_canvas"

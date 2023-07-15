@@ -13,7 +13,7 @@ from django.forms.widgets import RadioSelect, Textarea, CheckboxSelectMultiple
 from taggit.forms import TagField
 
 from album.models import FlagReport, FLAG_MOTIVES, RaportEveniment, ParticipareEveniment, \
-    CampArbitrarParticipareEveniment, StatusParticipare, EventContributionOption
+    CampArbitrarParticipareEveniment, StatusParticipare, EventContributionOption, EventURL
 from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
 from financiar.models import PaymentDocument
 from generic.widgets import BootstrapDateTimeInput, BootstrapDateInput
@@ -84,7 +84,7 @@ class EvenimentCreateForm(CrispyBaseModelForm):
                                     "facebook_event_link", "articol_site_link", "locatie_text", "locatie_geo",
                                     "organizator", "organizator_cercetas", "international", "published_status", "cover_photo",
                                     Fieldset(u"Responsabili", "responsabil_articol", "responsabil_raport"),
-                                    Fieldset(u"Altele", "oncr_id", "external_album_link"), Fieldset(u"Participați impliciți", "adauga_persoane", "adauga_lideri"))
+                                    Fieldset(u"Altele", "oncr_id"), Fieldset(u"Participați impliciți", "adauga_persoane", "adauga_lideri"))
 
 
 class EvenimentUpdateForm(EvenimentCreateForm):
@@ -281,3 +281,7 @@ class EventPaymentDocumentForm(CrispyBaseModelForm):
         fields = ["document_type", "value", "notes"]
 
 
+class EventURLForm(CrispyBaseModelForm):
+    class Meta:
+        model = EventURL
+        fields = ["url", "role", "title"]

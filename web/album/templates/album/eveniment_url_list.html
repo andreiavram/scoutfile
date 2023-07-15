@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load pagination_tags %} {% load bs_pagination %}
+
+{% block page_title %}
+    {{ eveniment }} <span style="font-weight: normal">| URLs</span>
+    <div class = "btn-group pull-right">
+        <a class = "btn btn-primary" href = "{% url "album:eveniment_url_create"  slug=eveniment.slug %}"><i class = "icon-plus"></i> Adaugă URL</a>
+    </div>
+{% endblock %}
+
+{% block context_menu %}
+    {% include "album/eveniment_context_menu.html" %}
+{% endblock %}
+
+{% block extrahead %}
+    <script type="text/javascript" src="{% url "goodies:js_delete" app_label='album' model='EventURL' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>&nbsp;</th>
+            <th>Titlu / Rol</th>
+            <th>URL</th>
+            <th>&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for event_url in object_list %}
+            <tr>
+                <td>#{{ event_url.id }}</td>
+                <td>{% if event_url.title %}{{ event_url.title }}{% endif %}{% if event_url.role %}{% if event_url.title %} / {% endif %}{{ event_url.role }}{% endif %}</td>
+                <td><a href = "{{ event_url.url }}" target="_blank">{{ event_url.url }}</a></td>
+
+                <td>
+                    <div class = "btn-group pull-right">
+                        <a href = "{% url "album:eveniment_url_update"  pk=event_url.id %}" class = "btn btn-mini"><i class = "icon-pencil"></i></a>
+                        <a href = "#" id="delete_{{ event_url.id }}" class = "btn btn-mini"><i class = "icon-trash"></i></a>
+                    </div>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td>&nbsp;</td>
+                <td colspan="4">
+                    <em>Nu există încă URLuri. Adaugă de <a href = "{% url "album:eveniment_url_create" slug=eveniment.slug %}">aici</a></em>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+
+
+    </table>
+
+{% endblock %}
+
