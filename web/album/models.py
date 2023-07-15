@@ -539,6 +539,7 @@ class ParticipareEveniment(models.Model):
 
     class Meta(object):
         ordering = ["-data_sosire", "status_participare"]
+        unique_together = ["eveniment", "membru"]
 
     @property
     def is_partiala(self):
@@ -612,6 +613,7 @@ class CampArbitrarParticipareEveniment(models.Model):
     tip_camp = models.CharField(max_length=255, choices=TipCampParticipare.choices)
     implicit = models.CharField(max_length=255, null=True, blank=True)
     optional = models.BooleanField(default=True)
+    user_fillable = models.BooleanField(default=False)
     explicatii_suplimentare = models.CharField(max_length=255, null=True, blank=True, help_text=u"Instrucțiuni despre cum să fie completat acest câmp, format, ...")
     afiseaza_sumar = models.BooleanField(default=False, verbose_name=u"Afișează sumar", help_text=u"Afișează totale la sfârșitul tabelului")
 

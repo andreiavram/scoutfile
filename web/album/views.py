@@ -47,11 +47,12 @@ from album.exporters.envelopes import C5Envelopes
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipareEveniment, \
     AsociereEvenimentStructura, TipEveniment, SetPoze, IMAGINE_PUBLISHED_STATUS, \
     CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment, FLAG_MOTIVES, ParticipantEveniment, \
-    StatusEveniment, EventContributionOption, EventURL
+    StatusEveniment, EventContributionOption, EventURL, StatusParticipare, RolParticipare
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm, \
     EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm, CampArbitrarForm, EvenimentParticipareUpdateForm, \
     ReportFormNoButtons, EvenimentParticipareNonMembruForm, EvenimentParticipareNonmembruUpdateForm, \
-    EvenimentParticipantFilterForm, EventContributionOptionForm, EventPaymentDocumentForm, EventURLForm
+    EvenimentParticipantFilterForm, EventContributionOptionForm, EventPaymentDocumentForm, EventURLForm, \
+    EvenimentParticipareRegistrationForm
 from album.exporters.table import TabularExport
 from generic.views import ScoutFileAjaxException
 from structuri.decorators import allow_by_afiliere
@@ -1858,3 +1859,60 @@ class EventDocumentsView(EvenimentDetailMixin, ListView):
 
     def get_queryset(self):
         return self.model.objects.filter(evenimente__in=[self.eveniment, ])
+
+
+class EventRegisterView(EvenimentDetailMixin, UpdateView):
+    model = ParticipareEveniment
+    form_class = EvenimentParticipareRegistrationForm
+    template_name = "album/eveniment_register_form.html"
+
+    # TODO: make this depend on Conexiuni Internet as well
+    @allow_by_afiliere([("Eveniment, Centru Local", "Membru"), ], pkname="slug")
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['eveniment'] = self.eveniment
+        kwargs['request'] = self.request
+        return kwargs
+
+    def form_valid(self, form):
+        submit_mapping = {
+            "confirm": StatusParticipare.CONFIRMED,
+            "deffer": StatusParticipare.UNKNOWN,
+            "reject": StatusParticipare.REFUSED,
+        }
+
+        action = 'deffer'
+        for key in submit_mapping.keys():
+            if self.request.POST.get(key):
+                action = key
+
+        self.object = form.save(commit=False)
+        self.object.eveniment = self.eveniment
+        self.object.membru = self.request.user.utilizator.membru
+        self.object.status_participare = submit_mapping.get(action)
+        self.object.data_sosire = self.eveniment.start_date
+        self.object.data_plecare = self.eveniment.end_date
+        self.object.rol = RolParticipare.PARTICIPANT
+
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("album:eveniment_detail", kwargs={"slug": self.eveniment.slug})
+
+    def get_initial(self):
+        data = super().get_initial()
+        data['data_sosire'] = self.eveniment.start_date
+        data['data_plecare'] = self.eveniment.end_date
+        return data
+
+    def get_object(self, queryset=None):
+        try:
+            membru = self.request.user.utilizator.membru
+            return ParticipareEveniment.objects.get(eveniment=self.eveniment, membru=membru)
+        except ParticipareEveniment.DoesNotExist:
+            return None
+

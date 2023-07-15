@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block page_title %}
+    {{ eveniment.nume }} <span style = "font-weight: normal">| {% if object %}Modifică{% else %}Confirmă{% endif %} participare</span>
+{% endblock %}
+
+{% block context_menu %}
+    {% include "album/eveniment_context_menu.html" %}
+{% endblock %}
+
+{% block content %}
+    <p>Ai fost invitat la acest eveniment. {% if object %}Răspunsul tău acum este <strong>{{ object.get_status_participare_display }}</strong>.{% endif %}</p>
+
+    {% crispy form form.helper %}
+{% endblock %}

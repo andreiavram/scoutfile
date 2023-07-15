@@ -6,7 +6,7 @@ Created on Aug 31, 2012
 '''
 from builtins import object
 
-from crispy_forms.layout import Fieldset, Layout, Field
+from crispy_forms.layout import Fieldset, Layout, Field, Submit
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms.widgets import RadioSelect, Textarea, CheckboxSelectMultiple
@@ -124,12 +124,15 @@ class EvenimentParticipareBaseForm(CrispyBaseModelForm):
     data_sosire = forms.DateTimeField(widget=BootstrapDateTimeInput, label=u"Sosire")
     data_plecare = forms.DateTimeField(widget=BootstrapDateTimeInput, label=u"Plecare")
 
+    def get_campuri_arbitrare(self):
+        return self.eveniment.camparbitrarparticipareeveniment_set.all()
+
     def __init__(self, **kwargs):
         self.eveniment = kwargs.pop("eveniment")
         self.request = kwargs.pop("request")
         super(EvenimentParticipareBaseForm, self).__init__(**kwargs)
 
-        campuri = self.eveniment.camparbitrarparticipareeveniment_set.all()
+        campuri = self.get_campuri_arbitrare()
 
         for camp in campuri:
             field_args = self.get_field_args(camp)
@@ -166,6 +169,60 @@ class EvenimentParticipareForm(EvenimentParticipareBaseForm):
             raise ValidationError(u"Membrul există deja în lista de participanți (eventual verificați membrii care au anulat participarea?)")
         return membru
 
+
+class EvenimentParticipareRegistrationForm(EvenimentParticipareBaseForm):
+    class Meta:
+        model = ParticipareEveniment
+        exclude = ["eveniment", "user_modificare", "nonmembru", "contribution_payments", "contribution_option", "membru", "status_participare", "rol", "data_plecare", "data_sosire"]
+
+    has_submit_buttons = False
+    add_another_button = False
+    data_sosire = None
+    data_plecare = None
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        buttons = {
+            'confirm': {
+                'args': ['confirm', 'Confirm'],
+                'kwargs': {
+                    "css_class": "btn btn-success",
+                    "css_id": "id_confirm"
+                }
+            },
+            'deffer': {
+                'args': ['deffer', 'Nu știu încă'],
+                'kwargs': {
+                    'css_class': "btn btn-warning",
+                    'css_id': 'id_deffer'
+                }
+            },
+            'reject': {
+                'args': ['reject', 'Nu pot participa'],
+                'kwargs': {
+                    'css_class': 'btn btn-danger',
+                    'css_id': 'id_reject'
+                }
+            }
+        }
+
+        disabled_config = {
+            StatusParticipare.CONFIRMED: ['confirm'],
+            StatusParticipare.REFUSED: ['reject'],
+            StatusParticipare.DOWNPAYMENT_RECEIVED: ['deffer'],
+            StatusParticipare.COMPLETED_REAL: ['confirm', 'reject', 'defer'],
+            StatusParticipare.COMPLETED_ONLINE: ['confirm', 'reject', 'defer'],
+        }
+        if self.instance:
+            for key in disabled_config.get(self.instance.status_participare, []):
+                buttons[key]['kwargs']['css_class'] += " disabled"
+                buttons[key]['kwargs']['disabled'] = True
+
+        for key, config in buttons.items():
+            self.helper.add_input(Submit(*config['args'], **config['kwargs']))
+
+    def get_campuri_arbitrare(self):
+        return self.eveniment.camparbitrarparticipareeveniment_set.filter(user_fillable=True)
 
 
 class EvenimentParticipareNonMembruForm(EvenimentParticipareBaseForm):
@@ -285,3 +342,5 @@ class EventURLForm(CrispyBaseModelForm):
     class Meta:
         model = EventURL
         fields = ["url", "role", "title"]
+
+

@@ -20,6 +20,7 @@
 {#		<li class = "disabled"><a href = ""><i class = "icon-download-alt"></i> Torrent</a>#}
         {% if user.is_authenticated %}
 		<li><a href = "{% url "album:eveniment_upload"  slug=eveniment.slug %}"><i class = "icon-upload"></i> Upload set poze</a></li>
+            <li><a href="{% url "album:eveniment_registration" slug=eveniment.slug %}"><i class="icon-check-sign"></i> Înscriere</a></li>
 
         {% endif %}
 
