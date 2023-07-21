@@ -8,7 +8,7 @@ from django.contrib import admin
 
 from album.models import Eveniment, ZiEveniment, Imagine, SetPoze, \
     EXIFData, DetectedFace, TipEveniment, FlagReport, ProgramEveniment, TrackEveniment, EventContributionOption, \
-    LinkType, EventURL
+    LinkType, EventURL, EventGPXTrack
 from documente.models import Document
 
 
@@ -16,10 +16,14 @@ class EvenimentDocumentsInline(admin.StackedInline):
     model = Eveniment.documents.through
 
 
+class EvenimentGPXTrackInline(admin.StackedInline):
+    model = EventGPXTrack
+
+
 @admin.register(Eveniment)
 class EvenimentAdmin(admin.ModelAdmin):
     search_fields = ["nume", ]
-    inlines = [EvenimentDocumentsInline, ]
+    inlines = [EvenimentDocumentsInline, EvenimentGPXTrackInline]
 
 
 admin.site.register(ZiEveniment)

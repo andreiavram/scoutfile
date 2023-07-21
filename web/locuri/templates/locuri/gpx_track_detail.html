@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load pagination_tags %} {% load bs_pagination %}
+
+{% block page_title %}
+    Track {{ object.title }}
+{% endblock %}
+
+{% block context_menu %}
+    {% include "locuri/track_context_menu.html" %}
+{% endblock %}
+
+{% block extrahead %}
+     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+    <style>
+    #map {
+        height: 400px;
+    }
+    </style>
+{% endblock %}
+
+{% block extrajs %}
+     <!-- Make sure you put this AFTER Leaflet's CSS -->
+     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+         crossorigin=""></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
+    <script>
+        var map = L.map('map').setView([51.505, -0.09], 13);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+        {% if object.gpx_file %}
+        new L.GPX("{{ object.gpx_file.url }}", {
+            async: true,
+            marker_options: {
+                startIconUrl: '{% static 'locuri/start_marker.png' %}',
+                endIconUrl: '{% static 'locuri/end_marker.png' %}',
+                iconSize: [20, 32],
+                iconAnchor: [10, 32],
+                shadowUrl: '',
+            }
+        }).on('loaded', function(e) {
+          map.fitBounds(e.target.getBounds());
+        }).addTo(map);
+        {% endif %}
+    </script>
+{% endblock %}
+
+{% block content %}
+    <table class="table table-striped">
+        <tbody>
+            <tr>
+                <td><strong>Start</strong></td>
+                <td>{{ object.time_start|date:"d.m.Y H:i" }}<br><small>{{ object.place_start.x }}, {{ object.place_start.y }}</small></td>
+            </tr>
+            <tr>
+                <td><strong>Finish</strong></td>
+                <td>{{ object.time_end|date:"d.m.Y H:i" }}<br><small>{{ object.place_end.x }}, {{ object.place_end.y }}</small></td>
+            </tr>
+            <tr>
+                <td><strong>Distanța</strong></td>
+                <td>{{ object.total_distance|floatformat:2 }} km</td>
+            </tr>
+            <tr>
+                <td><strong>D+</strong></td>
+                <td>{{ object.positive_altitude }}m</td>
+            </tr>
+            <tr>
+                <td><strong>D-</strong></td>
+                <td>{{ object.negative_altitude }}m</td>
+            </tr>
+            <tr>
+                <td><strong>Cel mai înalt punct</strong></td>
+                <td>{{ object.highest_point }}m</td>
+            </tr>
+            <tr>
+                <td><strong>Cel mai puțin înalt punct</strong></td>
+                <td>{{ object.lowest_point }}m</td>
+            </tr>
+            <tr>
+                <td><strong>Timp mișcare</strong></td>
+                <td>{{ object.moving_time }}</td>
+            </tr>
+            <tr>
+                <td><strong>Durata totală</strong></td>
+                <td>{{ object.duration }}</td>
+            </tr>
+            <tr>
+                <td><strong>Viteza maximă</strong></td>
+                <td>{{ object.max_speed|floatformat:2 }} km/h</td>
+            </tr>
+            <tr>
+                <td><strong>Sursă URL</strong></td>
+                <td>{{ object.source_url }}</td>
+            </tr>
+            <tr>
+                <td><strong>Creat de</strong></td>
+                <td>{{ object.created_by.utilizator.membru }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div id="map"></div>
+{% endblock %}

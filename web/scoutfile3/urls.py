@@ -32,6 +32,7 @@ urlpatterns = [
     path('inventar/', include(('inventar.urls', 'inventar'), namespace='inventar')),
     path('slack/', include(("slackbot.urls", "slack"), namespace="slack")),
     path('redirect/', include(("redirects.urls", "redirects"), namespace="redirects")),
+    path('locuri/', include(("locuri.urls", "locuri"), namespace="locuri")),
 
     path('issues/', Issues.as_view(), name="issues"),
     path('issues/create/', CreateIssue.as_view(), name="create_issue"),

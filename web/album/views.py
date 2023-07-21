@@ -1916,3 +1916,14 @@ class EventRegisterView(EvenimentDetailMixin, UpdateView):
         except ParticipareEveniment.DoesNotExist:
             return None
 
+
+class EventGPXTrackList(EvenimentDetailMixin, ListView):
+    pass
+
+
+class EventGPXTrackCreate(EvenimentDetailMixin, CreateView):
+    pass
+
+
+class EventGPXTrackEdit(UpdateView):
+    pass

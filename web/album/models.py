@@ -1227,3 +1227,14 @@ class EventURL(models.Model):
         if self.title:
             return f"URL {self.title}: {self.url}"
         return f"URL {self.role}: {self.url}"
+
+
+class EventGPXTrack(models.Model):
+    eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE, related_name="gpx_tracks")
+    track = models.ForeignKey("locuri.GPXTrack", on_delete=models.CASCADE, related_name="events")
+    title = models.CharField(max_length=255)
+    parent = models.ForeignKey("album.EventGPXTrack", null=True, blank=True, on_delete=models.SET_NULL, related_name="executed")
+    membri = models.ManyToManyField("structuri.Membru", blank=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.eveniment}"

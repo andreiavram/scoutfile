@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block page_title %}
+    {% if object %}Modifică{% else %}Adaugă{% endif %} track GPX</span>
+{% endblock %}
+
+{% block context_menu %}
+    {% include "locuri/track_context_menu.html" %}
+{% endblock %}
+
+{% block content %}
+    {% crispy form form.helper %}
+
+
+{% endblock %}

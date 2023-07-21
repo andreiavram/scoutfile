@@ -1,0 +1,8 @@
+<ul class="nav nav-list">
+    <li class="nav-header">Track</li>
+    <li><a href="{% url "locuri:gpx_track_list" %}"><i class="icon-chevron-left"></i> Tracks</a></li>
+    {% if object %}
+        <li><a href="{% url "locuri:gpx_track_detail" pk=object.pk %}"><i class="icon-picture"></i> Detalii</a></li>
+        <li><a href="{% url "locuri:gpx_track_edit" pk=object.pk %}"><i class="icon-pencil"></i> Editează</a></li>
+    {% endif %}
+</ul>
