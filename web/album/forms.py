@@ -210,8 +210,8 @@ class EvenimentParticipareRegistrationForm(EvenimentParticipareBaseForm):
             StatusParticipare.CONFIRMED: ['confirm'],
             StatusParticipare.REFUSED: ['reject'],
             StatusParticipare.DOWNPAYMENT_RECEIVED: ['deffer'],
-            StatusParticipare.COMPLETED_REAL: ['confirm', 'reject', 'defer'],
-            StatusParticipare.COMPLETED_ONLINE: ['confirm', 'reject', 'defer'],
+            StatusParticipare.COMPLETED_REAL: ['confirm', 'reject', 'deffer'],
+            StatusParticipare.COMPLETED_ONLINE: ['confirm', 'reject', 'deffer'],
         }
         if self.instance:
             for key in disabled_config.get(self.instance.status_participare, []):
