@@ -20,7 +20,7 @@
 			<td><img src = "{% get_static_prefix %}images/icon-{{ unitate.ramura_de_varsta.slug }}.png" /> {{ unitate.ramura_de_varsta }}</td>
             <td>
                 <ul class = "unstyled">
-                {% for patrula in unitate.patrule %}
+                {% for patrula in unitate.patrule.all %}
                      <li><a href = "{% url "structuri:patrula_detail"  pk=patrula.id %}"><i class = "icon-group"></i> {{ patrula }}</a></li>
                 {% endfor %}
                 </ul>

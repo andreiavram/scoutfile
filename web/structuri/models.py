@@ -192,10 +192,10 @@ class Unitate(Structura):
         return u"Unitatea %s" % self.nume
 
     def patrule(self):
-        return self.patrula_set.filter(activa=True, moment_inchidere__isnull=True)
+        return self.all_patrols.filter(activa=True, moment_inchidere__isnull=True)
 
     def patrule_inactive(self):
-        return self.patrula_set.filter(activa=False, moment_inchidere__isnull=False)
+        return self.all_patrols.filter(activa=False, moment_inchidere__isnull=False)
 
     def total_membri_activi(self):
         return AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(self),
@@ -215,7 +215,7 @@ class Patrula(Structura):
         verbose_name = u"Patrulă"
         verbose_name_plural = u"Patrule"
 
-    unitate = models.ForeignKey(Unitate, on_delete=models.CASCADE)
+    unitate = models.ForeignKey(Unitate, on_delete=models.CASCADE, related_name="all_patrols")
     moment_inchidere = models.DateField(null=True, blank=True)
 
     @property

@@ -818,6 +818,11 @@ class PatrulaDetail(DetailView, TabbedViewMixin):
 
 
 class PrezentaMixin:
+    child_structures = None
+
+    def include_child_structures(self):
+        return False
+
     def get_evenimente(self):
         # determine an cercetasesc
         today = datetime.date.today()
@@ -825,13 +830,29 @@ class PrezentaMixin:
         if 1 < today.month < 9:
             start_year = today.year - 1
 
-        evenimente = Eveniment.objects.filter(
+        structure_or = Q(
+            asocieri_structura__content_type=ContentType.objects.get_for_model(self.object),
+            asocieri_structura__object_id=self.object.id
+        )
+
+        if self.include_child_structures() and self.child_structures:
+            for structure_reverse in self.child_structures:
+                substructure_instances = getattr(self.object, structure_reverse).all()
+
+                # intentionally force evaluation here to avoid multiple DB calls
+                if len(substructure_instances) == 0:
+                    continue
+
+                structure_or |= Q(
+                    asocieri_structura__content_type=ContentType.objects.get_for_model(substructure_instances[0]),
+                    asocieri_structura__object_id__in=[s.id for s in substructure_instances]
+                )
+
+        evenimente = Eveniment.objects.filter(structure_or).filter(
             start_date__range=(
                 datetime.date(start_year, 9, 1),
                 datetime.date(start_year + 1, 8, 31)
             ),
-            asocieri_structura__content_type=ContentType.objects.get_for_model(self.object),
-            asocieri_structura__object_id=self.object.id
         ).order_by("start_date")
         return evenimente
 
@@ -865,9 +886,15 @@ class PrezentaMixin:
 
         return evenimente, participari_data
 
+
 class UnitatePrezentaView(PrezentaMixin, DetailView):
     model = Unitate
     template_name = "structuri/unitate_prezenta.html"
+    child_structures = ["all_patrols", ]
+
+    def include_child_structures(self):
+        return self.request.GET.get("include_patrule", False) is not False
+
 
     @allow_by_afiliere(
         [("Unitate, Centru Local", "Lider"), ("Unitate, Centru Local", "Lider asistent")])

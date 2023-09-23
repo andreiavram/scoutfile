@@ -12,5 +12,9 @@
 
 
 {% block content %}
+    <div class="btn-group">
+        <a href="{% url 'structuri:unitate_prezenta' pk=object.id %}?include_patrule" class="btn {% if "include_patrule" in request.GET %}disabled{% endif %}">Cu activitățile de patrulă</a>
+        <a href="{% url 'structuri:unitate_prezenta' pk=object.id %}" class="btn {% if "include_patrule" not in request.GET %}disabled{% endif %}">Doar cu activitățile de unitate</a>
+    </div>
     {% include 'structuri/structuri_prezenta.html' %}
 {% endblock %}
