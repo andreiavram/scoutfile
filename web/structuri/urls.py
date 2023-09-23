@@ -26,7 +26,8 @@ from structuri.views import CentruLocalCreate, CentruLocalUpdate, \
     UnitateTabMembriFaraPatrula, MembruTabActivitati, MembruRecalculeazaAcoperire, UnitateTabPatruleInactive, \
     UtilizatorHomeTabsDocumente, UtilizatorHomeTabsActivitati, MembruStergeAcoperire, CentruLocalTabMembriDeSuspendat, \
     MembruAdreseStatus, UnitatiListAPI, UpdateContentObjects, MembruInformatieCreate, MembruInformatieUpdate, \
-    MembruTabAlteInformatii, ListaMembriiDreptVot, ListaMembriiDreptVotCentruLocal, MembruTabPlatiCotizatie
+    MembruTabAlteInformatii, ListaMembriiDreptVot, ListaMembriiDreptVotCentruLocal, MembruTabPlatiCotizatie, \
+    PatrulaPrezentaView, UnitatePrezentaView
 
 urlpatterns = [
     path('centrulocal/adauga/', CentruLocalCreate.as_view(), name="cl_add"),
@@ -75,6 +76,8 @@ urlpatterns = [
     path('centrulocal/unitate/<int:pk>/membru/asociaza/', UnitateMembruAsociaza.as_view(),
          name="unitate_membru_asociaza"),
 
+    path('centrulocal/unitate/<int:pk>/prezenta/', UnitatePrezentaView.as_view(), {}, 'unitate_prezenta'),
+
     path('centrulocal/unitate/<int:pk>/patrula/adauga/', UnitatePatrulaCreate.as_view(), name="unitate_patrula_add"),
     path('centrulocal/unitate/patrula/<int:pk>/edit/', PatrulaUpdate.as_view(), {}, 'patrula_edit'),
     path('centrulocal/unitate/patrula/<int:pk>/', PatrulaDetail.as_view(), {}, 'patrula_detail'),
@@ -82,6 +85,7 @@ urlpatterns = [
     path('centrulocal/unitate/patrula/<int:pk>/tab/brief/', PatrulaTabBrief.as_view(), {}, 'patrula_tab_brief'),
     path('centrulocal/unitate/patrula/<int:pk>/tab/membri/', PatrulaTabMembri.as_view(), {}, 'patrula_tab_membri'),
 
+    path('centrulocal/unitate/patrula/<int:pk>/prezenta/', PatrulaPrezentaView.as_view(), {}, 'patrula_prezenta'),
     path('centrulocal/unitate/patrula/<int:pk>/membru/adauga/', PatrulaMembruCreate.as_view(), {},
          'patrula_membru_adauga'),
     path('centrulocal/unitate/patrula/<int:pk>/membru/asociaza/', PatrulaMembruAsociaza.as_view(), {},

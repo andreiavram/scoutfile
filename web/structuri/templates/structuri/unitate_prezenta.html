@@ -1,12 +1,8 @@
 {% extends 'base.html' %}
-{% load tab_tags %}
+{% load static %}
 
 {% block page_title %}
-	{{ object }}
-{% endblock %}
-
-{% block extrahead %}
-	{% tab_js %}
+	{{ object }} <span style = "font-weight: normal">| Prezența activități</span>
 {% endblock %}
 
 {% block context_menu %}
@@ -16,5 +12,5 @@
 
 
 {% block content %}
-	{% print_tabs tabs active_tab %}
+    {% include 'structuri/structuri_prezenta.html' %}
 {% endblock %}

@@ -1,5 +1,7 @@
 # coding: utf-8
 from __future__ import print_function
+
+import pprint
 from builtins import range
 import datetime
 import hashlib
@@ -50,7 +52,7 @@ from utils.views import FacebookUserConnectView
 
 from adrese_postale.adrese import AdresaPostala
 from album.views import FileUploadMixin
-from album.models import ParticipareEveniment
+from album.models import ParticipareEveniment, Eveniment
 from documente.models import AsociereDocument, PlataCotizatieTrimestru
 from documente.models import Trimestru, DecizieCotizatie
 from structuri.decorators import allow_by_afiliere
@@ -813,6 +815,90 @@ class PatrulaDetail(DetailView, TabbedViewMixin):
         current = super(PatrulaDetail, self).get_context_data(**kwargs)
         current.update(self.get_tabs())
         return current
+
+
+class PrezentaMixin:
+    def get_evenimente(self):
+        # determine an cercetasesc
+        today = datetime.date.today()
+        start_year = today.year
+        if 1 < today.month < 9:
+            start_year = today.year - 1
+
+        evenimente = Eveniment.objects.filter(
+            start_date__range=(
+                datetime.date(start_year, 9, 1),
+                datetime.date(start_year + 1, 8, 31)
+            )
+        ).order_by("start_date")
+        return evenimente
+
+    def get_eveniment_data(self):
+        evenimente = self.get_evenimente()
+
+        cercetasi = self.object.cercetasi()
+        participari = ParticipareEveniment.objects.filter(eveniment__in=evenimente, membru__in=cercetasi).order_by("eveniment__start_date")
+        participari_by_participant = dict()
+        for p in participari:
+            if p.membru_id not in participari_by_participant:
+                participari_by_participant[p.membru_id] = dict()
+            participari_by_participant[p.membru_id].update({p.eveniment_id: p})
+
+        participari_data = []
+        for cercetas in cercetasi:
+            participari_evenimente = []
+
+            evenimente_participant = participari_by_participant.get(cercetas.id, [])
+            for e in evenimente:
+                if e.id in evenimente_participant:
+                    participari_evenimente.append(evenimente_participant[e.id])
+                else:
+                    participari_evenimente.append(None)
+
+
+            participari_data.append({
+                "cercetas": cercetas,
+                "participari": participari_evenimente
+            })
+
+        return evenimente, participari_data
+
+class UnitatePrezentaView(PrezentaMixin, DetailView):
+    model = Unitate
+    template_name = "structuri/unitate_prezenta.html"
+
+    @allow_by_afiliere(
+        [("Unitate, Centru Local", "Lider"), ("Unitate, Centru Local", "Lider asistent")])
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        evenimente, participari_data = self.get_eveniment_data()
+        context['evenimente'] = evenimente
+        context['data'] = participari_data
+
+        return context
+
+
+class PatrulaPrezentaView(PrezentaMixin, DetailView):
+    model = Patrula
+    template_name = "structuri/patrula_prezenta.html"
+    
+    @allow_by_afiliere(
+        [("Patrula, Unitate, Centru Local", "Lider"), ("Patrula, Unitate, Centru Local", "Lider asistent")])
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        evenimente, participari_data = self.get_eveniment_data()
+        context['evenimente'] = evenimente
+        context['data'] = participari_data
+
+        return context
 
 
 class PatrulaTabBrief(DetailView):

@@ -1,0 +1,49 @@
+
+{% load static %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <td></td>
+            <td>
+                Cercetaș
+            </td>
+            {% for eveniment in evenimente %}
+            <td>
+                <a href="{% url "album:eveniment_participanti_list" slug=eveniment.slug %}" target="_blank">
+                    {{ eveniment.start_date|date:"d.m" }}
+                    {% if eveniment.start_date|date:"d.m" != eveniment.end_date|date:"d.m" %}
+                    <br>{{ eveniment.end_date|date:"d.m" }}{% endif %}
+                </a>
+            </td>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+    {% for event_data in data %}
+    <tr>
+        {% with event_data.cercetas as object %}
+        <td style="width: 20px">
+            <ul class = "unstyled" style="{% if object.is_aspirant %}opacity: 0.3{% endif %}">
+                {% for badge in object.get_badges_rdv %}
+                    <li><img src = "{% get_static_prefix %}images/icon-{{ badge }}.png" /></li>
+                {% endfor %}
+            </ul>
+        </td>
+        <td>
+            <a href="{% url "structuri:membru_detail" pk=object.id %}"
+               {% if object.is_suspendat %}style="text-decoration: line-through"{% endif %}{% if object.is_inactiv %}style="color: #666"{% endif %}>{{ object }}</a>
+        </td>
+        {% endwith %}
+        {% for participare in event_data.participari %}
+            <td>
+                {% if participare %}
+                    <a href="{% url "album:eveniment_participanti_modifica" pk=participare.id %}" target="_blank">{{ participare.status_short_form }}</a>
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>

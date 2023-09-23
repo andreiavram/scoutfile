@@ -566,6 +566,23 @@ class ParticipareEveniment(models.Model):
         return (self.data_sosire > self.eveniment.start_date + datetime.timedelta(seconds=3600 * 4)) or \
                (self.data_plecare < self.eveniment.end_date - datetime.timedelta(seconds=3600 * 4))
 
+    def status_short_form(self):
+        short_form_definition = {
+            StatusParticipare.MAYBE: "?",
+            StatusParticipare.CONFIRMED: "C",
+            StatusParticipare.REFUSED: "R",
+            StatusParticipare.DOWNPAYMENT_RECEIVED: "$?",
+            StatusParticipare.COMPLETED_OLD: "P",
+            StatusParticipare.COMPLETED_REAL: "P",
+            StatusParticipare.COMPLETED_ONLINE: "P(o)",
+            StatusParticipare.CANCELLED: "A",
+            StatusParticipare.UNKNOWN: "?",
+            StatusParticipare.PAYMENT_CONFIRMED: "$",
+            StatusParticipare.INVITED: "I",
+        }
+
+        return short_form_definition.get(self.status_participare)
+
     def process_camp_aditional(self, camp):
         if self.nonmembru_id:
             resolution = {"telefon": lambda o: o.nonmembru.telefon,
