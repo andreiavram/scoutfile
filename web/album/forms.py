@@ -17,7 +17,7 @@ from album.models import FlagReport, FLAG_MOTIVES, RaportEveniment, ParticipareE
 from album.models import SetPoze, Eveniment, Imagine, ZiEveniment
 from financiar.models import PaymentDocument
 from generic.widgets import BootstrapDateTimeInput, BootstrapDateInput
-from goodies.forms import CrispyBaseModelForm, CrispyBaseForm
+from goodies.forms import CrispyBaseModelForm, CrispyBaseForm, CrispyBaseDeleteForm
 from goodies.widgets import GeoCoordinatesInput, FacebookLinkWidget, TaggitTagsInput
 from structuri.fields import NonAdminAutoCompleteSelectField, NonAdminMultipleAutoCompleteSelectField
 
@@ -350,3 +350,11 @@ class EventGPXTrackForm(CrispyBaseModelForm):
         fields = ["title", "parent", "membri"]
 
     membri = NonAdminMultipleAutoCompleteSelectField("membri", label=u"Participanți", required=False)
+
+
+class EvenimentDeleteForm(CrispyBaseDeleteForm):
+    class Meta(object):
+        model = Eveniment
+        fields = []
+
+    has_cancel = True

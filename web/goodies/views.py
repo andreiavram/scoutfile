@@ -129,7 +129,7 @@ class GenericDeleteView(DeleteView):
 
     def get_context_data(self, **kwargs):
         current = super(GenericDeleteView, self).get_context_data(**kwargs)
-        current.update({"form": CrispyBaseDeleteForm(instance=self.object)})
+        # current.update({"form": CrispyBaseDeleteForm(instance=self.object)})
         return current
 
 

@@ -54,7 +54,7 @@ from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, Po
     EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm, CampArbitrarForm, EvenimentParticipareUpdateForm, \
     ReportFormNoButtons, EvenimentParticipareNonMembruForm, EvenimentParticipareNonmembruUpdateForm, \
     EvenimentParticipantFilterForm, EventContributionOptionForm, EventPaymentDocumentForm, EventURLForm, \
-    EvenimentParticipareRegistrationForm, EventGPXTrackForm
+    EvenimentParticipareRegistrationForm, EventGPXTrackForm, EvenimentDeleteForm
 from album.exporters.table import TabularExport
 from generic.views import ScoutFileAjaxException
 from structuri.decorators import allow_by_afiliere
@@ -898,6 +898,7 @@ class EvenimentUpdate(UpdateView, EvenimentEditMixin):
 
 class EvenimentDelete(GenericDeleteView):
     model = Eveniment
+    form_class = EvenimentDeleteForm
 
     @allow_by_afiliere([("Eveniment, Centru Local", u"Păstrător al amintirilor")], pkname="slug")
     def dispatch(self, request, *args, **kwargs):
