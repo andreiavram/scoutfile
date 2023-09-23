@@ -18,7 +18,7 @@
             "descriere" : "{{ event.descriere|newlines }}",
             "descriere_truncated": "{{ event.descriere|newlines|truncatewords:50 }}",
             "structuri" : [
-                {% for a in event.asociereevenimentstructura_set.all %}
+                {% for a in event.asocieri_structura.all %}
                     {
                         "nume": "{{ a.content_object.nume }}",
                         "urls" : {"detail" : "{{ a.content_object.get_absolute_url }}"},

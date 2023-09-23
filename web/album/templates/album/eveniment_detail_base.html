@@ -118,8 +118,8 @@
         </div>
         <div class="span4" style="text-align: justify">
                 <p>
-                {% if object.asociereevenimentstructura_set.all.count %}
-                    Eveniment pentru {% for a in object.asociereevenimentstructura_set.all %}
+                {% if object.asocieri_structura.all.count %}
+                    Eveniment pentru {% for a in object.asocieri_structura.all %}
                         <strong>{% if a.content_object.ramura_de_varsta %}
                             <img src = "{% get_static_prefix %}images/icon-{{ a.content_object.ramura_de_varsta|lower|slugify }}.png" />{% endif %}
                             <a href = "{{ a.content_object.get_absolute_url }}">{{ a.content_object.nume }}</a>

@@ -366,12 +366,12 @@ class Eveniment(models.Model):
 
     def are_asociere(self, structura):
         filter_args = dict(content_type=ContentType.objects.get_for_model(structura), object_id=structura.id)
-        return self.asociereevenimentstructura_set.filter(**filter_args).count() > 0
+        return self.asocieri_structura.filter(**filter_args).count() > 0
 
     def ramura_de_varsta(self):
         from structuri.models import Unitate
         filter_args = dict(content_type=ContentType.objects.get_for_model(Unitate))
-        qs = self.asociereevenimentstructura_set.filter(**filter_args)
+        qs = self.asocieri_structura.filter(**filter_args)
         if qs.count() == 1:
             return qs[0].content_object.ramura_de_varsta
         return None
