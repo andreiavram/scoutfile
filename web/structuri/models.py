@@ -232,6 +232,12 @@ class Patrula(Structura):
     def get_absolute_url(self):
         return reverse("structuri:patrula_detail", kwargs={"pk": self.id})
 
+    def lideri(self, qs=False):
+        lideri = self.cercetasi(qs=qs, tip_asociere=["Lider", "Lider asistent"])
+        if (qs and not lideri.exists()) or (not qs and len(lideri) == 0):
+            lideri = self.unitate.lideri(qs=qs)
+        return lideri
+
 
 class Echipa(Structura):
     class Meta:

@@ -856,9 +856,9 @@ class EvenimentCreate(CreateView, EvenimentEditMixin):
 
             if self.adauga_persoane_possible:
                 if adauga_persoane:
-                    _ = [self.object.creaza_participare(c) for c in self.target_obj.cercetasi()]
+                    _ = [self.object.creeaza_participare(c) for c in self.target_obj.cercetasi()]
                 if adauga_lideri:
-                    _ = [self.object.creaza_participare(l) for l in self.target_obj.lideri()]
+                    _ = [self.object.creeaza_participare(l) for l in self.target_obj.lideri()]
 
 
 class UnitateEvenimentCreate(EvenimentCreate):
@@ -1288,10 +1288,26 @@ class AsociereEvenimentStructuraCreate(CreateView):
         self.eveniment = get_object_or_404(Eveniment, slug=kwargs.pop("slug"))
         return super(AsociereEvenimentStructuraCreate, self).dispatch(request, *args, **kwargs)
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update(eveniment=self.eveniment)
+        return kwargs
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.eveniment = self.eveniment
-        self.object.save()
+        if obj := AsociereEvenimentStructura.objects.filter(eveniment=self.eveniment, content_type=self.object.content_type, object_id=self.object.object_id).first():
+            self.object = obj
+        else:
+            self.object.eveniment = self.eveniment
+            self.object.save()
+
+        if form.cleaned_data['add_members']:
+            members = self.object.content_object.cercetasi()
+            self.eveniment.creeaza_participare_bulk(members, form.cleaned_data['initial_status'])
+        if form.cleaned_data['add_leaders']:
+            leaders = self.object.content_object.lideri()
+            self.eveniment.creeaza_participare_bulk(leaders, form.cleaned_data['initial_status'])
+
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):

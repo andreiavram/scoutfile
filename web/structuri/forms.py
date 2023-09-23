@@ -17,7 +17,7 @@ from django.core.exceptions import ValidationError
 from django.db.models.query_utils import Q
 from django.forms.widgets import Textarea, PasswordInput
 
-from album.models import AsociereEvenimentStructura
+from album.models import AsociereEvenimentStructura, StatusParticipare, EventContributionOption
 from goodies.forms import CrispyBaseModelForm, CrispyBaseForm, \
     CrispyBaseDeleteForm
 from goodies.widgets import BootstrapDateInput
@@ -368,13 +368,19 @@ class AsociereEvenimentStructuraForm(CrispyBaseModelForm):
         model = AsociereEvenimentStructura
         fields = ("content_type", "object_id")
 
-    object_id = forms.IntegerField(widget = forms.Select(choices = ()), label = u"Structură")
+    object_id = forms.IntegerField(widget=forms.Select(choices=()), label="Structură")
+    add_members = forms.BooleanField(required=False, initial=True, label="Adaugă membrii la eveniment")
+    add_leaders = forms.BooleanField(required=False, initial=True, label="Adaugă liderii la eveniment")
+    initial_status = forms.ChoiceField(choices=StatusParticipare.choices, initial=StatusParticipare.INVITED, label="Status inițial")
+    initial_contribution = forms.ModelChoiceField(queryset=EventContributionOption.objects.all(), label="Tip contribuție", required=False)
 
     def __init__(self, *args, **kwargs):
+        self.eveniment = kwargs.pop("eveniment", None)
         super(AsociereEvenimentStructuraForm, self).__init__(*args, **kwargs)
 
         content_type_filter = dict(app_label="structuri", model__in=("centrulocal", "unitate", "patrula"))
         self.fields['content_type'].queryset = ContentType.objects.filter(**content_type_filter)
+        self.fields['initial_contribution'].queryset = EventContributionOption.objects.filter(eveniment=self.eveniment)
 
 
 class InformatieGenericCreateForm(CrispyBaseModelForm):

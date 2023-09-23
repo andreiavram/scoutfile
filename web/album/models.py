@@ -382,7 +382,7 @@ class Eveniment(models.Model):
                               object_id=structura.id)
         AsociereEvenimentStructura.objects.create(**structura_args)
 
-    def creaza_participare(self, membru, rol="participant"):
+    def creeaza_participare(self, membru, rol=RolParticipare.PARTICIPANT):
         pe_args = dict(
             eveniment=self,
             membru=membru,
@@ -394,6 +394,25 @@ class Eveniment(models.Model):
 
         if not ParticipareEveniment.objects.filter(eveniment=self, membru=membru).exists():
             pe = ParticipareEveniment.objects.create(**pe_args)
+            return pe
+        return None
+
+    def creeaza_participare_bulk(self, members_list, status_participare, rol=RolParticipare.PARTICIPANT):
+        pe_args = dict(
+            eveniment=self,
+            data_sosire=self.start_date,
+            data_plecare=self.end_date,
+            status_participare=status_participare,
+            rol=rol
+        )
+
+        existing_members = ParticipareEveniment.objects.filter(
+            eveniment=self,
+            membru_id__in=[m.id for m in members_list]
+        ).values_list("membru_id", flat=True)
+
+        members_to_add = [m for m in members_list if m.id not in existing_members]
+        ParticipareEveniment.objects.bulk_create([ParticipareEveniment(membru=m, **pe_args) for m in members_to_add])
 
 
     @property
@@ -502,6 +521,7 @@ class StatusParticipare(IntegerChoices):
     CANCELLED = 5, "Participare anulată"
     UNKNOWN = 9, "Necunoscut"
     PAYMENT_CONFIRMED = 10, "Plata confirmată"
+    INVITED = 11, "Invitat"
 
 
 class ParticipantEveniment(models.Model):
