@@ -1357,12 +1357,14 @@ class EvenimentParticipanti(ListView):
         data['pagesize'] = self.pagesize
         data['full_count'] = self.object_list.count()
         data['quick_statuses'] = {
-            StatusParticipare.COMPLETED_REAL: 'P',
-            StatusParticipare.CANCELLED: 'A',
-            StatusParticipare.REFUSED: 'R',
-            StatusParticipare.CONFIRMED: 'C'
+            StatusParticipare.COMPLETED_REAL: ('P', 'Prezent'),
+            StatusParticipare.CANCELLED: ('A', 'Absent (deși a anunțat că vine)'),
+            StatusParticipare.REFUSED: ('R', 'Absent (a anunțat că nu vine)'),
+            StatusParticipare.CONFIRMED: ('C', 'Confirmat (a anunțat că vine - înainte de activitate)'),
         }
         return data
+
+
 
 
 class EvenimentParticipantiExport(FormView):

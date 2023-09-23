@@ -3,6 +3,8 @@
 {% load customfield_tags %}
 {% load static %}
 
+
+
 {% block page_title %}
     {{ eveniment }} <span style="font-weight: normal">| participanți {% if cancelled %}<small>care să fi renunțat</small>{% endif %}</span>
     <div class = "btn-toolbar pull-right">
@@ -32,6 +34,12 @@
 
 {% block extrahead %}
     <script type="text/javascript" src="{% url "goodies:js_delete" app_label='album' model='ParticipareEveniment' %}"></script>
+
+    <script type = "text/javascript">
+    jQuery(document).ready(function () {
+        jQuery(".tooltip-target").tooltip();
+    });
+	</script>
 {% endblock %}
 
 {% block content %}
@@ -42,6 +50,9 @@
         <a class = "btn {% if pagesize and pagesize == 100 %}disabled{% endif %}" href = "?pagesize=100">100</a>
         <a class = "btn {% if not pagesize %}disabled{% endif %}" href = "?">Toți</a>
     </div>
+
+
+
     <table class="table table-striped">
         <thead>
         <tr>
@@ -87,14 +98,20 @@
                     </td>
                 {% endfor %}
                 <td>{{ participare.get_rol_display }}</td>
-                <td><span id="status-participare-{{ participare.id }}">{{ participare.get_status_participare_display }}</span> <br><small>Schimbă:
+                <td><span id="status-participare-{{ participare.id }}">{{ participare.get_status_participare_display }}</span> <br><div class="btn-group btn-mini"><span class="btn btn-mini disabled">Schimbă </span>
                     {% for new_status, short_form in quick_statuses.items %}
-                        <a href="#" onclick="mark_attendance({{ participare.id }}, {{ new_status }})">{{ short_form }}</a>
+                        <a
+                                data-toggle="tooltip"
+                                title="{{ short_form.1 }}"
+                                class="tooltip-target btn btn-mini"
+                                href="#"
+                                onclick="mark_attendance({{ participare.id }}, {{ new_status }})">{{ short_form.0 }}
+                        </a>
                         {% if not forloop.last %}
                         |
                         {% endif %}
                     {% endfor %}
-                </small></td>
+                </div></td>
                 <td>{% if participare.is_partiala %}<i class = "icon-ok"></i>{% endif %}</td>
                 {% if eveniment.contribution_options.exists %}
                 <td>
@@ -114,7 +131,7 @@
                     {% endif %}
                 </td>
                 {% endif %}
-                <td>{% if participare.detalii %}{{ participare.detalii|linebreaksbr }}{% endif %}</td>
+                <td data-original="{{ participare.detalii }}" id="detalii-participare-{{ participare.id }}">{% if participare.detalii %}{{ participare.detalii|linebreaksbr }}{% endif %}</td>
                 {% for camp in campuri_arbitrare %}
                     <td>{% valoare_camp camp participare %}</td>
                 {% endfor %}
@@ -171,12 +188,21 @@
 {% block extrajs %}
     <script>
     function mark_attendance(pid, new_status) {
-        change_status(pid, new_status).then((data) => {
-            document.getElementById(`status-participare-${pid}`).innerHTML = data['status_participare_display']
+        change_status(pid, new_status, document.getElementById(`detalii-participare-${pid}`).dataset.original).then((data) => {
+            document.getElementById(`status-participare-${pid}`).innerHTML = data['status_participare_display'];
+            document.getElementById(`detalii-participare-${pid}`).innerHTML = data['detalii'].replace(/\n/g, "<br />");
+            document.getElementById(`detalii-participare-${pid}`).dataset.original = data['detalii'];
         })
     }
 
-    async function change_status(pid, new_status) {
+    const status_mapping = {
+        {% for new_status, short_form in quick_statuses.items %}
+            {{ new_status }}: "{{ short_form.0 }}"{% if not forloop.last %},{% endif %}
+        {% endfor %}
+
+    };
+
+    async function change_status(pid, new_status, existing_details) {
         const response = await fetch(`/api/v1/album/participare/${pid}/`, {
             method: "PATCH",
             headers: {
@@ -185,7 +211,7 @@
             },
             body: JSON.stringify({
                 "status_participare": new_status,
-                "detalii": "updated by {{ request.user.utilizator.nume_complet }}"
+                "detalii": `${existing_details}\nactualizat de {{ request.user.utilizator.nume_complet }} la ${status_mapping[new_status]}`
             })
         });
         return response.json()
