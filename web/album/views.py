@@ -1355,6 +1355,12 @@ class EvenimentParticipanti(ListView):
         data['campuri_arbitrare'] = self.eveniment.camparbitrarparticipareeveniment_set.all().prefetch_related("instante")[0:]
         data['pagesize'] = self.pagesize
         data['full_count'] = self.object_list.count()
+        data['quick_statuses'] = {
+            StatusParticipare.COMPLETED_REAL: 'P',
+            StatusParticipare.CANCELLED: 'A',
+            StatusParticipare.REFUSED: 'R',
+            StatusParticipare.CONFIRMED: 'C'
+        }
         return data
 
 

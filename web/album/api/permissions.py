@@ -8,7 +8,7 @@ class WriteAccessParticipareEveniment(BasePermission):
     def has_object_permission(self, request, view, obj):
         centru_local = obj.eveniment.centru_local
         try:
-            membru = request.user.membru
+            membru = request.user.utilizator.membru
         except Membru.DoesNotExist:
             return False
 

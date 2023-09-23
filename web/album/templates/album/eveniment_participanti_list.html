@@ -87,7 +87,14 @@
                     </td>
                 {% endfor %}
                 <td>{{ participare.get_rol_display }}</td>
-                <td>{{ participare.get_status_participare_display }} <br><small>Schimbă: <a href="#">P</a> / <a href="#">A</a></small></td>
+                <td><span id="status-participare-{{ participare.id }}">{{ participare.get_status_participare_display }}</span> <br><small>Schimbă:
+                    {% for new_status, short_form in quick_statuses.items %}
+                        <a href="#" onclick="mark_attendance({{ participare.id }}, {{ new_status }})">{{ short_form }}</a>
+                        {% if not forloop.last %}
+                        |
+                        {% endif %}
+                    {% endfor %}
+                </small></td>
                 <td>{% if participare.is_partiala %}<i class = "icon-ok"></i>{% endif %}</td>
                 {% if eveniment.contribution_options.exists %}
                 <td>
@@ -159,4 +166,29 @@
     {% if pagesize %}
         {% paginate_bs2 %}
     {% endif %}
+{% endblock %}
+
+{% block extrajs %}
+    <script>
+    function mark_attendance(pid, new_status) {
+        change_status(pid, new_status).then((data) => {
+            document.getElementById(`status-participare-${pid}`).innerHTML = data['status_participare_display']
+        })
+    }
+
+    async function change_status(pid, new_status) {
+        const response = await fetch(`/api/v1/album/participare/${pid}/`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Csrftoken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({
+                "status_participare": new_status,
+                "detalii": "updated by {{ request.user.utilizator.nume_complet }}"
+            })
+        });
+        return response.json()
+    }
+    </script>
 {% endblock %}
