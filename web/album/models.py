@@ -441,7 +441,7 @@ class AsociereEvenimentStructura(models.Model):
     object_id = models.PositiveIntegerField(verbose_name=u"Structură")
     content_object = GenericForeignKey()
 
-    eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE)
+    eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE, related_name="asocieri_structura")
     slack_invite_sent_at = models.DateTimeField(null=True, blank=True)
 
 
