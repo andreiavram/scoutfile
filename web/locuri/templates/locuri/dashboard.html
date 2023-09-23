@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load pagination_tags %} {% load bs_pagination %}
+
+{% block page_title %}
+    Locuri
+{% endblock %}
+
+{% block context_menu %}
+    {% include "locuri/locuri_context_menu.html" %}
+{% endblock %}
+
+
+{% block content %}
+    <p class = "jumbotron">Există <span class = "label-primary">{{ track_cnt }}</span> track-uri.</p>
+{% endblock %}

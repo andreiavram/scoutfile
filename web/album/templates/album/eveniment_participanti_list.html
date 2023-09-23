@@ -87,7 +87,7 @@
                     </td>
                 {% endfor %}
                 <td>{{ participare.get_rol_display }}</td>
-                <td>{{ participare.get_status_participare_display }}</td>
+                <td>{{ participare.get_status_participare_display }} <br><small>Schimbă: <a href="#">P</a> / <a href="#">A</a></small></td>
                 <td>{% if participare.is_partiala %}<i class = "icon-ok"></i>{% endif %}</td>
                 {% if eveniment.contribution_options.exists %}
                 <td>

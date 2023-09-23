@@ -27,6 +27,7 @@ class Project(CategorizedModelMixin, models.Model):
 class ProjectRole(models.Model):
     name = models.CharField(max_length=254)
     slug = models.SlugField(unique=True)
+    project = models.ForeignKey(Project, null=True, blank=True, on_delete=models.CASCADE)
 
 
 class ProjectPosition(models.Model):
@@ -97,12 +98,16 @@ class ProjectObjective(models.Model):
 class ProjectActivity(models.Model):
     title = models.CharField(max_length=255)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="activities")
+    objectives = models.ManyToManyField(ProjectObjective, blank=True)
     description = models.TextField()
     date_start = models.DateField()
     date_end = models.DateField()
 
     event = models.ForeignKey("album.Eveniment", null=True, blank=True, on_delete=models.SET_NULL)
     task_item = models.ForeignKey("proiecte.TaskItem", null=True, blank=True, on_delete=models.SET_NULL)
+
+    class Meta:
+        ordering = ["-date_start"]
 
 
 TAKSITEM_STATUSES = ()

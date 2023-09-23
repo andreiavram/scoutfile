@@ -1,11 +1,22 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from django.views.generic import ListView, CreateView, UpdateView, DetailView
+from django.views.generic import ListView, CreateView, UpdateView, DetailView, TemplateView
 
 from locuri.forms import GPXTrackForm
 from locuri.models import GPXTrack
 
+
+class LocuriDashboard(TemplateView):
+    template_name = "locuri/dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        track_cnt = GPXTrack.objects.all().count()
+        context = super().get_context_data(**kwargs)
+        context.update({
+            "track_cnt": track_cnt
+        })
+        return context
 
 class GPXTrackList(ListView):
     model = GPXTrack

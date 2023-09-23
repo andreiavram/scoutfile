@@ -11,7 +11,8 @@ from album.views import AlbumEvenimentDetail, ZiDetail, PozaDetail, \
     FlagImageAjax, EvenimentUpdateCampuriAditionale, EvenimentParticipantNonMembruCreate, \
     EvenimentParticipantNonMembruUpdate, EvenimentParticipantiExport, PozaVot, PozaMakeCover, EventContributionList, \
     EventContributionCreate, EventContributionUpdate, EventPaymentCreate, EventDocumentsView, EventLinkCreate, \
-    EventLinkUpdate, EventLinkList, EventRegisterView, EventGPXTrackList, EventGPXTrackCreate, EventGPXTrackEdit
+    EventLinkUpdate, EventLinkList, EventRegisterView, EventGPXTrackList, EventGPXTrackCreate, EventGPXTrackEdit, \
+    EventGPXTrackDetail
 from album.views import ChangeImagineVisibility
 
 urlpatterns = [
@@ -44,7 +45,9 @@ urlpatterns = [
 
     path('eveniment/<slug:slug>/tracks/', EventGPXTrackList.as_view(), name="eveniment_gpx_track_list"),
     path('eveniment/<slug:slug>/tracks/add/', EventGPXTrackCreate.as_view(), name="eveniment_gpx_track_add"),
-    path('eveniment/tracks/<int:pk>/', EventGPXTrackEdit.as_view(), name="eveniment_gpx_track_edit"),
+    path('eveniment/tracks/<int:pk>/', EventGPXTrackDetail.as_view(), name="eveniment_gpx_track_detail"),
+    path('eveniment/tracks/<int:pk>/edit', EventGPXTrackEdit.as_view(), name="eveniment_gpx_track_edit"),
+
 
     path('eveniment/<slug:slug>/participanti/list/', EvenimentParticipanti.as_view(),
          name="eveniment_participanti_list"),

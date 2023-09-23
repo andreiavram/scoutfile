@@ -1,9 +1,11 @@
 import datetime
+import urllib.request
 
 import gpxpy
 from django.contrib.auth import get_user_model
 from django.contrib.gis.db.models import PointField, PolygonField
 from django.contrib.gis.geos import Point
+from django.contrib.sites.models import Site
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.db.models import IntegerChoices
@@ -75,8 +77,23 @@ class GPXTrack(models.Model):
         return self.title
 
     def process_gpx(self):
-        gpx_file = open(self.gpx_file.path, "r")
-        gpx = gpxpy.parse(gpx_file)
+        import requests
+        if not self.gpx_file:
+            return
+
+        url = self.gpx_file.url
+        if not url.startswith("http"):
+            site = Site.objects.first()
+            if not site:
+                return
+            url = site.domain + url
+
+        r = requests.get(url)
+
+        if r.status_code != 200:
+            return
+
+        gpx = gpxpy.parse(r.text)
 
         uphill_downhill = gpx.get_uphill_downhill()
         self.positive_altitude = uphill_downhill.uphill

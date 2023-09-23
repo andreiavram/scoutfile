@@ -1,7 +1,8 @@
 # coding: utf-8
 from builtins import next
 
-from ajax_select.fields import AutoCompleteSelectWidget, AutoCompleteSelectField
+from ajax_select.fields import AutoCompleteSelectWidget, AutoCompleteSelectField, AutoCompleteSelectMultipleField, \
+    AutoCompleteSelectMultipleWidget
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -65,6 +66,10 @@ class NonAdminAutoCompleteSelectWidget(AutoCompleteSelectWidget):
     media = property(_media)
 
 
+class NonAdminMultipleAutoCompleteSelectWidget(AutoCompleteSelectMultipleWidget):
+    media = property(_media)
+
+
 as_default_help = 'Enter text to search.'
 
 
@@ -83,3 +88,16 @@ class NonAdminAutoCompleteSelectField(AutoCompleteSelectField):
         super(AutoCompleteSelectField, self).__init__(max_length=255, *args, **kwargs)
 
 
+class NonAdminMultipleAutoCompleteSelectField(AutoCompleteSelectMultipleField):
+    def __init__(self, channel, *args, **kwargs):
+        self.channel = channel
+
+        widget_kwargs = dict(
+                channel=channel,
+                help_text=kwargs.get('help_text', _(as_default_help)),
+                show_help_text=kwargs.pop('show_help_text', True),
+                plugin_options=kwargs.pop('plugin_options', {})
+        )
+        widget_kwargs.update(kwargs.pop('widget_options', {}))
+        kwargs["widget"] = NonAdminMultipleAutoCompleteSelectWidget(**widget_kwargs)
+        super().__init__(channel, *args, **kwargs)

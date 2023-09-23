@@ -12,6 +12,7 @@
         {% if user.is_authenticated %}
             <li><a href = "{% url "album:eveniment_documents" slug=eveniment.slug %}"><i class = "icon-file"></i> Documente</a></li>
             <li><a href = "{% url "album:eveniment_url_list" slug=eveniment.slug %}"><i class = "icon-globe"></i> URLs</a></li>
+            <li><a href = "{% url "album:eveniment_gpx_track_list" slug=eveniment.slug %}"><i class = "icon-globe"></i> Tracks</a></li>
         {% endif %}
 
 

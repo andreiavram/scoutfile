@@ -15,7 +15,10 @@
             <li><a href = "{% url "badge:badge_list"  %}"><i class = "icon-trophy"></i> Badge-uri</a></li>
     		<li><a href = "{% url "jocuri:activitate_search"  %}"><i class = "icon-book"></i> Jocuri</a></li>
         {% if request.user.is_staff %}
-            <li><a href = "{% url "inventar:locatie_access" %}">Locații</a></li>
+            <li><a href = "{% url "locuri:dashboard" %}">Locuri</a></li>
+        {% endif %}
+        {% if request.user.utilizator.membru.centru_local %}
+            <li><a href = "{% url "proiecte:project_list" %}">Proiecte</a></li>
         {% endif %}
 	</ul>
 	

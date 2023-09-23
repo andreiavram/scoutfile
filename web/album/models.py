@@ -1217,6 +1217,7 @@ class LinkType(models.Model):
     def __str__(self):
         return self.name
 
+
 class EventURL(models.Model):
     url = models.URLField()
     title = models.CharField(max_length=255, null=True, blank=True)

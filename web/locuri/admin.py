@@ -9,7 +9,7 @@ class GPXTrackAdmin(admin.ModelAdmin):
     list_filter = ["created_by"]
     actions = ["process_gpx"]
 
-    @admin.action
+    @admin.action(description="Process GPX file")
     def process_gpx(self, request, queryset):
         for gpx_track in queryset:
             if gpx_track.gpx_file:

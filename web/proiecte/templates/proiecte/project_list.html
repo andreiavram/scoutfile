@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load pagination_tags %} {% load bs_pagination %}
+{% load static %}
+
+{% block page_title %}
+    Proiecte
+{% endblock %}
+
+{% block context_menu %}
+    {% include 'proiecte/project_top_menu.html' %}
+{% endblock %}
+
+{% block extrahead %}
+    <script type="text/javascript" src="{% url "goodies:js_delete" app_label='badge' model='Badge' %}"></script>
+{% endblock %}
+
+
+{% block content %}
+        {% autopaginate object_list 12 %}
+        {% for project in object_list %}
+            <div class = "row-fluid">
+                <div class = "span12">
+                    <h2>{{ project }}</h2>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class = "span12">
+                    <p>{{ project.description }}</p>
+                    {% if project.objectives.count %}
+                    <h3>Obiective</h3>
+                    <ul>
+                        {% for objective in project.objectives.all %}
+                            <li>{{ objective.short_form }}: {{ objective.title }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% if project.activities.count %}
+                    <h3>Activități</h3>
+                        <ul>
+                        {% for activity in project.activities.all %}
+                            <li>{{ activity.title }} <small>({{ activity.date_start|date:"d.m.Y" }} - {{ activity.date_end|date:"d.m.Y" }}) - {% if activity.objectives.count %}({% for obj in activity.objectives.all %}{{ obj.short_form }}{% endfor %}){% endif %}</small></li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                </div>
+{#            {% if forloop.counter|divisibleby:3 %}#}
+{#                </div><div style="margin-top: 10px;" class = "row-fluid">#}
+{#            {% endif %}#}
+            </div>
+        {% empty %}
+            <div class = "row-fluid">
+            <div class = "alert alert-info">Nu există proiecte.</div>
+            </div>
+        {% endfor %}
+
+
+
+    {% paginate_bs2 %}
+{% endblock %}

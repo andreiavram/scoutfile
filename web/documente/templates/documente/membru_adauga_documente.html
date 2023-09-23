@@ -21,6 +21,23 @@
             Conform procedurii ONCR, pentru cazurile în care Consiliul Centrului
             Local a aprobat măsura cotizației sociale (folosit în calculul cotizației).
             <br /><span class = "label label-warning"><i class = "icon-bell icon-white"></i> Atenție! </span> tipul acesta de document influențează comportarea aplicației pentru acest membru!
+
+        <a href="{% url "structuri:membru_cotizatiesociala_adauga"  pk=object.id %}"><strong><i class="icon-file"></i>
+            Cazier judiciar</strong></a>
+            <br />
+            Conform procedurii ONCR, pentru verificarea de integritate Safe from Harm
+
+        <a href="{% url "structuri:membru_cotizatiesociala_adauga"  pk=object.id %}"><strong><i class="icon-file"></i>
+            Certificat de integritate comportamentală</strong></a>
+            <br />
+            Conform procedurii ONCR, pentru verificarea de integritate Safe from Harm
+
+        <a href="{% url "structuri:membru_cotizatiesociala_adauga"  pk=object.id %}"><strong><i class="icon-file"></i>
+            CI</strong></a>
+            <br />
+            Conform procedurii Centrului Local, pentru verificarea de integritate Safe from Harm
+
+
        </div>
 
 {% endblock %}

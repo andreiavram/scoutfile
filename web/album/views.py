@@ -38,6 +38,8 @@ from goodies.views import JSONView
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from locuri.models import GPXTrack
 from structuri.forms import AsociereEvenimentStructuraForm
 from structuri.models import Membru, CentruLocal, Unitate, Patrula, TipAsociereMembruStructura
 from taggit.models import Tag
@@ -47,12 +49,12 @@ from album.exporters.envelopes import C5Envelopes
 from album.models import Eveniment, ZiEveniment, Imagine, FlagReport, RaportEveniment, ParticipareEveniment, \
     AsociereEvenimentStructura, TipEveniment, SetPoze, IMAGINE_PUBLISHED_STATUS, \
     CampArbitrarParticipareEveniment, InstantaCampArbitrarParticipareEveniment, FLAG_MOTIVES, ParticipantEveniment, \
-    StatusEveniment, EventContributionOption, EventURL, StatusParticipare, RolParticipare
+    StatusEveniment, EventContributionOption, EventURL, StatusParticipare, RolParticipare, EventGPXTrack
 from album.forms import ReportForm, EvenimentCreateForm, EvenimentUpdateForm, PozaTagsForm, ZiForm, RaportEvenimentForm, \
     EvenimentParticipareForm, SetPozeCreateForm, SetPozeUpdateForm, CampArbitrarForm, EvenimentParticipareUpdateForm, \
     ReportFormNoButtons, EvenimentParticipareNonMembruForm, EvenimentParticipareNonmembruUpdateForm, \
     EvenimentParticipantFilterForm, EventContributionOptionForm, EventPaymentDocumentForm, EventURLForm, \
-    EvenimentParticipareRegistrationForm
+    EvenimentParticipareRegistrationForm, EventGPXTrackForm
 from album.exporters.table import TabularExport
 from generic.views import ScoutFileAjaxException
 from structuri.decorators import allow_by_afiliere
@@ -1918,12 +1920,41 @@ class EventRegisterView(EvenimentDetailMixin, UpdateView):
 
 
 class EventGPXTrackList(EvenimentDetailMixin, ListView):
-    pass
+    model = EventGPXTrack
+    template_name = "album/eveniment_track_list.html"
+
+    def get_queryset(self):
+        return super().get_queryset().filter(eveniment=self.eveniment)
+
+
+class EventGPXTrackDetail(DetailView):
+    model = EventGPXTrack
+    template_name = "album/eveniment_track_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            "eveniment": self.object.eveniment
+        })
+        return context
 
 
 class EventGPXTrackCreate(EvenimentDetailMixin, CreateView):
-    pass
+    model = EventGPXTrack
+    form_class = EventGPXTrackForm
+    template_name = "album/eveniment_track_form.html"
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.eveniment = self.eveniment
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+
+    def get_success_url(self):
+        return reverse("album:")
 
 
 class EventGPXTrackEdit(UpdateView):
-    pass
+    model = EventGPXTrack
+    template_name = "album/eveniment_track_form.html"

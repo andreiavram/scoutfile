@@ -5,10 +5,20 @@ from django.contrib import admin
 from proiecte.models import Project, ProjectRole, ProjectPosition, ProjectBudgetLine, ProjectBudgetEntry, \
     ProjectObjective, ProjectActivity
 
+class ProjectActivityInline(admin.StackedInline):
+    model = ProjectActivity
+    extra = 1
+
+
+class ProjectObjectiveInline(admin.StackedInline):
+    model = ProjectObjective
+    extra = 1
+
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ["name", "description", "visibility"]
+    inlines = [ProjectActivityInline, ProjectObjectiveInline]
 
 @admin.register(ProjectRole)
 class ProjectRoleAdmin(admin.ModelAdmin):
