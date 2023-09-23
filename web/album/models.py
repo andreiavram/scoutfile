@@ -569,7 +569,7 @@ class ParticipareEveniment(models.Model):
     def status_short_form(self):
         short_form_definition = {
             StatusParticipare.MAYBE: ("?", 1),
-            StatusParticipare.CONFIRMED: ("C", 0),
+            StatusParticipare.CONFIRMED: ("C", 1),
             StatusParticipare.REFUSED: ("R", 2),
             StatusParticipare.DOWNPAYMENT_RECEIVED: ("$?", 1),
             StatusParticipare.COMPLETED_OLD: ("P", 0),
