@@ -568,17 +568,17 @@ class ParticipareEveniment(models.Model):
 
     def status_short_form(self):
         short_form_definition = {
-            StatusParticipare.MAYBE: "?",
-            StatusParticipare.CONFIRMED: "C",
-            StatusParticipare.REFUSED: "R",
-            StatusParticipare.DOWNPAYMENT_RECEIVED: "$?",
-            StatusParticipare.COMPLETED_OLD: "P",
-            StatusParticipare.COMPLETED_REAL: "P",
-            StatusParticipare.COMPLETED_ONLINE: "P(o)",
-            StatusParticipare.CANCELLED: "A",
-            StatusParticipare.UNKNOWN: "?",
-            StatusParticipare.PAYMENT_CONFIRMED: "$",
-            StatusParticipare.INVITED: "I",
+            StatusParticipare.MAYBE: ("?", 1),
+            StatusParticipare.CONFIRMED: ("C", 0),
+            StatusParticipare.REFUSED: ("R", 2),
+            StatusParticipare.DOWNPAYMENT_RECEIVED: ("$?", 1),
+            StatusParticipare.COMPLETED_OLD: ("P", 0),
+            StatusParticipare.COMPLETED_REAL: ("P", 0),
+            StatusParticipare.COMPLETED_ONLINE: ("P(o)", 0),
+            StatusParticipare.CANCELLED: ("A", 2),
+            StatusParticipare.UNKNOWN: ("?", 1),
+            StatusParticipare.PAYMENT_CONFIRMED: ("$", 1),
+            StatusParticipare.INVITED: ("I", 1),
         }
 
         return short_form_definition.get(self.status_participare)

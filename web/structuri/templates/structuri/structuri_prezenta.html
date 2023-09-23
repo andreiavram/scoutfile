@@ -38,7 +38,13 @@
         {% for participare in event_data.participari %}
             <td>
                 {% if participare %}
-                    <a href="{% url "album:eveniment_participanti_modifica" pk=participare.id %}" target="_blank">{{ participare.status_short_form }}</a>
+                    <a href="{% url "album:eveniment_participanti_modifica" pk=participare.id %}" target="_blank">
+                    {% if participare.status_short_form.1 == 0 %}<span class = "badge badge-success">
+                    {% elif participare.status_short_form.1 == 1 %}<span class = "badge badge-warning">
+                    {% elif participare.status_short_form.1 == 2 %}<span class = "badge badge-important">
+                    {% endif %}
+                        {{ participare.status_short_form.0 }}</span></a>
+                    {% if participare.is_partiala %}(p){% endif %}
                 {% else %}
                     -
                 {% endif %}
