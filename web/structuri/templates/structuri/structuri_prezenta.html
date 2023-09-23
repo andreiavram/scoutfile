@@ -9,10 +9,11 @@
             </td>
             {% for eveniment in evenimente %}
             <td>
+            <small>{% if eveniment.tip_eveniment %}{{ eveniment.tip_eveniment.nume }}{% else %}{{ eveniment.tip_eveniment_text }}{% endif %}</small><br>
                 <a href="{% url "album:eveniment_participanti_list" slug=eveniment.slug %}" target="_blank">
                     {{ eveniment.start_date|date:"d.m" }}
                     {% if eveniment.start_date|date:"d.m" != eveniment.end_date|date:"d.m" %}
-                    <br>{{ eveniment.end_date|date:"d.m" }}{% endif %}
+                    <br>{{ eveniment.end_date|date:"d.m" }}{% endif %}<br>
                 </a>
             </td>
             {% endfor %}
