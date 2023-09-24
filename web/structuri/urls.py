@@ -1,5 +1,5 @@
-# coding: utf8
-from django.urls import path, include
+from django.urls import path
+
 from documente.views import DeclaratieCotizatieSocialaAdauga, DeclaratieCotizatieSocialaModifica, MembruAlteDocumente
 from structuri.views import CentruLocalCreate, CentruLocalUpdate, \
     CentruLocalDetail, CentruLocalList, CentruLocalMembruCreate, \
@@ -27,7 +27,7 @@ from structuri.views import CentruLocalCreate, CentruLocalUpdate, \
     UtilizatorHomeTabsDocumente, UtilizatorHomeTabsActivitati, MembruStergeAcoperire, CentruLocalTabMembriDeSuspendat, \
     MembruAdreseStatus, UnitatiListAPI, UpdateContentObjects, MembruInformatieCreate, MembruInformatieUpdate, \
     MembruTabAlteInformatii, ListaMembriiDreptVot, ListaMembriiDreptVotCentruLocal, MembruTabPlatiCotizatie, \
-    PatrulaPrezentaView, UnitatePrezentaView
+    PatrulaPrezentaView, UnitatePrezentaView, MembruTabCertificari
 
 urlpatterns = [
     path('centrulocal/adauga/', CentruLocalCreate.as_view(), name="cl_add"),
@@ -107,6 +107,7 @@ urlpatterns = [
     path('membru/<int:pk>/tab/alteinfo/', MembruTabAlteInformatii.as_view(), name="membru_tab_altele"),
     path('membru/<int:pk>/tab/familie/', MembruTabFamilie.as_view(), name="membru_tab_familie"),
     path('membru/<int:pk>/tab/documente/', MembruTabDocumente.as_view(), name="membru_tab_documente"),
+    path('membru/<int:pk>/tab/certificari/', MembruTabCertificari.as_view(), name="membru_tab_certificari"),
     path('membru/<int:pk>/tab/activitati/', MembruTabActivitati.as_view(), name="membru_tab_activitati"),
     path('membru/<int:pk>/tab/platicotizatie/', MembruTabPlatiCotizatie.as_view(), name="membru_tab_plati_cotizatie"),
 

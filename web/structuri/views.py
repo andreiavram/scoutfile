@@ -31,6 +31,8 @@ from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.views.generic.list import ListView
+
+from certificari.models import Certificate
 from goodies.views import TabbedViewMixin, GenericDeleteView
 from rest_framework import permissions
 from rest_framework.response import Response
@@ -1129,6 +1131,7 @@ class MembruDetail(DetailView, TabbedViewMixin):
             ("familie", "Familie", reverse("structuri:membru_tab_familie", kwargs={"pk": self.object.id}), "", 5),
             ('documente', "Documente", reverse("structuri:membru_tab_documente", kwargs={"pk": self.object.id}), "", 6),
             ('activitati', "Activități", reverse("structuri:membru_tab_activitati", kwargs={"pk": self.object.id}), "icon-calendar", 7),
+            ('certificari', 'Certificari', reverse("structuri:membru_tab_certificari", kwargs={"pk": self.object.id}), "icon-file", 8),
         ]
         if self.request.user.is_superuser:
             self.tabs.append(
@@ -1179,6 +1182,31 @@ class MembruTabDocumente(ListView):
     def get_context_data(self, **kwargs):
         data = super(MembruTabDocumente, self).get_context_data(**kwargs)
         data.update({"object": self.object})
+        return data
+
+
+class MembruTabCertificari(ListView):
+    model = Membru
+    template_name = "structuri/membru_tab_certificari.html"
+
+    @allow_by_afiliere([("Membru, Centru Local", "Lider"), ("Membru, Centru Local", "Lider asistent")])
+    def dispatch(self, request, *args, **kwargs):
+        self.object = get_object_or_404(self.model, id=kwargs.pop("pk"))
+        return ListView.dispatch(self, request, *args, **kwargs)
+
+    def get_queryset(self):
+        return Certificate.all_objects.filter(issued_to=self.object)
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        current_date = datetime.date.today()
+        data.update(
+            {
+                "object": self.object,
+                "valide": Certificate.objects.filter(issued_to=self.object).order_by("-issued_on"),
+                "expirate": self.get_queryset().filter(valid_until__isnull=False, valid_until__lt=current_date).order_by("-valid_until")
+            }
+        )
         return data
 
 

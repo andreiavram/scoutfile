@@ -21,6 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('structuri/', include(('structuri.urls', 'structuri'), namespace='structuri')),
     path('album/', include(('album.urls', 'album'), namespace='album')),
+    path('certificari/', include(('certificari.urls', 'certificari'), namespace='certificari')),
     path('goodies/', include(('goodies.urls', 'goodies'), namespace='goodies')),
     path('patrocle/', include(('patrocle.urls', 'patrocle'), namespace='patrocle')),
     path('documente/', include(('documente.urls', 'documente'), namespace='documente')),

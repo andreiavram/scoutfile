@@ -477,7 +477,9 @@ class PersoanaDeContactForm(CrispyBaseModelForm):
             raise ValidationError(u"Trebuie completat măcar un câmp!")
         
         return self.cleaned_data
-    
+
+
+
 class SetariSpecialeCentruLocalForm(CrispyBaseModelForm):
     class Meta(object):
         model = CentruLocal

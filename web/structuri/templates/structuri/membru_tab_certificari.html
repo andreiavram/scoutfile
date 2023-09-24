@@ -1,0 +1,117 @@
+<script type="text/javascript" src="{% url "goodies:js_delete" app_label='certificari' model='Certificate' %}"></script>
+
+{% if request.user.utilizator.membru.is_membru_ccl %}
+    <div class="btn-group">
+        <a href="{% url "certificari:membru_add_certificate" pk=object.id %}" class="btn btn-primary"><i
+                class="icon-plus-sign icon-white"></i> Adaugă certificat</a>
+    </div>
+{% endif %}
+
+<h4>Certificări</h4>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>Titlu</th>
+        <th>Valabilitate</th>
+        <th>Emitent</th>
+        <th>Documente</th>
+        <th>&nbsp;</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for certificat in valide %}
+        <tr id="row_{{ certificat.id }}">
+            <td>
+                {{ certificat.id }}
+            </td>
+            <td>
+                {{ certificat.certificate_type.title }}<br>
+                <small>{{ certificate.certificate_type.description }}</small>
+            </td>
+            <td>
+                {{ certificat.issued_on|date:"d.m.Y" }}{% if certificat.valid_until %} - {{ certificat.valid_until|date:
+                    "d.m.Y" }}{% endif %}
+            </td>
+            <td>
+                {{ certificat.issued_by }}
+            </td>
+            <td>{% if certificat.document %}
+                <a class="btn btn-mini" href="{{ certificat.document.url }}" target="_blank"><i
+                        class="icon-file"></i></a>
+                {{ certificat.document }}
+            {% endif %}
+            </td>
+            <td>
+                <div class="btn-group pull-right">
+                    <a class="btn btn-mini"
+                       href="{% url "certificari:membru_edit_certificate" mpk=object.id pk=certificat.id %}"><i
+                            class="icon-pencil"></i></a>
+                    <a class="btn btn-mini" id="delete_{{ certificat.id }}" href="javascript:void()"><i
+                            class="icon-trash"></i></a>
+                </div>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td>&nbsp;</td>
+            <td><em>Nu există certificate atașate acestui membru.</em></td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% if expirate.exists %}
+    <h4>Certificări expirate</h4>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Titlu</th>
+            <th>Valabilitate</th>
+            <th>Emitent</th>
+            <th>Documente</th>
+            <th>&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for certificat in expirate %}
+            <tr id="row_{{ certificat.id }}">
+                <td>
+                    {{ certificat.id }}
+                </td>
+                <td>
+                    {{ certificat.certificate_type.title }}<br>
+                    <small>{{ certificate.certificate_type.description }}</small>
+                </td>
+                <td>
+                    {{ certificat.issued_on|date:"d.m.Y" }} - {{ certificat.valid_until|date:"d.m.Y" }}
+                </td>
+                <td>
+                    {{ certificat.issued_by }}
+                </td>
+                <td>
+                    {% if certificat.document %}
+                        <a class="btn btn-mini" href="{{ certificat.document.url }}" target="_blank"><i
+                                class="icon-file"></i></a>
+                        {{ certificat.document }}
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="btn-group pull-right">
+                        <a class="btn btn-mini"
+                           href="{% url "certificari:membru_edit_certificate" mpk=object.id pk=certificat.id %}"><i
+                                class="icon-pencil"></i></a>
+                        <a class="btn btn-mini" id="delete_{{ certificat.id }}" href="javascript:void()"><i
+                                class="icon-trash"></i></a>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}

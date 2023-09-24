@@ -27,12 +27,12 @@ class ValidCertificateManager(models.Manager):
 
 
 class Certificate(models.Model):
-    issued_to = models.ForeignKey("structuri.Membru", on_delete=models.CASCADE, related_name="certificari")
+    issued_to = models.ForeignKey("structuri.Membru", on_delete=models.CASCADE, related_name="certificari", verbose_name="Titluar")
     issued_on = models.DateField()
     valid_until = models.DateField(null=True, blank=True)
 
-    issued_by = models.CharField(max_length=1024, blank=True)
-    certificate_type = models.ForeignKey(CertificationType, on_delete=models.CASCADE)
+    issued_by = models.CharField(max_length=1024, blank=True, verbose_name="Emitent")
+    certificate_type = models.ForeignKey(CertificationType, on_delete=models.CASCADE, verbose_name="Tip certificat")
 
     event_received = models.ForeignKey("album.Eveniment", null=True, blank=True, on_delete=models.SET_NULL, related_name="issued_certificates")
     events = models.ManyToManyField("album.Eveniment", blank=True, related_name="contributed_certificates")
