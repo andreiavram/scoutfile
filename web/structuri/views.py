@@ -825,10 +825,14 @@ class PrezentaMixin:
 
     def get_evenimente(self):
         # determine an cercetasesc
-        today = datetime.date.today()
-        start_year = today.year
-        if 1 < today.month < 9:
-            start_year = today.year - 1
+
+        if start_year := self.request.GET.get("an"):
+            start_year = int(start_year)
+        else:
+            today = datetime.date.today()
+            start_year = today.year
+            if 1 < today.month < 9:
+                start_year = today.year - 1
 
         structure_or = Q(
             asocieri_structura__content_type=ContentType.objects.get_for_model(self.object),
