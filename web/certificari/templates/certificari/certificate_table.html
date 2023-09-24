@@ -1,0 +1,62 @@
+ <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th></th>
+            <th>Titlu</th>
+            <th>Valabilitate</th>
+            <th>Emitent</th>
+            <th>Documente</th>
+            <th>&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for certificat in object_list  %}
+            <tr id="row_{{ certificat.id }}">
+                <td>
+                    {{ certificat.id }}
+                </td>
+                <td>
+                    {% if certificat.certificate_type.icon %}
+                        <img style="height: 25px" src="{{ certificat.certificate_type.icon.url  }}">
+                    {% endif %}
+                </td>
+                <td>
+                    {{ certificat.certificate_type.title }}<br>
+                    <small>{{ certificate.certificate_type.description }}</small>
+                </td>
+                <td>
+                    {{ certificat.issued_on|date:"d.m.Y" }}{% if certificat.valid_until %} - {{ certificat.valid_until|date:"d.m.Y" }}{% endif %}
+                </td>
+                <td>
+                    {{ certificat.issued_by }}
+                </td>
+                <td>
+                    {% if certificat.document %}
+                        <a class="btn btn-mini" href="{{ certificat.document.url }}" target="_blank"><i
+                                class="icon-file"></i></a>
+                        {{ certificat.document }}
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="btn-group pull-right">
+                        <a class="btn btn-mini"
+                           href="{% url "certificari:membru_edit_certificate" mpk=object.id pk=certificat.id %}"><i
+                                class="icon-pencil"></i></a>
+                        <a class="btn btn-mini" id="delete_{{ certificat.id }}" href="javascript:void()"><i
+                                class="icon-trash"></i></a>
+                    </div>
+                </td>
+            </tr>
+        {% empty %}
+        <tr>
+            <td>&nbsp;</td>
+            <td><em>Nu există</em></td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
+    {% endfor %}
+        </tbody>
+    </table>
