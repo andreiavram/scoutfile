@@ -543,6 +543,19 @@ class StatusParticipare(IntegerChoices):
     EVENT_CANCELLED = 12, "Eveniment anulat"
     ORGANIZER_REJECTED = 13, "Respins de organizator"
 
+    @classmethod
+    def participating_statuses(cls):
+        return [
+            StatusParticipare.MAYBE,
+            StatusParticipare.CONFIRMED,
+            StatusParticipare.DOWNPAYMENT_RECEIVED,
+            StatusParticipare.COMPLETED_REAL,
+            StatusParticipare.COMPLETED_OLD,
+            StatusParticipare.COMPLETED_ONLINE,
+            StatusParticipare.UNKNOWN,
+            StatusParticipare.INVITED
+        ]
+
 
 class ParticipantEveniment(models.Model):
     nume = models.CharField(max_length=255)
