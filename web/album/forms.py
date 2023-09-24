@@ -183,7 +183,7 @@ class EvenimentParticipareRegistrationForm(EvenimentParticipareBaseForm):
         exclude = ["eveniment", "user_modificare", "nonmembru", "contribution_payments", "contribution_option", "membru", "status_participare", "rol", "data_plecare", "data_sosire", "detalii"]
 
     participant_notes = forms.CharField(
-        widget=forms.Textarea(attrs={"rows": 5, "style": "width: 100%; padding: 0"}),
+        widget=forms.Textarea(attrs={"rows": 5, "style": "width: 100%;"}),
         required=False,
         label="Note / explicații",
         help_text="Opțional, notează aici orice informații suplimentare despre participarea ta, dacă ai nevoie"
@@ -280,7 +280,7 @@ class CampArbitrarForm(CrispyBaseModelForm):
 
         cnt = self.eveniment.participareeveniment_set.all().count()
         if self.cleaned_data['optional'] is False and cnt > 0:
-            if len(self.cleaned_data.get('implicit', "")) == 0:
+            if self.cleaned_data.get('implicit', ""):
                 raise ValidationError("Un câmp obligatoriu trebuie să aibă valoare implicită când există deja înregistrări de participare!")
             #   daca se adauga un camp nou, obligatoriu dar care nu are valoare implicita e o problema
 

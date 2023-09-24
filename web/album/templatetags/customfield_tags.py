@@ -8,7 +8,7 @@ register = template.Library()
 
 @register.inclusion_tag("album/camparbitrar.html", takes_context=True)
 def valoare_camp(context, camp, participare):
-    valoare = camp.get_value(participare)
+    valoare = camp.get_representation(participare)
     return {"camp": camp, "participare": participare, "valoare": valoare}
 
 @register.simple_tag(takes_context=True)
