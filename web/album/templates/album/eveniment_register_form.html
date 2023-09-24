@@ -11,7 +11,63 @@
 {% endblock %}
 
 {% block content %}
-    <p>Ai fost invitat la acest eveniment. {% if object %}Răspunsul tău acum este <strong>{{ object.get_status_participare_display }}</strong>.{% endif %}</p>
+    <p class="alert alert-info">Ai fost invitat la acest eveniment.
+        {% if object %}
+            {% if object.eveniment.status == "terminat" or object.eveniment.status == "anulat" %}
+                Evenimentul s-a încheiat și participarea ta la eveniment este înregistrată ca fiind: <strong>{{ object.get_status_participare_display }}</strong>.
+            {% else %}
+                Răspunsul tău este înregistrat ca fiind: <strong>{{ object.get_status_participare_display }}</strong>.
+            {% endif %}
+        {% endif %}
+    </p>
 
+    {% with object.eveniment as e %}
+    <div>
+        <h3>Descriere generală</h3>
+        <p style="font-size: 1.2em">{% if e.text_invitatie %}
+            {{ e.text_invitatie }}
+        {% else %}
+            {{ e.descriere }}
+        {% endif %}
+        </p>
+        <p>
+            Evenimentul are loc {% if e.start_date|date:"d.m.Y" == e.end_date|date:"d.m.Y" %}
+                pe {{ e.start_date|date:"d.m.Y" }} între {{ e.start_date|date:"H:i" }} și {{ e.end_date|date:"H:i"}}
+            {% else %} începând cu {{ e.start_date|date:"d.m.Y" }}, orele {{ e.start_date|date:"H:i" }} până pe {{ e.end_date|date:"d.m.Y" }}, orele {{ e.end_date|date:"H:i" }}{% endif %} ({{ e.end_date|timeuntil:e.start_date }}).
+        </p>
+    {% if e.contribution_options.all.count %}
+        <h3>Contribuție și plăți</h3>
+        <p>
+
+            Evenimentul are definite următoarele categorii de contribuții:
+            <ul>
+                {% for c in e.contribution_options.all %}
+                <li>{{ c }}</li>
+                {% endfor %}
+            </ul>
+                {% if object %}<div class="alert-info alert"><i class="icon-money"></i> Categoria de contribuție la care ai fost încadrat este <strong>{{ object.contribution_option }}</strong></div>{% endif %}
+            {% if object.contribution_payments.all.count %}
+                Ai făcut până acum următoarele plăți:
+                <ul>
+                    {% for p in object.contribution_payments.all %}
+                        <li>{{ p.value }} {{ p.currency|upper }} pe {{ p.registered_at|date:"d.m.Y" }}</li>
+                    {% endfor %}
+                </ul>
+                {% if object.payment_due > 0 %}
+                    <div class="alert alert-warning"><strong>Mai ai de plătit {{ object.payment_due }} RON</strong></div>
+                {% else %}
+                    <div class="alert alert-success"><strong>Ai plătit toată contribuția. All good!</strong></div>
+                {% endif %}
+            {% endif %}
+        </p>
+    {% endif %}
+        <p>
+
+        </p>
+    </div>
+    {% endwith %}
+
+    {% if object.eveniment.status != "terminat" and object.eveniment.status != "anulat" %}
     {% crispy form form.helper %}
+    {% endif %}
 {% endblock %}

@@ -131,7 +131,10 @@
                     {% endif %}
                 </td>
                 {% endif %}
-                <td data-original="{{ participare.detalii }}" id="detalii-participare-{{ participare.id }}">{% if participare.detalii %}{{ participare.detalii|linebreaksbr }}{% endif %}</td>
+                <td>
+                    <span data-original="{{ participare.detalii }}" id="detalii-participare-{{ participare.id }}">{% if participare.detalii %}{{ participare.detalii|linebreaksbr }}{% endif %}</span>
+                    {% if participare.participant_notes %}<br><strong>Note participant: </strong>{{ participare.participant_notes }}{% endif %}
+                </td>
                 {% for camp in campuri_arbitrare %}
                     <td>{% valoare_camp camp participare %}</td>
                 {% endfor %}
@@ -147,10 +150,10 @@
         {% empty %}
             <tr>
                 <td>&nbsp;</td>
-                <td colspan="{{ eveniment.get_campuri_aditionale|length|add:eveniment.camparbitrarparticipareeveniment_set.all.count|add:7 }}">
+                <td colspan="{{ eveniment.get_campuri_aditionale|length|add:eveniment.campuri_arbitrare.all.count|add:7 }}">
                     <em>Nu există participanți</em>
                 </td>
-                {% for camp in eveniment.camparbitrarparticipareeveniment_set.all %}
+                {% for camp in eveniment.campuri_arbitrare.all %}
                     <td>&nbsp;</td>
                 {% endfor %}
             </tr>

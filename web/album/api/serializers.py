@@ -28,6 +28,7 @@ class ParticipareEvenimentSerializers(serializers.ModelSerializer):
             "status_participare",
             "status_participare_display",
             "detalii",
+            "participant_notes",
             "rol",
             "ultima_modificare",
             "user_modificare_id",

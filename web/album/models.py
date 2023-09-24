@@ -1,4 +1,4 @@
-#coding: utf-8
+# coding: utf-8
 from builtins import next
 from builtins import str
 from builtins import object
@@ -34,7 +34,6 @@ from unidecode import unidecode
 from album.managers import RaportEvenimentManager
 
 logger = logging.getLogger(__name__)
-
 
 IMAGINE_PUBLISHED_STATUS = ((1, "Secret"), (2, "Centru Local"), (3, "Organizație"), (4, "Public"))
 
@@ -93,21 +92,26 @@ class Eveniment(models.Model):
                        ("credit", u"Credit")]
 
     centru_local = models.ForeignKey("structuri.CentruLocal", on_delete=models.CASCADE)
-    nume = models.CharField(max_length=1024 , verbose_name=u"Titlu")
+    nume = models.CharField(max_length=1024, verbose_name=u"Titlu")
     descriere = models.TextField(null=True, blank=True)
-    start_date = models.DateTimeField(verbose_name=u"Începe pe", help_text=u"Folosește selectorul de date pentru a defini o dată de început")
-    end_date = models.DateTimeField(verbose_name=u"Ține până pe", help_text=u"Folosește selectorul de date pentru a defini o dată de sfârșit")
+    start_date = models.DateTimeField(verbose_name=u"Începe pe",
+                                      help_text=u"Folosește selectorul de date pentru a defini o dată de început")
+    end_date = models.DateTimeField(verbose_name=u"Ține până pe",
+                                    help_text=u"Folosește selectorul de date pentru a defini o dată de sfârșit")
     slug = models.SlugField(max_length=255, unique=True)
     custom_cover_photo = models.ForeignKey("Imagine", on_delete=models.CASCADE, null=True, blank=True)
 
-    tip_eveniment_text = models.CharField(default="alta", max_length=255, null=True, blank=True, choices=TipuriEveniment.choices)
+    tip_eveniment_text = models.CharField(default="alta", max_length=255, null=True, blank=True,
+                                          choices=TipuriEveniment.choices)
     tip_eveniment = models.ForeignKey(TipEveniment, on_delete=models.CASCADE)
-    facebook_event_link = models.URLField(null=True, blank=True, verbose_name=u"Link eveniment Facebook", help_text=u"Folosește copy/paste pentru a lua link-ul din Facebook")
-    articol_site_link = models.URLField(null=True, blank=True, verbose_name=u"Link articol site", help_text=u"Link-ul de la articolul de pe site-ul Centrului Local")
+    facebook_event_link = models.URLField(null=True, blank=True, verbose_name=u"Link eveniment Facebook",
+                                          help_text=u"Folosește copy/paste pentru a lua link-ul din Facebook")
+    articol_site_link = models.URLField(null=True, blank=True, verbose_name=u"Link articol site",
+                                        help_text=u"Link-ul de la articolul de pe site-ul Centrului Local")
 
     status = models.CharField(max_length=255, null=True, blank=True, choices=StatusEveniment.choices)
 
-    locatie_text = models.CharField(max_length=1024, null=True, blank=True, verbose_name = u"Locație")
+    locatie_text = models.CharField(max_length=1024, null=True, blank=True, verbose_name=u"Locație")
     #   TODO: implementează situatia în care evenimentul are mai mult de o singură locație
     locatie_geo = models.CharField(max_length=1024)
     locatie = PointField(null=True, blank=True)
@@ -115,12 +119,17 @@ class Eveniment(models.Model):
     #   TODO: add visibility settings to events
     published_status = models.IntegerField(default=2, choices=IMAGINE_PUBLISHED_STATUS, verbose_name=u"Vizibilitate")
 
-    responsabil_raport = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="evenimente_raport", on_delete=models.CASCADE)
-    responsabil_articol = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="evenimente_articol", on_delete=models.CASCADE)
+    responsabil_raport = models.ForeignKey("structuri.Membru", null=True, blank=True, related_name="evenimente_raport",
+                                           on_delete=models.CASCADE)
+    responsabil_articol = models.ForeignKey("structuri.Membru", null=True, blank=True,
+                                            related_name="evenimente_articol", on_delete=models.CASCADE)
 
-    international = models.BooleanField(default=False, help_text=u"Dacă activitatea implică participanți din alte țări sau are loc în străinătate")
-    organizator = models.CharField(max_length=255, null=True, blank=True, help_text=u"Dacă organizatorul este altul decât Centrul Local, notați-l aici")
-    organizator_cercetas = models.BooleanField(default=True, help_text=u"Dacă organizatorul este un centru local sau ONCR, bifează aici")
+    international = models.BooleanField(default=False,
+                                        help_text=u"Dacă activitatea implică participanți din alte țări sau are loc în străinătate")
+    organizator = models.CharField(max_length=255, null=True, blank=True,
+                                   help_text=u"Dacă organizatorul este altul decât Centrul Local, notați-l aici")
+    organizator_cercetas = models.BooleanField(default=True,
+                                               help_text=u"Dacă organizatorul este un centru local sau ONCR, bifează aici")
 
     proiect = models.ForeignKey("proiecte.Project", null=True, blank=True, on_delete=models.CASCADE)
     campuri_aditionale = models.CharField(max_length=1024, null=True, blank=True)
@@ -128,8 +137,10 @@ class Eveniment(models.Model):
     oncr_id = models.CharField(max_length=255, null=True, blank=True, verbose_name=u"ONCR ID")
 
     frecventa = models.DurationField(null=True, blank=True)
-    instanta_anterioara = models.ForeignKey("album.Eveniment", null=True, blank=True, on_delete=models.CASCADE, related_name="next_occurrences")
-    instanta_urmatoare = models.ForeignKey("album.Eveniment", null=True, blank=True, on_delete=models.CASCADE, related_name="previous_occurrences")
+    instanta_anterioara = models.ForeignKey("album.Eveniment", null=True, blank=True, on_delete=models.CASCADE,
+                                            related_name="next_occurrences")
+    instanta_urmatoare = models.ForeignKey("album.Eveniment", null=True, blank=True, on_delete=models.CASCADE,
+                                           related_name="previous_occurrences")
     instante_extra = models.PositiveSmallIntegerField(default=0, null=True, blank=True)
 
     text_invitatie = models.TextField(blank=True)
@@ -157,7 +168,7 @@ class Eveniment(models.Model):
     def get_ramuri_de_varsta(self):
         participari = self.participareeveniment_set.exclude(status_participare=5)
 
-        if self.status in ("terminat", ):
+        if self.status in ("terminat",):
             participari = participari.exclude(status_participare__in=(1, 2, 3))
         if participari.exists():
             membri = [p.membru for p in participari if p.membru]
@@ -183,6 +194,7 @@ class Eveniment(models.Model):
                 return RamuraDeVarsta.objects.get(slug=rdv_slug).varsta_intrare
             except RamuraDeVarsta.DoesNotExist:
                 return 999
+
         rdvs.sort(key=rdv_sorter)
         return rdvs
 
@@ -217,7 +229,8 @@ class Eveniment(models.Model):
         else:
             #   check if days have to be recreated
             zile_eveniment = self.zieveniment_set.all().order_by("index")
-            if zile_eveniment and zile_eveniment[0].date == self.start_date and zile_eveniment[zile_eveniment.count() - 1].date == self.end_date:
+            if zile_eveniment and zile_eveniment[0].date == self.start_date and zile_eveniment[
+                zile_eveniment.count() - 1].date == self.end_date:
                 #   same dates means do nothing
                 return retval
 
@@ -318,7 +331,9 @@ class Eveniment(models.Model):
 
     @property
     def poze_out_of_bounds(self):
-        return Imagine.objects.filter(Q(data__lt=self.start_date) | Q(data__gt=self.end_date) | Q(data__isnull = True)).filter(set_poze__eveniment=self).count()
+        return Imagine.objects.filter(
+            Q(data__lt=self.start_date) | Q(data__gt=self.end_date) | Q(data__isnull=True)).filter(
+            set_poze__eveniment=self).count()
 
     @property
     def has_poze_out_of_bounds(self):
@@ -340,7 +355,7 @@ class Eveniment(models.Model):
 
         #   decide visibility level to go for
         if user and user.is_authenticated:
-            visibility_level = 3    #   this means organization level, logged in user
+            visibility_level = 3  # this means organization level, logged in user
             user_profile = user.utilizator.membru
             if user_profile.centru_local == self.centru_local:
                 visibility_level = 2
@@ -414,7 +429,6 @@ class Eveniment(models.Model):
         members_to_add = [m for m in members_list if m.id not in existing_members]
         ParticipareEveniment.objects.bulk_create([ParticipareEveniment(membru=m, **pe_args) for m in members_to_add])
 
-
     @property
     def default_contribution(self, per_diem=False):
         if self.contribution_options.exists():
@@ -446,14 +460,18 @@ class AsociereEvenimentStructura(models.Model):
 
 
 class RaportEveniment(models.Model):
-    parteneri = models.TextField(help_text=u"Câte unul pe linie, dacă există și un link va fi preluat automat de pe aceeași linie", null=True, blank=True)
+    parteneri = models.TextField(
+        help_text=u"Câte unul pe linie, dacă există și un link va fi preluat automat de pe aceeași linie", null=True,
+        blank=True)
     obiective = models.TextField(help_text=u"inclusiv obiective educative", null=True, blank=True)
     grup_tinta = models.TextField(null=True, blank=True)
-    activitati = models.TextField(null=True, blank=True, help_text=u"Descriere semi-formală a activităților desfășurate")
+    activitati = models.TextField(null=True, blank=True,
+                                  help_text=u"Descriere semi-formală a activităților desfășurate")
     alti_beneficiari = models.TextField(null=True, blank=True)
     promovare = models.TextField(null=True, blank=True, help_text=u"Cum / dacă s-a promovat proiectul")
-    buget = models.FloatField(null=True, blank=True, help_text= u"Estimativ, în RON")
-    accept_publicare_raport_national = models.BooleanField(default=True, verbose_name="Acord raport ONCR", help_text=u"Dacă se propune această activitate pentru raportul anual al ONCR")
+    buget = models.FloatField(null=True, blank=True, help_text=u"Estimativ, în RON")
+    accept_publicare_raport_national = models.BooleanField(default=True, verbose_name="Acord raport ONCR",
+                                                           help_text=u"Dacă se propune această activitate pentru raportul anual al ONCR")
 
     aventura = models.BooleanField(default=False)
     social = models.BooleanField(default=False)
@@ -463,7 +481,6 @@ class RaportEveniment(models.Model):
     fundraising = models.BooleanField(default=False)
     altele = models.BooleanField(default=False)
 
-
     eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE)
     is_locked = models.BooleanField(default=False)
     is_leaf = models.BooleanField(default=False)
@@ -471,7 +488,8 @@ class RaportEveniment(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     original_parent = models.ForeignKey("RaportEveniment", null=True, blank=True, on_delete=models.SET_NULL)
-    parent = models.ForeignKey("RaportEveniment", related_name="children", null=True, blank=True, on_delete=models.SET_NULL)
+    parent = models.ForeignKey("RaportEveniment", related_name="children", null=True, blank=True,
+                               on_delete=models.SET_NULL)
 
     objects = RaportEvenimentManager()
 
@@ -522,6 +540,8 @@ class StatusParticipare(IntegerChoices):
     UNKNOWN = 9, "Necunoscut"
     PAYMENT_CONFIRMED = 10, "Plata confirmată"
     INVITED = 11, "Invitat"
+    EVENT_CANCELLED = 12, "Eveniment anulat"
+    ORGANIZER_REJECTED = 13, "Respins de organizator"
 
 
 class ParticipantEveniment(models.Model):
@@ -539,7 +559,7 @@ class ParticipantEveniment(models.Model):
 
 
 class ParticipareEveniment(models.Model):
-    #TODO: a better way to implement this relationship needs to exist
+    # TODO: a better way to implement this relationship needs to exist
     membru = models.ForeignKey("structuri.Membru", on_delete=models.CASCADE, null=True, blank=True)
     nonmembru = models.ForeignKey("album.ParticipantEveniment", on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -549,13 +569,17 @@ class ParticipareEveniment(models.Model):
 
     status_participare = models.IntegerField(default=StatusParticipare.UNKNOWN, choices=StatusParticipare.choices)
     detalii = models.TextField(null=True, blank=True)
+    participant_notes = models.TextField(null=True, blank=True)
     rol = models.CharField(max_length=255, default=RolParticipare.PARTICIPANT, choices=RolParticipare.choices)
 
     ultima_modificare = models.DateTimeField(auto_now=True)
-    user_modificare = models.ForeignKey("structuri.Membru", on_delete=models.SET_NULL, null=True, blank=True, related_name="participari_responsabil")
+    user_modificare = models.ForeignKey("structuri.Membru", on_delete=models.SET_NULL, null=True, blank=True,
+                                        related_name="participari_responsabil")
 
-    contribution_option = models.ForeignKey("album.EventContributionOption", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Tip contribuție")
-    contribution_payments = models.ManyToManyField("financiar.PaymentDocument", related_name="payments", blank=True, help_text="Plăți contribuție")
+    contribution_option = models.ForeignKey("album.EventContributionOption", on_delete=models.SET_NULL, null=True,
+                                            blank=True, verbose_name="Tip contribuție")
+    contribution_payments = models.ManyToManyField("financiar.PaymentDocument", related_name="payments", blank=True,
+                                                   help_text="Plăți contribuție")
 
     class Meta(object):
         ordering = ["-data_sosire", "status_participare"]
@@ -564,7 +588,7 @@ class ParticipareEveniment(models.Model):
     @property
     def is_partiala(self):
         return (self.data_sosire > self.eveniment.start_date + datetime.timedelta(seconds=3600 * 4)) or \
-               (self.data_plecare < self.eveniment.end_date - datetime.timedelta(seconds=3600 * 4))
+            (self.data_plecare < self.eveniment.end_date - datetime.timedelta(seconds=3600 * 4))
 
     def status_short_form(self):
         short_form_definition = {
@@ -579,9 +603,23 @@ class ParticipareEveniment(models.Model):
             StatusParticipare.UNKNOWN: ("?", 1),
             StatusParticipare.PAYMENT_CONFIRMED: ("$", 1),
             StatusParticipare.INVITED: ("I", 1),
+            StatusParticipare.ORGANIZER_REJECTED: ("X", 2),
+            StatusParticipare.EVENT_CANCELLED: ("X", 2),
         }
 
         return short_form_definition.get(self.status_participare)
+
+    @staticmethod
+    def cotizatie_resolution(participare):
+        if participare.membru.centru_local:
+            return participare.membru.calculeaza_necesar_cotizatie()
+        return 0
+
+    @staticmethod
+    def statut_cotizatie_resolution(participare):
+        if participare.membru.centru_local:
+            return participare.membru.status_cotizatie()
+        return "n/a"
 
     def process_camp_aditional(self, camp):
         if self.nonmembru_id:
@@ -593,8 +631,8 @@ class ParticipareEveniment(models.Model):
                           "adresa": lambda o: o.membru.adresa_postala,
                           "scoutid": lambda o: o.membru.scout_id,
                           "email": lambda o: o.membru.email,
-                          "status": lambda o: o.membru.status_cotizatie(),
-                          "cotizatie": lambda o: o.membru.calculeaza_necesar_cotizatie(),
+                          "status": ParticipareEveniment.statut_cotizatie_resolution,
+                          "cotizatie": ParticipareEveniment.cotizatie_resolution,
                           "buletin": lambda o: o.membru.get_contact(u"Buletin"),
                           "credit": lambda o: o.membru.get_scor_credit_display(),
                           "unitate": lambda o: o.membru.get_unitate(),
@@ -618,7 +656,6 @@ class ParticipareEveniment(models.Model):
         if self.membru is None:
             return None
 
-
     @property
     def total_payments(self):
         total_value = self.contribution_payments.aggregate(Sum('value'))
@@ -631,9 +668,9 @@ class ParticipareEveniment(models.Model):
             return (self.data_plecare - self.data_sosire).days * contribution_option.value
         else:
             return contribution_option.value
+
     def payment_due(self):
         return self.total_cost - self.total_payments
-
 
 
 class TipCampParticipare(TextChoices):
@@ -641,23 +678,31 @@ class TipCampParticipare(TextChoices):
     NUMBER = "number", "Număr"
     BOOL = "bool", "Bifă"
     DATE = "date", "Dată"
+    CHOICE = "choice", "Listă"
 
 
 class CampArbitrarParticipareEveniment(models.Model):
-    eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE)
+    eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE, related_name="campuri_arbitrare")
     nume = models.CharField(max_length=255)
     slug = models.SlugField()
     tip_camp = models.CharField(max_length=255, choices=TipCampParticipare.choices)
     implicit = models.CharField(max_length=255, null=True, blank=True)
     optional = models.BooleanField(default=True)
     user_fillable = models.BooleanField(default=False)
-    explicatii_suplimentare = models.CharField(max_length=255, null=True, blank=True, help_text=u"Instrucțiuni despre cum să fie completat acest câmp, format, ...")
-    afiseaza_sumar = models.BooleanField(default=False, verbose_name=u"Afișează sumar", help_text=u"Afișează totale la sfârșitul tabelului")
+    explicatii_suplimentare = models.CharField(max_length=255, null=True, blank=True,
+                                               help_text=u"Instrucțiuni despre cum să fie completat acest câmp, format, ...")
+    afiseaza_sumar = models.BooleanField(default=False, verbose_name=u"Afișează sumar",
+                                         help_text=u"Afișează totale la sfârșitul tabelului")
 
-    tipuri_camp = {"text": forms.CharField,
-                   "number": forms.FloatField,
-                   "bool": forms.BooleanField,
-                   "date": forms.DateField}
+    config = models.JSONField(default=dict, help_text="Configurare adițională, opțională")
+
+    tipuri_camp = {
+        "text": forms.CharField,
+        "number": forms.FloatField,
+        "bool": forms.BooleanField,
+        "date": forms.DateField,
+        "choice": forms.ChoiceField
+    }
 
     def get_form_field_class(self):
         return self.tipuri_camp[self.tip_camp]
@@ -672,23 +717,34 @@ class CampArbitrarParticipareEveniment(models.Model):
         self._cache_instances()
         return next((a for a in self._instante if a.participare_id == participare.id), None)
 
-    def get_value(self, participare=None):
+    def get_value(self, participare=None, representation=False):
         if participare is None:
             return None
 
         try:
             instanta = self.get_instanta(participare=participare)
-            return instanta.get_value()
+            return instanta.get_value() if not representation else instanta.get_representation()
         except InstantaCampArbitrarParticipareEveniment.DoesNotExist as e:
             return None
         except Exception as e:
             return None
 
-    def get_translated_value(self, value):
-        if self.tip_camp == "bool":
-            return True if value == "True" else False
-
+    def get_representation(self, participare=None):
+        value = self.get_value(participare, representation=True)
+        if value is None:
+            return "n/a"
         return value
+
+    # def get_translated_value(self, value):
+    #     if self.tip_camp == "bool":
+    #         return True if value == "True" else False
+    #     if self.tip_camp == "choice":
+    #         for option in self.config.get("choices"):
+    #             if value == str(option[0]):
+    #                 return option[1]
+    #         return ""
+    #
+    #     return value
 
     def set_value(self, valoare, participare=None):
         if participare is None:
@@ -699,6 +755,7 @@ class CampArbitrarParticipareEveniment(models.Model):
             instanta_args = dict(participare=participare, camp=self)
             instanta = InstantaCampArbitrarParticipareEveniment.objects.create(**instanta_args)
 
+        valoare_string = ""
         if self.tip_camp == "date":
             valoare_string = valoare.strftime("%d.%m.%Y")
         else:
@@ -707,15 +764,15 @@ class CampArbitrarParticipareEveniment(models.Model):
         instanta.valoare_text = valoare_string
         instanta.save()
 
-    
+
 class InstantaCampArbitrarParticipareEveniment(models.Model):
     camp = models.ForeignKey(CampArbitrarParticipareEveniment, related_name="instante", on_delete=models.CASCADE)
     participare = models.ForeignKey(ParticipareEveniment, on_delete=models.CASCADE)
     valoare_text = models.CharField(max_length=255, null=True, blank=True)
-    
+
     def process_bool(self):
         return True if self.valoare_text.lower() == "true" else False
-        
+
     def process_number(self):
         try:
             return int(self.valoare_text)
@@ -730,6 +787,12 @@ class InstantaCampArbitrarParticipareEveniment(models.Model):
     def process_date(self):
         return datetime.datetime.strptime(self.valoare_text, "%d.%M.%Y")
 
+    def process_choice(self):
+        for option in self.camp.config.get("choices", ()):
+            if self.valoare_text == str(option[0]):
+                return option[1]
+        return self.valoare_text
+
     def get_value(self):
         if self.camp.tip_camp == "date":
             return datetime.datetime.strptime(self.valoare_text, "%d.%m.%Y").date()
@@ -737,7 +800,14 @@ class InstantaCampArbitrarParticipareEveniment(models.Model):
             return self.valoare_text == "True"
         return self.valoare_text
 
-    
+    def get_representation(self):
+        if self.camp.tip_camp == "choice":
+            for options in self.camp.config.get("choices", {}):
+                if self.valoare_text == str(options[0]):
+                    return options[1]
+
+        return self.get_value()
+
 @receiver(post_init, sender=InstantaCampArbitrarParticipareEveniment)
 def update_value(sender, instance, **kwargs):
     try:
@@ -795,7 +865,8 @@ class ZiEveniment(models.Model):
 
 
 SET_POZE_STATUSES = (
-(0, "Initialized"), (1, "Zip Uploaded"), (2, "Zip queued for processing"), (3, "Zip processed OK"), (4, "Zip error"))
+    (0, "Initialized"), (1, "Zip Uploaded"), (2, "Zip queued for processing"), (3, "Zip processed OK"),
+    (4, "Zip error"))
 
 
 class SetPoze(models.Model):
@@ -833,7 +904,8 @@ class SetPoze(models.Model):
 
         try:
             #   folder creation is not required on AWS
-            event_path_no_root = os.path.join(settings.SCOUTFILE_ALBUM_STORAGE_ROOT, str(self.eveniment.centru_local.id),
+            event_path_no_root = os.path.join(settings.SCOUTFILE_ALBUM_STORAGE_ROOT,
+                                              str(self.eveniment.centru_local.id),
                                               str(self.eveniment.id), unidecode(self.autor.replace(" ", "_")))
 
             # event_path = os.path.join(settings.MEDIA_DIRECTORY, event_path_no_root)
@@ -857,8 +929,11 @@ class SetPoze(models.Model):
                     logger.debug("SetPoze: fisier extras %s" % f)
 
                     f.external_attr = 0o777 << 16
-                    if f.filename.endswith("/") or os.path.splitext(f.filename)[1].lower() not in (".jpg", ".jpeg", ".png") or os.path.basename(f.filename).startswith(".") or f.filename.startswith("__"):
-                        logger.debug("SetPoze skipping %s %s %s" % (f, f.filename, os.path.splitext(f.filename)[1].lower()))
+                    if f.filename.endswith("/") or os.path.splitext(f.filename)[1].lower() not in (
+                    ".jpg", ".jpeg", ".png") or os.path.basename(f.filename).startswith(".") or f.filename.startswith(
+                            "__"):
+                        logger.debug(
+                            "SetPoze skipping %s %s %s" % (f, f.filename, os.path.splitext(f.filename)[1].lower()))
                         continue
 
                     logger.debug("SetPoze: extracting file %s to S3:%s" % (f.filename, event_path_no_root))
@@ -962,7 +1037,8 @@ class Imagine(ImageModel):
         try:
             self.clear_cache()
         except Exception as e:
-            logger.debug("%s: deleted cached sizes (does this even work on S3?): %s, %s" % (self.__class__.__name__, e, traceback.format_exc()))
+            logger.debug("%s: deleted cached sizes (does this even work on S3?): %s, %s" % (
+            self.__class__.__name__, e, traceback.format_exc()))
 
         return
 
@@ -970,9 +1046,9 @@ class Imagine(ImageModel):
         #   compensation for (0, 3 AM) interval
         data = self.data
         ltime = datetime.time(data.hour, data.minute, data.second)
-        magic_time = datetime.time(3, 0 ,0)
+        magic_time = datetime.time(3, 0, 0)
         if ltime < magic_time:
-            data = self.data - datetime.timedelta(days = 1)
+            data = self.data - datetime.timedelta(days=1)
         return self.set_poze.eveniment.zieveniment_set.get(date=data)
 
     def get_next_photo(self, autor=None, user=None):
@@ -1004,7 +1080,7 @@ class Imagine(ImageModel):
         return None
 
     def interesting_exifdata(self):
-        return self.exifdata_set.filter(key__in=("Model", ))
+        return self.exifdata_set.filter(key__in=("Model",))
 
     def save(self, file_handler=None, local_file_name=None, *args, **kwargs):
         logger.debug("Calling Image.save with fh %s and lfn %s" % (file_handler, local_file_name))
@@ -1082,12 +1158,12 @@ class Imagine(ImageModel):
 
         logger.debug("%s: %s" % (self.__class__.__name__, file_name))
 
-        imcolor = cv.LoadImage(file_name) #@UndefinedVariable
+        imcolor = cv.LoadImage(file_name)  # @UndefinedVariable
         detectors = ["haarcascade_frontalface_default.xml", "haarcascade_profileface.xml"]
         for detector in detectors:
             haarFace = cv.Load(os.path.join(settings.STATIC_ROOT, detector))  # @UndefinedVariable
-            storage = cv.CreateMemStorage() #@UndefinedVariable
-            detectedFaces = cv.HaarDetectObjects(imcolor, haarFace, storage, min_size=(200, 200)) #@UndefinedVariable
+            storage = cv.CreateMemStorage()  # @UndefinedVariable
+            detectedFaces = cv.HaarDetectObjects(imcolor, haarFace, storage, min_size=(200, 200))  # @UndefinedVariable
             if detectedFaces:
                 for face in detectedFaces:
                     fata = DetectedFace(imagine=self, x=face[0][0], y=face[0][1], width=face[0][2], height=face[0][3])
@@ -1123,7 +1199,8 @@ class Imagine(ImageModel):
             "titlu": "%s - %s" % (self.set_poze.eveniment.nume, self.titlu),
             "descriere": self.descriere or "",
             "autor": self.set_poze.get_autor(),
-            "data": self.data.strftime("%d %B %Y %H:%M:%S") if self.data else datetime.datetime.now().strftime("%d %B %Y %H:%M:%S"),
+            "data": self.data.strftime("%d %B %Y %H:%M:%S") if self.data else datetime.datetime.now().strftime(
+                "%d %B %Y %H:%M:%S"),
             "tags": [t for t in self.tags.names()[:10]],
             "rotate_url": reverse("album:poza_rotate", kwargs={"pk": self.id}),
             "published_status_display": self.get_published_status_display(),
@@ -1192,7 +1269,8 @@ class DetectedFace(models.Model):
 class EventContributionOption(models.Model):
     eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE, related_name="contribution_options")
     value = models.FloatField(verbose_name="Valoare")
-    description = models.TextField(blank=True, verbose_name="Descriere", help_text="Explicație pentru situațiile în care se aplică această contribuție")
+    description = models.TextField(blank=True, verbose_name="Descriere",
+                                   help_text="Explicație pentru situațiile în care se aplică această contribuție")
     is_default = models.BooleanField(default=False, verbose_name="Implicit")
     config = models.JSONField(default=dict, null=True, blank=True)
     per_diem = models.BooleanField(default=False, verbose_name="Pe zi")
@@ -1271,7 +1349,8 @@ class EventGPXTrack(models.Model):
     eveniment = models.ForeignKey(Eveniment, on_delete=models.CASCADE, related_name="gpx_tracks")
     track = models.ForeignKey("locuri.GPXTrack", on_delete=models.CASCADE, related_name="events")
     title = models.CharField(max_length=255)
-    parent = models.ForeignKey("album.EventGPXTrack", null=True, blank=True, on_delete=models.SET_NULL, related_name="executed")
+    parent = models.ForeignKey("album.EventGPXTrack", null=True, blank=True, on_delete=models.SET_NULL,
+                               related_name="executed")
     membri = models.ManyToManyField("structuri.Membru", blank=True)
 
     def __str__(self):

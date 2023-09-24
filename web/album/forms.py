@@ -80,7 +80,7 @@ class EvenimentCreateForm(CrispyBaseModelForm):
 
     def __init__(self, *args, **kwargs):
         super(EvenimentCreateForm, self).__init__(*args, **kwargs)
-        self.helper.layout = Layout("nume", "slug", Field("descriere", style="width:100%"), "status", "tip_eveniment", "start_date", "end_date",
+        self.helper.layout = Layout("nume", "slug", Field("descriere", style="width:100%"), Field("text_invitatie", style="width: 100%"), "status", "tip_eveniment", "start_date", "end_date",
                                     "facebook_event_link", "articol_site_link", "locatie_text", "locatie_geo",
                                     "organizator", "organizator_cercetas", "international", "published_status", "cover_photo",
                                     Fieldset(u"Responsabili", "responsabil_articol", "responsabil_raport"),
@@ -125,7 +125,7 @@ class EvenimentParticipareBaseForm(CrispyBaseModelForm):
     data_plecare = forms.DateTimeField(widget=BootstrapDateTimeInput, label=u"Plecare")
 
     def get_campuri_arbitrare(self):
-        return self.eveniment.camparbitrarparticipareeveniment_set.all()
+        return self.eveniment.campuri_arbitrare.all()
 
     def __init__(self, **kwargs):
         self.eveniment = kwargs.pop("eveniment")
@@ -143,12 +143,19 @@ class EvenimentParticipareBaseForm(CrispyBaseModelForm):
                           label=camp.nume,
                           help_text=camp.explicatii_suplimentare)
 
+        if camp.tip_camp == "choice":
+            field_args['choices'] = camp.config.get("choices", ())
+
         if camp.tip_camp == "date":
             field_args['widget'] = BootstrapDateInput
 
         if camp.implicit:
             field_args['initial'] = camp.implicit
 
+        if self.instance:
+            value = camp.get_value(participare=self.instance)
+            if value is not None:
+                field_args['initial'] = value
         return field_args
 
 
@@ -173,14 +180,22 @@ class EvenimentParticipareForm(EvenimentParticipareBaseForm):
 class EvenimentParticipareRegistrationForm(EvenimentParticipareBaseForm):
     class Meta:
         model = ParticipareEveniment
-        exclude = ["eveniment", "user_modificare", "nonmembru", "contribution_payments", "contribution_option", "membru", "status_participare", "rol", "data_plecare", "data_sosire"]
+        exclude = ["eveniment", "user_modificare", "nonmembru", "contribution_payments", "contribution_option", "membru", "status_participare", "rol", "data_plecare", "data_sosire", "detalii"]
+
+    participant_notes = forms.CharField(
+        widget=forms.Textarea(attrs={"rows": 5, "style": "width: 100%; padding: 0"}),
+        required=False,
+        label="Note / explicații",
+        help_text="Opțional, notează aici orice informații suplimentare despre participarea ta, dacă ai nevoie"
+    )
 
     has_submit_buttons = False
     add_another_button = False
     data_sosire = None
     data_plecare = None
+
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
 
         buttons = {
             'confirm': {
@@ -207,11 +222,16 @@ class EvenimentParticipareRegistrationForm(EvenimentParticipareBaseForm):
         }
 
         disabled_config = {
-            StatusParticipare.CONFIRMED: ['confirm'],
+            StatusParticipare.CONFIRMED: [],
             StatusParticipare.REFUSED: ['reject'],
             StatusParticipare.DOWNPAYMENT_RECEIVED: ['deffer'],
             StatusParticipare.COMPLETED_REAL: ['confirm', 'reject', 'deffer'],
             StatusParticipare.COMPLETED_ONLINE: ['confirm', 'reject', 'deffer'],
+            StatusParticipare.COMPLETED_OLD: ['confirm', 'reject', 'deffer'],
+            StatusParticipare.EVENT_CANCELLED: ['confirm', 'reject', 'deffer'],
+            StatusParticipare.ORGANIZER_REJECTED: ['confirm', 'reject', 'deffer'],
+            StatusParticipare.MAYBE: ["deffer"],
+            StatusParticipare.PAYMENT_CONFIRMED: ["confirm", "deffer"],
         }
         if self.instance:
             for key in disabled_config.get(self.instance.status_participare, []):
@@ -222,7 +242,7 @@ class EvenimentParticipareRegistrationForm(EvenimentParticipareBaseForm):
             self.helper.add_input(Submit(*config['args'], **config['kwargs']))
 
     def get_campuri_arbitrare(self):
-        return self.eveniment.camparbitrarparticipareeveniment_set.filter(user_fillable=True)
+        return self.eveniment.campuri_arbitrare.filter(user_fillable=True)
 
 
 class EvenimentParticipareNonMembruForm(EvenimentParticipareBaseForm):
@@ -236,30 +256,12 @@ class EvenimentParticipareNonMembruForm(EvenimentParticipareBaseForm):
         super(EvenimentParticipareNonMembruForm, self).__init__(**kwargs)
 
 
-class EvenimentParticipareUpdateMixin(object):
-    def get_field_args(self, camp):
-        field_args = dict(required=(not camp.optional) if camp.tip_camp != "bool" else False,
-                          label=camp.nume,
-                          help_text=camp.explicatii_suplimentare)
-
-        if camp.tip_camp == "date":
-            field_args['widget'] = BootstrapDateInput
-
-        value = camp.get_value(participare=self.instance)
-        if value is not None:
-            field_args['initial'] = value
-        elif camp.implicit:
-            field_args['initial'] = camp.implicit
-
-        return field_args
-
-
-class EvenimentParticipareUpdateForm(EvenimentParticipareUpdateMixin, EvenimentParticipareForm):
+class EvenimentParticipareUpdateForm(EvenimentParticipareForm):
     def clean_membru(self):
         return self.cleaned_data.get("membru", None)
 
 
-class EvenimentParticipareNonmembruUpdateForm(EvenimentParticipareUpdateMixin, EvenimentParticipareNonMembruForm):
+class EvenimentParticipareNonmembruUpdateForm(EvenimentParticipareNonMembruForm):
     pass
 
 
@@ -273,13 +275,13 @@ class CampArbitrarForm(CrispyBaseModelForm):
         super(CampArbitrarForm, self).__init__(*args, **kwargs)
 
     def clean(self):
-        if len(self.cleaned_data.get('implicit', "")) > 0 and self.cleaned_data['optional'] is True:
-            raise ValidationError(u"Un câmp opțional nu poate avea valoare implicită!")
+        if self.cleaned_data['implicit'] and self.cleaned_data['optional'] is True:
+            raise ValidationError("Un câmp opțional nu poate avea valoare implicită!")
 
         cnt = self.eveniment.participareeveniment_set.all().count()
         if self.cleaned_data['optional'] is False and cnt > 0:
             if len(self.cleaned_data.get('implicit', "")) == 0:
-                raise ValidationError(u"Un câmp obligatoriu trebuie să aibă valoare implicită când există deja înregistrări de participare!")
+                raise ValidationError("Un câmp obligatoriu trebuie să aibă valoare implicită când există deja înregistrări de participare!")
             #   daca se adauga un camp nou, obligatoriu dar care nu are valoare implicita e o problema
 
         return self.cleaned_data
@@ -312,7 +314,7 @@ class EvenimentParticipantFilterForm(CrispyBaseForm):
         cond_parsed = {}
         for camp, valoare in list(cond.items()):
             try:
-                camp_arbitrar = self.eveniment.camparbitrarparticipareeveniment_set.get(slug__iexact=camp)
+                camp_arbitrar = self.eveniment.campuri_arbitrare.get(slug__iexact=camp)
                 if camp_arbitrar.tip_camp != "bool":
                     raise ValidationError(u"Pentru moment, nu sunt suportate alte câmpuri decât cele de tip bifă! (%s)" % camp_arbitrar.nume)
 

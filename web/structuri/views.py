@@ -52,7 +52,7 @@ from utils.views import FacebookUserConnectView
 
 from adrese_postale.adrese import AdresaPostala
 from album.views import FileUploadMixin
-from album.models import ParticipareEveniment, Eveniment, AsociereEvenimentStructura
+from album.models import ParticipareEveniment, Eveniment, AsociereEvenimentStructura, StatusEveniment
 from documente.models import AsociereDocument, PlataCotizatieTrimestru
 from documente.models import Trimestru, DecizieCotizatie
 from structuri.decorators import allow_by_afiliere
@@ -853,6 +853,7 @@ class PrezentaMixin:
                 datetime.date(start_year, 9, 1),
                 datetime.date(start_year + 1, 8, 31)
             ),
+            status__in=[StatusEveniment.FINISHED, ]
         ).order_by("start_date")
         return evenimente
 

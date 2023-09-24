@@ -1353,7 +1353,7 @@ class EvenimentParticipanti(ListView):
         data = super(EvenimentParticipanti, self).get_context_data(**kwargs)
         data['eveniment'] = self.eveniment
         data['cancelled'] = self.cancelled
-        data['campuri_arbitrare'] = self.eveniment.camparbitrarparticipareeveniment_set.all().prefetch_related("instante")[0:]
+        data['campuri_arbitrare'] = self.eveniment.campuri_arbitrare.all().prefetch_related("instante")[0:]
         data['pagesize'] = self.pagesize
         data['full_count'] = self.object_list.count()
         data['quick_statuses'] = {
@@ -1448,7 +1448,7 @@ class EvenimentParticipantiCreate(CreateView):
         self._process_object_from_form(form)
         self.object.save()
 
-        for camp in self.eveniment.camparbitrarparticipareeveniment_set.all():
+        for camp in self.eveniment.campuri_arbitrare.all():
             camp.set_value(form.cleaned_data[camp.slug], self.object)
 
         return HttpResponseRedirect(self.get_success_url())
@@ -1494,7 +1494,7 @@ class EvenimentParticipantiUpdate(UpdateView):
 
     def get_initial(self):
         data = super(EvenimentParticipantiUpdate, self).get_initial()
-        for camp in self.object.eveniment.camparbitrarparticipareeveniment_set.all():
+        for camp in self.object.eveniment.campuri_arbitrare.all():
             data[camp.slug] = camp.get_value(self.object)
 
         return data
@@ -1507,7 +1507,7 @@ class EvenimentParticipantiUpdate(UpdateView):
         self._process_object_from_form(form)
         self.object.save()
 
-        for camp in self.object.eveniment.camparbitrarparticipareeveniment_set.all():
+        for camp in self.object.eveniment.campuri_arbitrare.all():
             camp.set_value(form.cleaned_data[camp.slug], self.object)
 
         return HttpResponseRedirect(self.get_success_url())
@@ -1553,7 +1553,7 @@ class EvenimentCampuriArbitrare(ListView):
 class EvenimentSlugMixin(object):
     def make_slug_unique(self, slug, obj=None):
         # make sure slug is unique pentru eveniment
-        slugs = self.eveniment.camparbitrarparticipareeveniment_set.all()
+        slugs = self.eveniment.campuri_arbitrare.all()
         if obj:
             slugs = slugs.exclude(id = obj.id)
         slugs = list(slugs.values_list("slug", flat=True))
@@ -1893,7 +1893,7 @@ class EventRegisterView(EvenimentDetailMixin, UpdateView):
     form_class = EvenimentParticipareRegistrationForm
     template_name = "album/eveniment_register_form.html"
 
-    # TODO: make this depend on Conexiuni Internet as well
+    # TODO: make this depend on Conexiuni as well
     @allow_by_afiliere([("Eveniment, Centru Local", "Membru"), ], pkname="slug")
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
@@ -1925,6 +1925,10 @@ class EventRegisterView(EvenimentDetailMixin, UpdateView):
         self.object.rol = RolParticipare.PARTICIPANT
 
         self.object.save()
+
+        for camp in self.eveniment.campuri_arbitrare.all():
+            camp.set_value(form.cleaned_data[camp.slug], self.object)
+
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
