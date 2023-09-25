@@ -44,7 +44,7 @@
 - [Credits](#credits)
 
 ## Demo
-[blueimp Gallery Demo](http://blueimp.github.io/Gallery/)
+[blueimp Gallery Demo](https://blueimp.github.io/Gallery/)
 
 ## Description
 blueimp Gallery is a touch-enabled, responsive and customizable image and video gallery, carousel and lightbox, optimized for both mobile and desktop web browsers.  

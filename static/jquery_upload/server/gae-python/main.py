@@ -19,7 +19,7 @@ import re
 import urllib
 import webapp2
 
-WEBSITE = 'http://blueimp.github.io/jQuery-File-Upload/'
+WEBSITE = 'https://blueimp.github.io/jQuery-File-Upload/'
 MIN_FILE_SIZE = 1  # bytes
 MAX_FILE_SIZE = 5000000  # bytes
 IMAGE_TYPES = re.compile('image/(gif|p?jpeg|(x-)?png)')
