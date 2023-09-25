@@ -929,7 +929,7 @@ class SetPoze(models.Model):
 
             #   setup temp path to unzip in
             import hashlib
-            tmp_album_path = hashlib.sha224(event_path_no_root).hexdigest()
+            tmp_album_path = hashlib.sha224(event_path_no_root.encode('utf-8')).hexdigest()
             tmp_album_path = os.path.join("/tmp", tmp_album_path)
             if os.path.exists(tmp_album_path):
                 shutil.rmtree(tmp_album_path)
@@ -954,7 +954,7 @@ class SetPoze(models.Model):
 
                     published_status = 2 if self.default_visibility_level < 0 else self.default_visibility_level
                     im = Imagine(set_poze=self, titlu=os.path.basename(f.filename), published_status=published_status)
-                    file_handler = open(os.path.join(tmp_album_path, f.filename))
+                    file_handler = open(os.path.join(tmp_album_path, f.filename), "rb")
                     im.image.save(os.path.join(event_path_no_root, f.filename), File(file_handler), save=False)
 
                     try:
@@ -974,7 +974,7 @@ class SetPoze(models.Model):
 
         except Exception as e:
             self.status = 4
-            send_mail(u"Eroare la procesarea fisierului %s" % os.path.basename(self.zip_file),
+            send_mail("Eroare la procesarea fisierului %s" % os.path.basename(self.zip_file),
                       "Arhiva încărcată de tine în evenimentul {0} nu a putut fi procesată. Eroarea a fost\n{1}".format(
                           self.eveniment, e),
                       settings.SYSTEM_EMAIL,

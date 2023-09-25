@@ -494,7 +494,6 @@ SPECTACULAR_SETTINGS = {
     # OTHER SETTINGS
 }
 
-
 try:
     from scoutfile3.local_settings import *
 except ImportError as e:
