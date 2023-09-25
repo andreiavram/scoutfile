@@ -7,6 +7,7 @@ import logging
 import shutil
 import traceback
 from collections import Counter
+from collections.abc import Iterable
 from io import BytesIO
 from zipfile import ZipFile
 
@@ -1127,7 +1128,7 @@ class Imagine(ImageModel):
                         if decoded == "DateTimeOriginal":
                             self.data = datetime.datetime.strptime(value[0], "%Y:%m:%d %H:%M:%S")
 
-                        exif_data[decoded] = value[0] if len(value) else None
+                        exif_data[decoded] = value[0] if len(value) and isinstance(value, Iterable) else None
             except Exception as e:
                 logger.error("%s - %s" % (e, traceback.format_exc()))
         retval = super(Imagine, self).save(*args, **kwargs)
