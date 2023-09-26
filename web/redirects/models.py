@@ -31,7 +31,7 @@ class PhysicalTag(models.Model):
 
     @property
     def url(self):
-        return Site.objects.get_current().domain + reverse('qr-code', kwargs={'code': self.token})
+        return Site.objects.get_current().domain + reverse('redirects:tag-redirect', kwargs={'code': self.token})
 
     def __repr__(self):
         return f"{type(self).__name__}(id={self.id}, token={self.token}, target={self.to_url})"
