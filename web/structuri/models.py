@@ -10,7 +10,7 @@ import unidecode
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import caches
-from django.db.models import ExpressionWrapper, F, DurationField
+from django.db.models import ExpressionWrapper, F, DurationField, TextChoices
 from django.urls import reverse
 from django.db import models
 from django.db.models.aggregates import Sum
@@ -128,6 +128,10 @@ def upload_to_centru_local_logo(instance, filename):
 def upload_to_centru_local_antent(instance, filename):
     return "cl/antet-{0}-{1}".format(instance.id, filename)
 
+class TipCentruLocalChoices(TextChoices):
+    CENTRU_LOCAL = "centru_local", "Centru Local"
+    CENTRU_CERCETASESC = "centru_cercetasesc", "Centru Cercetășesc"
+
 
 class CentruLocal(Structura):
     class Meta(object):
@@ -145,6 +149,7 @@ class CentruLocal(Structura):
     specific = models.CharField(max_length=255, choices=SPECIFIC_CENTRU_LOCAL, null=True, blank=True)
     statut_juridic = models.CharField(max_length=255, choices=STATUT_JURIDIC_CENTRU_LOCAL, default="nopj")
     statut_drepturi = models.CharField(max_length=255, choices=STATUT_DREPTURI_CENTRU_LOCAL, default="depline")
+    tip_centru_local = models.CharField(max_length=50, choices=TipCentruLocalChoices.choices, default=TipCentruLocalChoices.CENTRU_LOCAL)
 
     preferinte_corespondenta = models.CharField(max_length=255, choices=TIPURI_CORESPONDENTA_CENTRU_LOCAL,
                                                 default="email", verbose_name=u"Preferință trimitere corespondență",
@@ -157,9 +162,13 @@ class CentruLocal(Structura):
     default_payment_domain = models.ForeignKey("financiar.PaymentDomain", null=True, blank=True, related_name="centru_local", on_delete=models.SET_NULL)
 
     def nume_complet(self):
-        if self.denumire is not None and self.denumire != "":
-            return u"Centrul Local \"%s\" %s" % (self.denumire, self.localitate)
-        return u"Centrul Local %s" % self.localitate
+        titles = {
+            TipCentruLocalChoices.CENTRU_LOCAL: "Centrul Local",
+            TipCentruLocalChoices.CENTRU_CERCETASESC: "Centrul Cercetășesc"
+        }
+        if self.denumire:
+            return f"{titles.get(self.tip_centru_local)} '{self.denumire}' {self.localitate}"
+        return f"{titles.get(self.tip_centru_local)} {self.localitate}"
 
     def __str__(self):
         return u"%s" % self.nume_complet()
