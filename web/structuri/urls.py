@@ -27,7 +27,7 @@ from structuri.views import CentruLocalCreate, CentruLocalUpdate, \
     UtilizatorHomeTabsDocumente, UtilizatorHomeTabsActivitati, MembruStergeAcoperire, CentruLocalTabMembriDeSuspendat, \
     MembruAdreseStatus, UnitatiListAPI, UpdateContentObjects, MembruInformatieCreate, MembruInformatieUpdate, \
     MembruTabAlteInformatii, ListaMembriiDreptVot, ListaMembriiDreptVotCentruLocal, MembruTabPlatiCotizatie, \
-    PatrulaPrezentaView, UnitatePrezentaView, MembruTabCertificari
+    PatrulaPrezentaView, UnitatePrezentaView, MembruTabCertificari, MembruCentruLocalSwitcher
 
 urlpatterns = [
     path('centrulocal/adauga/', CentruLocalCreate.as_view(), name="cl_add"),
@@ -94,6 +94,7 @@ urlpatterns = [
 
     path('centrulocal/unitate/<int:pk>/membru/adauga/', UnitateMembruCreate.as_view(), name="unitate_membru_add"),
     path('centrulocal/unitate/<int:pk>/lider/adauga/', UnitateLiderCreate.as_view(), name="unitate_lider_add"),
+    path('centrulocal/switcher/', MembruCentruLocalSwitcher.as_view(), name="centru_local_switcher"),
 
     path('membru/<int:pk>/schimba/', MembruUpdate.as_view(), name="membru_edit"),
     path('membru/<int:pk>/', MembruDetail.as_view(), name="membru_detail"),
