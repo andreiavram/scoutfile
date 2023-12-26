@@ -490,9 +490,9 @@ class Membru(Utilizator):
 
     @property
     def centru_local(self):
-        if self.centru_local is None:
+        if self.current_centru_local is None:
             return self.get_centru_local()
-        return self.centru_local
+        return self.current_centru_local
 
     @staticmethod
     def get_afilieri_filter(item, trimestru, content_type_structura=None, rol=None, membru=None, structura=None, before_date=None, after_date=None):
