@@ -26,6 +26,7 @@ from django.http.response import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import DetailView
@@ -45,7 +46,7 @@ from structuri.forms import MembruCreateForm, MembruUpdateForm, \
     UnitateLiderCreateForm, AsociereCreateForm, AsociereUpdateForm, \
     CentruLocalAdminCreateForm, CentruLocalAdminUpdateForm, \
     AsociereMembruFamilieForm, PersoanaDeContactForm, SetariSpecialeCentruLocalForm, \
-    PatrulaMembruAsociazaForm, InformatieGenericCreateForm, InformatieGenericDeleteForm
+    PatrulaMembruAsociazaForm, InformatieGenericCreateForm, InformatieGenericDeleteForm, CentruLocalSwitcherForm
 from structuri.models import CentruLocal, AsociereMembruStructura, \
     Membru, Unitate, Patrula, TipAsociereMembruStructura, Utilizator, ImagineProfil, \
     InformatieContact, TipInformatieContact, AsociereMembruFamilie, \
@@ -2222,6 +2223,46 @@ class MembruConfirmaFacebook(TemplateView):
         data = super(MembruConfirmaFacebook, self).get_context_data(**kwargs)
         data['facebook_connect_url'] = FacebookUserConnectView.get_facebook_endpoint(self.request)
         return data
+
+
+@method_decorator(login_required, name="dispatch")
+class MembruCentruLocalSwitcher(FormView):
+    template_name = "structuri/centrulocal_switcher.html"
+    form_class = CentruLocalSwitcherForm
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        return data
+
+    def get_form_kwargs(self):
+        user = self.request.user.utilizator
+        qs = user.membru.get_centru_local(qs=True, single=False)
+        qs = qs.filter(Q(moment_incheiere__isnull=True) | Q(moment_incheiere__gte=timezone.now()))
+        centre_locale = CentruLocal.objects.filter(id__in=[a.object_id for a in qs])
+        kwargs = super().get_form_kwargs()
+        kwargs.update({"centre_locale": centre_locale})
+        return kwargs
+
+    def get_initial(self):
+        user = self.request.user.utilizator
+
+        return {
+            "centru_local": user.membru.centru_local,
+        }
+
+    def form_valid(self, form):
+        self.centru_local = form.cleaned_data.get("centru_local")
+        membru = self.request.user.utilizator.membru
+        membru.current_centru_local = self.centru_local
+        membru.save()
+
+        messages.success(self.request, f"Activat {self.centru_local}")
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse("structuri:cl_detail", kwargs={"pk": self.centru_local.id})
+
+
 
 
 class MembruDoAJAXWork(View):

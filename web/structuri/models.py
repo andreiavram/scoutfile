@@ -390,6 +390,8 @@ class Membru(Utilizator):
 
     cont_bancar = IBANField(null=True, blank=True)
 
+    current_centru_local = models.ForeignKey(CentruLocal, null=True, blank=True, on_delete=models.SET_NULL)
+
     #TODO: find some smarter way to do this
     poza_profil = models.ForeignKey(ImagineProfil, null=True, blank=True, on_delete=models.SET_NULL)
 
@@ -488,7 +490,9 @@ class Membru(Utilizator):
 
     @property
     def centru_local(self):
-        return self.get_centru_local()
+        if self.current_centru_local is None:
+            return self.get_centru_local()
+        return self.current_centru_local
 
     @staticmethod
     def get_afilieri_filter(item, trimestru, content_type_structura=None, rol=None, membru=None, structura=None, before_date=None, after_date=None):

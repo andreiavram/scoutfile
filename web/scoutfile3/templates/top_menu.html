@@ -44,6 +44,9 @@
                    <em>Conectează-te cu Facebook</em>
                 {% endif %}
                  </a></li>
+                {% if user.utilizator.membru %}
+                    <li><a href="{% url 'structuri:centru_local_switcher' %}"><i class="icon-refresh"></i>  Switcher</a></li>
+                {% endif %}
 				{% if user.is_staff %}
 				<li class = "divider"></li>
 				<li><a href = "{% url "structuri:cl_list"  %}"><i class = "icon-list"></i> Centre Locale</a></li>
