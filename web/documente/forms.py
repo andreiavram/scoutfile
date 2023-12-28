@@ -46,7 +46,7 @@ class DocumentRegistraturaMixin(object):
 class CotizatieMembruForm(CrispyBaseModelForm):
     class Meta(object):
         model = ChitantaCotizatie
-        fields = ["fisier", "registru", "numar_inregistrare", "suma"]
+        fields = ["fisier", "registru", "tip", "numar_inregistrare", "suma"]
 
     def __init__(self, *args, **kwargs):
         self.centru_local = kwargs.pop("centru_local", None)

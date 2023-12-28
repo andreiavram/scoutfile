@@ -1,5 +1,7 @@
 # coding: utf-8
 from __future__ import division
+
+from django.db.models import IntegerChoices
 from past.utils import old_div
 from builtins import object
 import datetime
@@ -498,9 +500,18 @@ class PlataCotizatieTrimestru(models.Model):
 
 
 class ChitantaCotizatie(Chitanta):
+    class TipChitantaCotizatie(IntegerChoices):
+        CASH = 1, "Cash"
+        BANK_TRANSFER = 2, "Virament bancar (OP)"
+        BANK_DEPOSIT = 3, "Depunere numerar"
+
     registre_compatibile = ["chitantier", "intern"]
     predat = models.BooleanField(default=False)
     blocat = models.BooleanField(default=False)
+    tip = models.PositiveSmallIntegerField(
+        choices=TipChitantaCotizatie.choices,
+        default=TipChitantaCotizatie.CASH,
+        verbose_name="Tip plată")
 
     def save(self, **kwargs):
         self.tip_document, created = TipDocument.objects.get_or_create(slug="cotizatie")
