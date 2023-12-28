@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+	<i class = "icon-check"></i> Selecție Centru Local activ
+{% endblock %}
+
+{% block content %}
+    <div class="alert alert-info">Selecția de mai jos influențează din perspectiva cărei structuri locale folosești Scoutfile și poate fi schimbat oricând. Valabil doar pentru cei care sunt membri concomitent în mai multe structuri locale</div>
+
+    {% crispy form form.helper %}
+{% endblock %}

@@ -15,6 +15,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models.query_utils import Q
+from django.forms import RadioSelect
 from django.forms.widgets import Textarea, PasswordInput
 
 from album.models import AsociereEvenimentStructura, StatusParticipare, EventContributionOption
@@ -506,3 +507,14 @@ class PatrulaMembruAsociazaForm(CrispyBaseModelForm):
         super(PatrulaMembruAsociazaForm, self).__init__(*args, **kwargs)
 
         # self.fields['membru'].queryset = Membru.objects.filter(id__in = [m.id for m in self.patrula.unitate.cercetasi()])
+
+
+class CentruLocalSwitcherForm(CrispyBaseForm):
+    centru_local = forms.ModelChoiceField(queryset=CentruLocal.objects.all(), widget=RadioSelect)
+
+    def __init__(self, *args, **kwargs):
+        centre_locale = kwargs.pop("centre_locale")
+        super().__init__(*args, **kwargs)
+        self.fields['centru_local'].queryset = centre_locale
+
+
