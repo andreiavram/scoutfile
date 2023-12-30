@@ -407,9 +407,9 @@ class FlagImage(CreateView):
     template_name = "album/poza_flag.html"
     form_class = ReportForm
 
-    def dispatch(self, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         self.poza = get_object_or_404(Imagine, id=kwargs.pop("pk"))
-        return super(FlagImage, self).dispatch(*args, **kwargs)
+        return super(FlagImage, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
