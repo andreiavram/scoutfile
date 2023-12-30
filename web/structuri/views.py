@@ -108,26 +108,77 @@ class CentruLocalDetail(DetailView, TabbedViewMixin):
         return super(CentruLocalDetail, self).dispatch(request, *args, **kwargs)
 
     def get_tabs(self, *args, **kwargs):
-        self.tabs = (("brief", u"Sumar", reverse("structuri:cl_tab_brief", kwargs={"pk": self.object.id}), "", 2),
-                     ("unitati", u"Unități", reverse("structuri:cl_tab_unitati", kwargs={"pk": self.object.id}),
-                      "icon-group", 3),
-                     ("contact", u"Contact", reverse("structuri:cl_tab_contact", kwargs={"pk": self.object.id}),
-                      "icon-envelope", 1),
-                     ("lideri", u"Lideri", reverse("structuri:cl_tab_lideri", kwargs={"pk": self.object.id}),
-                      "icon-user", 4),
-                     ("membri_de_suspendat", u"Membri de suspendat",
-                      reverse("structuri:cl_tab_membri_de_suspendat", kwargs={"pk": self.object.id}), "icon-remove", 5))
+        self.tabs = (
+            (
+                "brief",
+                "Sumar",
+                reverse("structuri:cl_tab_brief", kwargs={"pk": self.object.id}),
+                "",
+                2
+            ),
+            (
+                "unitati",
+                "Unități",
+                reverse("structuri:cl_tab_unitati", kwargs={"pk": self.object.id}),
+                "icon-group",
+                3
+            ),
+            (
+                "contact",
+                "Contact",
+                reverse("structuri:cl_tab_contact", kwargs={"pk": self.object.id}),
+                "icon-envelope",
+                1
+            ),
+            (
+                "lideri",
+                "Lideri",
+                reverse("structuri:cl_tab_lideri", kwargs={"pk": self.object.id}),
+                "icon-user",
+                4
+            ),
+            (
+                "cotizatii",
+                "Cotizații",
+                reverse("structuri:cl_tab_cotizatie", kwargs={"pk": self.object.id}),
+                "icon-money",
+                5,
+            ),
+            (
+                "membri_de_suspendat",
+                "Membri de suspendat",
+                reverse("structuri:cl_tab_membri_de_suspendat", kwargs={"pk": self.object.id}),
+                "icon-remove",
+                5
+            )
+        )
+
         return super(CentruLocalDetail, self).get_tabs(*args, **kwargs)
 
     def get_context_menu(self, *args, **kwargs):
-        menu_items = {u"Acțiuni": ((reverse("structuri:cl_edit", kwargs={"pk": self.object.id}), "icon-pencil"),
-                                   (reverse("structuri:cl_delete", kwargs={"pk": self.object.id}), "icon-trash")),
-                      u"Locații": ((reverse("structuri:cl_list"), "icon-list"),),
-                      #                     u"Documente" : ((reverse("structuri:cl_cotizatii", kwargs = {"pk" : self.object.id}), "icon-file"),
-                      #                                     (reverse("structuri:cl_serii", kwargs = {"pk" : self.object.id }), "icon-file"),
-                      #                                     (reverse("structuri:cl_altele", kwargs = {"pk" : self.object.id }), "icon-file"),
-                      #                                       )
-                      }
+        menu_items = {
+            "Acțiuni": (
+                (
+                    reverse("structuri:cl_edit", kwargs={"pk": self.object.id}),
+                    "icon-pencil"
+                ),
+                (
+                    reverse("structuri:cl_delete", kwargs={"pk": self.object.id}),
+                    "icon-trash"
+                )
+            ),
+            "Locații":
+                (
+                    (
+                        reverse("structuri:cl_list"),
+                        "icon-list"
+                    ),
+                ),
+                # u"Documente" : ((reverse("structuri:cl_cotizatii", kwargs = {"pk" : self.object.id}), "icon-file"),
+                #                 (reverse("structuri:cl_serii", kwargs = {"pk" : self.object.id }), "icon-file"),
+                #                 (reverse("structuri:cl_altele", kwargs = {"pk" : self.object.id }), "icon-file"),
+                #                   )
+        }
 
         return menu_items
 
@@ -441,6 +492,15 @@ class CentruLocalTabMembri(ListView):
         return self.centru_local.cercetasi(qs=True, tip_asociere=CentruLocal.asocieri_membru)
 
 
+class CentruLocalTabCotizatii(CentruLocalTabMembri):
+    template_name = "structuri/centrulocal_tab_membri_cotizatii.html"
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super().get_queryset(*args, **kwargs)
+        qs = qs.order_by("membru__nume")
+        return qs.filter(moment_incheiere__isnull=True)
+
+
 class CentruLocalTabMembriDeSuspendat(CentruLocalTabMembri):
     model = AsociereMembruStructura
     template_name = "structuri/centrulocal_tab_membri.html"
@@ -597,17 +657,58 @@ class UnitateDetail(DetailView, TabbedViewMixin):
         return super(UnitateDetail, self).dispatch(request, *args, **kwargs)
 
     def get_tabs(self, *args, **kwargs):
-        self.tabs = [("brief", u"Sumar", reverse("structuri:unitate_tab_brief", kwargs={"pk": self.object.id}), "", 1),
-                     ("membri", u"Membri", reverse("structuri:unitate_tab_membri", kwargs={"pk": self.object.id}), "",
-                      3)]
+        self.tabs = [
+            (
+                "brief",
+                "Sumar",
+                reverse("structuri:unitate_tab_brief", kwargs={"pk": self.object.id}),
+                "",
+                1
+            ),
+            (
+                "membri",
+                "Membri",
+                reverse("structuri:unitate_tab_membri", kwargs={"pk": self.object.id}),
+                "",
+                3
+            ),
+            (
+                "cotizatii",
+                "Cotizații",
+                reverse("structuri:unitate_tab_cotizatie", kwargs={"pk": self.object.id}),
+                "",
+                3
+            )
+        ]
         if self.object.ramura_de_varsta.are_patrule:
             self.tabs.append(
-                ("patrule", u"Patrule", reverse("structuri:unitate_tab_patrule", kwargs={"pk": self.object.id}), "", 2))
-            self.tabs.append(("membri_fp", u"Membri fără patrulă",
-                              reverse("structuri:unitate_tab_membri_fara_patrula", kwargs={"pk": self.object.id}), "",
-                              4))
-            self.tabs.append(("patrule_inactive", u"Patrule inactive",
-                              reverse("structuri:unitate_tab_patrule_inactive", kwargs={"pk": self.object.id}), "", 5))
+                (
+                    "patrule",
+                    "Patrule",
+                    reverse("structuri:unitate_tab_patrule", kwargs={"pk": self.object.id}),
+                    "",
+                    2
+                )
+            )
+            self.tabs.append(
+                (
+                    "membri_fp",
+                    "Membri fără patrulă",
+                    reverse("structuri:unitate_tab_membri_fara_patrula", kwargs={"pk": self.object.id}),
+                    "",
+                    4
+                )
+            )
+
+            self.tabs.append(
+                (
+                    "patrule_inactive",
+                    "Patrule inactive",
+                    reverse("structuri:unitate_tab_patrule_inactive", kwargs={"pk": self.object.id}),
+                    "",
+                    5
+                )
+            )
 
         return super(UnitateDetail, self).get_tabs(*args, **kwargs)
 
@@ -747,6 +848,14 @@ class UnitateTabMembri(ListView):
         kwargs.update({"unitate": self.unitate})
         return super(UnitateTabMembri, self).get_context_data(**kwargs)
 
+
+class UnitateTabCotizatie(UnitateTabMembri):
+    template_name = "structuri/unitate_tab_membri_cotizatii.html"
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super().get_queryset(*args, **kwargs)
+        qs = qs.order_by("membru__nume")
+        return qs
 
 class UnitateTabMembriFaraPatrula(UnitateTabMembri):
     def get_queryset(self, **kwargs):

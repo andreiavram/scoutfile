@@ -295,6 +295,17 @@ class Trimestru(models.Model):
                 t = Trimestru.urmatorul_trimestru(t)
             return Trimestru.trimestru_pentru_data(data)
 
+    @classmethod
+    def trimestru_final_an(cls, trimestru):
+        year = trimestru.data_inceput.year
+        if trimestru.ordine_locala == 4:
+            year += 1
+
+        return Trimestru.get_trimestru(year, 3)
+
+
+
+
     def data_in_trimestru(self, data):
         return (self.data_inceput <= data) and (self.data_sfarsit >= data)
 

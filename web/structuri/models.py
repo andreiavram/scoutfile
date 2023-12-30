@@ -865,7 +865,10 @@ class Membru(Utilizator):
         if moment_initial_membru != trimestru_membru.data_inceput:
             trimestru_membru = Trimestru.urmatorul_trimestru(trimestru_membru)
 
-        trimestru_centru = self.centru_local.moment_initial_cotizatie
+        if self.centru_local:
+            trimestru_centru = self.centru_local.moment_initial_cotizatie
+        else:
+            trimestru_centru = Trimestru.objects.order_by("ordine_globala").first()
 
         return_value = max(trimestru_membru, trimestru_centru, key=lambda x: x.ordine_globala)
         self.save_to_cache("trimestru_initial", return_value.id)
@@ -973,6 +976,7 @@ class Membru(Utilizator):
 
         today = datetime.date.today()
         trimestru_curent = Trimestru.trimestru_pentru_data(today)
+        trimestru_curent = Trimestru.trimestru_final_an(trimestru_curent)
 
         # -1 vine de la faptul ca cotizatia se plateste in urma, nu in avans, deci trimestrul curent
         # se plateste dupa ce se termina
@@ -1058,7 +1062,7 @@ class Membru(Utilizator):
             return u"avans pentru %d %s" % (abs(status), trimestru_string)
 
     def get_ultimul_trimestru_cotizatie(self, return_plati_partiale=False):
-        # TODO: dacă membrul este alumn sau inactiv pentru o anumită perioadă, atunci el nu plătește cotizație
+        # TODO: dacă membrul este alumnus sau inactiv pentru o anumită perioadă, atunci el nu plătește cotizație
         # TODO: perioadele de inactivitate se pot interacala in perioade de activitate, cazuri care trebuie luate in
         #  considerare
         plati_membru = self.platacotizatietrimestru_set.all().order_by("-trimestru__ordine_globala", "-index")
@@ -1088,6 +1092,12 @@ class Membru(Utilizator):
         if return_plati_partiale:
             return trimestru_initial, plati_partiale
         return trimestru_initial
+
+    def get_most_recent_fee_payment(self):
+        plata_trimestru = self.platacotizatietrimestru_set.order_by("-trimestru__ordine_globala", "-index").first()
+        if not plata_trimestru:
+            return None
+        return plata_trimestru.chitanta
 
     def calculeaza_necesar_cotizatie(self, force_real=False):
         necesar_cotizatie = self.get_from_cache("necesar_cotizatie")
