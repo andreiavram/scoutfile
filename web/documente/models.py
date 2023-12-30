@@ -355,7 +355,7 @@ class PlataCotizatieTrimestru(models.Model):
         t_target = Trimestru.trimestru_final_an(t_target)
 
         suma_necesara = 0
-        while t_current.ordine_globala < t_target.ordine_globala:
+        while t_current.ordine_globala <= t_target.ordine_globala:
             # print t_current, t_target
             if membru.plateste_cotizatie(t_current):
                 cotizatie_trimestru_nominal = t_current.identifica_cotizatie(membru)
