@@ -77,6 +77,7 @@
                         {% for ptc in cc.platacotizatietrimestru_set.all %}
                             <strong>{{ ptc.suma }} RON</strong> pentru {{ ptc.trimestru }} {% if ptc.partial %}(partial){% endif %}{% if ptc.final and ptc.partial %}(final){% endif %}<br />
                         {% endfor %}
+                        <small>Prin <strong>{{ cc.get_tip_display }}</strong>, înregistrată de {{ cc.chitanta.casier }} pe {{  cc.chitanta.data_inregistrare|date:"d F Y" }}</small>
                     {% endwith %}
                 {% endif %}
                 {% with afiliere.document.documentcotizatiesociala as dcs %}{# dcs - declaratie cotizatie sociala #}

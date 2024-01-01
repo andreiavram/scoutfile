@@ -92,6 +92,9 @@ class Command(BaseCommand):
             if not afilieri.count():
                 continue
 
+            if m.centru_local is None:
+                continue
+
             m.clear_asocieri_cache()
 
             try:

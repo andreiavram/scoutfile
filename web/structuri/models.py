@@ -10,7 +10,7 @@ import unidecode
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import caches
-from django.db.models import ExpressionWrapper, F, DurationField
+from django.db.models import ExpressionWrapper, F, DurationField, TextChoices
 from django.urls import reverse
 from django.db import models
 from django.db.models.aggregates import Sum
@@ -128,6 +128,10 @@ def upload_to_centru_local_logo(instance, filename):
 def upload_to_centru_local_antent(instance, filename):
     return "cl/antet-{0}-{1}".format(instance.id, filename)
 
+class TipCentruLocalChoices(TextChoices):
+    CENTRU_LOCAL = "centru_local", "Centru Local"
+    CENTRU_CERCETASESC = "centru_cercetasesc", "Centru Cercetășesc"
+
 
 class CentruLocal(Structura):
     class Meta(object):
@@ -145,6 +149,7 @@ class CentruLocal(Structura):
     specific = models.CharField(max_length=255, choices=SPECIFIC_CENTRU_LOCAL, null=True, blank=True)
     statut_juridic = models.CharField(max_length=255, choices=STATUT_JURIDIC_CENTRU_LOCAL, default="nopj")
     statut_drepturi = models.CharField(max_length=255, choices=STATUT_DREPTURI_CENTRU_LOCAL, default="depline")
+    tip_centru_local = models.CharField(max_length=50, choices=TipCentruLocalChoices.choices, default=TipCentruLocalChoices.CENTRU_LOCAL)
 
     preferinte_corespondenta = models.CharField(max_length=255, choices=TIPURI_CORESPONDENTA_CENTRU_LOCAL,
                                                 default="email", verbose_name=u"Preferință trimitere corespondență",
@@ -157,9 +162,13 @@ class CentruLocal(Structura):
     default_payment_domain = models.ForeignKey("financiar.PaymentDomain", null=True, blank=True, related_name="centru_local", on_delete=models.SET_NULL)
 
     def nume_complet(self):
-        if self.denumire is not None and self.denumire != "":
-            return u"Centrul Local \"%s\" %s" % (self.denumire, self.localitate)
-        return u"Centrul Local %s" % self.localitate
+        titles = {
+            TipCentruLocalChoices.CENTRU_LOCAL: "Centrul Local",
+            TipCentruLocalChoices.CENTRU_CERCETASESC: "Centrul Cercetășesc"
+        }
+        if self.denumire:
+            return f"{titles.get(self.tip_centru_local)} '{self.denumire}' {self.localitate}"
+        return f"{titles.get(self.tip_centru_local)} {self.localitate}"
 
     def __str__(self):
         return u"%s" % self.nume_complet()
@@ -381,6 +390,8 @@ class Membru(Utilizator):
 
     cont_bancar = IBANField(null=True, blank=True)
 
+    current_centru_local = models.ForeignKey(CentruLocal, null=True, blank=True, on_delete=models.SET_NULL)
+
     #TODO: find some smarter way to do this
     poza_profil = models.ForeignKey(ImagineProfil, null=True, blank=True, on_delete=models.SET_NULL)
 
@@ -479,7 +490,9 @@ class Membru(Utilizator):
 
     @property
     def centru_local(self):
-        return self.get_centru_local()
+        if self.current_centru_local is None:
+            return self.get_centru_local()
+        return self.current_centru_local
 
     @staticmethod
     def get_afilieri_filter(item, trimestru, content_type_structura=None, rol=None, membru=None, structura=None, before_date=None, after_date=None):
@@ -852,7 +865,10 @@ class Membru(Utilizator):
         if moment_initial_membru != trimestru_membru.data_inceput:
             trimestru_membru = Trimestru.urmatorul_trimestru(trimestru_membru)
 
-        trimestru_centru = self.centru_local.moment_initial_cotizatie
+        if self.centru_local:
+            trimestru_centru = self.centru_local.moment_initial_cotizatie
+        else:
+            trimestru_centru = Trimestru.objects.order_by("ordine_globala").first()
 
         return_value = max(trimestru_membru, trimestru_centru, key=lambda x: x.ordine_globala)
         self.save_to_cache("trimestru_initial", return_value.id)
@@ -960,6 +976,7 @@ class Membru(Utilizator):
 
         today = datetime.date.today()
         trimestru_curent = Trimestru.trimestru_pentru_data(today)
+        trimestru_curent = Trimestru.trimestru_final_an(trimestru_curent)
 
         # -1 vine de la faptul ca cotizatia se plateste in urma, nu in avans, deci trimestrul curent
         # se plateste dupa ce se termina
@@ -1045,7 +1062,7 @@ class Membru(Utilizator):
             return u"avans pentru %d %s" % (abs(status), trimestru_string)
 
     def get_ultimul_trimestru_cotizatie(self, return_plati_partiale=False):
-        # TODO: dacă membrul este alumn sau inactiv pentru o anumită perioadă, atunci el nu plătește cotizație
+        # TODO: dacă membrul este alumnus sau inactiv pentru o anumită perioadă, atunci el nu plătește cotizație
         # TODO: perioadele de inactivitate se pot interacala in perioade de activitate, cazuri care trebuie luate in
         #  considerare
         plati_membru = self.platacotizatietrimestru_set.all().order_by("-trimestru__ordine_globala", "-index")
@@ -1075,6 +1092,12 @@ class Membru(Utilizator):
         if return_plati_partiale:
             return trimestru_initial, plati_partiale
         return trimestru_initial
+
+    def get_most_recent_fee_payment(self):
+        plata_trimestru = self.platacotizatietrimestru_set.order_by("-trimestru__ordine_globala", "-index").first()
+        if not plata_trimestru:
+            return None
+        return plata_trimestru.chitanta
 
     def calculeaza_necesar_cotizatie(self, force_real=False):
         necesar_cotizatie = self.get_from_cache("necesar_cotizatie")

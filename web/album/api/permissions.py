@@ -12,6 +12,6 @@ class WriteAccessParticipareEveniment(BasePermission):
         except Membru.DoesNotExist:
             return False
 
-        return membru.are_calitate("Lider", centru_local)
+        return membru.are_calitate(["Lider", "Lider asistent"], centru_local)
 
 

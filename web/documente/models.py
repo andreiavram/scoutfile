@@ -1,5 +1,7 @@
 # coding: utf-8
 from __future__ import division
+
+from django.db.models import IntegerChoices
 from past.utils import old_div
 from builtins import object
 import datetime
@@ -293,6 +295,17 @@ class Trimestru(models.Model):
                 t = Trimestru.urmatorul_trimestru(t)
             return Trimestru.trimestru_pentru_data(data)
 
+    @classmethod
+    def trimestru_final_an(cls, trimestru):
+        year = trimestru.data_inceput.year
+        if trimestru.ordine_locala == 4:
+            year += 1
+
+        return Trimestru.get_trimestru(year, 3)
+
+
+
+
     def data_in_trimestru(self, data):
         return (self.data_inceput <= data) and (self.data_sfarsit >= data)
 
@@ -338,10 +351,11 @@ class PlataCotizatieTrimestru(models.Model):
     def calculeaza_necesar(cls, membru):
         trimestru_initial, plati_partiale = membru.get_ultimul_trimestru_cotizatie(return_plati_partiale=True)
         t_current = trimestru_initial
-        t_target = Trimestru.trimestru_pentru_data(data=datetime.date.today() + datetime.timedelta(days=15))
+        t_target = Trimestru.trimestru_pentru_data(data=datetime.date.today())
+        t_target = Trimestru.trimestru_final_an(t_target)
 
         suma_necesara = 0
-        while t_current.ordine_globala < t_target.ordine_globala:
+        while t_current.ordine_globala <= t_target.ordine_globala:
             # print t_current, t_target
             if membru.plateste_cotizatie(t_current):
                 cotizatie_trimestru_nominal = t_current.identifica_cotizatie(membru)
@@ -498,9 +512,18 @@ class PlataCotizatieTrimestru(models.Model):
 
 
 class ChitantaCotizatie(Chitanta):
+    class TipChitantaCotizatie(IntegerChoices):
+        CASH = 1, "Cash"
+        BANK_TRANSFER = 2, "Virament bancar (OP)"
+        BANK_DEPOSIT = 3, "Depunere numerar"
+
     registre_compatibile = ["chitantier", "intern"]
     predat = models.BooleanField(default=False)
     blocat = models.BooleanField(default=False)
+    tip = models.PositiveSmallIntegerField(
+        choices=TipChitantaCotizatie.choices,
+        default=TipChitantaCotizatie.CASH,
+        verbose_name="Tip plată")
 
     def save(self, **kwargs):
         self.tip_document, created = TipDocument.objects.get_or_create(slug="cotizatie")

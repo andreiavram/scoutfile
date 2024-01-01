@@ -138,8 +138,8 @@ class CotizatieMembruAdauga(CreateView):
 
     def get_form_kwargs(self):
         data = super(CotizatieMembruAdauga, self).get_form_kwargs()
-        data.update({"centru_local" : self.target.centru_local,
-                     "membru" : self.target})
+        data.update({"centru_local": self.target.centru_local,
+                     "membru": self.target})
         return data
 
     def form_valid(self, form):
@@ -148,23 +148,28 @@ class CotizatieMembruAdauga(CreateView):
         self.object.casier = self.request.user.utilizator.membru
         self.object.uploader = self.request.user
         self.object.data_inregistrare = datetime.date.today()
-        self.object.titlu = u"Chitanță cotizație pentru %s" % self.target
+        if self.object.tip == ChitantaCotizatie.TipChitantaCotizatie.CASH:
+            self.object.titlu = f"Chitanță cotizație pentru {self.target}"
+        else:
+            self.object.titlu = f"Înregistrare {self.object.get_tip_display()} pentru {self.target}"
+            self.object.predat = True
         self.object.save()
 
+        # ataseaza platitorul ca asociere /
+        AsociereDocument.inregistreaza(
+            document=self.object,
+            to=self.target,
+            tip="platitor",
+            responsabil=self.object.casier.user
+        )
 
+        # stabileste si salveaza acoperirea
+        plati, rest, status, diff = PlataCotizatieTrimestru.calculeaza_acoperire(membru=self.target,
+                                                                                 chitanta=self.object,
+                                                                                 commit=True)
 
-        #   ataseaza platitorul ca asociere /
-        AsociereDocument.inregistreaza(document=self.object,
-                                       to=self.target,
-                                       tip="platitor",
-                                       responsabil=self.object.casier.user)
-
-        #   stabileste si salveaza acoperirea
-        plati, rest, status, diff  = PlataCotizatieTrimestru.calculeaza_acoperire(membru=self.target,
-                                                     chitanta=self.object,
-                                                     commit=True)
-
-        msg_data = (self.object.suma, self.target, plati[-1].trimestru, u" - parțial" if (plati[-1].partial and not plati[-1].final) else "")
+        msg_data = (self.object.suma, self.target, plati[-1].trimestru,
+                    u" - parțial" if (plati[-1].partial and not plati[-1].final) else "")
         mesaj = u"Am înregistrat plata a %.2f RON pentru %s (acoperă trimestrul %s%s)" % msg_data
         messages.success(self.request, mesaj)
         return HttpResponseRedirect(self.get_success_url())
@@ -178,7 +183,7 @@ class CotizatieMembruAdauga(CreateView):
         return data
 
 
-#class NumarInregistrareUrmatorJSON(View):
+# class NumarInregistrareUrmatorJSON(View):
 #    @csrf_exempt
 #    def dispatch(self, request, *args, **kwargs):
 #        return super(NumarInregistrareUrmatorJSON, self).dispatch(request, *args, **kwargs)
@@ -206,12 +211,12 @@ class CotizatieMembruAdauga(CreateView):
 
 
 class CuantumuriCotizatieNational(ListView):
-    #TODO: implement this
+    # TODO: implement this
     pass
 
 
 class CuantumCotizatieNationalAdauga(CreateView):
-    #TODO: implement this
+    # TODO: implement this
     pass
 
 
@@ -246,11 +251,11 @@ class DeclaratieCotizatieSocialaAdauga(CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse("structuri:membru_detail", kwargs={"pk":self.target.id}) + "#documente"
+        return reverse("structuri:membru_detail", kwargs={"pk": self.target.id}) + "#documente"
 
     def get_context_data(self, **kwargs):
         data = super(DeclaratieCotizatieSocialaAdauga, self).get_context_data(**kwargs)
-        data.update({"membru" : self.target})
+        data.update({"membru": self.target})
         return data
 
 
@@ -260,8 +265,9 @@ class DeclaratieCotizatieSocialaModifica(UpdateView):
     form_class = DeclaratieCotizatieSocialaForm
 
     def dispatch(self, request, *args, **kwargs):
-        self.object = get_object_or_404(self.model, id = kwargs.get("pk"))
-        asocieri = AsociereDocument.objects.filter(document=self.object, tip_asociere__slug="beneficiar-cotizatie-sociala")
+        self.object = get_object_or_404(self.model, id=kwargs.get("pk"))
+        asocieri = AsociereDocument.objects.filter(document=self.object,
+                                                   tip_asociere__slug="beneficiar-cotizatie-sociala")
         if asocieri.count():
             self.target = asocieri[0].content_object
 
@@ -275,11 +281,11 @@ class DeclaratieCotizatieSocialaModifica(UpdateView):
 
     def get_context_data(self, **kwargs):
         data = super(DeclaratieCotizatieSocialaModifica, self).get_context_data(**kwargs)
-        data.update({"membru" : self.target})
+        data.update({"membru": self.target})
         return data
 
     def get_success_url(self):
-        return reverse("structuri:membru_detail", kwargs={"pk":self.target.id}) + "#documente"
+        return reverse("structuri:membru_detail", kwargs={"pk": self.target.id}) + "#documente"
 
 
 class MembruAlteDocumente(TemplateView):
@@ -290,7 +296,8 @@ class MembruAlteDocumente(TemplateView):
         return super(MembruAlteDocumente, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        return {"object" : self.membru}
+        return {"object": self.membru}
+
 
 class CentruLocalRegistre(ListView):
     template_name = "documente/registru_list.html"
@@ -311,15 +318,16 @@ class CentruLocalRegistre(ListView):
     def get_queryset(self):
         qs = super(CentruLocalRegistre, self).get_queryset()
         if not self.inactive:
-            qs = qs.filter(valabil = True)
+            qs = qs.filter(valabil=True)
         if self.tip:
-            qs = qs.filter(tip_registru = self.tip)
+            qs = qs.filter(tip_registru=self.tip)
         return qs
 
     def get_context_data(self, **kwargs):
         data = super(CentruLocalRegistre, self).get_context_data(**kwargs)
-        data.update({"centru_local" : self.centru_local, "inactive" : self.inactive, "tipuri_registre" : REGISTRU_TIPURI})
+        data.update({"centru_local": self.centru_local, "inactive": self.inactive, "tipuri_registre": REGISTRU_TIPURI})
         return data
+
 
 class RegistruCreate(CreateView):
     template_name = "documente/registru_form.html"
@@ -334,7 +342,7 @@ class RegistruCreate(CreateView):
 
     def get_form_kwargs(self):
         current = super(RegistruCreate, self).get_form_kwargs()
-        current.update({"centru_local" : self.centru_local})
+        current.update({"centru_local": self.centru_local})
         return current
 
     def form_valid(self, form):
@@ -347,12 +355,13 @@ class RegistruCreate(CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse("documente:registru_detail", kwargs={"pk" : self.object.id})
+        return reverse("documente:registru_detail", kwargs={"pk": self.object.id})
 
     def get_context_data(self, **kwargs):
         data = super(RegistruCreate, self).get_context_data(**kwargs)
-        data.update({"centru_local" : self.centru_local})
+        data.update({"centru_local": self.centru_local})
         return data
+
 
 class RegistruUpdate(UpdateView):
     template_name = "documente/registru_form.html"
@@ -365,7 +374,7 @@ class RegistruUpdate(UpdateView):
 
     def get_context_data(self, **kwargs):
         data = super(RegistruUpdate, self).get_context_data(**kwargs)
-        data.update({"centru_local" : self.object.centru_local})
+        data.update({"centru_local": self.object.centru_local})
         return data
 
     def form_valid(self, form):
@@ -373,7 +382,7 @@ class RegistruUpdate(UpdateView):
         return super(RegistruUpdate, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse("documente:registru_detail", kwargs={"pk" : self.object.id})
+        return reverse("documente:registru_detail", kwargs={"pk": self.object.id})
 
 
 class RegistruDetail(DetailView):
@@ -396,7 +405,7 @@ class SelectieAdaugareDocument(TemplateView):
 
     def get_context_data(self, **kwargs):
         data = super(SelectieAdaugareDocument, self).get_context_data(**kwargs)
-        data.update({"centru_local" : self.centru_local})
+        data.update({"centru_local": self.centru_local})
         return data
 
 
@@ -480,13 +489,13 @@ class DecizieCuantumAdauga(CreateView):
         self.object.titlu = u"Decizie cuantum cotizatie %s" % self.object.get_categorie_display()
         self.object.data_inregistrare = datetime.date.today()
 
-        decizie_filter = {"centru_local" : self.centru_local,
-                          "categorie" : form.cleaned_data['categorie'],
-                          "data_sfarsit__isnull" : True}
+        decizie_filter = {"centru_local": self.centru_local,
+                          "categorie": form.cleaned_data['categorie'],
+                          "data_sfarsit__isnull": True}
         decizii_existente = DecizieCotizatie.objects.filter(**decizie_filter)
         if decizii_existente.count():
             decizie_to_close = decizii_existente[0]
-            decizie_to_close.data_sfarsit = self.object.data_inceput - datetime.timedelta(days = 1)
+            decizie_to_close.data_sfarsit = self.object.data_inceput - datetime.timedelta(days=1)
             decizie_to_close.save()
 
         self.object.save()
@@ -495,14 +504,15 @@ class DecizieCuantumAdauga(CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse("documente:registru_detail", kwargs={"pk" : self.object.registru.id})
+        return reverse("documente:registru_detail", kwargs={"pk": self.object.registru.id})
 
     def get_context_data(self, **kwargs):
         data = super(DecizieCuantumAdauga, self).get_context_data(**kwargs)
         data.update({"centru_local": self.centru_local})
         return data
 
-#class DecizieCuantumEdit(UpdateView):
+
+# class DecizieCuantumEdit(UpdateView):
 #    model = DecizieCotizatie
 #    form_class = DecizieCuantumCotizatieUpdateForm
 #    template_name = "documente/decizie_cuantum_cotizatie_form.html"
@@ -525,14 +535,14 @@ class DecizieCuantumDetail(DetailView):
 
 
 class CalculeazaAcoperireCotizatie(JSONView):
-    _params = {"membru" : {"type" : "required"},
-               "suma" : {"type" : "required"}}
+    _params = {"membru": {"type": "required"},
+               "suma": {"type": "required"}}
 
     def clean_membru(self, value):
         try:
-            return Membru.objects.get(id = value)
+            return Membru.objects.get(id=value)
         except Membru.DoesNotExist as e:
-            raise ScoutFileAjaxException(exception = e)
+            raise ScoutFileAjaxException(exception=e)
         return None
 
     def clean_suma(self, value):
@@ -553,18 +563,20 @@ class CalculeazaAcoperireCotizatie(JSONView):
         return [p.__json__() for p in plati]
 
     def construct_json_response(self, plati=None, **kwargs):
-        json_dict = {"plati" : self.plati_to_json(plati),
-                    "suma" : self.cleaned_data['suma'],
-                    "rest" : kwargs.get("suma", 0),
-                    "status" : kwargs.get("status_text", None),
-                    "diff" : kwargs.get("diff", None)}
+        json_dict = {"plati": self.plati_to_json(plati),
+                     "suma": self.cleaned_data['suma'],
+                     "rest": kwargs.get("suma", 0),
+                     "status": kwargs.get("status_text", None),
+                     "diff": kwargs.get("diff", None)}
         return dumps(json_dict)
 
 
 class CasieriMixin(object):
     def get_casieri(self, centru_local):
-        casieri = ChitantaCotizatie.objects.filter(registru__centru_local = centru_local).distinct().values_list("casier", flat=True)
-        return Membru.objects.filter(id__in = casieri)
+        casieri = ChitantaCotizatie.objects.filter(registru__centru_local=centru_local).distinct().values_list("casier",
+                                                                                                               flat=True)
+        return Membru.objects.filter(id__in=casieri)
+
 
 class CotizatiiCentruLocal(ListView, CasieriMixin):
     template_name = "documente/cotizatii_list.html"
@@ -572,16 +584,16 @@ class CotizatiiCentruLocal(ListView, CasieriMixin):
 
     # TODO: add permissions check
     def dispatch(self, request, *args, **kwargs):
-        self.centru_local = get_object_or_404(CentruLocal, id = kwargs.pop("pk"))
+        self.centru_local = get_object_or_404(CentruLocal, id=kwargs.pop("pk"))
         return super(CotizatiiCentruLocal, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        #membrii = self.centru_local.cercetasi(qs=True).values_list("membru_id", flat=True)
+        # membrii = self.centru_local.cercetasi(qs=True).values_list("membru_id", flat=True)
         return self.model.objects.filter(registru__centru_local=self.centru_local).order_by("-data_inregistrare")
 
     def get_context_data(self, **kwargs):
         data = super(CotizatiiCentruLocal, self).get_context_data(**kwargs)
-        data.update({"centru_local" : self.centru_local, "casieri" : self.get_casieri(self.centru_local)})
+        data.update({"centru_local": self.centru_local, "casieri": self.get_casieri(self.centru_local)})
         return data
 
 
@@ -590,11 +602,11 @@ class CotizatiiLider(ListView, CasieriMixin):
     model = ChitantaCotizatie
 
     def dispatch(self, request, *args, **kwargs):
-        self.lider = get_object_or_404(Membru, id = kwargs.pop("pk"))
+        self.lider = get_object_or_404(Membru, id=kwargs.pop("pk"))
         return super(CotizatiiLider, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.model.objects.filter(casier = self.lider).order_by("-data_inregistrare")
+        return self.model.objects.filter(casier=self.lider).order_by("-data_inregistrare")
 
     def get_suma_lider(self):
         search = dict(casier=self.lider,
@@ -604,11 +616,12 @@ class CotizatiiLider(ListView, CasieriMixin):
 
     def get_context_data(self, **kwargs):
         data = super(CotizatiiLider, self).get_context_data(**kwargs)
-        data.update({"lider": self.lider, "centru_local" : self.lider.centru_local,
+        data.update({"lider": self.lider, "centru_local": self.lider.centru_local,
                      "casieri": self.get_casieri(centru_local=self.lider.centru_local),
                      "suma_casa": self.get_suma_lider(),
                      "trezorier": self.lider.centru_local.ocupant_functie(u"Trezorier Centru Local")})
         return data
+
 
 class PreiaIncasariCasier(FormView):
     form_class = TransferIncasariForm
@@ -631,22 +644,24 @@ class PreiaIncasariCasier(FormView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse("documente:cotizatii_centru_local", kwargs={"pk" : self.request.user.utilizator.membru.centru_local.id})
+        return reverse("documente:cotizatii_centru_local",
+                       kwargs={"pk": self.request.user.utilizator.membru.centru_local.id})
 
     def get_form_kwargs(self):
         data = super(PreiaIncasariCasier, self).get_form_kwargs()
-        data.update({"centru_local" : self.request.user.utilizator.membru.centru_local})
+        data.update({"centru_local": self.request.user.utilizator.membru.centru_local})
         return data
 
     def get_context_data(self, **kwargs):
         data = super(PreiaIncasariCasier, self).get_context_data(**kwargs)
-        plati = ChitantaCotizatie.objects.filter(registru__centru_local = self.lider.centru_local,
-                                                 casier = self.lider,
-                                                 predat = False).order_by("-data_inregistrare")
-        data.update({"plati" : plati,
-                     "trezorier" : self.request.user.utilizator.membru.are_calitate("Trezorier Centru Local", self.lider.centru_local),
-                     "lider" : self.lider,
-                     "suma" : plati.aggregate(Sum("suma"))['suma__sum']})
+        plati = ChitantaCotizatie.objects.filter(registru__centru_local=self.lider.centru_local,
+                                                 casier=self.lider,
+                                                 predat=False).order_by("-data_inregistrare")
+        data.update({"plati": plati,
+                     "trezorier": self.request.user.utilizator.membru.are_calitate("Trezorier Centru Local",
+                                                                                   self.lider.centru_local),
+                     "lider": self.lider,
+                     "suma": plati.aggregate(Sum("suma"))['suma__sum']})
         return data
 
 
@@ -662,7 +677,7 @@ class AdeziuneMembruAdauga(CreateView):
 
     def get_form_kwargs(self):
         data = super(AdeziuneMembruAdauga, self).get_form_kwargs()
-        data.update({"centru_local" : self.membru.centru_local})
+        data.update({"centru_local": self.membru.centru_local})
         return data
 
     def form_valid(self, form):
@@ -683,11 +698,12 @@ class AdeziuneMembruAdauga(CreateView):
 
     def get_context_data(self, **kwargs):
         data = super(AdeziuneMembruAdauga, self).get_context_data(**kwargs)
-        data.update({"membru" : self.membru})
+        data.update({"membru": self.membru})
         return data
 
     def get_success_url(self):
-        return reverse("structuri:membru_detail", kwargs = {"pk" : self.membru.id}) + "#documente"
+        return reverse("structuri:membru_detail", kwargs={"pk": self.membru.id}) + "#documente"
+
 
 class AdeziuneMembruModifica(UpdateView):
     model = Adeziune
@@ -705,11 +721,11 @@ class AdeziuneMembruModifica(UpdateView):
 
     def get_context_data(self, **kwargs):
         data = super(AdeziuneMembruModifica, self).get_context_data(**kwargs)
-        data.update({"membru" : self.membru})
+        data.update({"membru": self.membru})
         return data
 
     def get_success_url(self):
-        return reverse("structuri:membru_detail", kwargs = {"pk" : self.membru.id}) + "#documente"
+        return reverse("structuri:membru_detail", kwargs={"pk": self.membru.id}) + "#documente"
 
 
 class ChitantaPrintare(DetailView):
@@ -722,9 +738,10 @@ class ChitantaPrintare(DetailView):
         self.object = self.get_object()
 
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="{0}-{1}.pdf"'.format(self.object.registru.serie, self.object.numar_inregistrare)
+        response['Content-Disposition'] = 'attachment; filename="{0}-{1}.pdf"'.format(self.object.registru.serie,
+                                                                                      self.object.numar_inregistrare)
 
-        pdf = Canvas(response, pagesize = A4)
+        pdf = Canvas(response, pagesize=A4)
 
         import os
         from reportlab.lib.styles import getSampleStyleSheet
@@ -750,7 +767,7 @@ class ChitantaPrintare(DetailView):
         pdf.drawCentredString(10.5 * cm, 23.2 * cm, u"Chitanță")
 
         text_serie = u"seria {0}, nr. {1} / {2}".format(self.object.registru.serie, self.object.numar_inregistrare,
-                                                       self.object.data_inregistrare.strftime("%d.%m.%Y"))
+                                                        self.object.data_inregistrare.strftime("%d.%m.%Y"))
 
         pdf.setFont("DejaVuSans-Bold", 4. * cm, leading=None)
         pdf.setFillColorRGB(0.95, 0.95, 0.95)
@@ -772,7 +789,8 @@ class ChitantaPrintare(DetailView):
             reprezinta = ", ".join(reprezinta)
             reprezinta = u"cotizație membru pentru {0}".format(reprezinta)
         date_chitanta = (str(self.object.platitor()), self.object.suma, suma2text(self.object.suma).strip(), reprezinta)
-        text_chitanta = u"Am primit de la <strong>{0}</strong> suma de {1} lei, adică {2}, reprezentând {3}.".format(*date_chitanta)
+        text_chitanta = u"Am primit de la <strong>{0}</strong> suma de {1} lei, adică {2}, reprezentând {3}.".format(
+            *date_chitanta)
 
         style_sheet = getSampleStyleSheet()
         style = style_sheet['Normal']
@@ -781,7 +799,7 @@ class ChitantaPrintare(DetailView):
         style.leading = 0.85 * cm
 
         paragraph = Paragraph(text_chitanta, style)
-        w, h  = paragraph.wrap(15. * cm, 5. * cm)
+        w, h = paragraph.wrap(15. * cm, 5. * cm)
         # print w, h
 
         paragraph.drawOn(pdf, 3. * cm, 5.5 * cm)
@@ -803,13 +821,14 @@ class ChitantaPrintare(DetailView):
 class ChitantaPrintMultiple(ListView):
     model = Chitanta
 
+
 #
 # class StergeChitantaCotizatie(DeleteView, FormMixin):
 #     template_name = "documente/delet"
 
 
 class ToggleBlocatCotizatie(APIView):
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, format=None):
         document = get_object_or_404(ChitantaCotizatie, id=int(request.data.get("document")))
