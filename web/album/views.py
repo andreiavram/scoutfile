@@ -421,13 +421,13 @@ class FlagImage(CreateView):
     def get_success_url(self):
         return reverse("album:poza_detail", kwargs={"pk": self.poza.id})
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=None):
         form = super(FlagImage, self).get_form(form_class)
         form.has_submit_buttons = True
         return form
 
     def get_context_data(self, *args, **kwargs):
-        current = super(FlagImage, self).get_context_data(*args, **kwargs)
+        current = super().get_context_data(*args, **kwargs)
         current.update({"object": self.poza, "poza": self.poza})
 
         return current
