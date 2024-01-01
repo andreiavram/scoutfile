@@ -1202,7 +1202,7 @@ class Membru(Utilizator):
         """ determina daca un membru plateste sau nu cotizatie
         din notele de implementare curente, neplatitori de cotizatie pentru un anumit trimestru sunt
         1) membrii inactivi, marcati ca atare
-        2) membrii adulti, marcati ca atare si membrii api unei unitati de adulti
+        2) membrii adulti, marcati ca atare si membrii ai unei unitati de adulti
         toate celalalte categorii de membrii sunt platitori de cotizatie
         """
 
@@ -1228,14 +1228,18 @@ class Membru(Utilizator):
         if qs.count():
             if qs.filter(moment_incheiere__isnull=True).exists():
                 trimestru_curent = Trimestru.trimestru_pentru_data(datetime.date.today())
+                trimestru_curent = Trimestru.trimestru_final_an((trimestru_curent))
                 if trimestru.ordine_globala == trimestru_curent.ordine_globala:
                     trimestre_actualizate = [trimestru.ordine_globala]
                 else:
                     trimestre_actualizate = range(trimestru.ordine_globala, trimestru_curent.ordine_globala + 1)
+                print(trimestru_curent, trimestru)
             else:
                 last_discount_date = qs.order_by('-moment_incheiere').first().moment_incheiere
                 reference_quarter = Trimestru.trimestru_pentru_data(last_discount_date)
                 trimestre_actualizate = range(trimestru.ordine_globala, reference_quarter.ordine_globala + 1)
+
+            print(list(trimestre_actualizate))
 
             self._plateste_cotizatie.update({k: False for k in trimestre_actualizate})
             return self._plateste_cotizatie[trimestru.ordine_globala]
