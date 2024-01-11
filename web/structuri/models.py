@@ -862,8 +862,12 @@ class Membru(Utilizator):
         moment_initial_membru = afilieri[0].moment_inceput
 
         trimestru_membru = Trimestru.trimestru_pentru_data(moment_initial_membru)
-        if moment_initial_membru != trimestru_membru.data_inceput:
-            trimestru_membru = Trimestru.urmatorul_trimestru(trimestru_membru)
+
+        # this states that members will always start paying a full year regardless when they start
+        trimestru_membru = Trimestru.trimestru_inceput_an(trimestru_membru)
+
+        # if moment_initial_membru != trimestru_membru.data_inceput:
+        #     trimestru_membru = Trimestru.urmatorul_trimestru(trimestru_membru)
 
         if self.centru_local:
             trimestru_centru = self.centru_local.moment_initial_cotizatie

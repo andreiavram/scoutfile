@@ -296,6 +296,14 @@ class Trimestru(models.Model):
             return Trimestru.trimestru_pentru_data(data)
 
     @classmethod
+    def trimestru_inceput_an(cls, trimestru):
+        year = trimestru.data_inceput.year
+        if trimestru.ordine_locala != 4:
+            year -= 1
+
+        return Trimestru.get_trimestru(year, 4)
+
+    @classmethod
     def trimestru_final_an(cls, trimestru):
         year = trimestru.data_inceput.year
         if trimestru.ordine_locala == 4:
