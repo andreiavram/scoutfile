@@ -60,8 +60,8 @@ class CotizatieMembruForm(CrispyBaseModelForm):
         plati, suma, status, diff = PlataCotizatieTrimestru.calculeaza_acoperire(membru=self.membru,
                                        suma=self.cleaned_data['suma'],
                                        commit=False)
-        if diff < -4:
-            raise ValidationError(u"Nu se pot înregistra plăți în avans pentru mai mult de 4 trimestre!")
+        if diff < -6:
+            raise ValidationError(u"Nu se pot înregistra plăți în avans pentru mai mult de 6 trimestre!")
         return self.cleaned_data['suma']
 
     def clean(self):
