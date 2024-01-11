@@ -1237,13 +1237,10 @@ class Membru(Utilizator):
                     trimestre_actualizate = [trimestru.ordine_globala]
                 else:
                     trimestre_actualizate = range(trimestru.ordine_globala, trimestru_curent.ordine_globala + 1)
-                print(trimestru_curent, trimestru)
             else:
                 last_discount_date = qs.order_by('-moment_incheiere').first().moment_incheiere
                 reference_quarter = Trimestru.trimestru_pentru_data(last_discount_date)
                 trimestre_actualizate = range(trimestru.ordine_globala, reference_quarter.ordine_globala + 1)
-
-            print(list(trimestre_actualizate))
 
             self._plateste_cotizatie.update({k: False for k in trimestre_actualizate})
             return self._plateste_cotizatie[trimestru.ordine_globala]

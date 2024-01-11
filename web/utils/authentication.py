@@ -5,7 +5,6 @@ from django.conf import settings
 
 
 def create_authorization_payload(session_token, user, **kwargs):
-    print("user", user)
     return {
         claims.TOKEN: claims.TOKEN_AUTHORIZATION,
         claims.SESSION_ID: session_token.id,
