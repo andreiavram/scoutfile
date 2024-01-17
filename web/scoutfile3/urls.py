@@ -43,6 +43,7 @@ urlpatterns = [
 
     path('ajax_select/', include('ajax_select.urls')),
     path('photologue/', include('photologue.urls')),
+    path('', include('qr_code.urls', namespace='qr_code')),
 
     path('login/', Login.as_view(), name="login"),
     path('logout/', Logout.as_view(), name="logout"),

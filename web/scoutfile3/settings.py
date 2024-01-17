@@ -494,6 +494,9 @@ SPECTACULAR_SETTINGS = {
     # OTHER SETTINGS
 }
 
+SERVE_QR_CODE_IMAGE_PATH = 'qr-code-image/'
+
+
 try:
     from scoutfile3.local_settings import *
 except ImportError as e:

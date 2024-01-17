@@ -24,7 +24,7 @@ class PhysicalTag(models.Model):
     ref = models.CharField(max_length=255, null=True, default='', verbose_name="Reference")
 
     token = models.CharField(default=generate_token, max_length=30, unique=True, db_index=True)
-    to_url = models.CharField(max_length=255)
+    to_url = models.CharField(max_length=255, null=True, blank=True)
     hit_count = models.PositiveIntegerField(default=0)
 
     tag_type = models.PositiveIntegerField(choices=TagTypes.choices, default=TagTypes.QRCODE)
@@ -51,9 +51,10 @@ class PhysicalTag(models.Model):
         return make_qr_code_url_with_args(data=self.url, qr_code_args=kwargs)
 
     def svg_qr_image_url(self):
-        return self.qr_image_url(image_format="svg")
+        svg_url = self.qr_image_url(image_format="svg")
+        return Site.objects.get_current().domain + svg_url
 
     def png_qr_image_url(self):
-        return self.qr_image_url(image_format="png")
-
+        png_url = self.qr_image_url(image_format="png")
+        return Site.objects.get_current().domain + png_url
 

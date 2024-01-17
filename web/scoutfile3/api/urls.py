@@ -11,4 +11,5 @@ urlpatterns = [
     path('structuri/', include('structuri.api.urls')),
     path('voting/', include('voting.api.urls')),
     path('album/', include('album.api.urls')),
+    path('redirects/', include('redirects.api.urls')),
 ]
