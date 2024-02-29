@@ -970,7 +970,7 @@ class PrezentaMixin:
                 datetime.date(start_year + 1, 8, 31)
             ),
             status__in=[StatusEveniment.FINISHED, ]
-        ).order_by("start_date")
+        ).distinct().order_by("start_date")
         return evenimente
 
     def get_eveniment_data(self):
