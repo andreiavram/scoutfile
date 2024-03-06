@@ -100,13 +100,13 @@
                 <td>{{ participare.get_rol_display }}</td>
                 <td><span id="status-participare-{{ participare.id }}">{{ participare.get_status_participare_display }}</span> <br><div class="btn-group btn-mini"><span class="btn btn-mini disabled">Schimbă </span>
                     {% for new_status, short_form in quick_statuses.items %}
-                        <a
+                        <button
                                 data-toggle="tooltip"
                                 title="{{ short_form.1 }}"
                                 class="tooltip-target btn btn-mini"
                                 href="#"
                                 onclick="mark_attendance({{ participare.id }}, {{ new_status }})">{{ short_form.0 }}
-                        </a>
+                        </button>
                         {% if not forloop.last %}
                         |
                         {% endif %}
