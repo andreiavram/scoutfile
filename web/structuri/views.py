@@ -1176,11 +1176,6 @@ class MembruUpdate(UpdateView):
     def dispatch(self, request, *args, **kwargs):
         return super(MembruUpdate, self).dispatch(request, *args, **kwargs)
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs() or {}
-        kwargs['request'] = self.request
-        return kwargs
-
     def form_valid(self, form):
         self.object = form.save(commit=False)
         if self.object.email != self.object.user.username:
