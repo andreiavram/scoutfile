@@ -226,6 +226,7 @@ INSTALLED_APPS = [
     "waiting_list",
     "voting",
     "redirects",
+    "notifications",
     ]
 
 # if DEBUG:

@@ -10,7 +10,7 @@ import unidecode
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import caches
-from django.db.models import ExpressionWrapper, F, DurationField, TextChoices
+from django.db.models import ExpressionWrapper, F, DurationField, TextChoices, IntegerChoices
 from django.urls import reverse
 from django.db import models
 from django.db.models.aggregates import Sum
@@ -374,6 +374,11 @@ class AsociereMembruFamilie(models.Model):
 
 
 class Membru(Utilizator):
+    class ScorCreditOptions(IntegerChoices):
+        BAD = 0, "Rău"
+        NEUTRAL = 1, "Neutru"
+        GOOD = 2
+
     CALITATI_SCUTITE_COTIZATIE = ("Membru inactiv", "Membru adult", "Alumnus")
     CALITATI_COMUNE = ["Membru suspendat", "Membru aspirant", "Membru inactiv", "Membru Consiliul Centrului Local",
                        "Lider", "Lider asistent", "Membru adult", "Șef Centru Local", "Alumnus"]
@@ -386,11 +391,23 @@ class Membru(Utilizator):
 
     familie = models.ManyToManyField("self", through=AsociereMembruFamilie, symmetrical=False, blank=True)
     scout_id = models.CharField(max_length=255, null=True, blank=True, verbose_name="ID ONCR")
-    scor_credit = models.IntegerField(default=2, choices=((0, u"Rău"), (1, u"Neutru"), (2, u"Bun")), verbose_name=u"Credit", help_text=u"Această valoare reprezintă încrederea Centrului Local într-un membru de a-și respecta angajamentele financiare (dacă Centrul are sau nu încredere să pună bani pentru el / ea)")
+    # TODO: this will need to be moved to a relationship to a structure
+    scor_credit = models.IntegerField(
+        default=2,
+        choices=ScorCreditOptions.choices,
+        verbose_name="Credit",
+        help_text=(
+            "Această valoare reprezintă încrederea Centrului Local într-un membru de a-și respecta "
+            "angajamentele financiare (dacă Centrul are sau nu încredere să pună bani pentru el / ea)"
+        )
+    )
 
     cont_bancar = IBANField(null=True, blank=True)
 
     current_centru_local = models.ForeignKey(CentruLocal, null=True, blank=True, on_delete=models.SET_NULL)
+
+    # TODO: this will need to be moved to a relationship to the fee charging structure
+    data_initiala_cotizatie = models.DateField(null=True, blank=True)
 
     #TODO: find some smarter way to do this
     poza_profil = models.ForeignKey(ImagineProfil, null=True, blank=True, on_delete=models.SET_NULL)
@@ -859,12 +876,21 @@ class Membru(Utilizator):
         if not afilieri.count():
             raise ValueError(u"Cercetașul cu ID-ul %d nu are niciun Centru Local asociat" % self.id)
 
-        moment_initial_membru = afilieri[0].moment_inceput
+        if self.data_initiala_cotizatie is not None:
+            trimestru_membru = Trimestru.trimestru_pentru_data(self.data_initiala_cotizatie)
+        else:
+            moment_initial_membru = afilieri[0].moment_inceput
+            trimestru_membru = Trimestru.trimestru_pentru_data(moment_initial_membru)
 
-        trimestru_membru = Trimestru.trimestru_pentru_data(moment_initial_membru)
+            # if the member joined in september, we'll only make them pay starting next year
+            if moment_initial_membru.month == 9:
+                trimestru_membru = Trimestru.urmatorul_trimestru(trimestru=trimestru_membru)
 
-        # this states that members will always start paying a full year regardless when they start
-        trimestru_membru = Trimestru.trimestru_inceput_an(trimestru_membru)
+            # this states that members will always start paying a full year regardless when they start
+            trimestru_membru = Trimestru.trimestru_inceput_an(trimestru_membru)
+            # if they join between may and august, then they only have to pay half
+            if moment_initial_membru.month in (5, 6, 7, 8):
+                trimestru_membru = Trimestru.get_trimestru(moment_initial_membru.year, 2)
 
         # if moment_initial_membru != trimestru_membru.data_inceput:
         #     trimestru_membru = Trimestru.urmatorul_trimestru(trimestru_membru)
