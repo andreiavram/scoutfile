@@ -1151,7 +1151,7 @@ class Membru(Utilizator):
             chitante_cotizatie = [c.id for c in chitante_cotizatie]
         else:
             chitante_cotizatie = pcts.order_by("trimestru__ordine_globala").values_list("chitanta", flat=True).order_by().distinct()
-        chitante_cotizatie = list(ChitantaCotizatie.objects.filter(id__in=chitante_cotizatie).order_by("chitanta__document__data_inregistrare"))
+        chitante_cotizatie = list(ChitantaCotizatie.objects.filter(id__in=chitante_cotizatie).order_by("data_inregistrare"))
         pcts.delete()
 
         if reset:
