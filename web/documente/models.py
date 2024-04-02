@@ -212,7 +212,7 @@ class Chitanta(Document):
                                object_id=membru.id,
                                document__tip_document__slug=tip_document,
                                tip_asociere__slug="platitor")
-        asocieri = AsociereDocument.objects.filter(**asociere_filter).order_by("moment_asociere")
+        asocieri = AsociereDocument.objects.filter(**asociere_filter).order_by("document__date_created")
         return [a.document for a in asocieri]
 
     def delete(self, **kwargs):
