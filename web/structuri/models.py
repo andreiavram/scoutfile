@@ -1110,7 +1110,7 @@ class Membru(Utilizator):
         #   - daca membrul s-a intors la statutul de membru activ, atunci datoreaza cotizatie pe ultima
         #   perioada de activitate
 
-        afilieri_scutite = self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, trimestru=trimestru_initial, qs=True)
+        afilieri_scutite = self.afilieri_scutite(trimestru_initial=trimestru_initial)
 
         if afilieri_scutite.filter(moment_incheiere__isnull=True).exists():
             trimestru_initial = Trimestru.urmatorul_trimestru(Trimestru.trimestru_pentru_data(datetime.date.today()))
@@ -1118,10 +1118,24 @@ class Membru(Utilizator):
             afilieri_scutite = afilieri_scutite.order_by("-moment_incheiere")
             if afilieri_scutite.exists():
                 trimestru_initial = Trimestru.urmatorul_trimestru(Trimestru.trimestru_pentru_data(afilieri_scutite.first().moment_incheiere))
+                # ignoră plăți parțiale anterioare pentru situația asta
+                plati_partiale = self.platacotizatietrimestru_set.none()
 
         if return_plati_partiale:
             return trimestru_initial, plati_partiale
         return trimestru_initial
+
+    def afilieri_scutite(self, trimestru_initial: Trimestru=None, after: datetime.date | None=None):
+        kwargs = {}
+        if after:
+            kwargs["after"] = after
+        if trimestru_initial:
+            kwargs["trimestru_initial"] = trimestru_initial
+
+        qs = self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, qs=True, **kwargs)
+        duration = ExpressionWrapper(F('moment_incheiere') - F('moment_inceput'), output_field=DurationField())
+        # 350 în loc de 365 pentru a avea un pic de toleranță
+        return qs.annotate(duration=duration).exclude(tip_asociere__nume='Membru inactiv', duration__gte=timedelta(days=350))
 
     def get_most_recent_fee_payment(self):
         plata_trimestru = self.platacotizatietrimestru_set.order_by("-trimestru__ordine_globala", "-index").first()
@@ -1251,9 +1265,7 @@ class Membru(Utilizator):
         # - daca sunt deschise, pune "plateste_cotizatie" fals pana la capat
         # - daca sunt inchise, pune "plateste_cotizatie" fals pana la finalul celei mai recente
         # - pentru membru inactiv, exclude asocierile pe mai putin de un an
-        qs = self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, after=trimestru.data_inceput, qs=True)
-        duration = ExpressionWrapper(F('moment_incheiere') - F('moment_inceput'), output_field=DurationField())
-        qs = qs.annotate(duration=duration).exclude(tip_asociere__nume='Membru inactiv', duration__gt=timedelta(days=365))
+        qs = self.afilieri_scutite(trimestru_initial=trimestru)
 
         if qs.count():
             if qs.filter(moment_incheiere__isnull=True).exists():
