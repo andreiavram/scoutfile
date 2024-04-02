@@ -842,7 +842,7 @@ class Membru(Utilizator):
         mapping = {
             "asociere": ["trimestru_initial", "proprietati", "badges_rdv"],
             "cotizatie_sociala": ["are_cotizatie_sociala", "status_cotizatie", "necesar_cotizatie"],
-            "cotizatie": ["status_cotizatie", "necesar_cotizatie"],
+            "cotizatie": ["status_cotizatie", "necesar_cotizatie", "trimestru_initial"],
             "asocieri": ["asocieri"]
         }
         to_clear = mapping.get(index_category, None)
