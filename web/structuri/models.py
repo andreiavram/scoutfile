@@ -1130,7 +1130,7 @@ class Membru(Utilizator):
         if after:
             kwargs["after"] = after
         if trimestru_initial:
-            kwargs["trimestru_initial"] = trimestru_initial
+            kwargs["trimestru"] = trimestru_initial
 
         qs = self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, qs=True, **kwargs)
         duration = ExpressionWrapper(F('moment_incheiere') - F('moment_inceput'), output_field=DurationField())
