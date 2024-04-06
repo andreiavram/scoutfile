@@ -2541,7 +2541,7 @@ class ListaMembriiDreptVotCentruLocal(ListView):
             content_type=ContentType.objects.get_for_model(self.centru_local),
             object_id=self.centru_local.id,
             moment_incheiere__isnull=False,
-            tip_asociere__in=[tip_inactiv, ],
+            tip_asociere=tip_inactiv,
         ).values_list("membru_id", flat=True)
 
         return Membru.objects.filter(pk__in=member_ids).exclude(pk__in=exclusion_ids)
