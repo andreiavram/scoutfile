@@ -2540,6 +2540,7 @@ class ListaMembriiDreptVotCentruLocal(ListView):
         exclusion_ids = AsociereMembruStructura.objects.filter(
             content_type=ContentType.objects.get_for_model(self.centru_local),
             object_id=self.centru_local.id,
+            moment_incheiere__isnull=False,
             tip_asociere__in=[tip_inactiv, ],
         ).values_list("membru_id", flat=True)
 
