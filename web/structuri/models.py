@@ -10,7 +10,7 @@ import unidecode
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import caches
-from django.db.models import ExpressionWrapper, F, DurationField, TextChoices
+from django.db.models import ExpressionWrapper, F, DurationField, TextChoices, IntegerChoices
 from django.urls import reverse
 from django.db import models
 from django.db.models.aggregates import Sum
@@ -374,6 +374,11 @@ class AsociereMembruFamilie(models.Model):
 
 
 class Membru(Utilizator):
+    class ScorCreditOptions(IntegerChoices):
+        BAD = 0, "Rău"
+        NEUTRAL = 1, "Neutru"
+        GOOD = 2
+
     CALITATI_SCUTITE_COTIZATIE = ("Membru inactiv", "Membru adult", "Alumnus")
     CALITATI_COMUNE = ["Membru suspendat", "Membru aspirant", "Membru inactiv", "Membru Consiliul Centrului Local",
                        "Lider", "Lider asistent", "Membru adult", "Șef Centru Local", "Alumnus"]
@@ -386,11 +391,23 @@ class Membru(Utilizator):
 
     familie = models.ManyToManyField("self", through=AsociereMembruFamilie, symmetrical=False, blank=True)
     scout_id = models.CharField(max_length=255, null=True, blank=True, verbose_name="ID ONCR")
-    scor_credit = models.IntegerField(default=2, choices=((0, u"Rău"), (1, u"Neutru"), (2, u"Bun")), verbose_name=u"Credit", help_text=u"Această valoare reprezintă încrederea Centrului Local într-un membru de a-și respecta angajamentele financiare (dacă Centrul are sau nu încredere să pună bani pentru el / ea)")
+    # TODO: this will need to be moved to a relationship to a structure
+    scor_credit = models.IntegerField(
+        default=2,
+        choices=ScorCreditOptions.choices,
+        verbose_name="Credit",
+        help_text=(
+            "Această valoare reprezintă încrederea Centrului Local într-un membru de a-și respecta "
+            "angajamentele financiare (dacă Centrul are sau nu încredere să pună bani pentru el / ea)"
+        )
+    )
 
     cont_bancar = IBANField(null=True, blank=True)
 
     current_centru_local = models.ForeignKey(CentruLocal, null=True, blank=True, on_delete=models.SET_NULL)
+
+    # TODO: this will need to be moved to a relationship to the fee charging structure
+    data_initiala_cotizatie = models.DateField(null=True, blank=True)
 
     #TODO: find some smarter way to do this
     poza_profil = models.ForeignKey(ImagineProfil, null=True, blank=True, on_delete=models.SET_NULL)
@@ -825,7 +842,7 @@ class Membru(Utilizator):
         mapping = {
             "asociere": ["trimestru_initial", "proprietati", "badges_rdv"],
             "cotizatie_sociala": ["are_cotizatie_sociala", "status_cotizatie", "necesar_cotizatie"],
-            "cotizatie": ["status_cotizatie", "necesar_cotizatie"],
+            "cotizatie": ["status_cotizatie", "necesar_cotizatie", "trimestru_initial"],
             "asocieri": ["asocieri"]
         }
         to_clear = mapping.get(index_category, None)
@@ -859,12 +876,21 @@ class Membru(Utilizator):
         if not afilieri.count():
             raise ValueError(u"Cercetașul cu ID-ul %d nu are niciun Centru Local asociat" % self.id)
 
-        moment_initial_membru = afilieri[0].moment_inceput
+        if self.data_initiala_cotizatie is not None:
+            trimestru_membru = Trimestru.trimestru_pentru_data(self.data_initiala_cotizatie)
+        else:
+            moment_initial_membru = afilieri[0].moment_inceput
+            trimestru_membru = Trimestru.trimestru_pentru_data(moment_initial_membru)
 
-        trimestru_membru = Trimestru.trimestru_pentru_data(moment_initial_membru)
+            # if the member joined in september, we'll only make them pay starting next year
+            if moment_initial_membru.month == 9:
+                trimestru_membru = Trimestru.urmatorul_trimestru(trimestru=trimestru_membru)
 
-        # this states that members will always start paying a full year regardless when they start
-        trimestru_membru = Trimestru.trimestru_inceput_an(trimestru_membru)
+            # this states that members will always start paying a full year regardless when they start
+            trimestru_membru = Trimestru.trimestru_inceput_an(trimestru_membru)
+            # if they join between may and august, then they only have to pay half
+            if moment_initial_membru.month in (5, 6, 7, 8):
+                trimestru_membru = Trimestru.get_trimestru(moment_initial_membru.year, 2)
 
         # if moment_initial_membru != trimestru_membru.data_inceput:
         #     trimestru_membru = Trimestru.urmatorul_trimestru(trimestru_membru)
@@ -1084,7 +1110,7 @@ class Membru(Utilizator):
         #   - daca membrul s-a intors la statutul de membru activ, atunci datoreaza cotizatie pe ultima
         #   perioada de activitate
 
-        afilieri_scutite = self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, trimestru=trimestru_initial, qs=True)
+        afilieri_scutite = self.afilieri_scutite(trimestru_initial=trimestru_initial)
 
         if afilieri_scutite.filter(moment_incheiere__isnull=True).exists():
             trimestru_initial = Trimestru.urmatorul_trimestru(Trimestru.trimestru_pentru_data(datetime.date.today()))
@@ -1092,10 +1118,24 @@ class Membru(Utilizator):
             afilieri_scutite = afilieri_scutite.order_by("-moment_incheiere")
             if afilieri_scutite.exists():
                 trimestru_initial = Trimestru.urmatorul_trimestru(Trimestru.trimestru_pentru_data(afilieri_scutite.first().moment_incheiere))
+                # ignoră plăți parțiale anterioare pentru situația asta
+                plati_partiale = self.platacotizatietrimestru_set.none()
 
         if return_plati_partiale:
             return trimestru_initial, plati_partiale
         return trimestru_initial
+
+    def afilieri_scutite(self, trimestru_initial: Trimestru=None, after: datetime.date | None=None):
+        kwargs = {}
+        if after:
+            kwargs["after"] = after
+        if trimestru_initial:
+            kwargs["trimestru"] = trimestru_initial
+
+        qs = self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, qs=True, **kwargs)
+        duration = ExpressionWrapper(F('moment_incheiere') - F('moment_inceput'), output_field=DurationField())
+        # 350 în loc de 365 pentru a avea un pic de toleranță
+        return qs.annotate(duration=duration).exclude(tip_asociere__nume='Membru inactiv', duration__gte=timedelta(days=350))
 
     def get_most_recent_fee_payment(self):
         plata_trimestru = self.platacotizatietrimestru_set.order_by("-trimestru__ordine_globala", "-index").first()
@@ -1125,7 +1165,7 @@ class Membru(Utilizator):
             chitante_cotizatie = [c.id for c in chitante_cotizatie]
         else:
             chitante_cotizatie = pcts.order_by("trimestru__ordine_globala").values_list("chitanta", flat=True).order_by().distinct()
-        chitante_cotizatie = list(ChitantaCotizatie.objects.filter(id__in=chitante_cotizatie))
+        chitante_cotizatie = list(ChitantaCotizatie.objects.filter(id__in=chitante_cotizatie).order_by("data_inregistrare"))
         pcts.delete()
 
         if reset:
@@ -1225,9 +1265,7 @@ class Membru(Utilizator):
         # - daca sunt deschise, pune "plateste_cotizatie" fals pana la capat
         # - daca sunt inchise, pune "plateste_cotizatie" fals pana la finalul celei mai recente
         # - pentru membru inactiv, exclude asocierile pe mai putin de un an
-        qs = self.are_calitate(self.CALITATI_SCUTITE_COTIZATIE, self.centru_local, after=trimestru.data_inceput, qs=True)
-        duration = ExpressionWrapper(F('moment_incheiere') - F('moment_inceput'), output_field=DurationField())
-        qs = qs.annotate(duration=duration).exclude(tip_asociere__nume='Membru inactiv', duration__gt=timedelta(days=365))
+        qs = self.afilieri_scutite(trimestru_initial=trimestru)
 
         if qs.count():
             if qs.filter(moment_incheiere__isnull=True).exists():

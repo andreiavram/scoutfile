@@ -582,7 +582,7 @@ class ParticipareEveniment(models.Model):
     data_plecare = models.DateTimeField(null=True, blank=True)
 
     status_participare = models.IntegerField(default=StatusParticipare.UNKNOWN, choices=StatusParticipare.choices)
-    detalii = models.TextField(null=True, blank=True)
+    detalii = models.TextField(default='', blank=True)
     participant_notes = models.TextField(null=True, blank=True)
     rol = models.CharField(max_length=255, default=RolParticipare.PARTICIPANT, choices=RolParticipare.choices)
 

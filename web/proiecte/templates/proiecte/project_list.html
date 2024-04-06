@@ -24,7 +24,14 @@
                 </div>
             </div>
             <div class="row-fluid">
+                <div class="btn-group btn-group-sm">
+                    <a href="{% url 'proiecte:project_detail' pk=project.pk %}" class="btn btn-sm">Detalii</a>
+                    <a href="{% url 'proiecte:project_detail' pk=project.pk %}" class="btn btn-sm">Modifică</a>
+                </div>
+            </div>
+            <div class="row-fluid">
                 <div class = "span12">
+                    <br>
                     <p>{{ project.description }}</p>
                     {% if project.objectives.count %}
                     <h3>Obiective</h3>

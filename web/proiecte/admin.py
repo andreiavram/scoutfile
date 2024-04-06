@@ -5,6 +5,7 @@ from django.contrib import admin
 from proiecte.models import Project, ProjectRole, ProjectPosition, ProjectBudgetLine, ProjectBudgetEntry, \
     ProjectObjective, ProjectActivity
 
+
 class ProjectActivityInline(admin.StackedInline):
     model = ProjectActivity
     extra = 1

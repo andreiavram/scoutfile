@@ -113,6 +113,8 @@ class MembruUpdateForm(CrispyBaseModelForm):
         fields = ["nume", "nume_nastere", "prenume", "porecla", "cnp", "email", "scout_id", "scor_credit", "cont_bancar"]
 
     email = forms.EmailField(label=u"Email", help_text=u"Schimbarea email-ului aici implicâ schimbarea utilizatorului!")
+
+
         
         
 class CentruLocalCreateForm(CrispyBaseModelForm):

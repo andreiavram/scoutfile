@@ -1,16 +1,19 @@
 import base64
-from io import StringIO, BytesIO
-from tkinter import Image
-from typing import Union
 
 import requests
-from svgwrite import mm
 import svgwrite
+from svgwrite import mm
 from svgwrite.image import Image
 
-base_url = "http://127.0.0.1:8004/api/v1"
+base_url = "https://scoutfile.albascout.ro/api/v1"
 api_url = "/redirects/physicaltag/"
 login_url = "/auth/login/"
+
+username = "andrei.avram@albascout.ro"
+password = "yetiRulz1_"
+
+num_qrs = 253
+
 
 def configure_fonts(dwg):
     dwg.embed_google_web_font(
@@ -28,10 +31,11 @@ def configure_fonts(dwg):
 
 login_response = requests.post(f"{base_url}{login_url}", json={"username": username, "password": password})
 token = login_response.json().get("key")
+print(token)
 
 created_ids = []
 
-for i in range(1, 50):
+for i in range(1, num_qrs + 1):
     create_qr = requests.post(
       f"{base_url}{api_url}",
       json={
@@ -47,7 +51,7 @@ for i in range(1, 50):
 
     created_ids.append(create_qr.json().get("id"))
 
-
+print(created_ids)
 qr_data = requests.get(
 f"{base_url}{api_url}?id__in={','.join([f'{i}' for i in created_ids])}",
     headers={
@@ -55,9 +59,6 @@ f"{base_url}{api_url}?id__in={','.join([f'{i}' for i in created_ids])}",
     }
 )
 data = qr_data.json()
-
-svg_urls = [d['svg_qr_image_url'] for d in data]
-
 
 def mm_dim(dim: int | float):
     return dim * mm
