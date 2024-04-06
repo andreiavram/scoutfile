@@ -24,6 +24,7 @@
 		<tr>
 			<th>#</th>
 			<th>Nume</th>
+            <th>Email</th>
             <th>Vârsta</th>
 			<th>Drept de vot teoretic<br><small>are 16 ani, are promisiune</small></th>
             <th>Drept de vot curent<br><small>are cotizatia la zi, nu e suspendat</small></th>
@@ -35,7 +36,8 @@
     {% for membru in object_list %}
     <tr {% if membru.drept_vot %}class = "success"{% endif %}>
         <td>{{ forloop.counter }}</td>
-        <td><a href = "{% url 'structuri:membru_detail' pk=membru.pk %}">{{ membru }}</a><br><small>{{ membru.email }}</small></td>
+        <td><a href = "{% url 'structuri:membru_detail' pk=membru.pk %}">{{ membru }}</a></td>
+        <td>{{ membru.email }}</td>
         <td>{{ membru.data_nasterii|timesince }}</td>
         <td>{% if membru.drept_vot_teoretic %}DA{% else %}NU{% endif %}</td>
         <td>{% if membru.drept_vot %}<strong>DA</strong>{% else %}NU{% endif %}</td>
