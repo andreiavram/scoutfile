@@ -90,7 +90,7 @@ class TipEveniment(models.Model):
 class Eveniment(models.Model):
     CAMPURI_PERMISE = [("telefon", u"Telefon"), ("adresa", u"Adresa poștală"), ("scoutid", u"Scout ID"),
                        ("email", u"Email"), ("status", u"Status"), ("cotizatie", u"Cotizație"), ("buletin", u"Buletin"),
-                       ("credit", u"Credit")]
+                       ("credit", u"Credit"), ("drept_vot", "Drept de vot")]
 
     centru_local = models.ForeignKey("structuri.CentruLocal", on_delete=models.CASCADE)
     nume = models.CharField(max_length=1024, verbose_name=u"Titlu")
@@ -650,7 +650,8 @@ class ParticipareEveniment(models.Model):
                           "buletin": lambda o: o.membru.get_contact(u"Buletin"),
                           "credit": lambda o: o.membru.get_scor_credit_display(),
                           "unitate": lambda o: o.membru.get_unitate(),
-                          "ramura_de_varsta": lambda o: o.membru.get_ramura_de_varsta()}
+                          "ramura_de_varsta": lambda o: o.membru.get_ramura_de_varsta(),
+                          "drept_vot": lambda o: "Da" if o.membru.drept_vot() else "Nu"}
         else:
             return "-"
 
