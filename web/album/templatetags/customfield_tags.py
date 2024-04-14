@@ -32,6 +32,9 @@ def participare_breakdown(context, tip, target=None):
     elif tip in ("is_partial", ):
         data = len([a.is_partiala for a in participari if a.is_partiala is True])
         is_countable = False
+    elif tip in ("drept_vot", ):
+        data = len([a for a in participari if a.membru and a.membru.drept_vot()])
+        is_countable = False
     elif tip in ("contribution_option", ):
         data = [a.contribution_option for a in participari]
     elif tip == "camp":
