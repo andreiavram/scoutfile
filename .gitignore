@@ -29,7 +29,7 @@ web/scoutfile3/local_settings.local.py.bkp
 .env
 .envrc
 
-web/scoutfile3/local_settings_ye
+web/scoutfile3/local_settings_yeti.py
 
 
 *.pem
