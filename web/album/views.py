@@ -1339,11 +1339,16 @@ class EvenimentParticipanti(ListView):
         return super(EvenimentParticipanti, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
+        cancelled_statuses = [
+            StatusParticipare.CANCELLED,
+            StatusParticipare.EVENT_CANCELLED,
+            StatusParticipare.REFUSED,
+            StatusParticipare.ORGANIZER_REJECTED]
         qs = self.model.objects.filter(eveniment=self.eveniment)
         if self.cancelled:
-            qs = qs.filter(status_participare=5)
+            qs = qs.filter(status_participare__in=cancelled_statuses)
         else:
-            qs = qs.exclude(status_participare=5)
+            qs = qs.exclude(status_participare=cancelled_statuses)
 
         qs = qs.select_related("membru", "nonmembru", "eveniment")
 
