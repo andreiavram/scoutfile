@@ -30,17 +30,17 @@ jobs:
           END
 
       - name: Stop the server
-        run: ssh production 'sudo supervisorctl stop scoutfile-master'
+        run: ssh production 'sudo supervisorctl stop scoutfile-prod'
 
       - name: Check out the source
-        run: ssh production 'cd releases/master && git fetch && git reset --hard origin/master'
+        run: ssh production 'cd /var/app/scoutfile-prod && git fetch && git reset --hard origin/master'
 
       - name: Make sure to update python packages
-        run: ssh production 'cd releases/master && .venv/bin/pip install -r deploy/requirements.txt'
+        run: ssh production 'cd /var/app/scoutfile-prod && .venv/bin/pip install -r deploy/requirements.txt'
 
       - name: Run migrations
-        run: ssh production 'cd releases/master/web && ../.venv/bin/python manage.py migrate'
+        run: ssh production 'cd /var/app/scoutfile-prod && ../.venv/bin/python manage.py migrate'
 
       - name: Start the server
         if: ${{ always() }}
-        run: ssh production 'sudo supervisorctl start scoutfile-master'
+        run: ssh production 'sudo supervisorctl start scoutfile-prod'
