@@ -1348,7 +1348,7 @@ class EvenimentParticipanti(ListView):
         if self.cancelled:
             qs = qs.filter(status_participare__in=cancelled_statuses)
         else:
-            qs = qs.exclude(status_participare=cancelled_statuses)
+            qs = qs.exclude(status_participare__in=cancelled_statuses)
 
         qs = qs.select_related("membru", "nonmembru", "eveniment")
 
