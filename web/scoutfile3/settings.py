@@ -44,7 +44,6 @@ MEDIAFILES_LOCATION = 'media'
 STATICFILES_STORAGE = 'scoutfile3.s3utils.StaticFilesStorage'
 MEDIAFILES_STORAGE = 'scoutfile3.s3utils.MediaFilesStorage'
 
-AWS_DEFAULT_ACL = "public-read"
 AWS_S3_FILE_OVERWRITE = False
 
 LOCAL_MEDIA_ROOT = os.path.join(PROJECT_ROOT, "media")
