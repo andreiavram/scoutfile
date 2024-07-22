@@ -1,5 +1,11 @@
 name: deploy-to-staging
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
 jobs:
   # test:
   #   ...
@@ -30,17 +36,17 @@ jobs:
           END
 
       - name: Stop the server
-        run: ssh staging 'sudo supervisorctl stop scoutfile-develop'
+        run: ssh staging 'sudo supervisorctl stop scoutfile-dev'
 
       - name: Check out the source
-        run: ssh staging 'cd releases/develop && git fetch && git reset --hard origin/develop'
+        run: ssh staging 'cd /var/app/scoutfile-dev && git fetch && git reset --hard origin/develop'
 
       - name: Make sure to update python packages
-        run: ssh staging 'cd releases/develop && .venv/bin/pip install -r deploy/requirements.txt'
+        run: ssh staging 'cd /var/app/scoutfile-dev && .venv/bin/pip install -r deploy/requirements.txt'
 
       - name: Run migrations
-        run: ssh staging 'cd releases/develop/web && ../.venv/bin/python manage.py migrate'
+        run: ssh staging 'cd /var/app/scoutfile-dev/web && ../.venv/bin/python manage.py migrate'
 
       - name: Start the server
         if: ${{ always() }}
-        run: ssh staging 'sudo supervisorctl start scoutfile-develop'
+        run: ssh staging 'sudo supervisorctl start scoutfile-dev'
