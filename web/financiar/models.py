@@ -1,5 +1,5 @@
 import csv
-import locale
+import logging
 import urllib
 from datetime import datetime
 
@@ -8,7 +8,7 @@ from django.db import models, IntegrityError
 from django.db.models import TextChoices, IntegerChoices
 from localflavor.generic.models import IBANField
 
-import logging
+
 log = logging.getLogger()
 
 
@@ -47,7 +47,10 @@ class PaymentDomain(models.Model):
         return self.name
 
 
-class   PaymentDocument(models.Model):
+class PaymentDocument(models.Model):
+    """
+    This models all common documents used to request or receive money
+    """
     class RegistrationType(TextChoices):
         PAYMENT_REQUEST = "request", "Obligație de plată"
         PAYMENT = "payment", "Dovadă de plată"
@@ -60,7 +63,9 @@ class   PaymentDocument(models.Model):
     document_type = models.CharField(max_length=255, choices=PaymentDocumentType.choices, verbose_name="Tip înregistrare")
     registration_status = models.CharField(max_length=255, choices=RegistrationType.choices, default=RegistrationType.PAYMENT)
 
-    value = models.FloatField(verbose_name="Valoare")
+    description = models.CharField(max_length=255, null=True, blank=True)
+
+    value = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Valoare")
     currency = models.CharField(choices=Currency.choices, default=Currency.RON, max_length=3)
 
     document_number = models.CharField(max_length=255, blank=True)
@@ -70,9 +75,10 @@ class   PaymentDocument(models.Model):
     registered_by = models.ForeignKey(get_user_model(), null=True, blank=True, on_delete=models.SET_NULL)
     registered_at = models.DateTimeField(auto_now_add=True)
 
+    # all payment documents should be connected to some type of project
     project = models.ForeignKey("proiecte.Project", null=True, blank=True, on_delete=models.SET_NULL)
-    project_budget_line = models.ForeignKey("proiecte.ProjectBudgetLine", null=True, blank=True, on_delete=models.SET_NULL)
-    project_budget_item = models.ForeignKey("proiecte.ProjectBudgetEntry", null=True, blank=True, on_delete=models.SET_NULL)
+    # documents related to a specific event should ALSO be connected to an event
+    event = models.ForeignKey("album.Eveniment", null=True, blank=True, on_delete=models.SET_NULL)
 
     third_party = models.ForeignKey(LegalEntity, null=True, blank=True, on_delete=models.SET_NULL)
     third_party_text = models.CharField(max_length=255, null=True, blank=True)
@@ -95,14 +101,38 @@ class   PaymentDocument(models.Model):
 
         return (
             f"{self.get_document_type_display()} {self.document_number} / {self.document_date.strptime('%d.%m.%Y') if self.document_date else ''} " 
-            f"{direction.get(self.direction, '?')} {self.third_party if self.third_party else self.third_party_text}"
+            f"{direction.get(self.direction)} {self.third_party if self.third_party else self.third_party_text}"
             f"în valoare de {self.value} {self.currency}"
         )
 
+class PaymentDocumentBudgetMapping(models.Model):
+    payment_document = models.ForeignKey(PaymentDocument, on_delete=models.CASCADE, related_name="budget_mappings")
+    project_budget_line = models.ForeignKey("proiecte.ProjectBudgetLine", null=True, blank=True, on_delete=models.SET_NULL)
+    project_budget_item = models.ForeignKey("proiecte.ProjectBudgetEntry", null=True, blank=True, on_delete=models.SET_NULL)
+    value = models.DecimalField(max_digits=6, decimal_places=2)
+
 
 class PaymentDocumentFile(models.Model):
-    payment_document = models.ForeignKey(PaymentDocument, on_delete=models.CASCADE)
+    payment_document = models.ForeignKey(PaymentDocument, on_delete=models.CASCADE, related_name="files")
     uploaded_file = models.FileField(upload_to="financiar/document")
+
+
+class ReimbursementRequest(models.Model):
+    beneficiary = models.ForeignKey("structuri.Utilizator", on_delete=models.CASCADE, related_name="reimbursements")
+    document_date = models.DateTimeField(auto_now_add=True)
+
+
+class ReimbursementPaymentDocument(models.Model):
+    class ReimbursementRequestStatus(IntegerChoices):
+        EXPENDITURE = 0, "Cheltuială"
+        ADVANCE = 1, "Avans"
+        PAYMENT = 2, "Plată decont"
+
+    request = models.ForeignKey(ReimbursementRequest, on_delete=models.CASCADE, related_name="documents")
+    document = models.ForeignKey(PaymentDocument, on_delete=models.CASCADE)
+    value = models.DecimalField(max_digits=6, decimal_places=2)
+    role = models.IntegerField(choices=ReimbursementRequestStatus.choices, default=ReimbursementRequestStatus.EXPENDITURE)
+    details = models.CharField(max_length=255)
 
 
 class BankAccount(models.Model):

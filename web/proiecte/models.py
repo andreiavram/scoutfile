@@ -150,7 +150,12 @@ class Workflow(models.Model):
 class TaskState(models.Model):
     name = models.CharField(max_length=255)
     workflow = models.ForeignKey(Workflow, on_delete=models.CASCADE)
-    available_states = models.ManyToManyField("TaskState", blank=True)
+    available_next_states = models.ManyToManyField("TaskState", blank=True)
+
+
+class TaskTransitionOption(models.Model):
+    verb = models.CharField(max_length=255)
+
 
 
 class TaskStateHistory(models.Model):

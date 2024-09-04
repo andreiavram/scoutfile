@@ -628,6 +628,23 @@ class SetImaginiDeleteAjax(View):
         return HttpResponse("")
 
 
+class EventFinancialDashboard(DetailView):
+    model = Eveniment
+    template_name = "album/financiar/dashboard.html"
+
+
+class EventExpenditureList(DetailView):
+    model = Eveniment
+    template_name = "album/financiar/expenditures.html"
+
+    def get_context_data(self, **kwargs):
+        payment_documents = PaymentDocument.objects.filter(event=self.object, direction=PaymentDocument.RegistrationDirection.RECEIVER)
+        context = super().get_context_data(**kwargs)
+        context.update({"payment_documents": payment_documents})
+        return context
+
+
+
 class SetImaginiToate(ListView):
     model = SetPoze
     template_name = "album/set_poze_list.html"

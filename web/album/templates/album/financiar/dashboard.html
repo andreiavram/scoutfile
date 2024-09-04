@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load pagination_tags %} {% load bs_pagination %}
+
+{% block page_title %}
+    {{ eveniment }} <span style="font-weight: normal">| dashboard financiar</span>
+    <div class = "btn-group pull-right">
+        <a class = "btn btn-primary" href = "{% url "album:eveniment_tipcontributii_create"  slug=eveniment.slug %}"><i class = "icon-plus"></i> Adaugă tip contributie</a>
+    </div>
+{% endblock %}
+
+{% block context_menu %}
+    {% include "album/eveniment_context_menu.html" %}
+{% endblock %}
+
+{% block extrahead %}
+{#    <script type="text/javascript" src="{% url "goodies:js_delete" app_label='album' model='EventContributionOption' %}"></script>#}
+{% endblock %}
+
+{% block content %}
+    <h1>Încasări <a class="btn btn-primary>"></a> </h1>
+
+    <h1>Cheltuieli</h1>
+
+{% endblock %}
+
