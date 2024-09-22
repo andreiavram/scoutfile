@@ -1147,9 +1147,9 @@ class Imagine(ImageModel):
             self.exifdata_set.all().delete()
 
             for key, value in list(exif_data.items()):
-                value = value.decode("utf-8", errors="replace").replace("\x00", "\uFFFD")
-                exif = EXIFData(imagine=self, key=key, value=value)
                 try:
+                    value = value.decode("utf-8", errors="replace").replace("\x00", "\uFFFD")
+                    exif = EXIFData(imagine=self, key=key, value=value)
                     exif.save()
                 except Exception as e:
                     continue
