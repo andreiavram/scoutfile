@@ -132,7 +132,8 @@ class EvenimentParticipareBaseForm(CrispyBaseModelForm):
         self.request = kwargs.pop("request")
         super(EvenimentParticipareBaseForm, self).__init__(**kwargs)
 
-        self.fields["contribution_option"].queryset = self.eveniment.contribution_options.all()
+        if "contribution_option" in self.fields:
+            self.fields["contribution_option"].queryset = self.eveniment.contribution_options.all()
 
         campuri = self.get_campuri_arbitrare()
 
