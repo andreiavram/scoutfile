@@ -1,9 +1,11 @@
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import IntegerChoices
-from django.db.models.options import Options
 
 from documente.models import Document
+from structuri.models import TipAsociereStructuraStructura
 
 
 class VotingModel(IntegerChoices):
@@ -33,9 +35,15 @@ class Topic(models.Model):
     class TopicSource(IntegerChoices):
         ORGANIC = 1, "Organic"
         SLACK = 2, "Slack"
+        EMAIL = 3, "Email"
+
+    class TopicType(IntegerChoices):
+        NORMAL = 1, "Subiect general"
+        DECISION = 2, "Decizie"
 
     title = models.CharField(max_length=255)
     description = models.TextField()
+    type = models.PositiveIntegerField(choices=TopicType.choices, default=TopicType.NORMAL)
     status = models.PositiveSmallIntegerField(choices=TopicStatus.choices, default=TopicStatus.PENDING)
     owner = models.ForeignKey(get_user_model(), null=True, blank=True, on_delete=models.SET_NULL)
     sessions = models.ManyToManyField(TopicGroup, blank=True)
@@ -47,8 +55,37 @@ class Topic(models.Model):
     voting_model = models.PositiveSmallIntegerField(choices=VotingModel.choices, default=VotingModel.SIMPLE_MAJORITY)
     quorum_model = models.PositiveSmallIntegerField(choices=QuorumModel.choices, default=QuorumModel.SIMPLE)
 
+    related_topics = models.ManyToManyField("Topic", blank=True)
+    parent = models.ForeignKey("Topic", null=True, blank=True, on_delete=models.SET_NULL, related_name="subtopics")
+
+    structure_object_id = models.PositiveIntegerField(null=True, blank=True)
+    structure_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
+    structure = GenericForeignKey(ct_field="structure_content_type", fk_field="structure_object_id")
+
+    allowed_voting_roles = models.ManyToManyField(TipAsociereStructuraStructura, blank=True)
+
     def __str__(self):
         return f"{self.title}"
+
+    def last_activity(self):
+        return self.created
+
+    def get_voters(self):
+        if self.structure is None:
+            return []
+        return self.structure.membri(qs=False, tip_asociere=[a.nume for a in self.allowed_voting_roles.all()])
+
+    def get_votes(self):
+        if not self.voting_enabled:
+            return {}
+
+        votes = {membru.user_id: None for membru in self.get_voters()}
+
+        vote_entries = self.discussion.filter(vote__isnull=False).order_by("user", "-timestamp").distinct("user")
+        for vote in vote_entries:
+            votes[vote.owner_id] = vote
+
+        return votes
 
 
 class VotingOption(models.Model):

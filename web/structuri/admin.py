@@ -9,9 +9,9 @@ from django.contrib import admin
 from django.contrib.admin.options import ModelAdmin
 
 from structuri.models import (RamuraDeVarsta, CentruLocal, Unitate,
-    Patrula, TipAsociereMembruStructura, AsociereMembruStructura, Membru,
-    TipInformatieContact, InformatieContact, AsociereMembruFamilie,
-    TipRelatieFamilie)
+                              Patrula, TipAsociereMembruStructura, AsociereMembruStructura, Membru,
+                              TipInformatieContact, InformatieContact, AsociereMembruFamilie,
+                              TipRelatieFamilie, TipAsociereStructuraStructura, AsociereStructuraStructura, Echipa)
 
 admin.site.register(RamuraDeVarsta)
 admin.site.register(CentruLocal)
@@ -36,3 +36,16 @@ admin.site.register(InformatieContact)
 
 admin.site.register(AsociereMembruFamilie)
 admin.site.register(TipRelatieFamilie)
+
+@admin.register(TipAsociereStructuraStructura)
+class TipAsociereStructuraAdmin(ModelAdmin):
+    list_display = ["nume", ]
+
+@admin.register(AsociereStructuraStructura)
+class AsociereStructuraAdmin(ModelAdmin):
+    list_display = ["source_structure", "target_structure", "connection_type", "date_start", "date_end"]
+
+
+@admin.register(Echipa)
+class EchipaAdmin(ModelAdmin):
+    list_display = ["nume"]

@@ -153,6 +153,8 @@ INSTALLED_APPS = [
     #   third party pluggables
     'photologue',
     'crispy_forms',
+    'crispy_bootstrap3',
+    'crispy_bootstrap5',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_sso',
@@ -376,7 +378,7 @@ FACEBOOK_ERROR_URL = "login"
 
 AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend', 'utils.auth_backends.FacebookBackend',)
 
-CRISPY_TEMPLATE_PACK = "bootstrap"
+CRISPY_TEMPLATE_PACK = "bootstrap3"
 BOWER_COMPONENTS_ROOT = os.path.join(PROJECT_ROOT, "components")
 
 
@@ -495,6 +497,7 @@ SPECTACULAR_SETTINGS = {
 }
 
 SERVE_QR_CODE_IMAGE_PATH = 'qr-code-image/'
+CRISPY_ALLOWED_TEMPLATE_PACKS = ["bootstrap3", "bootstrap5"]
 
 
 try:

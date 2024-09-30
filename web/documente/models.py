@@ -123,10 +123,9 @@ class AsociereDocument(models.Model):
     moment_asociere = models.DateTimeField(auto_now_add=True)
     responsabil = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    def save(self, force_insert=False, force_update=False, using=None):
+    def save(self, **kwargs):
         self.document_ctype = ContentType.objects.get_for_model(self.document)
-        return super(AsociereDocument, self).save(force_insert=force_insert, force_update=force_update,
-                                                  using=using)
+        return super(AsociereDocument, self).save(**kwargs)
 
     def document_edit_link(self):
         return self.document_ctype.get_object_for_this_type(id=self.document.id).edit_link()
