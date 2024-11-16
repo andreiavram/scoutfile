@@ -8,7 +8,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
-        ('photologue', '0013_alter_photo_image_alter_watermark_image'),
         ('structuri', '0021_membru_data_initiala_cotizatie_and_more'),
     ]
 

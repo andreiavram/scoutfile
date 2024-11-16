@@ -15,7 +15,6 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
-from django.template.context import RequestContext
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView, View
 from django.views.generic.edit import DeleteView, FormView
@@ -71,6 +70,10 @@ class Logout(View):
         logout(self.request)
         messages.success(self.request, u"Sesiunea a fost terminată. Utilizatorul tău nu mai este conectat.")
         return HttpResponseRedirect(reverse("index"))
+
+
+class ProjectIndex(TemplateView):
+    template_name = "base.html"
 
 
 class IndexView(TemplateView):
