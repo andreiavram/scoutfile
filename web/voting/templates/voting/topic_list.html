@@ -1,0 +1,43 @@
+{% extends "voting/base.html" %}
+{% block content %}
+    <h1 class="display-3">Subiecte de discuție</h1>
+
+    <a class="btn btn-primary" href="{% url "voting:topic_create" %}"><i class="bi bi-plus"></i> Creează subiect</a>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Titlu</th>
+            <th scope="col">Inițiator</th>
+            <th scope="col">Status</th>
+            <th scope="col">Ultima activitate</th>
+            <th scope="col">Acțiuni</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for object in object_list %}
+        <tr>
+            <th scope="row">{{ object.pk }}</th>
+            <td><a href="{% url "voting:topic_detail" pk=object.pk %}">{{ object.title }}</a><br>
+            <small>{{ object.description|slice:"0:100" }}</small></td>
+            <td>{{ object.owner }}</td>
+            <td>{{ object.get_status_display }}</td>
+            <td>{{ object.last_activity|date:"d.m.Y H:i" }}</td>
+            <td><div class = "btn-toolbar">
+                <a class="btn"><i class="bi bi-pencil"></i></a>
+            </div></td>
+        </tr>
+        {% empty %}
+        <tr>
+            <th scope="row"></th>
+            <td>Nu există subiecte de discuție</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

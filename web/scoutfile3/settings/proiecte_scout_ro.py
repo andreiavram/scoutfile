@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 PROJECT_ROOT = BASE_DIR.parent
 
 DEBUG = True
@@ -104,16 +104,15 @@ CACHES = {
     },
 }
 
-ROOT_URLCONF = 'scoutfile3.urls'
+ROOT_URLCONF = 'scoutfile3.urls.proiecte'
 ROOT_HOSTCONF = 'scoutfile3.hosts'
 DEFAULT_HOST = "scoutfile"
-
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            BASE_DIR / "scoutfile3" / "templates"
+            BASE_DIR / "scoutfile3" / "templates" / "proiecte"
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -153,6 +152,8 @@ INSTALLED_APPS = [
     #   third party pluggables
     'photologue',
     'crispy_forms',
+    'crispy_bootstrap3',
+    'crispy_bootstrap5',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_sso',
@@ -351,14 +352,7 @@ VALOARE_IMPLICITA_COTIZATIE_NATIONAL_SOCIAL = 12
 
 
 SCOUTFILE_ALBUM_STORAGE_ROOT = "album"
-
-
-def photologue_path(instance, filename):
-    return os.path.join(SCOUTFILE_ALBUM_STORAGE_ROOT, filename)
-
-
-PHOTOLOGUE_PATH = photologue_path
-
+PHOTOLOGUE_PATH = "scoutfile3.utils.photologue_path"
 
 DATE_INPUT_FORMATS = ['%d.%m.%Y', ] + list(global_settings.DATE_INPUT_FORMATS)
 DATETIME_INPUT_FORMATS = ['%d.%m.%Y %H:%M %p', '%d.%m.%Y %H:%M:%S'] + list(global_settings.DATETIME_INPUT_FORMATS)
@@ -376,7 +370,7 @@ FACEBOOK_ERROR_URL = "login"
 
 AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend', 'utils.auth_backends.FacebookBackend',)
 
-CRISPY_TEMPLATE_PACK = "bootstrap"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 BOWER_COMPONENTS_ROOT = os.path.join(PROJECT_ROOT, "components")
 
 
@@ -495,6 +489,7 @@ SPECTACULAR_SETTINGS = {
 }
 
 SERVE_QR_CODE_IMAGE_PATH = 'qr-code-image/'
+CRISPY_ALLOWED_TEMPLATE_PACKS = ["bootstrap3", "bootstrap5"]
 
 
 try:
@@ -504,6 +499,6 @@ except ImportError as e:
 
 
 try:
-    from .version import *
+    from scoutfile3.version import *
 except ImportError:
     pass

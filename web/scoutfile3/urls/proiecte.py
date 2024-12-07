@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
-from generic.views import Logout, Login, IndexView, Issues, CreateIssue
+from generic.views import Logout, Login, ProjectIndex
 from utils.api.views import ObtainAuthorizationTokenView
 
 admin.autodiscover()
@@ -19,31 +19,7 @@ from wagtail.documents import urls as wagtaildocs_urls
 urlpatterns = [
     path(r'admin/doc/', include('django.contrib.admindocs.urls')),
     path('admin/', admin.site.urls),
-    path('structuri/', include(('structuri.urls', 'structuri'), namespace='structuri')),
-    path('album/', include(('album.urls', 'album'), namespace='album')),
-    path('certificari/', include(('certificari.urls', 'certificari'), namespace='certificari')),
-    path('goodies/', include(('goodies.urls', 'goodies'), namespace='goodies')),
-    path('patrocle/', include(('patrocle.urls', 'patrocle'), namespace='patrocle')),
-    path('documente/', include(('documente.urls', 'documente'), namespace='documente')),
-    path('extra/', include(('extra.urls', 'extra'), namespace='extra')),
-    path('utils/', include(('utils.urls', 'utils'), namespace='utils')),
-    path('cantece/', include(('cantece.urls', 'cantece'), namespace='cantece')),
-    path('jocuri/', include(('jocuri.urls', 'jocuri'), namespace='jocuri')),
-    path('badge/', include(('badge.urls', 'badge'), namespace='badge')),
-    path('inventar/', include(('inventar.urls', 'inventar'), namespace='inventar')),
-    path('slack/', include(("slackbot.urls", "slack"), namespace="slack")),
-    path('redirect/', include(("redirects.urls", "redirects"), namespace="redirects")),
-    path('locuri/', include(("locuri.urls", "locuri"), namespace="locuri")),
-    path('proiecte/', include(("proiecte.urls", "proiecte"), namespace="proiecte")),
-
-    path('issues/', Issues.as_view(), name="issues"),
-    path('issues/create/', CreateIssue.as_view(), name="create_issue"),
-
-    path('', IndexView.as_view(template_name="home.html"), name="index"),
-
-    path('ajax_select/', include('ajax_select.urls')),
-    path('photologue/', include('photologue.urls')),
-    path('', include('qr_code.urls', namespace='qr_code')),
+    path('', ProjectIndex.as_view(), name="index"),
 
     path('login/', Login.as_view(), name="login"),
     path('logout/', Logout.as_view(), name="logout"),
@@ -53,7 +29,6 @@ urlpatterns = [
     path('api/v1/auth/', include('dj_rest_auth.urls')),
     path('api/v1/', include('scoutfile3.api.urls', namespace='api')),
 ]
-
 
 urlpatterns += [
     path('api/v1/session/', obtain_session_token, name="session_token"),

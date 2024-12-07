@@ -53,7 +53,9 @@ class Structura(models.Model):
     nume = models.CharField(max_length=255)
     data_infiintare = models.DateField(null=True, blank=True)
     activa = models.BooleanField(default=True)
+
     slack_channel_id = models.CharField(max_length=255, null=True, blank=True)
+    group_email = models.EmailField(null=True, blank=True)
 
     def delete(self, **kwargs):
         AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(self),
@@ -73,7 +75,7 @@ class Structura(models.Model):
 
         return None
 
-    def cercetasi(self, qs=False, tip_asociere=(u"Membru", u"Membru aspirant", u"Membru suspendat")):
+    def membri(self, qs=False, tip_asociere=(u"Membru", u"Membru aspirant", u"Membru suspendat")):
         asociere = AsociereMembruStructura.objects.filter(content_type=ContentType.objects.get_for_model(self),
                                                           object_id=self.id,
                                                           moment_incheiere__isnull=True)
@@ -88,6 +90,9 @@ class Structura(models.Model):
             return asociere
 
         return [a.membru for a in asociere]
+
+    def cercetasi(self, qs=False, tip_asociere=(u"Membru", u"Membru aspirant", u"Membru suspendat")):
+        return self.membri(qs, tip_asociere)
 
     def lideri(self, qs=False):
         return self.cercetasi(qs=qs, tip_asociere=["Lider", "Lider asistent"])
@@ -253,7 +258,16 @@ class Echipa(Structura):
         verbose_name = "Echipă"
         verbose_name_plural = "Echipe"
 
-    centru_local = models.ForeignKey(CentruLocal, on_delete=models.CASCADE, related_name="echipe")
+    date_created = models.DateField(null=True, blank=True)
+    date_closed = models.DateField(null=True, blank=True)
+
+
+class Organisation(Structura):
+    class Meta:
+        verbose_name = "Organizație"
+        verbose_name_plural = "Organizații"
+
+    local_structures = models.ManyToManyField(CentruLocal)
 
 
 class Utilizator(models.Model):
@@ -1317,6 +1331,32 @@ class Membru(Utilizator):
             return None
 
         return oncr_data
+
+
+class TipAsociereStructuraStructura(models.Model):
+    nume = models.CharField(max_length=255)
+    content_types = models.ManyToManyField(ContentType, blank=True)
+
+    def __str__(self):
+        return self.nume
+
+
+class AsociereStructuraStructura(models.Model):
+    source_structure_id = models.PositiveIntegerField()
+    source_structure_ctype = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="source_structures")
+    source_structure = GenericForeignKey(ct_field="source_structure_ctype", fk_field="source_structure_id")
+
+    target_structure_id = models.PositiveIntegerField()
+    target_structure_ctype = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="target_structures")
+    target_structure = GenericForeignKey(ct_field="target_structure_ctype", fk_field="target_structure_id")
+
+    date_start = models.DateField()
+    date_end = models.DateField()
+
+    connection_type = models.ForeignKey(TipAsociereStructuraStructura, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.source_structure} - {self.connection_type} -  {self.target_structure}"
 
 
 class TipAsociereMembruStructura(models.Model):

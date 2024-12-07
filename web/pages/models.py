@@ -3,14 +3,15 @@ from django.forms import CheckboxSelectMultiple
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from taggit.models import TaggedItemBase
-from wagtail.admin.panels import FieldPanel, StreamFieldPanel, InlinePanel, MultiFieldPanel
+from wagtail import blocks
+from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
 from wagtail.contrib.table_block.blocks import TableBlock
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.fields import RichTextField, StreamField
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.models import Page, Orderable
-from wagtail import blocks
 from wagtail.search import index
+
 
 class WikiPageCategory(models.Model):
     name = models.CharField(max_length=255)
