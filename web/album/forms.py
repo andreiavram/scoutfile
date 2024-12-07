@@ -132,6 +132,9 @@ class EvenimentParticipareBaseForm(CrispyBaseModelForm):
         self.request = kwargs.pop("request")
         super(EvenimentParticipareBaseForm, self).__init__(**kwargs)
 
+        if "contribution_option" in self.fields:
+            self.fields["contribution_option"].queryset = self.eveniment.contribution_options.all()
+
         campuri = self.get_campuri_arbitrare()
 
         for camp in campuri:
@@ -165,10 +168,6 @@ class EvenimentParticipareForm(EvenimentParticipareBaseForm):
         exclude = ["eveniment", "user_modificare", "nonmembru", "contribution_payments"]
 
     membru = NonAdminAutoCompleteSelectField("membri", label=u"Cercetaș")
-
-    def __init__(self, **kwargs):
-        super(EvenimentParticipareForm, self).__init__(**kwargs)
-        self.fields["contribution_option"].queryset = self.eveniment.contribution_options.all()
 
     def clean_membru(self):
         membru = self.cleaned_data.get("membru")
