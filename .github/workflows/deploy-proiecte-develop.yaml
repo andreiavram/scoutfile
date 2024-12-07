@@ -1,4 +1,4 @@
-name: deploy-to-staging
+name: deploy-projects-to-staging
 on:
   push:
     branches:
@@ -36,20 +36,20 @@ jobs:
           END
 
       - name: Stop the server
-        run: ssh staging 'sudo supervisorctl stop scoutfile-dev'
+        run: ssh staging 'sudo supervisorctl stop proiecte-dev'
 
       - name: Check out the source
-        run: ssh staging 'cd /var/app/scoutfile-dev && git fetch && git reset --hard origin/develop'
+        run: ssh staging 'cd /var/app/proiecte-dev && git fetch && git reset --hard origin/develop'
 
       - name: Make sure to update python packages
-        run: ssh staging 'cd /var/app/scoutfile-dev && .venv/bin/pip install -r deploy/requirements.txt'
+        run: ssh staging 'cd /var/app/proiecte-dev && .venv/bin/pip install -r deploy/requirements.txt'
 
       - name: Run migrations
-        run: ssh staging 'cd /var/app/scoutfile-dev/web && ../.venv/bin/python manage.py migrate --settings=scoutfile3.settings.scoutfile_albascout_ro'
+        run: ssh staging 'cd /var/app/proiecte-dev/web && ../.venv/bin/python manage.py migrate --settings=scoutfile3.settings.proiecte_scout_ro'
 
       - name: Collect statics
-        run: ssh staging 'cd /var/app/scoutfile-dev/web && ../.venv/bin/python manage.py collectstatic --noinput --settings=scoutfile3.settings.scoutfile_albascout_ro'
+        run: ssh staging 'cd /var/app/proiecte-dev/web && ../.venv/bin/python manage.py collectstatic --noinput --settings=scoutfile3.settings.proiecte_scout_ro'
 
       - name: Start the server
         if: ${{ always() }}
-        run: ssh staging 'sudo supervisorctl start scoutfile-dev'
+        run: ssh staging 'sudo supervisorctl start proiecte-dev'

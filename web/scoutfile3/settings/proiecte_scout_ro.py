@@ -493,7 +493,7 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = ["bootstrap3", "bootstrap5"]
 
 
 try:
-    from scoutfile3.local_settings import *
+    from scoutfile3.settings.local_settings import *
 except ImportError as e:
     pass
 

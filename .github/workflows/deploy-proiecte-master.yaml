@@ -1,4 +1,4 @@
-name: deploy-to-production
+name: deploy-projects-to-production
 on:
   push:
     branches:
@@ -36,20 +36,20 @@ jobs:
           END
 
       - name: Stop the server
-        run: ssh production 'sudo supervisorctl stop scoutfile-prod'
+        run: ssh production 'sudo supervisorctl stop proiecte-prod'
 
       - name: Check out the source
-        run: ssh production 'cd /var/app/scoutfile-prod && git fetch && git reset --hard origin/master'
+        run: ssh production 'cd /var/app/proiecte-prod && git fetch && git reset --hard origin/master'
 
       - name: Make sure to update python packages
-        run: ssh production 'cd /var/app/scoutfile-prod && .venv/bin/pip install -r deploy/requirements.txt'
+        run: ssh production 'cd /var/app/proiecte-prod && .venv/bin/pip install -r deploy/requirements.txt'
 
       - name: Run migrations
-        run: ssh production 'cd /var/app/scoutfile-prod/web/ && ../.venv/bin/python manage.py migrate --settings=scoutfile3.settings.scoutfile_albascout_ro'
+        run: ssh production 'cd /var/app/proiecte-prod/web/ && ../.venv/bin/python manage.py migrate --settings=scoutfile3.settings.proiecte_scout_ro'
 
       - name: Run collectstatic
-        run: ssh production 'cd /var/app/scoutfile-prod/web/ && ../.venv/bin/python manage.py collectstatic --noinput --settings=scoutfile3.settings.scoutfile_albascout_ro'
+        run: ssh production 'cd /var/app/proiecte-prod/web/ && ../.venv/bin/python manage.py collectstatic --noinput --settings=scoutfile3.settings.proiecte_scout_ro'
 
       - name: Start the server
         if: ${{ always() }}
-        run: ssh production 'sudo supervisorctl start scoutfile-prod'
+        run: ssh production 'sudo supervisorctl start proiecte-prod'
