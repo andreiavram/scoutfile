@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
-from generic.views import Logout, Login, IndexView, Issues, CreateIssue
+from generic.views import Logout, Login, IndexView
 from utils.api.views import ObtainAuthorizationTokenView
 
 admin.autodiscover()
@@ -36,9 +36,6 @@ urlpatterns = [
     path('locuri/', include(("locuri.urls", "locuri"), namespace="locuri")),
     path('proiecte/', include(("proiecte.urls", "proiecte"), namespace="proiecte")),
     path('voting/', include(("voting.urls", "voting"), namespace="voting")),
-
-    path('issues/', Issues.as_view(), name="issues"),
-    path('issues/create/', CreateIssue.as_view(), name="create_issue"),
 
     path('', IndexView.as_view(template_name="home.html"), name="index"),
 

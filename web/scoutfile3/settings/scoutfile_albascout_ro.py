@@ -164,7 +164,7 @@ INSTALLED_APPS = [
     #   third party pluggables
     'photologue',
     'crispy_forms',
-    # 'crispy_bootstrap3',
+    'crispy_bootstrap3',
     # 'crispy_bootstrap5',
     'rest_framework',
     'rest_framework.authtoken',
