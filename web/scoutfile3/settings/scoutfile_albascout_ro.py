@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import os
 from django.conf import global_settings
 from django.utils.translation import gettext_lazy as _
+from decouple import config
 
 from pathlib import Path
 
@@ -10,7 +11,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 PROJECT_ROOT = BASE_DIR.parent
 
-DEBUG = True
+DEBUG = config("DEBUG", default="False", cast=bool)
+DEVELOPMENT = config("DEVELOPMENT", default="False", cast=bool)
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -32,17 +34,26 @@ USE_L10N = True
 
 SITE_ID = 1
 
+DATABASES = {
+    'default': {
+        'ENGINE':  'django.contrib.gis.db.backends.postgis',
+        'NAME': config("DB_NAME", default='scoutfile'),
+        'USER': config("DB_USER", default='yeti_db'),
+        'PASSWORD': config("DB_PASSWORD"),
+        'HOST': config("DB_HOST", '127.0.0.1'),
+        'PORT': config("DB_PORT", default='5432'),
+        }
+}
+
+
 
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, "media")
 MEDIA_URL = '/media/'
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
 
 STATICFILES_LOCATION = 'static'
 MEDIAFILES_LOCATION = 'media'
-
-STATICFILES_STORAGE = 'scoutfile3.s3utils.StaticFilesStorage'
-MEDIAFILES_STORAGE = 'scoutfile3.s3utils.MediaFilesStorage'
 
 AWS_S3_FILE_OVERWRITE = False
 
@@ -153,8 +164,8 @@ INSTALLED_APPS = [
     #   third party pluggables
     'photologue',
     'crispy_forms',
-    'crispy_bootstrap3',
-    'crispy_bootstrap5',
+    # 'crispy_bootstrap3',
+    # 'crispy_bootstrap5',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_sso',
@@ -234,7 +245,7 @@ INSTALLED_APPS = [
 #     INSTALLED_APPS += ['silk']
 #     MIDDLEWARE += ['silk.middleware.SilkyMiddleware']
 
-WSGI_APPLICATION = 'scoutfile3.wsgi.application'
+WSGI_APPLICATION = 'scoutfile3.wsgi.scoutfile.application'
 
     # AJAX_LOOKUP_CHANNELS = {
     #     'membri': ('structuri.lookups', 'MembriLookup'),
@@ -335,10 +346,6 @@ FIXTURE_DIRS = ["%s/fixtures" % BASE_DIR, ]
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/edit/"
 
-EMAIL_BACKEND = 'django_ses.SESBackend'
-AWS_SES_REGION_NAME = 'eu-west-1'
-AWS_SES_REGION_ENDPOINT = 'email.eu-west-1.amazonaws.com'
-
 SYSTEM_EMAIL = "sistem@albascout.ro"
 SERVER_EMAIL = "sistem@albascout.ro"
 
@@ -357,10 +364,6 @@ PHOTOLOGUE_PATH = "scoutfile3.utils.photologue_path"
 
 DATE_INPUT_FORMATS = ['%d.%m.%Y', ] + list(global_settings.DATE_INPUT_FORMATS)
 DATETIME_INPUT_FORMATS = ['%d.%m.%Y %H:%M %p', '%d.%m.%Y %H:%M:%S'] + list(global_settings.DATETIME_INPUT_FORMATS)
-
-# TODO: remove secrets from here
-GOOGLE_API_KEY = ""
-
 
 # TODO: remove secrets from here
 FACEBOOK_LOGIN_REDIRECT = "login"
@@ -470,8 +473,8 @@ WAGTAIL_SITE_NAME = 'Scoutfile'
 # Reverse the default case-sensitive handling of tags
 TAGGIT_CASE_INSENSITIVE = True
 
-SLACK_APP_SECRET = ""
-SLACK_BOT_TOKEN = ""
+SLACK_APP_SECRET = config("SLACK_APP_SECRET")
+SLACK_BOT_TOKEN = config("SLACK_BOT_TOKEN")
 
 
 CELERY_RESULT_BACKEND = 'django-db'
@@ -493,11 +496,47 @@ SERVE_QR_CODE_IMAGE_PATH = 'qr-code-image/'
 CRISPY_ALLOWED_TEMPLATE_PACKS = ["bootstrap3", "bootstrap5"]
 
 
-try:
-    from scoutfile3.settings.local_settings import *
-except ImportError as e:
-    pass
+USE_EMAIL_CONFIRMATION = config("USE_EMAIL_CONFIRMATION", default=True, cast=bool)
+URL_ROOT = config("URL_ROOT", default="http://127.0.0.1:8000/")
+RECAPTCHA_PUBLIC_KEY = config("RECAPTCHA_PUBLIC_KEY")
+RECAPTCHA_PRIVATE_KEY = config("RECAPTCHA_PRIVATE_KEY")
 
+AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME", default="scoutfile-local")
+AWS_LOCATION = config("AWS_LOCATION", default="eu-west-1")
+AWS_S3_REGION_NAME = config("AWS_S3_REGION_NAME", default="eu-west-1")
+
+MEDIA_DIRECTORY = config("MEDIA_DIRECTORY", 'media/')
+
+SMSLINK_URL = config("SMSLINK_URL", default="http://www.smslink.ro/sms/gateway/communicate/")
+SMSLINK_CONNID = config("SMSLINK_CONNID")
+SMSLINK_PASSWORD = config("SMSLINK_PASSWORD")
+
+BOWER_PATH = config("BOWER_PATH", default="/usr/local/bin/bower")
+
+ONCR_USER = config("ONCR_USER", default="andrei.avram@albascout.ro")
+ONCR_PASSWORD = config("ONCR_PASSWORD")
+
+
+DEFAULT_FILE_STORAGE = config("DEFAULT_FILE_STORAGE", default='storages.backends.s3boto3.S3Boto3Storage')
+STATICFILES_STORAGE = config("STATICFILES_STORAGE", default='scoutfile3.s3utils.StaticFilesStorage')
+MEDIAFILES_STORAGE = config("MEDIAFILES_STORAGE", default='scoutfile3.s3utils.MediaFilesStorage')
+
+YARN_PATH = config("YARN_PATH")
+GOOGLE_API_KEY = config("GOOGLE_API_KEY")
+
+AWS_SES_REGION_NAME = 'eu-west-1'
+AWS_SES_REGION_ENDPOINT = 'email.eu-west-1.amazonaws.com'
+
+WAGTAILADMIN_BASE_URL = config("WAGTAILADMIN_BASE_URL")
+
+EMAIL_BACKEND = config("EMAIL_BACKEND", default='django_ses.SESBackend')
+EMAIL_HOST = config("EMAIL_HOST")
+EMAIL_PORT = config("EMAIL_PORT")
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
 
 try:
     from scoutfile3.version import *

@@ -42,25 +42,4 @@ class LoginForm(forms.Form):
         self.helper.form_class = "form-vertical"
         self.helper.add_input(Submit('submit', u'Autentificare', css_class = "btn btn-primary"))
 
-        return super(LoginForm, self).__init__(*args, **kwargs)
-
-
-class IssueCreateForm(CrispyBaseForm):
-    subject = forms.CharField(label = u"Titlu", help_text = u"Un text concis care descrie problema")
-    description = forms.CharField(widget = Textarea(), label = u"Descriere", required = False, help_text = u"Descrie pe larg problema, și cum api ajuns la ea, astfel încât să o putem reproduce și repara")
-    category = forms.ChoiceField(label = u"Categorie", required = False)
-    
-    def __init__(self, *args, **kwargs):
-        super(IssueCreateForm, self).__init__(*args, **kwargs)
-
-        values = {"key" : settings.REDMINE_API_KEY}
-        data = urllib.parse.urlencode(values)
-        url_to_send = "http://yeti.albascout.ro/redmine/projects/1/issue_categories.json" + "?" + data
-        try:
-            response = urllib.request.urlopen(url_to_send)
-            json_object = json.loads(response.read())
-        except Exception as e:
-            logger.error("%s: eroare la obtinerea bug-urilor: %s" % (self.__class__.__name__, e))
-        
-        json_object['issue_categories'].append({"id" : "", "name" : "---"})
-        self.fields['category'].choices = ((a['id'], a['name']) for a in json_object['issue_categories'])
+        super().__init__(*args, **kwargs)

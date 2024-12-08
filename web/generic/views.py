@@ -1,6 +1,6 @@
-#coding: utf-8
 from future import standard_library
 standard_library.install_aliases()
+
 import datetime
 import json
 import logging
@@ -20,7 +20,7 @@ from django.views.generic.base import TemplateView, View
 from django.views.generic.edit import DeleteView, FormView
 from goodies.forms import CrispyBaseDeleteForm
 
-from generic.forms import LoginForm, IssueCreateForm
+from generic.forms import LoginForm
 from utils.views import FacebookLoginView
 
 logger = logging.getLogger(__file__)
@@ -90,117 +90,6 @@ class IndexView(TemplateView):
         if request.user.is_authenticated:
             return HttpResponseRedirect(request.user.utilizator.membru.get_home_link())
         return None
-
-    def get_context_data(self, **kwargs):
-        context_data = super(IndexView, self).get_context_data(**kwargs)
-
-        values = {"project_id" : 1,
-                  "status_id" : "closed",
-                  "limit" : 10,
-                  "key" : settings.REDMINE_API_KEY}
-
-        data = urllib.parse.urlencode(values)
-        url_to_send = "http://yeti.albascout.ro/redmine/issues.json" + "?" + data + "&sort=updated_on:desc"
-        logger.debug(url_to_send)
-
-        json_object = None
-        try:
-            response = urllib.request.urlopen(url_to_send)
-            json_object = json.loads(response.read())
-        except Exception as e:
-            logger.error("%s: eroare la obtinerea bug-urilor: %s" % (self.__class__.__name__, e))
-
-        if json_object:
-            for issue in json_object["issues"]:
-                issue["updated_on"] = datetime.datetime.strptime(issue["updated_on"], "%Y-%m-%dT%H:%M:%SZ")
-
-            context_data.update({"issues" : json_object})
-        return context_data
-    
-class Issues(TemplateView):
-    template_name = "issues.html"    
-    
-    def dispatch(self, request, *args, **kwargs):
-        self.status = "closed"
-        if "status" in request.GET and request.GET['status'] in ("*", "open", "closed"):
-            self.status = request.GET['status']
-            
-        self.tracker = None
-        if "tracker" in request.GET and request.GET['tracker'] in ("1", "2"):
-            self.tracker = request.GET['tracker']
-        
-        return TemplateView.dispatch(self, request, *args, **kwargs)
-    
-    def get_context_data(self, **kwargs):
-        context_data = super(Issues, self).get_context_data(**kwargs)
-        
-        values = {"project_id" : 1,
-                  "status_id" : self.status,
-                  "limit" : 50,
-                  "key" : settings.REDMINE_API_KEY}
-        
-        if self.tracker:
-            values.update({"tracker_id" : self.tracker})
-        
-        data = urllib.parse.urlencode(values)
-        url_to_send = "http://yeti.albascout.ro/redmine/issues.json" + "?" + data + "&sort=updated_on:desc"
-        logger.debug(url_to_send)
-        try:
-            response = urllib.request.urlopen(url_to_send)
-            json_object = json.loads(response.read())
-        except Exception as e:
-            logger.error("%s: eroare la obtinerea bug-urilor: %s" % (self.__class__.__name__, e))
-        
-        
-        for issue in json_object["issues"]:
-            issue["updated_on"] = datetime.datetime.strptime(issue["updated_on"], "%Y-%m-%dT%H:%M:%SZ")
-        
-        context_data.update({"issues" : json_object})
-        return context_data
-
-class CreateIssue(FormView):
-    form_class = IssueCreateForm
-    template_name = "generic/issue_create_form.html"
-    
-    def dispatch(self, request, *args, **kwargs):
-        return super(CreateIssue, self).dispatch(request, *args, **kwargs)
-    
-    def form_valid(self, form):
-        # titlu, aplicatie, descriere, user
-        post_data = {"issue" : { "project_id" : 1, 
-                     "subject" : form.cleaned_data['subject'], 
-                     "status_id" : 1, 
-                     "tracker_id" : 3 }}
-        
-        if form.cleaned_data['category']:
-            post_data["issue"]["category_id"] = form.cleaned_data['category']
-            
-        if form.cleaned_data['description']:
-            post_data["issue"]["description"] =  form.cleaned_data['description']
-        else:
-            post_data['issue']['description'] = ""
-            
-        if self.request.user.is_authenticated:
-            post_data["issue"]["description"] = "(%s) %s" % (self.request.user.username, post_data['issue']['description'])
-        
-        data = json.dumps(post_data)
-        logger.debug("%s: %s" % (self.__class__.__name__, data))
-        
-        url_to_send = 'http://yeti.albascout.ro/redmine/issues.json?key=%s' % settings.REDMINE_API_KEY
-        try:
-            req = urllib.request.Request(url_to_send, data, {'Content-Type': 'application/json'})
-            f = urllib.request.urlopen(req)
-            #response = f.read()
-            f.close()
-        except Exception as e:
-            logger.error("%s: eroare la adaugarea unui bug nou: %s : %s" % (self.__class__.__name__, e, traceback.format_exc()))
-        
-        messages.success(self.request, u"Problema a fost înregistrată, și va apărea în această pagină când va fi preluată pentru rezolvare")
-        return HttpResponseRedirect(self.get_success_url())
-    
-    def get_success_url(self):
-        return reverse("issues")
-
 
 class ScoutFileAjaxException(Exception):
     def __init__(self, *args, **kwargs):
