@@ -7,6 +7,6 @@ from redirects.models import PhysicalTag
 @admin.register(PhysicalTag)
 class PhysicalTagAdmin(admin.ModelAdmin):
     list_display = ["token", "ref", "to_url", "hit_count", "tag_type", "url"]
-    search_Fields = ["token"]
+    search_fields = ["token"]
 
 
