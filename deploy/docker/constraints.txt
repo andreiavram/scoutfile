@@ -1,0 +1,7 @@
+# Image-only pins for packages deploy/requirements.txt leaves floating, where today's release
+# no longer works with the pinned set.
+# The latest kombu refuses redis==3.5.3 ("Redis transport requires redis-py versions 6.1.0 or
+# later"); 5.2.4 is the last of the line celery 5.2.7 shipped with.
+kombu==5.2.4
+# gunicorn 20.1.0 imports pkg_resources, which setuptools 81 removed.
+setuptools<81
